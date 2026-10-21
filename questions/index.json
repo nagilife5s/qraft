@@ -1,3 +1,16 @@
 [
-  { "file": "sample-science.json", "title": "サンプル（理科・動作確認用）", "grade": 0, "unit": "サンプル", "count": 8 }
+  {
+    "file": "chu1-mono.json",
+    "title": "中1 身のまわりの物質",
+    "grade": 1,
+    "unit": "身のまわりの物質",
+    "count": 20
+  },
+  {
+    "file": "sample-science.json",
+    "title": "サンプル（理科・動作確認用）",
+    "grade": 0,
+    "unit": "サンプル",
+    "count": 8
+  }
 ]
