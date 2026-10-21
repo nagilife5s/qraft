@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Qraft</title>
+<style>
+  :root { --bg:#f6f4ee; --ink:#1d1d1f; --mute:#6b6b70; --card:#fff; --line:#dcd8cc; --accent:#1268c3; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+         font-family:-apple-system,"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; line-height:1.6; }
+  main { max-width: 640px; margin: 0 auto; padding: 18px 16px 60px; }
+  h1 { font-size:1.6rem; margin:.2em 0 .6em; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:18px 18px; margin-bottom:14px; }
+  label { display:block; font-weight:700; margin:.9em 0 .3em; }
+  input { width:100%; font-size:1.3rem; padding:.55em .7em; border:1px solid var(--line); border-radius:10px; }
+  button.main { width:100%; font-size:1.2rem; padding:.8em; margin-top:1em; border:0; border-radius:12px; background:var(--accent); color:#fff; font-weight:700; cursor:pointer; }
+  button.main:disabled { opacity:.5; }
+  .hide { display:none !important; }
+  .err { color:#b3261e; font-weight:700; margin-top:.8em; }
+  .mute { color:var(--mute); }
+  .center { text-align:center; }
+  .big { font-size:2rem; font-weight:800; }
+  .top { display:flex; justify-content:space-between; color:var(--mute); font-weight:700; margin-bottom:8px; }
+  .bar { height:12px; background:#e6e2d6; border-radius:6px; overflow:hidden; margin:4px 0 12px; }
+  .bar > i { display:block; height:100%; width:100%; background:var(--accent); }
+  .qtext { font-size:1.35rem; font-weight:800; margin:.2em 0 .6em; }
+  .qimg { max-width:100%; max-height:30vh; display:block; margin:0 auto 12px; border-radius:10px; }
+  .choices { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .ch { border:0; color:#fff; border-radius:12px; padding:16px 10px; min-height:5.2em; font-size:1.1rem; font-weight:800;
+        display:flex; gap:.5em; align-items:center; justify-content:center; text-align:center; cursor:pointer; }
+  .ch:disabled { opacity:.35; cursor:default; }
+  .ch.picked { opacity:1; outline:5px solid #1d1d1f; }
+  .ok { color:#1f7a3a; } .ng { color:#b3261e; }
+  ol.rank { list-style:none; padding:0; margin:.4em 0 0; }
+  ol.rank li { display:flex; gap:.8em; font-size:1.2rem; font-weight:700; padding:.25em 0; }
+  ol.rank .no { width:2.2em; color:var(--mute); }
+  ol.rank .pt { margin-left:auto; font-variant-numeric:tabular-nums; }
+  ol.rank li.me { background:#fff3cd; border-radius:6px; padding-left:.4em; padding-right:.4em; }
+</style>
+</head>
+<body>
+<main>
+
+<section id="joinBox" class="card">
+  <h1>Qraft に参加</h1>
+  <label for="pin">PIN（先生の画面に出ている6けた）</label>
+  <input id="pin" inputmode="numeric" autocomplete="off" maxlength="6" placeholder="123456">
+  <label for="nick">ニックネーム</label>
+  <input id="nick" autocomplete="off" maxlength="20" placeholder="なまえ">
+  <button id="btnJoin" class="main">参加する</button>
+  <div id="joinErr" class="err hide"></div>
+</section>
+
+<section id="screen" class="hide">
+  <div class="top"><span id="me"></span><span id="myScore"></span></div>
+  <div id="content"></div>
+</section>
+
+</main>
+
+<script src="firebase-config.js"></script>
+<script type="module">
+import { signIn, db, ref, set, get, onValue, serverTimestamp, serverNow, CHOICE_STYLE } from './lib.js';
+
+var $ = function (id) { return document.getElementById(id); };
+function show(id, on) { $(id).classList.toggle('hide', !on); }
+function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+
+var uid = null, pin = null, nick = '';
+var state = null, scores = {}, kicked = false, closed = false;
+var answeredQ = -1, pickedIdx = -1, lastKey = '', timerId = null, unsubs = [];
+
+/* ---------------------------------------------------------------- 起動と参加 */
+(async function boot() {
+  try { uid = (await signIn()).uid; }
+  catch (e) { joinErr(e.message); $('btnJoin').disabled = true; return; }
+
+  var saved = null;
+  try { saved = JSON.parse(localStorage.getItem('qraft.player') || 'null'); } catch (e) {}
+  if (saved) { $('pin').value = saved.pin; $('nick').value = saved.nick; }
+  /* 画面を更新しても、同じ人として自動で戻る */
+  if (saved && saved.pin && saved.nick) join(saved.pin, saved.nick, true);
+})();
+
+function joinErr(msg) { $('joinErr').textContent = msg; show('joinErr', true); }
+
+$('btnJoin').onclick = function () { join($('pin').value.trim(), $('nick').value.trim(), false); };
+
+async function join(p, n, silent) {
+  show('joinErr', false);
+  if (!/^\d{6}$/.test(p)) { if (!silent) joinErr('PINは6けたの数字です'); return; }
+  if (!n) { if (!silent) joinErr('ニックネームを入れてください'); return; }
+  $('btnJoin').disabled = true;
+  try {
+    if (!(await get(ref(db, 'rooms/' + p + '/hostUid'))).exists()) {
+      try { localStorage.removeItem('qraft.player'); } catch (e) {}
+      throw new Error(silent ? '' : 'その PIN の部屋が見つかりません。');
+    }
+    if ((await get(ref(db, 'rooms/' + p + '/kicked/' + uid))).exists()) {
+      kicked = true;
+    } else {
+      await set(ref(db, 'rooms/' + p + '/players/' + uid), { nick: n });
+    }
+    pin = p; nick = n;
+    try { localStorage.setItem('qraft.player', JSON.stringify({ pin: p, nick: n })); } catch (e) {}
+    start();
+  } catch (e) {
+    if (e.message) joinErr(e.message);
+    $('btnJoin').disabled = false;
+  }
+}
+
+function start() {
+  show('joinBox', false); show('screen', true);
+  $('me').textContent = nick;
+  unsubs.push(onValue(ref(db, 'rooms/' + pin + '/state'), function (s) {
+    state = s.val();
+    if (!state) { closed = true; clearSaved(); }
+    render();
+  }));
+  unsubs.push(onValue(ref(db, 'rooms/' + pin + '/scores'), function (s) { scores = s.val() || {}; render(); }));
+  unsubs.push(onValue(ref(db, 'rooms/' + pin + '/kicked/' + uid), function (s) { if (s.val()) { kicked = true; clearSaved(); render(); } }));
+  if (!timerId) timerId = setInterval(tick, 100);
+  render();
+}
+
+function clearSaved() { try { localStorage.removeItem('qraft.player'); } catch (e) {} }
+
+/* ---------------------------------------------------------------- 順位 */
+function myRank() {
+  var me = scores[uid];
+  if (!me) return null;
+  var ids = Object.keys(scores);
+  var better = ids.filter(function (id) { return scores[id].total > me.total; }).length;
+  return { rank: better + 1, n: ids.length, total: me.total };
+}
+
+/* ---------------------------------------------------------------- 描画 */
+function render() {
+  var c = $('content');
+  var r = myRank();
+  $('myScore').textContent = r ? r.total + '点' : '';
+
+  if (kicked) { c.textContent = ''; c.appendChild(card(el('div', 'center big', 'この部屋から退出になりました'))); stopTimer(); return; }
+  if (closed) { c.textContent = ''; c.appendChild(card(el('div', 'center big', 'ゲームは終了しました'))); stopTimer(); return; }
+  if (!state) return;
+
+  var key = state.phase + ':' + state.i;
+  if (state.phase === 'question') {
+    if (key === lastKey) return;             /* 問題中は作り直さない（押した状態が消えるため） */
+    lastKey = key;
+    drawQuestion(c);
+    return;
+  }
+  lastKey = key;
+  c.textContent = '';
+
+  if (state.phase === 'lobby') {
+    var b = el('div', 'center');
+    b.appendChild(el('div', 'big', '参加できました！'));
+    b.appendChild(el('p', 'mute', '先生がゲームを始めるのを待っています。'));
+    c.appendChild(card(b));
+  } else if (state.phase === 'result') {
+    drawResult(c, r);
+  } else if (state.phase === 'ranking') {
+    var k = card(el('div', 'mute', '上位5位（' + (state.i + 1) + ' / ' + state.n + '問終了時点）'));
+    k.appendChild(rankList(state.top));
+    if (r) k.appendChild(el('p', 'center', 'あなたは ' + r.rank + '位 / ' + r.n + '人（' + r.total + '点）'));
+    c.appendChild(k);
+  } else if (state.phase === 'end') {
+    var f = card(el('div', 'big center', 'ゲーム終了！'));
+    f.appendChild(rankList(state.top));
+    if (r) f.appendChild(el('p', 'center big', 'あなたは ' + r.rank + '位 / ' + r.n + '人'));
+    c.appendChild(f);
+  }
+}
+
+function card(child) { var d = el('div', 'card'); d.appendChild(child); return d; }
+
+function rankList(top) {
+  var ol = el('ol', 'rank');
+  (top || []).forEach(function (t, i) {
+    var li = el('li', t.nick === nick ? 'me' : '');
+    li.appendChild(el('span', 'no', (i + 1) + '位'));
+    li.appendChild(el('span', '', t.nick));
+    li.appendChild(el('span', 'pt', t.total + '点'));
+    ol.appendChild(li);
+  });
+  return ol;
+}
+
+function drawQuestion(c) {
+  c.textContent = '';
+  var d = el('div', 'card');
+  var top = el('div', 'top');
+  top.appendChild(el('span', '', '問題 ' + (state.i + 1) + ' / ' + state.n));
+  top.appendChild(el('span', '', '')); top.lastChild.id = 'sec';
+  d.appendChild(top);
+  var bar = el('div', 'bar'); var fill = el('i'); fill.id = 'fill'; bar.appendChild(fill); d.appendChild(bar);
+  d.appendChild(el('div', 'qtext', state.text));
+  if (state.image) { var im = el('img', 'qimg'); im.src = state.image; im.alt = ''; d.appendChild(im); }
+  var g = el('div', 'choices'); g.id = 'choices';
+  state.choices.forEach(function (t, idx) {
+    var b = el('button', 'ch');
+    b.style.background = CHOICE_STYLE[idx].color;
+    b.appendChild(el('span', '', CHOICE_STYLE[idx].shape));
+    b.appendChild(el('span', '', t));
+    b.onclick = function () { answer(idx); };
+    g.appendChild(b);
+  });
+  d.appendChild(g);
+  var st = el('div', 'center mute'); st.id = 'ansState'; st.style.marginTop = '12px';
+  d.appendChild(st);
+  c.appendChild(d);
+}
+
+function drawResult(c, r) {
+  var me = scores[uid];
+  var d = el('div', 'card center');
+  if (me && me.qi === state.i) {
+    if (me.ok) { d.appendChild(el('div', 'big ok', '正解！ +' + me.last + '点')); }
+    else if (me.c >= 0) { d.appendChild(el('div', 'big ng', '残念…')); }
+    else { d.appendChild(el('div', 'big ng', '時間切れ')); }
+  } else {
+    d.appendChild(el('div', 'big', '集計中…'));
+  }
+  d.appendChild(el('p', 'mute', '正解: ' + CHOICE_STYLE[state.correct].shape + ' ' + state.choices[state.correct]));
+  if (r) d.appendChild(el('p', '', '今は ' + r.rank + '位 / ' + r.n + '人（' + r.total + '点）'));
+  c.appendChild(d);
+}
+
+/* ---------------------------------------------------------------- 回答 */
+async function answer(idx) {
+  if (!state || state.phase !== 'question' || answeredQ === state.i) return;
+  var q = state.i;
+  answeredQ = q; pickedIdx = idx;
+  markPicked();
+  try {
+    await set(ref(db, 'rooms/' + pin + '/answers/' + q + '/' + uid), { c: idx, t: serverTimestamp() });
+    var s = $('ansState'); if (s) s.textContent = '回答しました。結果を待っています…';
+  } catch (e) {
+    answeredQ = -1; pickedIdx = -1;
+    var b = document.querySelectorAll('#choices .ch');
+    b.forEach(function (x) { x.disabled = false; x.classList.remove('picked'); });
+    var s2 = $('ansState');
+    if (s2) s2.textContent = 'すでに回答済みか、送れませんでした。';
+  }
+}
+
+function markPicked() {
+  document.querySelectorAll('#choices .ch').forEach(function (b, i) {
+    b.disabled = true;
+    if (i === pickedIdx) { b.disabled = false; b.classList.add('picked'); b.style.pointerEvents = 'none'; }
+  });
+}
+
+/* 残り時間の表示（サーバー時刻で計算） */
+function tick() {
+  if (!state || state.phase !== 'question' || !state.t) return;
+  var limitMs = state.limit * 1000;
+  var left = Math.max(0, limitMs - (serverNow() - state.t));
+  var f = $('fill'), s = $('sec');
+  if (f) f.style.width = (left / limitMs * 100) + '%';
+  if (s) s.textContent = Math.ceil(left / 1000) + ' 秒';
+  if (left <= 0) {
+    document.querySelectorAll('#choices .ch').forEach(function (b, i) { if (i !== pickedIdx) b.disabled = true; });
+    var st = $('ansState');
+    if (st && answeredQ !== state.i) st.textContent = '時間切れです';
+  }
+}
+function stopTimer() { if (timerId) { clearInterval(timerId); timerId = null; } }
+</script>
+</body>
+</html>

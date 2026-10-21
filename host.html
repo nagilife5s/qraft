@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Qraft 先生用</title>
+<style>
+  :root { --bg:#f6f4ee; --ink:#1d1d1f; --mute:#6b6b70; --card:#fff; --line:#dcd8cc; --accent:#1268c3; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+         font-family:-apple-system,"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; line-height:1.6; }
+  main { max-width: 1100px; margin: 0 auto; padding: 24px 20px 60px; }
+  h1 { font-size: 1.5rem; margin: 0 0 .6em; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:20px 22px; margin-bottom:18px; }
+  label { display:block; font-weight:600; margin:.9em 0 .25em; }
+  select, input[type=number] { font-size:1.05rem; padding:.45em .6em; border:1px solid var(--line); border-radius:8px; }
+  button { font-size:1.05rem; padding:.65em 1.4em; border:0; border-radius:10px; background:var(--accent); color:#fff; cursor:pointer; font-weight:600; }
+  button.sub { background:#fff; color:var(--ink); border:1px solid var(--line); }
+  button.warn { background:#b3261e; }
+  button:disabled { opacity:.45; cursor:default; }
+  .row { display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
+  .hide { display:none !important; }
+  .err { color:#b3261e; font-weight:600; margin-top:.8em; }
+
+  .pin { font-size: clamp(3rem, 12vw, 7rem); font-weight:800; letter-spacing:.12em; line-height:1.1; }
+  .url { font-size: clamp(1.1rem, 3vw, 1.8rem); font-weight:700; color:var(--accent); word-break:break-all; }
+  .players { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+  .chip { background:#eef3fb; border:1px solid #c9d9f0; border-radius:999px; padding:.3em .5em .3em .9em; display:inline-flex; gap:.4em; align-items:center; }
+  .chip button { padding:.1em .55em; font-size:.85rem; background:#fff; color:#b3261e; border:1px solid #e3b5b1; border-radius:999px; }
+
+  .qhead { display:flex; justify-content:space-between; align-items:baseline; color:var(--mute); font-weight:600; }
+  .qtext { font-size: clamp(1.6rem, 4.2vw, 3rem); font-weight:800; margin:.3em 0 .5em; line-height:1.35; }
+  .qimg { max-width:100%; max-height:34vh; display:block; margin:0 auto 14px; border-radius:10px; }
+  .bar { height:14px; background:#e6e2d6; border-radius:7px; overflow:hidden; margin:6px 0 14px; }
+  .bar > i { display:block; height:100%; width:100%; background:var(--accent); }
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .ch { color:#fff; border-radius:12px; padding:18px 20px; font-size: clamp(1.1rem, 2.6vw, 1.9rem); font-weight:700; display:flex; gap:.6em; align-items:center; position:relative; min-height:4.2em; overflow:hidden; }
+  .ch.dim { opacity:.28; }
+  .ch .cnt { margin-left:auto; font-size:1.4em; font-weight:800; }
+  .ch .fill { position:absolute; left:0; bottom:0; height:6px; background:rgba(255,255,255,.7); }
+  .ok-mark { background:#fff; color:#1d1d1f; border-radius:999px; padding:0 .6em; font-size:.8em; }
+  .rank li { font-size: clamp(1.2rem, 3vw, 2rem); font-weight:700; padding:.25em 0; display:flex; gap:.8em; }
+  .rank .pt { margin-left:auto; font-variant-numeric:tabular-nums; }
+  .rank ol { padding-left:0; list-style:none; margin:0; }
+  .rank .no { width:2em; color:var(--mute); }
+  .badge { background:#fff3cd; border:1px solid #ecd58a; padding:.3em .8em; border-radius:8px; font-weight:700; }
+  .mute { color:var(--mute); }
+  @media (max-width:640px){ .grid{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+<main>
+
+<!-- ① 準備 -->
+<section id="setup" class="card">
+  <h1>Qraft（先生用）</h1>
+  <label for="setSel">問題セット</label>
+  <select id="setSel"></select>
+  <div class="row">
+    <div><label for="count">出題数</label><input id="count" type="number" min="1" value="8" style="width:6em"></div>
+    <div><label for="limitSel">1問の制限時間</label>
+      <select id="limitSel"><option>10</option><option selected>20</option><option>30</option><option>45</option><option>60</option></select> 秒</div>
+  </div>
+  <label><input id="shuf" type="checkbox" checked> 選択肢の順番をシャッフルする</label>
+  <p><button id="btnCreate">ルームを作る</button></p>
+  <div id="setupErr" class="err hide"></div>
+</section>
+
+<!-- ② 待機室 -->
+<section id="lobby" class="card hide">
+  <div class="mute">生徒は次のアドレスを開いて、PINを入力します</div>
+  <div class="url" id="joinUrl"></div>
+  <div class="mute" style="margin-top:.6em">PIN</div>
+  <div class="pin" id="pin">------</div>
+  <div class="row" style="margin-top:10px">
+    <button id="btnStart" disabled>ゲームを始める</button>
+    <span id="playerCount" class="mute"></span>
+  </div>
+  <div class="players" id="players"></div>
+</section>
+
+<!-- ③ ゲーム中 -->
+<section id="game" class="hide">
+  <div class="card">
+    <div class="qhead"><span id="qno"></span><span id="timer"></span></div>
+    <div class="bar"><i id="barFill"></i></div>
+    <div class="qtext" id="qtext"></div>
+    <img id="qimg" class="qimg hide" alt="">
+    <div class="grid" id="choices"></div>
+    <div class="mute" id="meta" style="margin-top:12px"></div>
+  </div>
+  <div class="card rank hide" id="rankCard">
+    <div class="qhead"><span id="rankTitle">ランキング</span></div>
+    <ol id="rankList"></ol>
+  </div>
+  <div class="row">
+    <button id="btnPause" class="sub">一時停止</button>
+    <button id="btnNext" class="sub">次へ（待ちをスキップ）</button>
+    <button id="btnEnd" class="warn">ゲームを終了</button>
+    <span id="pauseNote" class="badge hide">一時停止中（結果・ランキング画面で止まります）</span>
+  </div>
+</section>
+
+<!-- ④ 終了 -->
+<section id="finish" class="card hide">
+  <h1>ゲーム終了</h1>
+  <div class="rank"><ol id="finalList"></ol></div>
+  <p><button id="btnClose" class="warn">ルームを閉じる</button>
+     <span class="mute">（閉じると生徒の画面にも終了が表示されます）</span></p>
+</section>
+
+</main>
+
+<script src="firebase-config.js"></script>
+<script type="module">
+import { signIn, db, ref, set, get, update, remove, onValue, serverTimestamp, serverNow,
+         calcScore, CHOICE_STYLE, RESULT_SEC, RANK_SEC, sleep, shuffle } from './lib.js';
+
+var $ = function (id) { return document.getElementById(id); };
+function show(id, on) { $(id).classList.toggle('hide', !on); }
+
+var uid = null, pin = null;
+var game = [];            /* [{text, image, choices[], correct}] */
+var limit = 20;           /* 秒 */
+var players = {};         /* uid -> {nick} */
+var scores = {};          /* uid -> {nick,total,last,ok,qi} */
+var answers = {};         /* 現在の問題の回答 uid -> {c,t} */
+var unsubAnswers = null;
+var paused = false, skip = false, ended = false, started = false;
+var tStart = 0;
+
+/* ---------------------------------------------------------------- 準備 */
+(async function init() {
+  try {
+    uid = (await signIn()).uid;
+    var idx = await (await fetch('questions/index.json')).json();
+    var sel = $('setSel');
+    idx.forEach(function (s) {
+      var o = document.createElement('option');
+      o.value = s.file; o.textContent = s.title + '（' + s.count + '問）';
+      o.dataset.count = s.count;
+      sel.appendChild(o);
+    });
+    sel.onchange = function () { $('count').value = sel.selectedOptions[0].dataset.count; };
+    sel.onchange();
+  } catch (e) { setupErr(e.message); $('btnCreate').disabled = true; }
+})();
+
+function setupErr(msg) { $('setupErr').textContent = msg; show('setupErr', true); }
+
+$('btnCreate').onclick = async function () {
+  show('setupErr', false);
+  $('btnCreate').disabled = true;
+  try {
+    var data = await (await fetch('questions/' + $('setSel').value)).json();
+    var qs = shuffle(data.questions.slice());
+    var n = Math.max(1, Math.min(Number($('count').value) || qs.length, qs.length));
+    qs = qs.slice(0, n);
+    limit = Number($('limitSel').value);
+    var doShuffle = $('shuf').checked;
+    game = qs.map(function (q) {
+      var order = q.choices.map(function (_, i) { return i; });
+      if (doShuffle && q.shuffle !== false) shuffle(order);
+      return {
+        text: q.q, image: q.image || null,
+        choices: order.map(function (i) { return q.choices[i]; }),
+        correct: order.indexOf(q.answer)
+      };
+    });
+
+    /* 使われていない PIN を引く */
+    for (var i = 0; i < 20; i++) {
+      pin = String(Math.floor(100000 + Math.random() * 900000));
+      if (!(await get(ref(db, 'rooms/' + pin + '/hostUid'))).exists()) break;
+    }
+    await set(ref(db, 'rooms/' + pin + '/hostUid'), uid);
+    await set(ref(db, 'rooms/' + pin + '/state'), { phase: 'lobby', t: serverTimestamp() });
+
+    onValue(ref(db, 'rooms/' + pin + '/players'), function (s) { players = s.val() || {}; renderLobby(); });
+
+    var base = location.href.replace(/host\.html.*$/, '');
+    $('joinUrl').textContent = base + 'play.html';
+    $('pin').textContent = pin;
+    show('setup', false); show('lobby', true);
+  } catch (e) {
+    setupErr('ルームを作れませんでした: ' + e.message);
+    $('btnCreate').disabled = false;
+  }
+};
+
+function renderLobby() {
+  var ids = Object.keys(players);
+  $('playerCount').textContent = ids.length + '人が参加中';
+  $('btnStart').disabled = ids.length === 0 || started;
+  var box = $('players'); box.textContent = '';
+  ids.forEach(function (id) {
+    var c = document.createElement('span'); c.className = 'chip';
+    var t = document.createElement('span'); t.textContent = players[id].nick;
+    var b = document.createElement('button'); b.textContent = '退出'; b.title = 'この参加者を退出させる';
+    b.onclick = function () { kick(id); };
+    c.appendChild(t); c.appendChild(b); box.appendChild(c);
+  });
+}
+
+async function kick(id) {
+  var u = {}; u['kicked/' + id] = true; u['players/' + id] = null;
+  await update(ref(db, 'rooms/' + pin), u);
+}
+
+/* ---------------------------------------------------------------- ゲーム本体 */
+$('btnStart').onclick = function () {
+  started = true;
+  show('lobby', false); show('game', true);
+  window.addEventListener('beforeunload', function (e) { if (!ended) { e.preventDefault(); e.returnValue = ''; } });
+  runGame();
+};
+
+$('btnPause').onclick = function () {
+  paused = !paused;
+  $('btnPause').textContent = paused ? '再開' : '一時停止';
+  show('pauseNote', paused);
+};
+$('btnNext').onclick = function () { skip = true; };
+$('btnEnd').onclick = function () { if (confirm('ゲームを終了しますか？')) { ended = true; skip = true; } };
+
+async function runGame() {
+  for (var i = 0; i < game.length && !ended; i++) {
+    await askQuestion(i);
+    if (ended) break;
+    await showResult(i);
+    await hold(RESULT_SEC * 1000);
+    if (ended) break;
+    if (i < game.length - 1) {
+      await showRanking(i);
+      await hold(RANK_SEC * 1000);
+    }
+  }
+  await finish();
+}
+
+/* 待つ。一時停止中は時間が進まない。「次へ」で飛ばせる */
+async function hold(ms) {
+  var t = 0;
+  while (t < ms && !ended) {
+    await sleep(100);
+    if (skip) { skip = false; return; }
+    if (!paused) t += 100;
+  }
+}
+
+function activeIds() { return Object.keys(players); }
+
+async function askQuestion(i) {
+  var q = game[i];
+  show('rankCard', false);
+  $('qno').textContent = '問題 ' + (i + 1) + ' / ' + game.length;
+  $('qtext').textContent = q.text;
+  var img = $('qimg');
+  if (q.image) { img.src = q.image; show('qimg', true); } else { show('qimg', false); }
+  renderChoices(q, null);
+
+  answers = {};
+  if (unsubAnswers) unsubAnswers();
+  unsubAnswers = onValue(ref(db, 'rooms/' + pin + '/answers/' + i), function (s) {
+    answers = s.val() || {};
+    var n = activeIds().filter(function (id) { return answers[id]; }).length;
+    $('meta').textContent = '回答 ' + n + ' / ' + activeIds().length + '人';
+  });
+
+  await set(ref(db, 'rooms/' + pin + '/state'), {
+    phase: 'question', i: i, n: game.length, text: q.text, image: q.image,
+    choices: q.choices, limit: limit, t: serverTimestamp()
+  });
+  tStart = (await get(ref(db, 'rooms/' + pin + '/state/t'))).val();
+
+  var limitMs = limit * 1000;
+  while (!ended) {
+    await sleep(100);
+    var el = serverNow() - tStart;
+    var left = Math.max(0, limitMs - el);
+    $('timer').textContent = Math.ceil(left / 1000) + ' 秒';
+    $('barFill').style.width = (left / limitMs * 100) + '%';
+    if (el >= limitMs) break;
+    if (skip) { skip = false; break; }
+    var ids = activeIds();
+    if (ids.length && ids.every(function (id) { return answers[id]; })) { await sleep(800); break; }
+  }
+  $('timer').textContent = '';
+  $('barFill').style.width = '0%';
+}
+
+function renderChoices(q, counts) {
+  var box = $('choices'); box.textContent = '';
+  q.choices.forEach(function (text, idx) {
+    var d = document.createElement('div'); d.className = 'ch';
+    d.style.background = CHOICE_STYLE[idx].color;
+    var s = document.createElement('span'); s.textContent = CHOICE_STYLE[idx].shape;
+    var t = document.createElement('span'); t.textContent = text;
+    d.appendChild(s); d.appendChild(t);
+    if (counts) {
+      if (idx !== q.correct) d.classList.add('dim');
+      else { var m = document.createElement('span'); m.className = 'ok-mark'; m.textContent = '正解'; d.appendChild(m); }
+      var c = document.createElement('span'); c.className = 'cnt'; c.textContent = counts[idx];
+      d.appendChild(c);
+    }
+    box.appendChild(d);
+  });
+}
+
+async function showResult(i) {
+  var q = game[i], limitMs = limit * 1000;
+  var counts = q.choices.map(function () { return 0; });
+  var answered = 0;
+
+  /* 採点。今いる参加者全員を対象にする（未回答は0点） */
+  activeIds().forEach(function (id) {
+    var prev = scores[id] ? scores[id].total : 0;
+    var a = answers[id], pts = 0, ok = false, c = -1;
+    if (a) {
+      answered++; c = a.c;
+      if (a.c >= 0 && a.c < counts.length) counts[a.c]++;
+      var el = a.t - tStart;
+      if (a.c === q.correct && el <= limitMs + 1500) { pts = calcScore(el, limitMs); ok = true; }
+    }
+    scores[id] = { nick: players[id].nick, total: prev + pts, last: pts, ok: ok, qi: i, c: c };
+  });
+  /* 退出した人の得点は残さない */
+  Object.keys(scores).forEach(function (id) { if (!players[id]) delete scores[id]; });
+
+  await set(ref(db, 'rooms/' + pin + '/scores'), scores);
+  await set(ref(db, 'rooms/' + pin + '/state'), {
+    phase: 'result', i: i, n: game.length, text: q.text, image: q.image,
+    choices: q.choices, correct: q.correct, counts: counts, answered: answered, t: serverTimestamp()
+  });
+  renderChoices(q, counts);
+  $('meta').textContent = '回答 ' + answered + ' / ' + activeIds().length + '人';
+}
+
+function topList(n) {
+  return Object.keys(scores).map(function (id) { return { nick: scores[id].nick, total: scores[id].total }; })
+    .sort(function (a, b) { return b.total - a.total; }).slice(0, n);
+}
+
+function drawRank(list, ol) {
+  ol.textContent = '';
+  list.forEach(function (r, idx) {
+    var li = document.createElement('li');
+    var no = document.createElement('span'); no.className = 'no'; no.textContent = (idx + 1) + '位';
+    var nm = document.createElement('span'); nm.textContent = r.nick;
+    var pt = document.createElement('span'); pt.className = 'pt'; pt.textContent = r.total + '点';
+    li.appendChild(no); li.appendChild(nm); li.appendChild(pt); ol.appendChild(li);
+  });
+}
+
+async function showRanking(i) {
+  var top = topList(5);
+  await set(ref(db, 'rooms/' + pin + '/state'), { phase: 'ranking', i: i, n: game.length, top: top, t: serverTimestamp() });
+  $('rankTitle').textContent = '上位5位（' + (i + 1) + '問終了時点）';
+  drawRank(top, $('rankList'));
+  show('rankCard', true);
+}
+
+async function finish() {
+  ended = true;
+  if (unsubAnswers) { unsubAnswers(); unsubAnswers = null; }
+  var top = topList(5);
+  await set(ref(db, 'rooms/' + pin + '/state'), { phase: 'end', n: game.length, top: top, t: serverTimestamp() });
+  show('game', false); show('finish', true);
+  drawRank(top, $('finalList'));
+}
+
+$('btnClose').onclick = async function () {
+  await remove(ref(db, 'rooms/' + pin));
+  location.reload();
+};
+</script>
+</body>
+</html>
