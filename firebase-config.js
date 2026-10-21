@@ -3,7 +3,7 @@
  *
  * ★この値は「秘密のパスワード」ではない（Webアプリの設定は画面から誰でも読める）。
  *   守るのは Realtime Database の「ルール」の役目。
- * ★今回使う Realtime Database は、認証を使わない限り apiKey を見ない。
+ * ★匿名ログイン（Authentication）を使うので、apiKey は正確である必要がある。
  *   接続先を決めるのは databaseURL。
  */
 window.QRAFT_FIREBASE = {
