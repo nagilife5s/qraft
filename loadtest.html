@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>Qraft 負荷検証（Firebase版）</title>
+<style>
+  body { font-family: -apple-system, "Hiragino Kaku Gothic ProN", sans-serif;
+         max-width: 52em; margin: 2em auto; padding: 0 1em; line-height: 1.7; color: #222; }
+  input { font-size: 1em; padding: .4em; }
+  button { font-size: 1em; padding: .6em 1.4em; cursor: pointer; margin-right: .6em; }
+  table { border-collapse: collapse; margin-top: 1.2em; width: 100%; }
+  td, th { border: 1px solid #ccc; padding: .4em .7em; text-align: right; font-variant-numeric: tabular-nums; }
+  th { background: #f4f4f4; text-align: center; }
+  td.l { text-align: left; }
+  .bad { background: #fde8e6; font-weight: 700; }
+  .good { background: #e9f6ec; }
+  .note { background: #f6f6f6; padding: 1em 1.2em; border-radius: .4em; font-size: .92em; }
+  h2 { margin-top: 1.8em; font-size: 1.15em; }
+</style>
+</head>
+<body>
+
+<h1>Qraft 負荷検証（Firebase版）</h1>
+
+<p class="note">
+生徒役の仮想クライアントを N 人ぶん作り、Firebase Realtime Database につないで
+<b>「先生が問題を切り替えてから全員の画面に届くまでの時間」</b>と
+<b>「回答を送って確認が返るまでの時間」</b>を測ります。
+仮想クライアントは1つずつ別の接続を張るので、同時接続数もそのまま再現されます。<br>
+判定の目安は「届くまでの95%点が1秒未満、失敗率1%未満」。<br>
+<b>サーバー側の限界を測るためのものです。</b>Chromebook本体や校内Wi‑Fiの影響は、
+最終的に実機で追試してください。
+</p>
+
+<p>
+  仮想クライアント数 <input id="n" type="number" value="40" min="1" max="90" style="width:5em">
+  （無料枠の同時接続は100。90まで）<br>
+  問題を切り替える間隔(秒) <input id="qsec" type="number" value="15" min="5" style="width:5em">
+  測定時間(秒) <input id="sec" type="number" value="180" min="30" step="10" style="width:5em">
+</p>
+<p><button id="btnRun">開始</button><button id="btnStop" disabled>停止</button></p>
+
+<div id="out"></div>
+
+<script src="firebase-config.js"></script>
+<script type="module">
+import { initializeApp, deleteApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, set, onValue, remove, enableLogging, forceWebSockets, forceLongPolling } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+/* 診断用: URLに ?debug=1 でSDKのログ出力、?ws=1 でWebSocket固定、?lp=1 でロングポーリング固定 */
+var qs = new URLSearchParams(location.search);
+if (qs.get('debug')) enableLogging(function (m) { if (/websocket|longpoll|transport|connect/i.test(m)) console.log('[fb]', m); });
+if (qs.get('ws')) forceWebSockets();
+if (qs.get('lp')) forceLongPolling();
+
+var cfg = window.QRAFT_FIREBASE;
+var running = false, apps = [], bots = [], hostDb = null, hostApp = null;
+var timers = [], pin = null, q = 0, t0 = 0, runId = Date.now();
+var stat;
+
+function resetStat() {
+  stat = { join: [], push: [], answer: [], err: { join: 0, push: 0, answer: 0 }, errMsg: {}, connected: 0, answerErrs: [] };
+}
+resetStat();
+
+function withTimeout(p, label) {
+  return Promise.race([
+    p,
+    new Promise(function (_, rej) { setTimeout(function () { rej(new Error('timeout')); }, 10000); })
+  ]);
+}
+
+function pct(arr, p) {
+  if (!arr.length) return null;
+  var s = arr.slice().sort(function (a, b) { return a - b; });
+  return s[Math.min(s.length - 1, Math.floor(s.length * p))];
+}
+function avg(arr) { return arr.length ? arr.reduce(function (a, b) { return a + b; }, 0) / arr.length : null; }
+function fmt(x) { return x === null ? '-' : Math.round(x); }
+
+function fail(kind, e) {
+  stat.err[kind]++;
+  var m = (e && e.message) || String(e);
+  stat.errMsg[m] = (stat.errMsg[m] || 0) + 1;
+}
+
+document.getElementById('btnRun').onclick = function () {
+  if (!cfg || cfg.apiKey === 'ここに貼る') { alert('web/firebase-config.js に Firebase の設定を貼ってください'); return; }
+  resetStat(); bots = []; apps = [];
+  running = true; q = 0; runId = Date.now();
+  document.getElementById('btnRun').disabled = true;
+  document.getElementById('btnStop').disabled = false;
+
+  var N = Number(document.getElementById('n').value);
+  var qsec = Number(document.getElementById('qsec').value);
+  var sec = Number(document.getElementById('sec').value);
+  pin = String(Math.floor(100000 + Math.random() * 900000));
+
+  hostApp = initializeApp(cfg, 'host-' + runId);
+  hostDb = getDatabase(hostApp);
+  apps.push(hostApp);
+
+  set(ref(hostDb, 'rooms/' + pin + '/state'), { q: 0, phase: 'lobby', t: Date.now() })
+    .then(function () {
+      for (var i = 0; i < N; i++) {
+        (function (i) { timers.push(setTimeout(function () { if (running) spawn(i); }, i * 50)); })(i);
+      }
+      /* 全員が入る頃に最初の問題を出し、以降は qsec 秒ごとに切り替える */
+      timers.push(setTimeout(advance, N * 50 + 3000));
+      timers.push(setInterval(function () { if (running) advance(); }, qsec * 1000));
+      t0 = Date.now();
+      timers.push(setInterval(render, 1000));
+      timers.push(setTimeout(stop, sec * 1000));
+    })
+    .catch(function (e) {
+      alert('ルーム作成に失敗: ' + e.message + '\n（設定の貼り付けと、データベースのルールを確認してください）');
+      stop();
+    });
+};
+
+document.getElementById('btnStop').onclick = stop;
+
+function advance() {
+  q++;
+  set(ref(hostDb, 'rooms/' + pin + '/state'), { q: q, phase: 'question', t: Date.now() })
+    .catch(function (e) { fail('push', e); });
+}
+
+function spawn(i) {
+  var app = initializeApp(cfg, 'bot' + i + '-' + runId);
+  apps.push(app);
+  var db = getDatabase(app);
+  var pid = 'bot' + i;
+  var b = { pid: pid, lastQ: 0, connected: false, listenAt: Date.now() };
+  bots.push(b);
+
+  onValue(ref(db, '.info/connected'), function (s) {
+    var now = !!s.val();
+    if (now !== b.connected) { stat.connected += now ? 1 : -1; b.connected = now; }
+  });
+
+  var t = performance.now();
+  withTimeout(set(ref(db, 'rooms/' + pin + '/players/' + pid), { nick: pid }))
+    .then(function () { stat.join.push(performance.now() - t); })
+    .catch(function (e) { fail('join', e); });
+
+  onValue(ref(db, 'rooms/' + pin + '/state'), function (s) {
+    var st = s.val();
+    if (!st || st.q === b.lastQ) return;
+    b.lastQ = st.q;
+    /* 参加する前に書かれていた古い値（初回の読み出し）は、遅延として数えない */
+    if (st.q === 0 || st.t < b.listenAt) return;
+    stat.push.push(Date.now() - st.t);           /* 先生が書いてから、この生徒に届くまで */
+    /* 生徒が考える時間 0.5〜4 秒のあとに回答する */
+    timers.push(setTimeout(function () {
+      if (!running) return;
+      var ta = performance.now();
+      withTimeout(set(ref(db, 'rooms/' + pin + '/answers/' + st.q + '/' + pid),
+                      { c: Math.floor(Math.random() * 4), ms: Math.floor(Math.random() * 4000) }))
+        .then(function () { stat.answer.push(performance.now() - ta); })
+        .catch(function (e) { fail('answer', e); stat.answerErrs.push({ bot: pid, q: st.q }); });
+    }, 500 + Math.random() * 3500));
+  }, function (e) { fail('push', e); });
+}
+
+function stop() {
+  running = false;
+  timers.forEach(function (x) { clearTimeout(x); clearInterval(x); });
+  timers = [];
+  document.getElementById('btnRun').disabled = false;
+  document.getElementById('btnStop').disabled = true;
+  document.getElementById('btnRun').disabled = true;
+  render();
+  /* 後片付け: 返事待ちの書き込みが終わるのを12秒待ってから、
+     テスト用ルームを消して接続を全部閉じる（すぐ閉じると、待っていた分が失敗に数えられる） */
+  setTimeout(function () {
+    var done = hostDb && pin ? remove(ref(hostDb, 'rooms/' + pin)).catch(function () {}) : Promise.resolve();
+    done.then(function () {
+      apps.forEach(function (a) { try { deleteApp(a); } catch (e) {} });
+      apps = [];
+      document.getElementById('btnRun').disabled = false;
+      render();
+    });
+  }, 12000);
+}
+
+function row(label, arr, errs) {
+  var tot = arr.length + errs;
+  var rate = tot ? errs / tot * 100 : 0;
+  var cls = tot === 0 ? '' : (rate >= 1 ? 'bad' : 'good');
+  return '<tr><td class="l">' + label + '</td><td>' + tot + '</td><td>' + arr.length + '</td><td>' + errs +
+    '</td><td class="' + cls + '">' + rate.toFixed(2) + '%</td><td>' + fmt(avg(arr)) +
+    '</td><td>' + fmt(pct(arr, 0.95)) + '</td><td>' + fmt(arr.length ? Math.max.apply(null, arr) : null) + '</td></tr>';
+}
+
+function render() {
+  var secs = t0 ? Math.round((Date.now() - t0) / 1000) : 0;
+  var errList = Object.keys(stat.errMsg).map(function (k) { return '<li>' + k + ' × ' + stat.errMsg[k] + '</li>'; }).join('');
+  document.getElementById('out').innerHTML =
+    '<h2>' + (running ? '測定中' : '停止') + ' — PIN ' + (pin || '-') + ' ／ 経過 ' + secs +
+      '秒 ／ 問題 ' + q + '問目 ／ 接続中 ' + stat.connected + '人</h2>' +
+    '<table><tr><th>項目</th><th>総数</th><th>成功</th><th>失敗</th><th>失敗率</th>' +
+    '<th>平均ms</th><th>95%点ms</th><th>最大ms</th></tr>' +
+    row('join（参加の書き込み）', stat.join, stat.err.join) +
+    row('push（問題が全員に届くまで）', stat.push, stat.err.push) +
+    row('answer（回答の書き込み確認）', stat.answer, stat.err.answer) +
+    '</table>' +
+    (errList ? '<h2>エラー内訳</h2><ul>' + errList + '</ul>' + answerErrDetail() : '') +
+    '<h2>判定</h2><p>' + verdict() + '</p>';
+}
+
+function answerErrDetail() {
+  var errs = stat.answerErrs;
+  if (!errs.length) return '';
+  var bots = {}, byQ = {};
+  errs.forEach(function (e) { bots[e.bot] = (bots[e.bot] || 0) + 1; byQ[e.q] = (byQ[e.q] || 0) + 1; });
+  var botList = Object.keys(bots).sort(function (a, b) { return bots[b] - bots[a]; });
+  var qList = Object.keys(byQ).sort(function (a, b) { return Number(a) - Number(b); });
+  return '<p>回答の失敗の内訳。<b>失敗したクライアント: ' + botList.length + '人</b>（多い順: ' +
+    botList.slice(0, 8).map(function (b) { return b + '×' + bots[b]; }).join('、') + '）</p>' +
+    '<p>問題ごとの失敗数: ' + qList.map(function (q) { return q + '問目=' + byQ[q]; }).join('、') + '</p>';
+}
+
+function verdict() {
+  var n = stat.push.length;
+  if (n < 10) return '未測定（データが足りません）。';
+  var p95 = pct(stat.push, 0.95);
+  var errs = stat.err.join + stat.err.push + stat.err.answer;
+  var tot = errs + stat.join.length + n + stat.answer.length;
+  var rate = errs / tot * 100;
+  if (rate >= 1) return '<b>不合格</b>: 失敗率が ' + rate.toFixed(2) + '% あります。エラー内訳を見せてください。';
+  if (p95 >= 3000) return '<b>不合格</b>: 問題が全員に届くまでの95%点が ' + Math.round(p95) + 'ms です。授業では待たされます。';
+  if (p95 >= 1000) return '<b>要注意</b>: 失敗はありませんが、届くまでの95%点が ' + Math.round(p95) + 'ms です。使えなくはないが、もたつきます。';
+  return '<b>合格圏</b>: 失敗率 ' + rate.toFixed(2) + '%、問題が全員に届くまでの95%点 ' + Math.round(p95) +
+    'ms。この条件では足ります。次は実機 Chromebook で追試してください。';
+}
+</script>
+</body>
+</html>
