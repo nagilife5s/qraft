@@ -6,14 +6,23 @@
  * ・スコア式
  */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { initializeAuth, getAuth, signInAnonymously, browserSessionPersistence, indexedDBLocalPersistence }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getDatabase, ref, set, get, update, remove, onValue, serverTimestamp }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 export { ref, set, get, update, remove, onValue, serverTimestamp };
 
 export const app = initializeApp(window.QRAFT_FIREBASE);
-export const auth = getAuth(app);
+/*
+ * 通常はブラウザに匿名ユーザーを保存する（再読み込みしても同じ人として戻れる）。
+ * ただし同じブラウザの複数タブは同じユーザーになるので、1台で複数人ぶんを試すときは
+ * アドレスの末尾に ?sess=1 を付ける。そのタブだけ別のユーザーとして扱う。
+ */
+var useSession = /[?&]sess=1/.test(location.search);
+export const auth = initializeAuth(app, {
+  persistence: useSession ? browserSessionPersistence : indexedDBLocalPersistence
+});
 export const db = getDatabase(app);
 
 /* サーバー時刻 = 端末の時刻 + Firebase が教えてくれるずれ */
