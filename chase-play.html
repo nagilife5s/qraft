@@ -6,7 +6,7 @@
 <title>Qraft ロボットラン</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261022184953">
+<link rel="stylesheet" href="theme.css?v=20261022185650">
 <style>
   .fb { text-align:center; font-weight:900; font-size:1.3em; min-height:1.6em; }
   .fb.ok { color:#8bf0b0; } .fb.ng { color:#ffd23f; }
@@ -25,6 +25,8 @@
       <input class="field" id="pin" inputmode="numeric" autocomplete="off" maxlength="6" placeholder="123456">
       <div class="flabel">ニックネーム</div>
       <input class="field" id="nick" autocomplete="off" maxlength="20" placeholder="なまえ">
+      <div class="flabel">キャラ</div>
+      <div id="avBox"></div>
       <button class="btn" id="btnJoin" style="margin-top:.4em">参加する</button>
       <div id="joinErr" class="err hide"></div>
     </div>
@@ -89,15 +91,15 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261022184953"></script>
+<script src="firebase-config.js?v=20261022185650"></script>
 <script type="module">
-import { signIn, db, ref, set, get, onValue, serverNow, CHOICE_STYLE, shuffle,
-         ROBOT, robotFrac, mountScene, avatarOf, prepareQuestion, maskOf, isTextCorrect,
-         $, el, showScreen, confetti, loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261022184953';
+import { mountAvatarPicker, avatarEl, signIn, db, ref, set, get, onValue, serverNow, CHOICE_STYLE, shuffle,
+         ROBOT, robotFrac, mountScene, prepareQuestion, maskOf, isTextCorrect,
+         $, el, showScreen, confetti, loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261022185650';
 
 mountStage();
 
-var uid = null, pin = null, nick = '';
+var uid = null, pin = null, nick = '', avPick = null;
 var state = null, runs = {}, players = {}, kicked = false, closed = false, BGS = [], bgReady = false;
 var started = false, finished = false, timerId = null, scene = null;
 var k = 0, a = 0, myZ = null, myZt = 0, pool = [], queue = [], run = null, locked = false, selMask = 0;
@@ -108,6 +110,7 @@ var lastLevel = 0, lastFail = 0, lastPhase = '', bannerUntil = 0;
   BGS = await loadBackgrounds(); bgReady = true; applyBg('space', BGS, true);
   showScreen('s-join');
   try { uid = (await signIn()).uid; } catch (e) { joinErr(e.message); $('btnJoin').disabled = true; return; }
+  avPick = mountAvatarPicker($('avBox'), uid);
   var saved = null; try { saved = JSON.parse(localStorage.getItem('qraft.player') || 'null'); } catch (e) {}
   var qp = new URLSearchParams(location.search).get('pin');
   if (saved) { $('pin').value = saved.pin; $('nick').value = saved.nick; }
@@ -130,7 +133,7 @@ async function join(p, n, silent) {
       throw new Error(silent ? '' : 'その PIN の部屋が見つかりません。');
     }
     if ((await get(ref(db, 'rooms/' + p + '/kicked/' + uid))).exists()) kicked = true;
-    else await set(ref(db, 'rooms/' + p + '/players/' + uid), { nick: n });
+    else await set(ref(db, 'rooms/' + p + '/players/' + uid), { nick: n, av: avPick.get() });
     pin = p; nick = n;
     try { localStorage.setItem('qraft.player', JSON.stringify({ pin: p, nick: n })); } catch (e) {}
     start();
@@ -138,7 +141,7 @@ async function join(p, n, silent) {
 }
 
 function start() {
-  $('meNick').textContent = avatarOf(uid) + ' ' + nick;
+  $('meNick').textContent = ''; $('meNick').appendChild(avatarEl(avPick.get(), uid)); $('meNick').appendChild(document.createTextNode(' ' + nick));
   onValue(ref(db, 'rooms/' + pin + '/state'), function (s) {
     state = s.val();
     if (!state) { closed = true; try { localStorage.removeItem('qraft.player'); } catch (e) {} }
@@ -179,7 +182,7 @@ function banner(msg, bad, sec) { var b = $('banner'); b.textContent = msg; b.cla
 function tick() {
   if (finished || !state || state.phase === 'lobby') return;
   var st = state, now = serverNow(), ids = Object.keys(players);
-  scene.setPlayers(ids.map(function (id) { return { uid: id, nick: players[id].nick }; }));
+  scene.setPlayers(ids.map(function (id) { return { uid: id, nick: players[id].nick, av: players[id].av }; }));
   var C = sumK() - (st.base || 0), p = Math.min(1, C / st.target), sec = (now - st.qstart) / 1000;
   $('hLevel').textContent = 'レベル ' + st.level + ' / ' + ROBOT.levels;
   $('hLives').textContent = new Array(st.lives + 1).join('❤️') + new Array(ROBOT.lives - st.lives + 1).join('🖤');

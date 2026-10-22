@@ -6,7 +6,7 @@
 <title>Qraft</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261022184953">
+<link rel="stylesheet" href="theme.css?v=20261022185650">
 </head>
 <body>
 <div id="app">
@@ -20,6 +20,8 @@
       <input class="field" id="pin" inputmode="numeric" autocomplete="off" maxlength="6" placeholder="123456">
       <div class="flabel">ニックネーム</div>
       <input class="field" id="nick" autocomplete="off" maxlength="20" placeholder="なまえ">
+      <div class="flabel">キャラ</div>
+      <div id="avBox"></div>
       <button class="btn" id="btnJoin" style="margin-top:.4em">参加する</button>
       <div id="joinErr" class="err hide"></div>
     </div>
@@ -120,15 +122,15 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261022184953"></script>
+<script src="firebase-config.js?v=20261022185650"></script>
 <script type="module">
-import { signIn, db, ref, set, get, onValue, serverTimestamp, serverNow, CHOICE_STYLE,
+import { mountAvatarPicker, avatarEl, signIn, db, ref, set, get, onValue, serverTimestamp, serverNow, CHOICE_STYLE,
          $, el, fmt, motionOn, showScreen, stopAnim, countUp, confetti, buildRank,
-         loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261022184953';
+         loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261022185650';
 
 mountStage();
 
-var uid = null, pin = null, nick = '';
+var uid = null, pin = null, nick = '', avPick = null;
 var state = null, scores = {}, kicked = false, closed = false;
 var answeredQ = -1, pickedIdx = -1, selMask = 0, lastKey = '', timerId = null, BGS = [], bgReady = false;
 
@@ -136,7 +138,7 @@ var answeredQ = -1, pickedIdx = -1, selMask = 0, lastKey = '', timerId = null, B
 (async function boot() {
   BGS = await loadBackgrounds(); bgReady = true; applyBg('pop', BGS, true);
   showScreen('s-join');
-  try { uid = (await signIn()).uid; }
+  try { uid = (await signIn()).uid; avPick = mountAvatarPicker($('avBox'), uid); }
   catch (e) { joinErr(e.message); $('btnJoin').disabled = true; return; }
 
   var saved = null;
@@ -172,7 +174,7 @@ async function join(p, n, silent) {
     if ((await get(ref(db, 'rooms/' + p + '/kicked/' + uid))).exists()) {
       kicked = true;
     } else {
-      await set(ref(db, 'rooms/' + p + '/players/' + uid), { nick: n });
+      await set(ref(db, 'rooms/' + p + '/players/' + uid), { nick: n, av: avPick.get() });
     }
     pin = p; nick = n;
     try { localStorage.setItem('qraft.player', JSON.stringify({ pin: p, nick: n })); } catch (e) {}

@@ -388,6 +388,50 @@ export function isTextCorrect(input, accept) {
 }
 
 /* ====================================================================
+   アバター（自分のキャラ＋かざり）。端末に覚えさせ、参加するときに players/<uid>.av に入れて全員に見せる。
+   ・文字列は "キャラ番号.かざり番号"（例 "3.2"）。絵は今は絵文字（あとで画像に差し替える）。
+   ==================================================================== */
+export var ACCS = [
+  { e: '', k: '', n: 'なし' }, { e: '🎩', k: 'hat', n: 'シルクハット' }, { e: '👑', k: 'hat', n: 'おうかん' }, { e: '🎀', k: 'hat', n: 'リボン' },
+  { e: '🧢', k: 'hat', n: 'ぼうし' }, { e: '🎓', k: 'hat', n: 'がくしゃぼう' }, { e: '🎅', k: 'hat', n: 'サンタ' }, { e: '🎧', k: 'hat', n: 'ヘッドホン' },
+  { e: '👓', k: 'face', n: 'めがね' }, { e: '🕶️', k: 'face', n: 'サングラス' }, { e: '🥽', k: 'face', n: 'ゴーグル' }, { e: '😷', k: 'face', n: 'マスク' }
+];
+export function parseAv(s, uid) {
+  var m = /^(\d{1,2})\.(\d{1,2})$/.exec(s || '');
+  var c = m ? Number(m[1]) : hashOf(uid || '') % ANIMALS.length, a = m ? Number(m[2]) : 0;
+  return { c: c < ANIMALS.length ? c : 0, a: a < ACCS.length ? a : 0 };
+}
+export function avatarEl(s, uid) {
+  var v = parseAv(s, uid), x = el('span', 'avx'); x.dataset.av = s || '';
+  x.appendChild(document.createTextNode(ANIMALS[v.c]));
+  if (v.a) x.appendChild(el('span', 'acc ' + ACCS[v.a].k, ACCS[v.a].e));
+  return x;
+}
+export function myAvatar() { try { return localStorage.getItem('qraft.avatar') || ''; } catch (e) { return ''; } }
+/* 選ぶ画面。box に「いまのキャラ」と選択肢を作る。選ぶたびに端末へ保存する */
+export function mountAvatarPicker(box, uid) {
+  var cur = parseAv(myAvatar(), uid);
+  box.textContent = '';
+  var head = el('div', 'avhead'), prev = el('div', 'avprev'), lab = el('button', 'linkbtn', 'キャラをかえる');
+  lab.type = 'button'; head.appendChild(prev); head.appendChild(lab);
+  var panel = el('div', 'avpanel hide'), cg = el('div', 'avgrid'), ag = el('div', 'avgrid acc');
+  panel.appendChild(el('div', 'avlab', 'キャラ')); panel.appendChild(cg); panel.appendChild(el('div', 'avlab', 'かざり')); panel.appendChild(ag);
+  box.appendChild(head); box.appendChild(panel);
+  function str() { return cur.c + '.' + cur.a; }
+  function draw() {
+    prev.textContent = ''; prev.appendChild(avatarEl(str(), uid));
+    [].forEach.call(cg.children, function (b, i) { b.classList.toggle('on', i === cur.c); });
+    [].forEach.call(ag.children, function (b, i) { b.classList.toggle('on', i === cur.a); });
+    try { localStorage.setItem('qraft.avatar', str()); } catch (e) {}
+  }
+  ANIMALS.forEach(function (e, i) { var b = el('button', 'avopt', e); b.type = 'button'; b.onclick = function () { cur.c = i; draw(); }; cg.appendChild(b); });
+  ACCS.forEach(function (a, i) { var b = el('button', 'avopt', a.e || '✕'); b.type = 'button'; b.title = a.n; b.onclick = function () { cur.a = i; draw(); }; ag.appendChild(b); });
+  lab.onclick = function () { panel.classList.toggle('hide'); lab.textContent = panel.classList.contains('hide') ? 'キャラをかえる' : 'とじる'; };
+  draw();
+  return { get: str };
+}
+
+/* ====================================================================
    ロボットラン（Kahootの「Robot Run」に合わせた、クラス全員で協力するモード）
    ・全員のキャラが1つの群れになり、1体の巨大ロボットに追われる。
    ・各自のペースで解く。全員の正解数の合計が「チームの進捗」。目標に届けばクリア。
@@ -444,8 +488,13 @@ export function mountScene(box, mini) {
     var keep = {}; list.forEach(function (p) { keep[p.uid] = 1; });
     Object.keys(chars).forEach(function (u) { if (!keep[u]) { chars[u].remove(); delete chars[u]; } });
     list.forEach(function (p) {
-      if (chars[p.uid]) { chars[p.uid].querySelector('.nm').textContent = p.nick; return; }
-      var c = el('div', 'ch'); c.appendChild(el('span', 'av', avatarOf(p.uid))); c.appendChild(el('span', 'nm', p.nick));
+      if (chars[p.uid]) {
+        var cc = chars[p.uid]; cc.querySelector('.nm').textContent = p.nick;
+        var cur = cc.querySelector('.avx');
+        if (cur && cur.dataset.av !== (p.av || '')) cur.replaceWith(avatarEl(p.av, p.uid));
+        return;
+      }
+      var c = el('div', 'ch'); var w = el('span', 'av'); w.appendChild(avatarEl(p.av, p.uid)); c.appendChild(w); c.appendChild(el('span', 'nm', p.nick));
       crowd.appendChild(c); chars[p.uid] = c;
     });
     var n = list.length;

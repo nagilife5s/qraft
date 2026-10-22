@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Qraft ロボットラン（先生）</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
-<link rel="stylesheet" href="theme.css?v=20261022184953">
+<link rel="stylesheet" href="theme.css?v=20261022185650">
 </head>
 <body>
 <div id="app">
@@ -74,13 +74,13 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261022184953"></script>
+<script src="firebase-config.js?v=20261022185650"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script type="module">
 import { signIn, db, ref, set, get, update, remove, onValue, serverNow,
-         ROBOT, robotTarget, robotFrac, zonePlan, zoneEval, mountScene,
+         avatarEl, ROBOT, robotTarget, robotFrac, zonePlan, zoneEval, mountScene,
          $, el, showScreen, confetti, qrSvg,
-         loadBackgrounds, applyBg, buildBgPickers, mountStage } from './lib.js?v=20261022184953';
+         loadBackgrounds, applyBg, buildBgPickers, mountStage } from './lib.js?v=20261022185650';
 
 mountStage();
 
@@ -189,8 +189,8 @@ function renderLobby() {
   $('btnStart').disabled = ids.length === 0 || started;
   var box = $('players');
   ids.forEach(function (id) {
-    if (chipEls[id]) { chipEls[id].firstChild.textContent = players[id].nick; return; }
-    var c = el('span', 'pill extra'); c.appendChild(el('span', '', players[id].nick));
+    if (chipEls[id]) { chipEls[id].children[1].textContent = players[id].nick; return; }
+    var c = el('span', 'pill extra'); c.appendChild(avatarEl(players[id].av, id)); c.appendChild(el('span', '', players[id].nick));
     var b = el('button', 'chip-x', '退出'); b.onclick = function () { var u = {}; u['kicked/' + id] = true; u['players/' + id] = null; u['run/' + id] = null; update(ref(db, 'rooms/' + pin), u); };
     c.appendChild(b); box.appendChild(c); chipEls[id] = c;
   });
@@ -218,7 +218,7 @@ function banner(msg, bad, sec) { var b = $('hBanner'); b.textContent = msg; b.cl
 
 function tick() {
   if (!S || ended) return;
-  var now = serverNow(), ids = Object.keys(players), list = ids.map(function (id) { return { uid: id, nick: players[id].nick }; });
+  var now = serverNow(), ids = Object.keys(players), list = ids.map(function (id) { return { uid: id, nick: players[id].nick, av: players[id].av }; });
   scene.setPlayers(list);
   var K = sumK(), C = K - (S.base || 0), p = Math.min(1, C / S.target), sec = (now - S.qstart) / 1000, frac = robotFrac(Math.max(0, sec), p);
   var choice = {}, caught = S.zres || [];
