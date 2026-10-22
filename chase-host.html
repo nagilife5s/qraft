@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Qraft ロボットラン（先生）</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
-<link rel="stylesheet" href="theme.css?v=20261022201047">
+<link rel="stylesheet" href="theme.css?v=20261022201846">
 </head>
 <body>
 <div id="app">
@@ -57,6 +57,7 @@
     <span class="lives" id="hLives"></span>
   </div>
   <div id="sceneBox" style="flex:1; display:flex; min-height:0"></div>
+  <div id="bombBox" class="hide" style="flex:1; min-height:0; overflow:auto"></div>
   <div class="chase-top"><span class="banner hide" id="hBanner"></span><span class="pill" id="hStat" style="margin-left:auto"></span><button class="btn ghost" id="btnEnd">ゲームを終える</button></div>
 </section>
 
@@ -74,18 +75,20 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261022201047"></script>
+<script src="firebase-config.js?v=20261022201846"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script type="module">
-import { signIn, db, ref, set, get, update, remove, onValue, serverNow,
-         avatarEl, ROBOT, robotTarget, robotFrac, zonePlan, zoneEval, mountScene,
+import { newGame, step, draw as bdraw, serialize, RULE as BRULE, W as BW, H as BH } from './bomb.js?v=20261022201846';
+import { shuffle, signIn, db, ref, set, get, update, remove, onValue, serverNow,
+         avatarEl, ROBOT, robotTarget, robotFrac, mountScene, parseAv,
          $, el, showScreen, confetti, qrSvg,
-         loadBackgrounds, applyBg, buildBgPickers, mountStage } from './lib.js?v=20261022201047';
+         loadBackgrounds, applyBg, buildBgPickers, mountStage } from './lib.js?v=20261022201846';
 
 mountStage();
 
 var uid = null, pin = null, BGS = [], curBg = 'space';
 var SETS = [], picked = {}, gradeSel = 0, unitSel = '';
+var binMap = {}, bgames = [], lastB = {}, bombTimer = null, bombRaf = null, bTotal = {}, bLevel = {};
 var players = {}, runs = {}, S = null, started = false, ended = false, tickId = null, scene = null, bannerUntil = 0;
 var GL = { 0: 'すべて', 1: '1年', 2: '2年', 3: '3年' };
 
@@ -164,6 +167,7 @@ $('btnCreate').onclick = async function () {
     await set(ref(db, 'rooms/' + pin + '/state'), S);
     onValue(ref(db, 'rooms/' + pin + '/players'), function (s) { players = s.val() || {}; renderLobby(); });
     onValue(ref(db, 'rooms/' + pin + '/run'), function (s) { runs = s.val() || {}; });
+    onValue(ref(db, 'rooms/' + pin + '/bin'), function (s) { binMap = s.val() || {}; });
 
     var base = location.href.replace(/chase-host\.html.*$/, ''), host = base.replace(/^https?:\/\//, ''), cut = host.indexOf('/');
     var u = $('joinUrl'); u.textContent = '';
@@ -202,7 +206,7 @@ function sumK() { return Object.keys(runs).reduce(function (a, id) { return a + 
 function save(extra) { Object.assign(S, extra); return update(ref(db, 'rooms/' + pin + '/state'), extra); }
 function levelStart(level) {
   var N = S.N;
-  return { phase: 'quiz', level: level, target: robotTarget(N, level), qstart: serverNow(), base: sumK(), caps: zonePlan(N, level), Tl: ROBOT.Tl, Zt: ROBOT.Zt };
+  return { phase: 'quiz', level: level, target: robotTarget(N, level), qstart: serverNow(), base: sumK(), Tl: ROBOT.Tl };
 }
 
 $('btnStart').onclick = async function () {
@@ -221,9 +225,6 @@ function tick() {
   var now = serverNow(), ids = Object.keys(players), list = ids.map(function (id) { return { uid: id, nick: players[id].nick, av: players[id].av }; });
   scene.setPlayers(list);
   var K = sumK(), C = K - (S.base || 0), p = Math.min(1, C / S.target), sec = (now - S.qstart) / 1000, frac = robotFrac(Math.max(0, sec), p);
-  var choice = {}, caught = S.zres || [];
-  ids.forEach(function (id) { var r = runs[id]; if (r && r.z != null && r.zt >= (S.zstart || 0)) choice[id] = r.z; });
-
   $('hLevel').textContent = 'レベル ' + S.level + ' / ' + ROBOT.levels;
   $('hLives').textContent = new Array(S.lives + 1).join('❤️') + new Array(ROBOT.lives - S.lives + 1).join('🖤');
   if (bannerUntil < Date.now()) $('hBanner').classList.add('hide');
@@ -237,47 +238,99 @@ function tick() {
     scene.draw({ phase: 'quiz', frac: frac, ks: ks });
     if (sec < 3) { if (bannerUntil < Date.now()) banner('レベル ' + S.level + ' スタート！ 問題に答えて ロボットから にげろ！', false, 3); return; }
     if (p >= 1) {
-      banner('クリア！ 安全地帯へ急げ！', false, 3);
-      save({ phase: 'zone', zstart: serverNow(), zres: null });
+      banner('クリア！ ボンバーマンへ！', false, 3);
+      startBomb();
     } else if (frac >= 1 || sec >= S.Tl) {
       var lives = S.lives - 1;
       if (lives <= 0) return finish('lose', lives);
       banner('ロボットにつかまった！ ライフ −1　もう一度！', true, 4);
       save(Object.assign({ lives: lives, fail: (S.fail || 0) + 1 }, levelStart(S.level)));
     }
-  } else if (S.phase === 'zone') {
-    var zl = Math.max(0, S.Zt - (now - S.zstart) / 1000);
-    $('hTime').textContent = '0:' + String(Math.ceil(zl)).padStart(2, '0');
-    $('hFill').style.width = '100%';
-    var chosen = Object.keys(choice).length;
-    $('hStat').textContent = 'ゾーンに入った ' + chosen + ' / ' + ids.length + ' 人';
-    scene.draw({ phase: 'zone', caps: S.caps, choice: choice });
-    if (bannerUntil < Date.now()) banner('安全地帯に入れ！ 定員を超えると つかまる！ 相談しよう', false, 1);
-    if (zl <= 0) {
-      var cg = zoneEval(ids, runs, S.caps, S.zstart), tol = 1 + Math.floor(S.N / 10), lives2 = S.lives - (cg.length >= tol ? 1 : 0);
-      save({ phase: 'zoneres', zres: cg, lives: lives2, zrstart: serverNow() });
-      if (lives2 <= 0) finish('lose', lives2);
-    }
-  } else if (S.phase === 'zoneres') {
-    scene.draw({ phase: 'zoneres', caps: S.caps, choice: choice, caught: S.zres || [] });
-    var nc = (S.zres || []).length, tol2 = 1 + Math.floor(S.N / 10);
-    if (bannerUntil < Date.now()) banner(nc ? nc + '人が つかまった！' + (nc >= tol2 ? ' ライフ −1' : '（セーフ）') : '全員 無事に入れた！', nc >= tol2, 1);
+  } else if (S.phase === 'bombres') {
     $('hTime').textContent = '';
-    if (now - S.zrstart > 5000) {
-      if (S.level >= ROBOT.levels) finish('clear', S.lives); else save(levelStart(S.level + 1));
+    if (now - S.brstart > 6000) {
+      if (S.level >= ROBOT.levels) finish('clear', S.lives); else { showBomb(false); save(levelStart(S.level + 1)); }
     }
   }
+}
+
+/* ------------------------------------------------------------ ボンバーマン（先生の画面が全グループを計算して、盤面を配る） */
+function startBomb() {
+  var ids = shuffle(Object.keys(players)), n = ids.length, gc = Math.max(1, Math.ceil(n / 6)), k = 0, bgrp = {};
+  bgames = []; lastB = {};
+  for (var g = 0; g < gc; g++) {
+    var size = Math.floor(n / gc) + (g < n % gc ? 1 : 0), members = ids.slice(k, k + size); k += size;
+    bgames.push({ g: newGame(size, 5000 + g * 31 + Math.floor(Math.random() * 999)), members: members });
+    members.forEach(function (u, i) { bgrp[u] = g + '.' + i; lastB[u] = (binMap[u] && binMap[u].b) || 0; });
+  }
+  var bd = {}; bgames.forEach(function (bg, gi) { bd[gi] = serialize(bg.g); });
+  var start = serverNow() + 4000;
+  Promise.all([set(ref(db, 'rooms/' + pin + '/bgrp'), bgrp), set(ref(db, 'rooms/' + pin + '/bd'), bd)]).then(function () {
+    save({ phase: 'bomb', bstart: start });
+  });
+  S.phase = 'bomb'; S.bstart = start;                                    /* この間に quiz 判定が再び走らないように、手元はすぐ切り替える */
+  buildBombBoxes(); showBomb(true);
+  clearInterval(bombTimer); bombTimer = setInterval(bombTick, 100);
+  cancelAnimationFrame(bombRaf); (function loop() { bombDraw(); bombRaf = requestAnimationFrame(loop); })();
+}
+var bcanv = [], bcoreEls = [];
+function buildBombBoxes() {
+  var box = $('bombBox'); box.textContent = '';
+  var grid = el('div', 'grid7'); grid.style.cssText = 'display:grid; gap:.6em; grid-template-columns:repeat(' + Math.min(4, Math.max(1, bgames.length)) + ', 1fr); width:100%;';
+  bcanv = []; bcoreEls = [];
+  bgames.forEach(function (bg, gi) {
+    var cell = el('div', 'bcell'); cell.style.cssText = 'background:rgba(0,0,0,.35); border-radius:.6em; padding:.3em; color:#fff; font-weight:800; font-size:.85em;';
+    cell.appendChild(el('div', '', 'グループ ' + (gi + 1)));
+    var fr = el('div', 'bframe mini'); fr.style.display = 'block'; var cv = el('canvas'); cv.width = 300; cv.height = Math.floor(300 / BW * BH); cv.style.cssText = 'width:100%; display:block;'; fr.appendChild(cv); cell.appendChild(fr);
+    var sc = el('div', 'gsc'); sc.style.cssText = 'line-height:1.5; margin-top:.2em;'; cell.appendChild(sc);
+    grid.appendChild(cell); bcanv.push(cv); bcoreEls.push(sc);
+  });
+  box.appendChild(grid);
+}
+function showBomb(on) { $('bombBox').classList.toggle('hide', !on); $('sceneBox').classList.toggle('hide', on); if (!on) { clearInterval(bombTimer); cancelAnimationFrame(bombRaf); } }
+function bombDraw() {
+  bgames.forEach(function (bg, gi) {
+    var chars = [], accs = [];
+    bg.members.forEach(function (u, i) { var v = parseAv(players[u] && players[u].av, u); chars.push(v.c); accs.push(v.a); });
+    bdraw(bcanv[gi].getContext('2d'), bg.g, bcanv[gi].width, { chars: chars, accs: accs, emojis: [] });
+  });
+}
+function bombTick() {
+  if (S.phase !== 'bomb') return;
+  var now = serverNow(), left = (S.bstart - now) / 1000;
+  if (left > 0) { $('hTime').textContent = '開始まで ' + Math.ceil(left); return; }
+  var upd = {}, allOver = true;
+  bgames.forEach(function (bg, gi) {
+    var inputs = bg.members.map(function (u) { var r = binMap[u] || {}, bb = (r.b || 0) > (lastB[u] || 0); lastB[u] = r.b || 0; return { d: r.d || 0, b: bb }; });
+    step(bg.g, inputs); upd[gi] = serialize(bg.g); if (!bg.g.over) allOver = false;
+    bcoreEls[gi].textContent = bg.members.map(function (u, i) { return (players[u] ? players[u].nick : '?') + ' ' + bg.g.players[i].score; }).join(' / ');
+  });
+  update(ref(db, 'rooms/' + pin + '/bd'), upd).catch(function () {});
+  var t = bgames[0] ? bgames[0].g.t : 0, lf = Math.max(0, (BRULE.length - t) / 10);
+  $('hTime').textContent = '0:' + String(Math.ceil(lf)).padStart(2, '0'); $('hStat').textContent = 'ボンバーマン！ 小さいロボットをたおせ';
+  if (allOver) endBomb();
+}
+function endBomb() {
+  clearInterval(bombTimer);
+  bLevel = {}; var rows = [];
+  bgames.forEach(function (bg) { bg.members.forEach(function (u, i) { var sc = bg.g.players[i].score; bLevel[u] = sc; bTotal[u] = (bTotal[u] || 0) + sc; rows.push({ n: players[u] ? players[u].nick : '?', s: sc }); }); });
+  rows.sort(function (a, b) { return b.s - a.s; });
+  update(ref(db, 'rooms/' + pin + '/bscore'), bTotal).catch(function () {});
+  save({ phase: 'bombres', brstart: serverNow() });
+  banner('このレベルのMVP：' + rows.slice(0, 3).map(function (r, i) { return (i + 1) + '位 ' + r.n + '（' + r.s + '点）'; }).join('　'), false, 6);
 }
 
 async function finish(result, lives) {
   if (ended) return; ended = true; clearInterval(tickId);
   var K = sumK();
-  await update(ref(db, 'rooms/' + pin + '/state'), { phase: 'end', result: result, total: K, lives: Math.max(0, lives) });
+  showBomb(false);
+  var topB = Object.keys(bTotal).map(function (u) { return { n: players[u] ? players[u].nick : '?', s: bTotal[u] }; }).sort(function (a, b) { return b.s - a.s; }).slice(0, 5);
+  await update(ref(db, 'rooms/' + pin + '/state'), { phase: 'end', result: result, total: K, lives: Math.max(0, lives), top: topB });
   var win = result === 'clear';
   $('endEm').textContent = win ? '🎉' : '🤖';
   $('endTitle').textContent = win ? '全レベル クリア！ ロボットから にげきった！' : 'ロボットに つかまってしまった…';
   $('endK').textContent = K;
-  $('endSub').textContent = (S.level && !win ? 'レベル ' + S.level + ' で ゲームオーバー' : '') + (win ? '残りライフ ' + lives + ' / ' + ROBOT.lives : '');
+  $('endSub').textContent = (S.level && !win ? 'レベル ' + S.level + ' で ゲームオーバー' : '') + (win ? '残りライフ ' + lives + ' / ' + ROBOT.lives : '') + (topB.length ? '　ボンバーマン上位：' + topB.map(function (r, i) { return (i + 1) + '位 ' + r.n + '（' + r.s + '点）'; }).join('　') : '');
   showScreen('s-end'); if (win) confetti($('conf'), 46);
 }
 $('btnEnd').onclick = function () { if (confirm('ゲームを終えますか？')) finish('lose', 0); };

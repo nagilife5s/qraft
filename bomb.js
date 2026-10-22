@@ -45,7 +45,8 @@ function spawnRobot(g) {
     if (!free(g, x, y)) continue;
     var near = g.players.some(function (p) { return Math.abs(p.x - x) + Math.abs(p.y - y) < 4; });
     if (near || g.robots.some(function (r) { return r.x === x && r.y === y; })) continue;
-    g.robots.push({ x: x, y: y, cd: RULE.robotMove, d: 1 + Math.floor(rnd(g) * 4) }); return;
+    g.rid = (g.rid || 0) + 1;
+    g.robots.push({ id: g.rid, x: x, y: y, cd: RULE.robotMove, d: 1 + Math.floor(rnd(g) * 4) }); return;
   }
 }
 
@@ -246,4 +247,30 @@ function glide(o, now, speed) {
 function bob(moving, now) { return moving ? Math.abs(Math.sin(now / 75)) * .09 : 0; }
 function shadow(ctx, c, vx, vy) {
   ctx.fillStyle = 'rgba(40,10,70,.28)'; ctx.beginPath(); ctx.ellipse((vx + .5) * c, (vy + .86) * c, c * .3, c * .1, 0, 0, 6.2832); ctx.fill();
+}
+
+/* ====================================================================
+   通信用：先生の画面が計算した盤面を、短い文字列にして送り、生徒の画面で「鏡」に写す。
+   ・鏡（view）は draw() にそのまま渡せる形。位置の滑らかな補間は、鏡の中のオブジェクトを使い回すことで保つ
+   ==================================================================== */
+export function newView() { return { t: 0, over: false, players: [], bombs: [], flames: [], robots: [], fx: [], evq: [] }; }
+export function serialize(g) {
+  return JSON.stringify({
+    t: g.t, o: g.over ? 1 : 0,
+    p: g.players.map(function (p) { return [p.x, p.y, p.down, p.invul, p.score, p.d, p.kills]; }),
+    b: g.bombs.map(function (b) { return [b.x, b.y, b.t, b.o]; }),
+    f: g.flames.map(function (f) { return [f.x, f.y, f.t, f.o]; }),
+    r: g.robots.map(function (r) { return [r.id, r.x, r.y]; }),
+    e: g.ev.filter(function (e) { return e.k !== 'put'; }).map(function (e) { return e.k === 'boom' ? ['b', e.x, e.y] : e.k === 'kill' ? ['k', e.o, e.x, e.y] : ['h', e.i, e.o]; })
+  });
+}
+export function applyData(v, str) {
+  var d = JSON.parse(str);
+  v.t = d.t; v.over = !!d.o;
+  v.players = d.p.map(function (a, i) { var p = v.players[i] || {}; p.x = a[0]; p.y = a[1]; p.down = a[2]; p.invul = a[3]; p.score = a[4]; p.d = a[5]; p.kills = a[6]; return p; });
+  v.bombs = d.b.map(function (a) { return { x: a[0], y: a[1], t: a[2], o: a[3] }; });
+  v.flames = d.f.map(function (a) { return { x: a[0], y: a[1], t: a[2], o: a[3] }; });
+  var old = {}; v.robots.forEach(function (r) { old[r.id] = r; });
+  v.robots = d.r.map(function (a) { var r = old[a[0]] || { id: a[0] }; r.x = a[1]; r.y = a[2]; return r; });
+  d.e.forEach(function (e) { v.evq.push(e[0] === 'b' ? { k: 'boom', x: e[1], y: e[2] } : e[0] === 'k' ? { k: 'kill', o: e[1], x: e[2], y: e[3] } : { k: 'hit', i: e[1], o: e[2] }); });
 }

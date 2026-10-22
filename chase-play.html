@@ -6,8 +6,13 @@
 <title>Qraft ロボットラン</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261022201047">
+<link rel="stylesheet" href="theme.css?v=20261022201846">
 <style>
+  .brow { display:flex; gap:.4em; align-items:center; background:rgba(255,255,255,.92); color:var(--ink-dark); border-radius:.6em; padding:.15em .6em; font-weight:800; font-size:.95em; }
+  .brow.me { outline:.15em solid #ffd23f; }
+  .pad { display:grid; grid-template-columns:repeat(3,2.8em); grid-template-rows:repeat(2,2.8em); gap:.25em; }
+  .pad button, .bombbtn { font:inherit; font-size:1.2em; font-weight:900; border:0; border-radius:.6em; background:#fff; color:var(--ink-dark); box-shadow:var(--shadow); touch-action:none; }
+  .bombbtn { width:3.8em; height:3.8em; border-radius:50%; background:#ff5a5a; color:#fff; }
   .fb { text-align:center; font-weight:900; font-size:1.3em; min-height:1.6em; }
   .fb.ok { color:#8bf0b0; } .fb.ng { color:#ffd23f; }
 </style>
@@ -66,9 +71,16 @@
       <div class="fb" id="fb"></div>
     </div>
   </div>
-  <div id="zoneBox" class="hide" style="display:flex; flex-direction:column; gap:.6em; flex:1; justify-content:center">
-    <div class="banner" id="zInfo">安全地帯を えらべ！ 先に押した人から入れるよ</div>
-    <div class="zbtns" id="zbtns"></div>
+  <div id="bombBoxS" class="hide" style="display:flex; flex-direction:column; gap:.5em; flex:1; min-height:0; align-items:center; position:relative">
+    <div class="banner hide" id="bIntro" style="position:absolute; z-index:5; top:18%; left:6%; right:6%;">💣 ボンバーマン！<br><small style="font-size:.6em">小さいロボット🤖を、爆弾でたおせ！ 矢印キー／WASDで動く・スペースで爆弾。爆発に巻き込まれると減点（5秒で復活）</small></div>
+    <div class="bframe"><canvas id="bcv"></canvas></div>
+    <div style="display:flex; gap:.8em; align-items:center; justify-content:center; flex-wrap:wrap; width:100%">
+      <div id="brank" style="display:flex; flex-wrap:wrap; gap:.3em; justify-content:center"></div>
+      <div id="bpad" class="hide" style="display:flex; gap:.4em; align-items:center">
+        <div class="pad"><span></span><button data-d="1">▲</button><span></span><button data-d="3">◀</button><button data-d="2">▼</button><button data-d="4">▶</button></div>
+        <button class="bombbtn" id="bbtn">💣</button>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -91,19 +103,21 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261022201047"></script>
+<script src="firebase-config.js?v=20261022201846"></script>
 <script type="module">
-import { mountAvatarPicker, avatarEl, signIn, db, ref, set, get, onValue, serverNow, CHOICE_STYLE, shuffle,
+import { newView, applyData, draw as bdraw, RULE as BRULE, W as BW, H as BH } from './bomb.js?v=20261022201846';
+import { parseAv, mountAvatarPicker, avatarEl, signIn, db, ref, set, get, onValue, serverNow, CHOICE_STYLE, shuffle,
          ROBOT, robotFrac, mountScene, prepareQuestion, maskOf, isTextCorrect,
-         $, el, showScreen, confetti, loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261022201047';
+         $, el, showScreen, confetti, loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261022201846';
 
 mountStage();
 
 var uid = null, pin = null, nick = '', avPick = null;
 var state = null, runs = {}, players = {}, kicked = false, closed = false, BGS = [], bgReady = false;
 var started = false, finished = false, timerId = null, scene = null;
-var k = 0, a = 0, myZ = null, myZt = 0, pool = [], queue = [], run = null, locked = false, selMask = 0;
+var k = 0, a = 0, pool = [], queue = [], run = null, locked = false, selMask = 0;
 var lastLevel = 0, lastFail = 0, lastPhase = '', bannerUntil = 0;
+var bgrp = {}, myG = -1, myI = -1, bView = newView(), bUnsub = null, bRaf = null, held = [], curD = 0, bcount = 0, sentKey = '', bActive = false;
 
 /* ------------------------------------------------------------ 参加（クラシックと同じ入り口） */
 (async function boot() {
@@ -150,6 +164,7 @@ function start() {
   });
   onValue(ref(db, 'rooms/' + pin + '/run'), function (s) { runs = s.val() || {}; });
   onValue(ref(db, 'rooms/' + pin + '/players'), function (s) { players = s.val() || {}; });
+  onValue(ref(db, 'rooms/' + pin + '/bgrp'), function (s) { bgrp = s.val() || {}; });
   onValue(ref(db, 'rooms/' + pin + '/kicked/' + uid), function (s) { if (s.val()) { kicked = true; render(); } });
   render();
 }
@@ -187,58 +202,90 @@ function tick() {
   $('hLevel').textContent = 'レベル ' + st.level + ' / ' + ROBOT.levels;
   $('hLives').textContent = new Array(st.lives + 1).join('❤️') + new Array(ROBOT.lives - st.lives + 1).join('🖤');
   if (bannerUntil < Date.now()) $('banner').classList.add('hide');
-  if (st.level !== lastLevel) { lastLevel = st.level; myZ = null; }
+  if (st.level !== lastLevel) { lastLevel = st.level; }
   if ((st.fail || 0) !== lastFail) { lastFail = st.fail || 0; banner('ロボットにつかまった！ ライフ −1　もう一度！', true, 4); }
 
-  var choice = {};
-  ids.forEach(function (id) { var r = runs[id]; if (r && r.z != null && r.zt >= (st.zstart || 0)) choice[id] = r.z; });
-
   if (st.phase === 'quiz') {
-    if (lastPhase !== 'quiz') { lastPhase = 'quiz'; $('quizBox').classList.remove('hide'); $('zoneBox').classList.add('hide'); if (st.level > 1 || sec < 3) banner('レベル ' + st.level + ' スタート！', false, 3); }
+    if (lastPhase !== 'quiz') { var back = lastPhase === 'bomb' || lastPhase === 'bombres'; lastPhase = 'quiz'; leaveBomb(); $('quizBox').classList.remove('hide'); if (back) nextQuestion(); if (st.level > 1 || sec < 3) banner('レベル ' + st.level + ' スタート！', false, 3); }
     var left = Math.max(0, st.Tl - sec);
     $('hTime').textContent = Math.floor(left / 60) + ':' + String(Math.floor(left % 60)).padStart(2, '0');
     $('hFill').style.width = p * 100 + '%';
     var ks = {}; ids.forEach(function (id) { ks[id] = (runs[id] && runs[id].k) || 0; });
     scene.draw({ phase: 'quiz', frac: robotFrac(Math.max(0, sec), p), me: uid, ks: ks });
-  } else if (st.phase === 'zone' || st.phase === 'zoneres') {
-    var zone = st.phase === 'zone';
-    if (lastPhase !== st.phase) { lastPhase = st.phase; $('quizBox').classList.add('hide'); $('zoneBox').classList.remove('hide'); if (zone) { myZ = null; buildZones(); } }
-    var zl = Math.max(0, st.Zt - (now - st.zstart) / 1000);
-    $('hTime').textContent = zone ? '0:' + String(Math.ceil(zl)).padStart(2, '0') : '';
-    $('hFill').style.width = '100%';
-    var caught = st.zres || [];
-    scene.draw({ phase: st.phase, caps: st.caps, choice: choice, me: uid, caught: caught });
-    if (zone) refreshZones(choice);
-    else {
-      var me = caught.indexOf(uid) >= 0;
-      $('zInfo').textContent = me ? 'ざんねん…つかまった！ 次はゾーンを早めに！' : caught.length ? 'セーフ！（' + caught.length + '人が つかまった）' : '全員 無事に入れた！';
-      $('zInfo').classList.toggle('bad', me);
+  } else if (st.phase === 'bomb' || st.phase === 'bombres') {
+    if (lastPhase !== st.phase) { var first = lastPhase !== 'bomb' && lastPhase !== 'bombres'; lastPhase = st.phase; if (first) enterBomb(); }
+    var left2 = (st.bstart - now) / 1000;
+    if (st.phase === 'bomb') {
+      bActive = left2 <= 0;
+      $('bIntro').classList.toggle('hide', !(left2 > -1));      /* 始まる前と、始まって1秒のあいだ、説明を出す */
+      $('hTime').textContent = left2 > 0 ? '開始まで ' + Math.ceil(left2) : '0:' + String(Math.ceil(Math.max(0, (BRULE.length - bView.t) / 10))).padStart(2, '0');
+    } else {
+      bActive = false; setInput(0); $('bIntro').classList.add('hide'); $('hTime').textContent = '';
+      var mine = bView.players[myI]; if (bannerUntil < Date.now()) banner(mine ? 'ミニゲーム終了！ あなたは ' + mine.score + ' 点' : 'ミニゲーム終了！', false, 1);
     }
+    $('hFill').style.width = '100%';
+    if (myG < 0 && bgrp[uid]) joinBoard();
+    if (myG < 0 && Object.keys(bgrp).length && !bgrp[uid]) $('hTime').textContent = '次のレベルから参加できます';
   }
 }
 
-/* ---- 安全地帯 */
-function buildZones() {
-  var box = $('zbtns'); box.textContent = ''; $('zInfo').textContent = '安全地帯を えらべ！ 先に押した人から入れるよ'; $('zInfo').classList.remove('bad');
-  state.caps.forEach(function (cap, z) {
-    var b = el('button', 'zbtn'); b.appendChild(document.createTextNode('ゾーン' + 'ABC'[z])); b.appendChild(el('small', '', ''));
-    b.onclick = function () { if (state.phase !== 'zone') return; myZ = z; myZt = serverNow(); report(); };
-    box.appendChild(b);
-  });
+/* ---- ボンバーマン */
+function enterBomb() {
+  $('sceneBox').classList.add('hide'); $('quizBox').classList.add('hide'); $('bombBoxS').classList.remove('hide');
+  $('bpad').classList.toggle('hide', !('ontouchstart' in window));
+  sizeBoard(); myG = -1; myI = -1; bView = newView(); curD = 0; sentKey = '';
+  cancelAnimationFrame(bRaf); (function loop() { drawBoard(); bRaf = requestAnimationFrame(loop); })();
 }
-function refreshZones(choice) {
-  var cnt = state.caps.map(function () { return 0; });
-  Object.keys(choice).forEach(function (id) { if (choice[id] < cnt.length) cnt[choice[id]]++; });
-  [].forEach.call($('zbtns').children, function (b, z) {
-    b.lastChild.textContent = cnt[z] + ' / ' + state.caps[z] + ' 人';
-    b.classList.toggle('mine', myZ === z); b.classList.toggle('full', cnt[z] >= state.caps[z] && myZ !== z);
-  });
+function leaveBomb() {
+  if (bUnsub) { bUnsub(); bUnsub = null; }
+  cancelAnimationFrame(bRaf); bActive = false; held = []; setInput(0);
+  myG = -1; myI = -1;
+  $('bombBoxS').classList.add('hide'); $('sceneBox').classList.remove('hide');
 }
+function joinBoard() {
+  var t = bgrp[uid].split('.'); myG = Number(t[0]); myI = Number(t[1]);
+  bUnsub = onValue(ref(db, 'rooms/' + pin + '/bd/' + myG), function (s) { if (s.val()) applyData(bView, s.val()); });
+}
+function sizeBoard() {
+  var px = Math.max(240, Math.min(window.innerWidth - 40, (window.innerHeight - 250) * BW / BH, 660)), cv = $('bcv');
+  cv.width = Math.floor(px); cv.height = Math.floor(px / BW * BH); cv.style.width = cv.width + 'px'; cv.style.height = cv.height + 'px';
+}
+addEventListener('resize', function () { if (!$('bombBoxS').classList.contains('hide')) sizeBoard(); });
+function members() {
+  return Object.keys(bgrp).filter(function (u) { return bgrp[u].split('.')[0] === String(myG); }).sort(function (a, b) { return Number(bgrp[a].split('.')[1]) - Number(bgrp[b].split('.')[1]); });
+}
+var lastRank = '';
+function drawBoard() {
+  if (myG < 0) return;
+  var ms = members(), chars = [], accs = [], names = [];
+  ms.forEach(function (u) { var v = parseAv(players[u] && players[u].av, u); chars.push(v.c); accs.push(v.a); names.push(players[u] ? players[u].nick : '?'); });
+  bdraw($('bcv').getContext('2d'), bView, $('bcv').width, { me: myI, chars: chars, accs: accs, names: names, emojis: [] });
+  var key = ms.map(function (u, i) { return bView.players[i] ? bView.players[i].score : 0; }).join(',');
+  if (key !== lastRank) {
+    lastRank = key; var box = $('brank'); box.textContent = '';
+    ms.map(function (u, i) { return { u: u, i: i, s: bView.players[i] ? bView.players[i].score : 0 }; }).sort(function (a, b) { return b.s - a.s; }).forEach(function (r) {
+      var row = el('div', 'brow' + (r.i === myI ? ' me' : '')); row.appendChild(avatarEl(players[r.u] && players[r.u].av, r.u)); row.appendChild(el('span', '', (players[r.u] ? players[r.u].nick : '?') + ' ' + r.s)); box.appendChild(row);
+    });
+  }
+}
+/* 操作：押している向き(d)と、爆弾を置いた回数(b)を送る。変わったときだけ */
+function setInput(d) {
+  curD = d; var key = d + ':' + bcount; if (key === sentKey || !pin || !uid) return; sentKey = key;
+  set(ref(db, 'rooms/' + pin + '/bin/' + uid), { d: d, b: bcount }).catch(function () {});
+}
+var KEYS = { ArrowUp: 1, w: 1, W: 1, ArrowDown: 2, s: 2, S: 2, ArrowLeft: 3, a: 3, A: 3, ArrowRight: 4, d: 4, D: 4 };
+addEventListener('keydown', function (e) {
+  if (!bActive) return;
+  if (KEYS[e.key]) { e.preventDefault(); if (held.indexOf(KEYS[e.key]) < 0) held.push(KEYS[e.key]); setInput(held[held.length - 1]); }
+  else if (e.key === ' ') { e.preventDefault(); if (!e.repeat) { bcount = (bcount + 1) % 9000; sentKey = ''; setInput(curD); } }
+});
+addEventListener('keyup', function (e) { if (KEYS[e.key]) { held = held.filter(function (d) { return d !== KEYS[e.key]; }); setInput(held.length ? held[held.length - 1] : 0); } });
+document.querySelectorAll('#bpad .pad button').forEach(function (b) { var d = Number(b.dataset.d); b.onpointerdown = function () { if (!bActive) return; held.push(d); setInput(d); }; b.onpointerup = b.onpointerleave = function () { held = held.filter(function (x) { return x !== d; }); setInput(held.length ? held[held.length - 1] : 0); }; });
+$('bbtn').onpointerdown = function () { if (!bActive) return; bcount = (bcount + 1) % 9000; sentKey = ''; setInput(curD); };
 
 function report() {
   var o = { k: k, a: a, u: serverNow() };
   o.u = { '.sv': 'timestamp' };
-  if (myZ != null) { o.z = myZ; o.zt = myZt; }
   set(ref(db, 'rooms/' + pin + '/run/' + uid), o).catch(function () {});
 }
 
@@ -301,7 +348,7 @@ function judge(mask, text) {
     var pos = Math.min(queue.length, 3 + Math.floor(Math.random() * 5)); queue.splice(queue.length - pos, 0, q.qi);   /* まちがえた問題は、数問あとにもう一度 */
   }
   report();
-  setTimeout(function () { if (!finished && state && (state.phase === 'quiz' || state.phase === 'zone' || state.phase === 'zoneres')) nextQuestion(); }, ok ? 700 : 1900);
+  setTimeout(function () { if (!finished && state && state.phase === 'quiz') nextQuestion(); }, ok ? 700 : 1900);
 }
 
 function endGame() {
