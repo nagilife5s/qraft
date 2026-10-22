@@ -490,3 +490,33 @@ button.tile:disabled { cursor:default; }
 #textbox input:focus { box-shadow:var(--shadow), 0 0 0 .14em var(--pop1); }
 #textbox input:disabled { opacity:.8; }
 #textbox .tnote { font-weight:800; opacity:.9; }
+
+/* ======================================================================
+   問題セットの選択（学年・単元・検索・複数選択）
+   ====================================================================== */
+.card.setup { width:min(46em, 92cqw); }
+.pk-row { display:flex; flex-wrap:wrap; gap:.4em; margin:.3em 0 .5em; }
+.pk-row.small { margin-top:-.1em; }
+.pk { font:inherit; font-weight:800; font-size:.92em; color:var(--ink-dark); background:#f2effd; border:2px solid transparent; border-radius:999px; padding:.25em .85em; cursor:pointer; }
+.pk-row.small .pk { font-size:.8em; padding:.2em .7em; }
+.pk:hover { background:#e6defc; }
+.pk.on { background:#4320b0; color:#fff; }
+.pk[data-f]::before { content:""; display:inline-block; width:.6em; height:.6em; border-radius:50%; margin-right:.4em; vertical-align:.02em; background:#999; }
+.pk[data-f="物理"]::before { background:#1368ce; } .pk[data-f="化学"]::before { background:#e67e22; }
+.pk[data-f="生物"]::before { background:#1fa95b; } .pk[data-f="地学"]::before { background:#8e44ad; }
+.setlist { max-height:15em; overflow:auto; border:2px solid #d6cdf7; border-radius:.8em; background:#faf9ff; margin-top:.4em; }
+.setrow { display:flex; gap:.7em; align-items:center; padding:.45em .8em; cursor:pointer; border-bottom:1px solid #ece8fb; }
+.setrow:last-child { border-bottom:0; }
+.setrow:hover { background:#f2effd; } .setrow.on { background:#e9e2ff; }
+.setrow input { width:1.2em; height:1.2em; flex:0 0 auto; accent-color:#4320b0; }
+.setrow .nm { flex:1; min-width:0; font-weight:800; display:flex; flex-wrap:wrap; align-items:baseline; gap:.1em .6em; }
+.setrow .tag { font-size:.75em; font-weight:700; color:#6b6b70; }
+.setrow .meta { display:flex; gap:.35em; align-items:center; font-size:.8em; flex:0 0 auto; }
+.bdg { border-radius:999px; padding:0 .55em; background:#e3e6f2; font-weight:800; }
+.bdg.m { background:#dcd4ff; } .bdg.t { background:#ffe9c7; }
+.setlist .empty { padding:1em; text-align:center; opacity:.6; font-weight:700; }
+.selbar { display:flex; flex-wrap:wrap; gap:.4em .6em; align-items:center; margin-top:.6em; font-weight:800; }
+#selChips { display:flex; flex-wrap:wrap; gap:.35em; }
+.chip2 { background:#e9e2ff; border-radius:999px; padding:.1em .35em .1em .8em; display:inline-flex; gap:.35em; align-items:center; font-size:.85em; }
+.chip2 button { border:0; background:rgba(0,0,0,.12); border-radius:50%; width:1.4em; height:1.4em; cursor:pointer; font-weight:900; line-height:1; color:var(--ink-dark); }
+.linkbtn { background:none; border:0; color:#b3261e; font:inherit; font-weight:800; cursor:pointer; text-decoration:underline; margin-left:auto; }

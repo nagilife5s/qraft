@@ -6,7 +6,7 @@
 <title>Qraft 先生用</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261022135918">
+<link rel="stylesheet" href="theme.css?v=20261022142035">
 </head>
 <body>
 <div id="app">
@@ -16,14 +16,17 @@
   <div class="setup-wrap">
     <img class="logo-img" src="img/logo-wordmark.webp" alt="Qraft" style="height:5em">
     <div class="card setup">
-      <label style="margin-top:0" for="setFilter">問題セット</label>
-      <input type="text" id="setFilter" placeholder="さがす（例：イオン、細胞、力）" autocomplete="off">
-      <select id="setSel" size="6" style="margin-top:.4em"></select>
+      <label style="margin-top:0">問題セット（学年・単元で絞り込み、複数えらべます）</label>
+      <div class="pk-row" id="gradeRow"></div>
+      <div class="pk-row small" id="unitRow"></div>
+      <input type="text" id="setFilter" placeholder="題名でさがす（例：イオン、細胞、力）" autocomplete="off">
+      <div class="setlist" id="setList"></div>
+      <div class="selbar hide" id="selBar"><span id="selInfo"></span><span id="selChips"></span><button type="button" class="linkbtn" id="selClear">選びなおす</button></div>
       <div id="pwRow" class="hide"><label for="pw">問題のパスワード</label>
         <input type="password" id="pw" autocomplete="off" placeholder="先生だけが知っているパスワード">
         <div class="note">一度入れると、このパソコンのこのブラウザに覚えておきます</div></div>
       <div class="two">
-        <div><label for="count">出題数</label><input id="count" type="number" min="1" value="8"></div>
+        <div><label for="count">出題数</label><input id="count" type="number" min="1" value="8"><div class="note" id="countNote"></div></div>
         <div><label for="limitSel">1問の制限時間</label>
           <select id="limitSel"><option value="10">10 秒</option><option value="20" selected>20 秒</option><option value="30">30 秒</option><option value="45">45 秒</option><option value="60">60 秒</option></select></div>
       </div>
@@ -92,13 +95,13 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261022135918"></script>
+<script src="firebase-config.js?v=20261022142035"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script type="module">
 import { signIn, db, ref, set, get, update, remove, onValue, serverTimestamp, serverNow,
          calcScore, CHOICE_STYLE, RESULT_SEC, RANK_SEC, sleep, shuffle,
          $, el, fmt, motionOn, showScreen, later, stopAnim, countUp, confetti, qrSvg, buildRank,
-         loadBackgrounds, applyBg, buildBgPickers, savedBg, saveBg, mountStage, decryptSet, prepareQuestion, maskOf, isTextCorrect, normText } from './lib.js?v=20261022135918';
+         loadBackgrounds, applyBg, buildBgPickers, savedBg, saveBg, mountStage, decryptSet, prepareQuestion, maskOf, isTextCorrect, normText } from './lib.js?v=20261022142035';
 
 mountStage();
 
@@ -140,28 +143,89 @@ function stateOf(extra) { return Object.assign({ bg: curBg, t: serverTimestamp()
 
     SETS = await (await fetch('questions/index.json', { cache: 'no-cache' })).json();   /* 一覧は、いつも最新を取る */
     try { $('pw').value = localStorage.getItem('qraft.pw') || ''; } catch (e) {}
-    renderSets('');
-    $('setFilter').oninput = function () { renderSets(this.value.trim()); };
-    $('setSel').onchange = onSetChange;
+    try { JSON.parse(localStorage.getItem('qraft.picked') || '[]').forEach(function (f) { if (SETS.some(function (x) { return x.file === f; })) picked[f] = true; }); } catch (e) {}   /* 前回の選択を引き継ぐ */
+    $('setFilter').oninput = renderList;
+    $('selClear').onclick = function () { picked = {}; renderList(); };
+    $('count').oninput = function () { countTouched = true; updateSel(); };
+    renderPicker();
   } catch (e) { setupErr(e.message); $('btnCreate').disabled = true; }
   showScreen('s-setup');
 })();
 
-var SETS = [];
-function renderSets(f) {
-  var sel = $('setSel'), keep = sel.value; sel.textContent = '';
-  var list = SETS.filter(function (s) { return !f || s.title.indexOf(f) >= 0; });
-  list.forEach(function (s) {
-    var o = document.createElement('option'); o.value = s.file; o.textContent = s.title + '（' + s.count + '問）'; sel.appendChild(o);
-  });
-  if (list.some(function (s) { return s.file === keep; })) sel.value = keep; else if (list.length) sel.selectedIndex = 0;
-  onSetChange();
+var SETS = [], picked = {}, gradeSel = 0, unitSel = '', countTouched = false;
+var GL = { 0: 'すべて', 1: '1年', 2: '2年', 3: '3年' };
+
+function entryOf(file) { return SETS.filter(function (s) { return s.file === file; })[0]; }
+function pill(text, on, onclick, field) {
+  var b = el('button', 'pk' + (on ? ' on' : ''), text); b.type = 'button'; if (field) b.dataset.f = field; b.onclick = onclick; return b;
 }
-function currentSet() { var f = $('setSel').value; return SETS.filter(function (s) { return s.file === f; })[0]; }
-function onSetChange() {
-  var s = currentSet(); if (!s) return;
-  $('count').value = s.count; $('count').max = s.count;
-  $('pwRow').classList.toggle('hide', !s.enc);
+
+/* 学年と単元のボタン */
+function renderPicker() {
+  var gr = $('gradeRow'); gr.textContent = '';
+  [0, 1, 2, 3].forEach(function (g) {
+    var n = SETS.filter(function (s) { return !g || s.grade === g; }).length;
+    gr.appendChild(pill(GL[g] + '（' + n + '）', g === gradeSel, function () { gradeSel = g; unitSel = ''; renderPicker(); }));
+  });
+  var ur = $('unitRow'); ur.textContent = '';
+  var seen = {}, units = [];
+  SETS.filter(function (s) { return !gradeSel || s.grade === gradeSel; }).forEach(function (s) {
+    if (!seen[s.unit]) { seen[s.unit] = { unit: s.unit, uo: s.uo, g: s.grade, f: s.field, n: 0 }; units.push(seen[s.unit]); }
+    seen[s.unit].n++;
+  });
+  units.sort(function (a, b) { return a.uo - b.uo; });
+  ur.appendChild(pill('すべての単元', unitSel === '', function () { unitSel = ''; renderPicker(); }));
+  units.forEach(function (u) {
+    ur.appendChild(pill((gradeSel || !u.g ? '' : u.g + '年・') + u.unit + '（' + u.n + '）', unitSel === u.unit, function () { unitSel = u.unit; renderPicker(); }, u.f));
+  });
+  renderList();
+}
+
+/* セットの一覧（チェックで選ぶ。学年・単元を替えても、選んだものは残る） */
+function renderList() {
+  var f = $('setFilter').value.trim();
+  var list = SETS.filter(function (s) {
+    return (!gradeSel || s.grade === gradeSel) && (!unitSel || s.unit === unitSel) && (!f || s.title.indexOf(f) >= 0);
+  });
+  var box = $('setList'); box.textContent = '';
+  list.forEach(function (s) {
+    var row = el('label', 'setrow' + (picked[s.file] ? ' on' : ''));
+    var cb = el('input'); cb.type = 'checkbox'; cb.checked = !!picked[s.file];
+    cb.onchange = function () { if (cb.checked) picked[s.file] = true; else delete picked[s.file]; row.classList.toggle('on', cb.checked); updateSel(); };
+    row.appendChild(cb);
+    var nm = el('div', 'nm'); nm.appendChild(el('span', '', s.title));
+    if (!unitSel && s.unit) nm.appendChild(el('span', 'tag', (s.grade ? s.grade + '年・' : '') + s.unit));
+    row.appendChild(nm);
+    var meta = el('div', 'meta'); meta.appendChild(el('b', '', s.count + '問'));
+    var t = s.types || {};
+    if (t.choice) meta.appendChild(el('span', 'bdg', '選択 ' + t.choice));
+    if (t.multi) meta.appendChild(el('span', 'bdg m', '複数 ' + t.multi));
+    if (t.text) meta.appendChild(el('span', 'bdg t', '入力 ' + t.text));
+    row.appendChild(meta); box.appendChild(row);
+  });
+  if (!list.length) box.appendChild(el('div', 'empty', '該当するセットがありません'));
+  updateSel();
+}
+
+/* 選んだセットのまとめ（合計問題数・出題数の初期値・パスワード欄） */
+function updateSel() {
+  var files = Object.keys(picked).filter(entryOf);
+  var total = files.reduce(function (n, f) { return n + entryOf(f).count; }, 0);
+  $('selBar').classList.toggle('hide', !files.length);
+  $('selInfo').textContent = '選んだセット：' + files.length + 'つ・合計 ' + total + '問';
+  var chips = $('selChips'); chips.textContent = '';
+  files.slice(0, 6).forEach(function (f) {
+    var c = el('span', 'chip2'); c.appendChild(el('span', '', entryOf(f).title));
+    var x = el('button', '', '×'); x.type = 'button'; x.title = 'この選択をはずす';
+    x.onclick = function () { delete picked[f]; renderList(); };
+    c.appendChild(x); chips.appendChild(c);
+  });
+  if (files.length > 6) chips.appendChild(el('span', 'chip2', 'ほか ' + (files.length - 6) + 'つ'));
+  var cnt = $('count'); cnt.max = Math.max(1, total);
+  if (!countTouched) cnt.value = total ? Math.min(total, 20) : '';
+  $('countNote').textContent = total ? '選んだ ' + total + ' 問から、ランダムに出します' : '';
+  $('pwRow').classList.toggle('hide', !files.some(function (f) { return entryOf(f).enc; }));
+  try { localStorage.setItem('qraft.picked', JSON.stringify(files)); } catch (e) {}
 }
 
 function setupErr(msg) { $('setupErr').textContent = msg; $('setupErr').classList.remove('hide'); }
@@ -170,15 +234,21 @@ $('btnCreate').onclick = async function () {
   $('setupErr').classList.add('hide');
   $('btnCreate').disabled = true;
   try {
-    var entry = currentSet(); if (!entry) throw new Error('問題セットを選んでください');
-    var data = await (await fetch('questions/' + entry.file)).json();
-    if (data.enc) {
-      var pwv = $('pw').value; if (!pwv) throw new Error('問題のパスワードを入れてください');
-      data = await decryptSet(data, pwv);                      /* パスワードが違うと、ここで「パスワードが違います」になる */
-      try { localStorage.setItem('qraft.pw', pwv); } catch (e) {}
+    var files = Object.keys(picked).filter(entryOf);
+    if (!files.length) throw new Error('問題セットを1つ以上えらんでください');
+    var needPw = files.some(function (f) { return entryOf(f).enc; }), pwv = $('pw').value;
+    if (needPw && !pwv) throw new Error('問題のパスワードを入れてください');
+    var pool = [], titles = [];
+    for (var k = 0; k < files.length; k++) {
+      var entry = entryOf(files[k]);
+      $('btnCreate').textContent = '読み込み中… (' + (k + 1) + '/' + files.length + ')';
+      var data = await (await fetch('questions/' + entry.file)).json();
+      if (data.enc) data = await decryptSet(data, pwv);        /* パスワードが違うと、ここで「パスワードが違います」になる */
+      pool = pool.concat(data.questions); titles.push(entry.title);
     }
-    setTitle = entry.title;
-    var qs = shuffle(data.questions.slice());
+    if (needPw) { try { localStorage.setItem('qraft.pw', pwv); } catch (e) {} }
+    setTitle = files.length === 1 ? titles[0] : titles[0] + ' ほか' + (files.length - 1) + 'セット';
+    var qs = shuffle(pool.slice());
     var n = Math.max(1, Math.min(Number($('count').value) || qs.length, qs.length));
     qs = qs.slice(0, n);
     limit = Number($('limitSel').value);
@@ -210,7 +280,7 @@ $('btnCreate').onclick = async function () {
     showScreen('s-lobby');
   } catch (e) {
     setupErr('ルームを作れませんでした: ' + e.message);
-    $('btnCreate').disabled = false;
+    $('btnCreate').disabled = false; $('btnCreate').textContent = 'ルームを作る';
   }
 };
 
