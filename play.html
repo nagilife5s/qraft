@@ -1,94 +1,154 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" data-bg="pop">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Qraft</title>
-<style>
-  :root { --bg:#f6f4ee; --ink:#1d1d1f; --mute:#6b6b70; --card:#fff; --line:#dcd8cc; --accent:#1268c3; }
-  * { box-sizing: border-box; }
-  body { margin:0; background:var(--bg); color:var(--ink);
-         font-family:-apple-system,"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; line-height:1.6; }
-  main { max-width: 640px; margin: 0 auto; padding: 18px 16px 60px; }
-  h1 { font-size:1.6rem; margin:.2em 0 .6em; }
-  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:18px 18px; margin-bottom:14px; }
-  label { display:block; font-weight:700; margin:.9em 0 .3em; }
-  input { width:100%; font-size:1.3rem; padding:.55em .7em; border:1px solid var(--line); border-radius:10px; }
-  button.main { width:100%; font-size:1.2rem; padding:.8em; margin-top:1em; border:0; border-radius:12px; background:var(--accent); color:#fff; font-weight:700; cursor:pointer; }
-  button.main:disabled { opacity:.5; }
-  .hide { display:none !important; }
-  .err { color:#b3261e; font-weight:700; margin-top:.8em; }
-  .mute { color:var(--mute); }
-  .center { text-align:center; }
-  .big { font-size:2rem; font-weight:800; }
-  .top { display:flex; justify-content:space-between; color:var(--mute); font-weight:700; margin-bottom:8px; }
-  .bar { height:12px; background:#e6e2d6; border-radius:6px; overflow:hidden; margin:4px 0 12px; }
-  .bar > i { display:block; height:100%; width:100%; background:var(--accent); }
-  .qtext { font-size:1.35rem; font-weight:800; margin:.2em 0 .6em; }
-  .qimg { max-width:100%; max-height:30vh; display:block; margin:0 auto 12px; border-radius:10px; }
-  .choices { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-  .ch { border:0; color:#fff; border-radius:12px; padding:16px 10px; min-height:5.2em; font-size:1.1rem; font-weight:800;
-        display:flex; gap:.5em; align-items:center; justify-content:center; text-align:center; cursor:pointer; }
-  .ch:disabled { opacity:.35; cursor:default; }
-  .ch.picked { opacity:1; outline:5px solid #1d1d1f; }
-  .ok { color:#1f7a3a; } .ng { color:#b3261e; }
-  ol.rank { list-style:none; padding:0; margin:.4em 0 0; }
-  ol.rank li { display:flex; gap:.8em; font-size:1.2rem; font-weight:700; padding:.25em 0; }
-  ol.rank .no { width:2.2em; color:var(--mute); }
-  ol.rank .pt { margin-left:auto; font-variant-numeric:tabular-nums; }
-  ol.rank li.me { background:#fff3cd; border-radius:6px; padding-left:.4em; padding-right:.4em; }
-</style>
+<link rel="icon" type="image/png" href="img/favicon-32.png">
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+<link rel="stylesheet" href="theme.css">
 </head>
 <body>
-<main>
+<div id="app">
 
-<section id="joinBox" class="card">
-  <h1>Qraft に参加</h1>
-  <label for="pin">PIN（先生の画面に出ている6けた）</label>
-  <input id="pin" inputmode="numeric" autocomplete="off" maxlength="6" placeholder="123456">
-  <label for="nick">ニックネーム</label>
-  <input id="nick" autocomplete="off" maxlength="20" placeholder="なまえ">
-  <button id="btnJoin" class="main">参加する</button>
-  <div id="joinErr" class="err hide"></div>
+<!-- 参加 -->
+<section class="screen" id="s-join">
+  <div class="center" style="flex:1; display:flex; flex-direction:column; gap:1.2em">
+    <img class="logo-img" src="img/logo-wordmark.webp" alt="Qraft" style="height:7.6em">
+    <div class="joincol">
+      <div class="flabel">PIN（先生の画面の6けた）</div>
+      <input class="field" id="pin" inputmode="numeric" autocomplete="off" maxlength="6" placeholder="123456">
+      <div class="flabel">ニックネーム</div>
+      <input class="field" id="nick" autocomplete="off" maxlength="20" placeholder="なまえ">
+      <button class="btn" id="btnJoin" style="margin-top:.4em">参加する</button>
+      <div id="joinErr" class="err hide"></div>
+    </div>
+  </div>
 </section>
 
-<section id="screen" class="hide">
-  <div class="top"><span id="me"></span><span id="myScore"></span></div>
-  <div id="content"></div>
+<!-- 待機 -->
+<section class="screen" id="s-wait">
+  <div class="center" style="flex:1; display:flex; flex-direction:column; gap:.7em">
+    <img class="logo-img" src="img/logo-wordmark.webp" alt="Qraft" style="height:7.6em">
+    <div style="font-weight:900; font-size:2.6em">参加できました！</div>
+    <div class="pill" id="meNick" style="font-size:1.6em"></div>
+    <div class="mut" style="font-size:1.3em; margin-top:.4em">先生が始めるのを待っています</div>
+    <div class="dots" style="margin-top:.6em"><span></span><span></span><span></span></div>
+  </div>
 </section>
 
-</main>
+<!-- 出題中・回答後 -->
+<section class="screen" id="s-q">
+  <div class="stu-top"><span class="pill" id="sqno"></span><span class="pill secpill" id="secpill" style="background:var(--pop1)"></span></div>
+  <div class="timebar" id="timebar"><i></i></div>
+  <div class="stu-q" id="sq"><img id="sqimg" class="qimg hide" alt=""><span id="sqtext"></span></div>
+  <div class="stu-tiles" id="stiles"></div>
+  <div class="center" id="ansState" style="display:flex; font-weight:900; font-size:1.3em; min-height:1.6em"></div>
+</section>
+
+<!-- 結果：正解 -->
+<section class="screen res ok" id="s-ok">
+  <div class="confetti" id="conf-ok"></div>
+  <div class="inner">
+    <div class="icon">✓</div><h2>正解！</h2>
+    <div class="plus">+<span id="okpts">0</span> 点</div>
+    <div class="ans" id="okans"></div>
+    <div class="rank">いま <b id="okrank"></b> 位 / <span id="okn"></span>人</div>
+    <div class="hint"><span class="up" id="okup"></span> ・ 合計 <span id="oktotal">0</span> 点</div>
+  </div>
+</section>
+
+<!-- 結果：不正解 -->
+<section class="screen res ng" id="s-ng">
+  <div class="inner">
+    <div class="icon">✕</div><h2>ざんねん…</h2>
+    <div class="ans" id="ngans"></div>
+    <div class="rank">いま <b id="ngrank"></b> 位 / <span id="ngn"></span>人</div>
+    <div class="hint">合計 <span id="ngtotal">0</span> 点　次はとり返そう！</div>
+  </div>
+</section>
+
+<!-- 結果：時間切れ -->
+<section class="screen res late" id="s-late">
+  <div class="inner">
+    <div class="icon">⏱</div><h2>時間切れ！</h2>
+    <div class="ans" id="lateans"></div>
+    <div class="rank">いま <b id="laterank"></b> 位 / <span id="laten"></span>人</div>
+    <div class="hint">合計 <span id="latetotal">0</span> 点　次は早めに押そう！</div>
+  </div>
+</section>
+
+<!-- 集計中 -->
+<section class="screen" id="s-collect">
+  <div class="center" style="flex:1; display:flex; flex-direction:column; gap:.7em">
+    <div style="font-weight:900; font-size:2.4em">集計中…</div>
+    <div class="dots"><span></span><span></span><span></span></div>
+  </div>
+</section>
+
+<!-- ランキング -->
+<section class="screen" id="s-rank">
+  <div class="stu-top"><span class="pill" id="kprog"></span><span class="pill" style="background:var(--pop1)">🏆 ランキング</span></div>
+  <div style="flex:1; display:flex; align-items:center"><div class="rk rkAnim" id="rk" style="width:100%"></div></div>
+  <div class="center" style="display:flex"><span class="pill" id="mepill" style="font-size:1.4em; background:var(--pop1)"></span></div>
+</section>
+
+<!-- 終了 -->
+<section class="screen" id="s-end">
+  <div class="confetti" id="conf-end"></div>
+  <div class="center" style="flex:1; display:flex; flex-direction:column; gap:.6em">
+    <div class="title2" style="font-size:2.6em">🎉 ゲーム終了！</div>
+    <div class="card" style="min-width:16em">
+      <div class="mut" style="color:#5b5478; font-weight:800">あなたの順位</div>
+      <div style="font-size:4.4em; font-weight:900; color:var(--bg2); line-height:1.1"><span id="endrank">-</span><small style="font-size:.4em"> 位 / <span id="endn">-</span>人</small></div>
+      <div style="font-weight:900; font-size:1.3em"><span id="endpts">0</span> 点</div>
+    </div>
+    <div class="mut" style="font-size:1.1em" id="endtop"></div>
+  </div>
+</section>
+
+<!-- 退出・部屋が閉じた -->
+<section class="screen" id="s-kicked"><div class="center" style="flex:1; display:flex; flex-direction:column; gap:.7em"><div style="font-weight:900; font-size:2.2em">この部屋から退出になりました</div></div></section>
+<section class="screen" id="s-closed"><div class="center" style="flex:1; display:flex; flex-direction:column; gap:.7em"><div style="font-weight:900; font-size:2.4em">ゲームは終了しました</div><div class="mut">ありがとうございました！</div></div></section>
+
+</div>
 
 <script src="firebase-config.js"></script>
 <script type="module">
-import { signIn, db, ref, set, get, onValue, serverTimestamp, serverNow, CHOICE_STYLE } from './lib.js';
+import { signIn, db, ref, set, get, onValue, serverTimestamp, serverNow, CHOICE_STYLE,
+         $, el, fmt, motionOn, showScreen, stopAnim, countUp, confetti, buildRank,
+         loadBackgrounds, applyBg, mountStage } from './lib.js';
 
-var $ = function (id) { return document.getElementById(id); };
-function show(id, on) { $(id).classList.toggle('hide', !on); }
-function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+mountStage();
 
 var uid = null, pin = null, nick = '';
 var state = null, scores = {}, kicked = false, closed = false;
-var answeredQ = -1, pickedIdx = -1, lastKey = '', timerId = null, unsubs = [];
+var answeredQ = -1, pickedIdx = -1, lastKey = '', timerId = null, BGS = [], bgReady = false;
 
 /* ---------------------------------------------------------------- 起動と参加 */
 (async function boot() {
+  BGS = await loadBackgrounds(); bgReady = true; applyBg('pop', BGS, true);
+  showScreen('s-join');
   try { uid = (await signIn()).uid; }
   catch (e) { joinErr(e.message); $('btnJoin').disabled = true; return; }
 
   var saved = null;
   try { saved = JSON.parse(localStorage.getItem('qraft.player') || 'null'); } catch (e) {}
+  var qp = new URLSearchParams(location.search).get('pin');            /* QRコードから来たときは、PINが入っている */
   if (saved) { $('pin').value = saved.pin; $('nick').value = saved.nick; }
+  if (qp && /^\d{6}$/.test(qp)) { $('pin').value = qp; if (saved && saved.pin !== qp) $('nick').value = saved.nick || ''; }
   /* 画面を更新しても、同じ人として自動で戻る */
-  if (saved && saved.pin && saved.nick) join(saved.pin, saved.nick, true);
+  if (saved && saved.pin && saved.nick && (!qp || qp === saved.pin)) join(saved.pin, saved.nick, true);
+  else if (qp) $('nick').focus();
 })();
 
-function joinErr(msg) { $('joinErr').textContent = msg; show('joinErr', true); }
+function joinErr(msg) { $('joinErr').textContent = msg; $('joinErr').classList.remove('hide'); }
 
 $('btnJoin').onclick = function () { join($('pin').value.trim(), $('nick').value.trim(), false); };
+$('nick').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('btnJoin').click(); });
 
 async function join(p, n, silent) {
-  show('joinErr', false);
+  $('joinErr').classList.add('hide');
   if (!/^\d{6}$/.test(p)) { if (!silent) joinErr('PINは6けたの数字です'); return; }
   if (!n) { if (!silent) joinErr('ニックネームを入れてください'); return; }
   $('btnJoin').disabled = true;
@@ -112,15 +172,15 @@ async function join(p, n, silent) {
 }
 
 function start() {
-  show('joinBox', false); show('screen', true);
-  $('me').textContent = nick;
-  unsubs.push(onValue(ref(db, 'rooms/' + pin + '/state'), function (s) {
+  $('meNick').textContent = nick;
+  onValue(ref(db, 'rooms/' + pin + '/state'), function (s) {
     state = s.val();
     if (!state) { closed = true; clearSaved(); }
+    else if (bgReady) applyBg(state.bg || 'pop', BGS);          /* 先生が選んだ背景に合わせる */
     render();
-  }));
-  unsubs.push(onValue(ref(db, 'rooms/' + pin + '/scores'), function (s) { scores = s.val() || {}; render(); }));
-  unsubs.push(onValue(ref(db, 'rooms/' + pin + '/kicked/' + uid), function (s) { if (s.val()) { kicked = true; clearSaved(); render(); } }));
+  });
+  onValue(ref(db, 'rooms/' + pin + '/scores'), function (s) { scores = s.val() || {}; render(); });
+  onValue(ref(db, 'rooms/' + pin + '/kicked/' + uid), function (s) { if (s.val()) { kicked = true; clearSaved(); render(); } });
   if (!timerId) timerId = setInterval(tick, 100);
   render();
 }
@@ -133,101 +193,88 @@ function myRank() {
   if (!me) return null;
   var ids = Object.keys(scores);
   var better = ids.filter(function (id) { return scores[id].total > me.total; }).length;
-  return { rank: better + 1, n: ids.length, total: me.total };
+  /* この問題の前の順位（得点から、この問題で増えた分を引いて数える） */
+  var myPrev = me.total - me.last;
+  var before = ids.filter(function (id) { return scores[id].total - scores[id].last > myPrev; }).length + 1;
+  return { rank: better + 1, n: ids.length, total: me.total, move: before - (better + 1) };
 }
 
-/* ---------------------------------------------------------------- 描画 */
+/* ---------------------------------------------------------------- 描画（画面が変わるときだけ作り直す） */
 function render() {
-  var c = $('content');
-  var r = myRank();
-  $('myScore').textContent = r ? r.total + '点' : '';
-
-  if (kicked) { c.textContent = ''; c.appendChild(card(el('div', 'center big', 'この部屋から退出になりました'))); stopTimer(); return; }
-  if (closed) { c.textContent = ''; c.appendChild(card(el('div', 'center big', 'ゲームは終了しました'))); stopTimer(); return; }
+  if (kicked) { if (lastKey !== 'kicked') { lastKey = 'kicked'; stopAnim(); showScreen('s-kicked'); } return; }
+  if (closed) { if (lastKey !== 'closed') { lastKey = 'closed'; stopAnim(); showScreen('s-closed'); } return; }
   if (!state) return;
-
-  var key = state.phase + ':' + state.i;
-  if (state.phase === 'question') {
-    if (key === lastKey) return;             /* 問題中は作り直さない（押した状態が消えるため） */
-    lastKey = key;
-    drawQuestion(c);
-    return;
-  }
-  lastKey = key;
-  c.textContent = '';
+  var r = myRank();
 
   if (state.phase === 'lobby') {
-    var b = el('div', 'center');
-    b.appendChild(el('div', 'big', '参加できました！'));
-    b.appendChild(el('p', 'mute', '先生がゲームを始めるのを待っています。'));
-    c.appendChild(card(b));
+    if (lastKey !== 'lobby') { lastKey = 'lobby'; stopAnim(); showScreen('s-wait'); }
+  } else if (state.phase === 'question') {
+    var key = 'q:' + state.i;
+    if (lastKey !== key) { lastKey = key; stopAnim(); drawQuestion(); showScreen('s-q'); }
   } else if (state.phase === 'result') {
-    drawResult(c, r);
+    var me = scores[uid], has = me && me.qi === state.i;
+    var variant = !has ? 'collect' : me.ok ? 'ok' : me.c >= 0 ? 'ng' : 'late';
+    var key2 = 'res:' + state.i + ':' + variant;
+    if (lastKey !== key2) { lastKey = key2; stopAnim(); drawResult(variant, me, r); }
   } else if (state.phase === 'ranking') {
-    var k = card(el('div', 'mute', '上位5位（' + (state.i + 1) + ' / ' + state.n + '問終了時点）'));
-    k.appendChild(rankList(state.top));
-    if (r) k.appendChild(el('p', 'center', 'あなたは ' + r.rank + '位 / ' + r.n + '人（' + r.total + '点）'));
-    c.appendChild(k);
+    var key3 = 'rank:' + state.i;
+    if (lastKey !== key3) {
+      lastKey = key3; stopAnim(); showScreen('s-rank');
+      $('kprog').textContent = (state.i + 1) + ' / ' + state.n + '問 終了';
+      buildRank($('rk'), (state.rows || []).map(function (x) { return Object.assign({}, x); }), nick);
+    }
+    $('mepill').textContent = r ? 'あなたは ' + r.rank + '位 / ' + r.n + '人（' + fmt(r.total) + '点）' : '';
   } else if (state.phase === 'end') {
-    var f = card(el('div', 'big center', 'ゲーム終了！'));
-    f.appendChild(rankList(state.top));
-    if (r) f.appendChild(el('p', 'center big', 'あなたは ' + r.rank + '位 / ' + r.n + '人'));
-    c.appendChild(f);
+    if (lastKey !== 'end') {
+      lastKey = 'end'; stopAnim(); showScreen('s-end'); confetti($('conf-end'), 40);
+      $('endrank').textContent = r ? r.rank : '-'; $('endn').textContent = r ? r.n : '-';
+      countUp($('endpts'), r ? r.total : 0, 900, 500, true);
+      $('endtop').textContent = (state.top || []).slice(0, 3).map(function (t, i) { return (i + 1) + '位 ' + t.nick; }).join(' ・ ');
+    } else if (r) {
+      $('endrank').textContent = r.rank; $('endn').textContent = r.n;
+    }
   }
 }
 
-function card(child) { var d = el('div', 'card'); d.appendChild(child); return d; }
-
-function rankList(top) {
-  var ol = el('ol', 'rank');
-  (top || []).forEach(function (t, i) {
-    var li = el('li', t.nick === nick ? 'me' : '');
-    li.appendChild(el('span', 'no', (i + 1) + '位'));
-    li.appendChild(el('span', '', t.nick));
-    li.appendChild(el('span', 'pt', t.total + '点'));
-    ol.appendChild(li);
-  });
-  return ol;
-}
-
-function drawQuestion(c) {
-  c.textContent = '';
-  var d = el('div', 'card');
-  var top = el('div', 'top');
-  top.appendChild(el('span', '', '問題 ' + (state.i + 1) + ' / ' + state.n));
-  top.appendChild(el('span', '', '')); top.lastChild.id = 'sec';
-  d.appendChild(top);
-  var bar = el('div', 'bar'); var fill = el('i'); fill.id = 'fill'; bar.appendChild(fill); d.appendChild(bar);
-  d.appendChild(el('div', 'qtext', state.text));
-  if (state.image) { var im = el('img', 'qimg'); im.src = state.image; im.alt = ''; d.appendChild(im); }
-  var g = el('div', 'choices'); g.id = 'choices';
+function drawQuestion() {
+  $('sqno').textContent = '問題 ' + (state.i + 1) + ' / ' + state.n;
+  $('sqtext').textContent = state.text;
+  var im = $('sqimg');
+  if (state.image) { im.src = state.image; im.classList.remove('hide'); } else { im.classList.add('hide'); }
+  var box = $('stiles'); box.textContent = '';
   state.choices.forEach(function (t, idx) {
-    var b = el('button', 'ch');
-    b.style.background = CHOICE_STYLE[idx].color;
-    b.appendChild(el('span', '', CHOICE_STYLE[idx].shape));
-    b.appendChild(el('span', '', t));
+    var b = el('button', 'tile t' + idx);
+    b.appendChild(el('span', 'sh', CHOICE_STYLE[idx].shape)); b.appendChild(el('span', '', t));
     b.onclick = function () { answer(idx); };
-    g.appendChild(b);
+    box.appendChild(b);
   });
-  d.appendChild(g);
-  var st = el('div', 'center mute'); st.id = 'ansState'; st.style.marginTop = '12px';
-  d.appendChild(st);
-  c.appendChild(d);
+  $('ansState').textContent = '';
+  var ring = $('timebar'); ring.classList.remove('hurry');
+  answeredQ = answeredQ === state.i ? answeredQ : -1;    /* 画面を更新しても、回答済みの印は引き継ぐ */
+  if (answeredQ === state.i) markPicked();
 }
 
-function drawResult(c, r) {
-  var me = scores[uid];
-  var d = el('div', 'card center');
-  if (me && me.qi === state.i) {
-    if (me.ok) { d.appendChild(el('div', 'big ok', '正解！ +' + me.last + '点')); }
-    else if (me.c >= 0) { d.appendChild(el('div', 'big ng', '残念…')); }
-    else { d.appendChild(el('div', 'big ng', '時間切れ')); }
+function drawResult(variant, me, r) {
+  if (variant === 'collect') { showScreen('s-collect'); return; }
+  var q = state.choices[state.correct];
+  var ansText = '正解は ' + CHOICE_STYLE[state.correct].shape + ' ' + q;
+  if (variant === 'ok') {
+    showScreen('s-ok'); confetti($('conf-ok'), 26);
+    countUp($('okpts'), me.last, 900, 900, false);
+    countUp($('oktotal'), me.total, 900, 1500, true);
+    $('okans').textContent = CHOICE_STYLE[state.correct].shape + ' ' + q;
+    $('okrank').textContent = r ? r.rank : '-'; $('okn').textContent = r ? r.n : '-';
+    var mv = r ? r.move : 0;
+    $('okup').textContent = mv > 0 ? '▲ ' + mv + 'つ上がった！' : mv < 0 ? '▼ ' + (-mv) + 'つ下がった' : '順位キープ！';
+  } else if (variant === 'ng') {
+    showScreen('s-ng');
+    $('ngans').textContent = ansText; $('ngrank').textContent = r ? r.rank : '-'; $('ngn').textContent = r ? r.n : '-';
+    countUp($('ngtotal'), me.total, 900, 1500, true);
   } else {
-    d.appendChild(el('div', 'big', '集計中…'));
+    showScreen('s-late');
+    $('lateans').textContent = ansText; $('laterank').textContent = r ? r.rank : '-'; $('laten').textContent = r ? r.n : '-';
+    countUp($('latetotal'), me.total, 900, 1500, true);
   }
-  d.appendChild(el('p', 'mute', '正解: ' + CHOICE_STYLE[state.correct].shape + ' ' + state.choices[state.correct]));
-  if (r) d.appendChild(el('p', '', '今は ' + r.rank + '位 / ' + r.n + '人（' + r.total + '点）'));
-  c.appendChild(d);
 }
 
 /* ---------------------------------------------------------------- 回答 */
@@ -238,20 +285,19 @@ async function answer(idx) {
   markPicked();
   try {
     await set(ref(db, 'rooms/' + pin + '/answers/' + q + '/' + uid), { c: idx, t: serverTimestamp() });
-    var s = $('ansState'); if (s) s.textContent = '回答しました。結果を待っています…';
+    $('ansState').textContent = '✋ 回答しました！ みんなを待っています…';
   } catch (e) {
     answeredQ = -1; pickedIdx = -1;
-    var b = document.querySelectorAll('#choices .ch');
-    b.forEach(function (x) { x.disabled = false; x.classList.remove('picked'); });
-    var s2 = $('ansState');
-    if (s2) s2.textContent = 'すでに回答済みか、送れませんでした。';
+    document.querySelectorAll('#stiles .tile').forEach(function (x) { x.disabled = false; x.classList.remove('picked', 'dim'); });
+    $('ansState').textContent = 'すでに回答済みか、送れませんでした。';
   }
 }
 
 function markPicked() {
-  document.querySelectorAll('#choices .ch').forEach(function (b, i) {
-    b.disabled = true;
-    if (i === pickedIdx) { b.disabled = false; b.classList.add('picked'); b.style.pointerEvents = 'none'; }
+  document.querySelectorAll('#stiles .tile').forEach(function (b, i) {
+    b.classList.toggle('dim', pickedIdx >= 0 && i !== pickedIdx);
+    b.classList.toggle('picked', i === pickedIdx);
+    b.disabled = true; b.style.pointerEvents = 'none';
   });
 }
 
@@ -260,16 +306,15 @@ function tick() {
   if (!state || state.phase !== 'question' || !state.t) return;
   var limitMs = state.limit * 1000;
   var left = Math.max(0, limitMs - (serverNow() - state.t));
-  var f = $('fill'), s = $('sec');
-  if (f) f.style.width = (left / limitMs * 100) + '%';
-  if (s) s.textContent = Math.ceil(left / 1000) + ' 秒';
+  var tb = $('timebar');
+  tb.firstChild.style.width = (left / limitMs * 100) + '%';
+  tb.classList.toggle('hurry', left <= 5000 && left > 0);
+  $('secpill').textContent = '残り ' + Math.ceil(left / 1000) + ' 秒';
   if (left <= 0) {
-    document.querySelectorAll('#choices .ch').forEach(function (b, i) { if (i !== pickedIdx) b.disabled = true; });
-    var st = $('ansState');
-    if (st && answeredQ !== state.i) st.textContent = '時間切れです';
+    document.querySelectorAll('#stiles .tile').forEach(function (b, i) { if (i !== pickedIdx) { b.disabled = true; b.classList.add('dim'); } });
+    if (answeredQ !== state.i) $('ansState').textContent = '時間切れです';
   }
 }
-function stopTimer() { if (timerId) { clearInterval(timerId); timerId = null; } }
 </script>
 </body>
 </html>

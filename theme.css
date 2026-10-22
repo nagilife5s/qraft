@@ -1,0 +1,411 @@
+
+/* =====================================================================
+   デザイントークン（ここを変えると全画面が変わる。本番に移すときもこのまま使う）
+   ===================================================================== */
+@property --bg1 { syntax:'<color>'; inherits:true; initial-value:#6a35e8; }
+@property --bg2 { syntax:'<color>'; inherits:true; initial-value:#4320b0; }
+@property --bg3 { syntax:'<color>'; inherits:true; initial-value:#2a1280; }
+:root { transition:--bg1 .9s ease, --bg2 .9s ease, --bg3 .9s ease; }   /* 背景を切り替えたとき、色がなめらかに変わる */
+
+/* 背景ごとに変えるのは --bg1〜3（グラデの色）と --bgimg（背景全体）と、.deco の飾りだけ */
+:root, [data-bg="pop"] {
+  --bg1:#6a35e8; --bg2:#4320b0; --bg3:#2a1280;
+  --bgimg:
+    radial-gradient(circle at 12% 18%, rgba(255,255,255,.14) 0 9%, transparent 9.2%),
+    radial-gradient(circle at 90% 85%, rgba(255,255,255,.10) 0 14%, transparent 14.2%),
+    radial-gradient(circle at 78% 12%, rgba(53,224,255,.20) 0 5%, transparent 5.2%),
+    radial-gradient(circle at 8% 88%, rgba(255,95,162,.22) 0 6%, transparent 6.2%),
+    linear-gradient(160deg, var(--bg1), var(--bg2) 55%, var(--bg3));
+  --pop1:#ffd23f; --pop2:#ff5fa2; --pop3:#35e0ff;
+}
+
+/* 画像の背景は、先生の画面・生徒の画面ともに JS（lib.js の applyBg）が --bgimg・--safe・--bg1〜3 を入れる */
+[data-bg="sunset"] {
+  --bg1:#f4605d; --bg2:#c13584; --bg3:#4b1d8a;
+  --bgimg: linear-gradient(180deg, var(--bg1), var(--bg2) 50%, var(--bg3));
+}
+[data-bg="forest"] {
+  --bg1:#25a862; --bg2:#0f6b49; --bg3:#062f24;
+  --bgimg: radial-gradient(ellipse at 20% 0%, rgba(255,255,160,.22), transparent 55%), linear-gradient(170deg, var(--bg1), var(--bg2) 55%, var(--bg3));
+}
+:root {
+  --ink:#fff; --ink-dark:#1d1630;
+  --ok:#2fd070; --ng:#ff4d5e; --late:#ff9f1c;
+  --c-red:#e21b3c;  --c-blue:#1368ce; --c-yellow:#ffc00a; --c-green:#1fa95b;  /* 選択肢4色（色+形で区別） */
+  --shadow: 0 .45em 0 rgba(0,0,0,.28);           /* ぷっくりした影 */
+  --font: "Hiragino Maru Gothic ProN","Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic",sans-serif;
+}
+
+* { box-sizing:border-box; margin:0; }
+html, body { height:100%; }
+body { background:#14122a; color:#fff; font-family:var(--font); overflow:hidden; }
+/* 画面全体（この中の em / cqw は、この大きさを基準に決まる） */
+#app { position:fixed; inset:0; overflow:hidden; container-type:size; container-name:st; }
+.hide { display:none !important; }
+
+.screen { display:none; position:absolute; inset:0; }
+.screen.on { display:flex; }
+
+/* ---------------- 画面共通（背景・ロゴ・ボタン） ---------------- */
+.bg { background:var(--bgimg); background-size:cover; background-position:center; }
+.bgfade { position:absolute; inset:0; z-index:0; opacity:0; pointer-events:none; background-size:cover; background-position:center; }
+.screen { font-size:clamp(12px, min(1.55cqw, 2.76cqh), 36px); flex-direction:column; padding:3.2em max(4em, var(--safe, 0px)); gap:1.4em; }   /* --safe: 背景の飾りに文字が重ならないための左右の余白 */
+.logo-img { display:block; height:5.6em; width:auto; filter:drop-shadow(0 .18em 0 rgba(0,0,0,.18)); }
+.logo { font-weight:900; font-size:2.4em; letter-spacing:.02em; display:inline-flex; align-items:center; gap:.3em; }
+.logo i { font-style:normal; background:var(--pop1); color:var(--ink-dark); border-radius:.35em; padding:0 .28em; transform:rotate(-6deg); display:inline-block; box-shadow:0 .12em 0 rgba(0,0,0,.25); }
+.btn { font:inherit; font-weight:900; font-size:1.5em; background:var(--pop1); color:var(--ink-dark); border:0; border-radius:999px; padding:.55em 1.6em; box-shadow:var(--shadow); cursor:pointer; }
+.btn.sub { background:#fff; }
+.btn.ghost { background:rgba(18,10,48,.58); color:#fff; backdrop-filter:blur(4px); box-shadow:none; font-size:1.05em; padding:.5em 1.1em; }
+.pill { background:#fff; color:var(--ink-dark); border-radius:999px; padding:.35em 1.1em; font-weight:800; box-shadow:0 .2em 0 rgba(0,0,0,.2); }
+.card { background:#fff; color:var(--ink-dark); border-radius:1.2em; padding:1.6em 2em; box-shadow:var(--shadow); }
+.center { align-items:center; justify-content:center; text-align:center; }
+.mut { opacity:.78; }
+
+
+/* ---------------- 背景ピッカー（先生の画面だけに出る） ---------------- */
+.hostbar { display:flex; gap:.8em; align-items:center; position:relative; z-index:6; }
+.bgpick { position:relative; display:inline-block; }
+.bgpick .fab { font:inherit; font-weight:900; font-size:1.05em; background:rgba(18,10,48,.58); backdrop-filter:blur(4px); color:#fff; border:0; border-radius:999px; padding:.5em 1.1em; cursor:pointer; transition:background .15s; }
+.bgpick .fab:hover { background:rgba(18,10,48,.78); }
+.bgpick .sw { display:none; position:absolute; right:0; bottom:calc(100% + .6em); z-index:9; width:21em; background:#fff; color:var(--ink-dark); border-radius:1em; padding:.8em; box-shadow:var(--shadow); gap:.5em; flex-wrap:wrap; justify-content:center; }
+.bgpick.open .sw { display:grid; animation:popIn .22s both; }
+.bgpick.fixed { position:absolute; right:1.8em; bottom:1.4em; z-index:6; }
+.bgpick .sw button, .bgrow button { font:inherit; font-size:1em; font-weight:800; color:var(--ink-dark); background:#f2effd; border:2px solid transparent; border-radius:999px; padding:.3em .85em .3em .4em; display:flex; gap:.45em; align-items:center; cursor:pointer; }
+.bgpick .sw button.on, .bgrow button.on { border-color:#6a35e8; background:#fff; }
+.bgpick .sw button i, .bgrow button i { display:block; width:1.5em; height:1.5em; border-radius:50%; box-shadow:inset 0 0 0 .1em rgba(0,0,0,.15); }
+button[data-bg="pop"] i    { background:linear-gradient(160deg,#6a35e8,#2a1280); }
+button[data-bg="space"] i  { background:radial-gradient(circle at 30% 30%,#5b5bd6,#050524 70%); }
+button[data-bg="sea"] i    { background:linear-gradient(180deg,#0aa1c8,#042e55); }
+button[data-bg="lab"] i    { background:linear-gradient(165deg,#14bfa3,#084f63); }
+button[data-bg="sunset"] i { background:linear-gradient(180deg,#f4605d,#c13584 55%,#4b1d8a); }
+button[data-bg="forest"] i { background:linear-gradient(170deg,#25a862,#062f24); }
+.bgrow { display:flex; flex-wrap:wrap; gap:.5em; }
+
+/* 見本の画像つきの選択パネル（背景が増えても並べられるカード形式） */
+.bgpick .sw { display:none; grid-template-columns:repeat(4, 1fr); width:38em; max-height:62vh; overflow:auto; gap:.55em; padding:.8em; }
+.bgpick .sw button, .bgrow button { flex-direction:column; align-items:stretch; gap:.3em; padding:.35em; border-radius:.8em; font-size:.82em; text-align:center; background:#f2effd; }
+.bgpick .sw button i, .bgrow button i { width:100%; height:auto; aspect-ratio:16/9; border-radius:.5em; background-size:cover; background-position:center; box-shadow:inset 0 0 0 1px rgba(0,0,0,.18); }
+.bgrow { display:grid; grid-template-columns:repeat(5, 1fr); gap:.5em; }
+.bgrow button { font-size:.7em; }
+.setup .hint2 { font-size:.8em; opacity:.6; margin-top:.4em; font-weight:700; }
+
+/* ---------------- 先生：準備 ---------------- */
+.setup { gap:1.2em; width:34em; text-align:left; }
+.setup label { display:block; font-weight:800; margin:.9em 0 .3em; }
+.setup .sel { background:#f2effd; border:2px solid #d6cdf7; border-radius:.7em; padding:.6em .9em; font-weight:700; }
+.setup .two { display:flex; gap:1em; } .setup .two > div { flex:1; }
+
+/* ---------------- 先生：待機室 ---------------- */
+.lobby-top { display:flex; justify-content:space-between; align-items:center; }
+.joinbox { display:flex; gap:1.2em; align-items:stretch; }
+.joinbox .card { flex:1; min-width:0; padding:1em 1.2em; text-align:center; display:flex; flex-direction:column; justify-content:center; }
+.joinbox .lab { font-weight:800; opacity:.65; }
+.pin { font-size:min(3.9em, calc((100cqw - 2 * max(4em, var(--safe, 0px))) * .078)); font-weight:900; letter-spacing:.08em; line-height:1.05; color:var(--bg2); white-space:nowrap; }
+.url { font-size:min(1.45em, calc((100cqw - 2 * max(4em, var(--safe, 0px))) * .026)); font-weight:900; color:var(--bg2); margin-top:.3em; line-height:1.4; }
+.qr { width:7em; height:7em; background:repeating-conic-gradient(#1d1630 0 25%, #fff 0 50%) 0 0/1.6em 1.6em; border-radius:.6em; border:.5em solid #fff; margin:0 auto; }
+.players { display:flex; flex-wrap:wrap; gap:.5em; align-content:flex-start; flex:1; overflow:hidden; }
+.players .pill { font-size:.85em; padding:.2em .8em; }
+.players .pill:nth-child(5n+1){ background:var(--pop1); } .players .pill:nth-child(5n+2){ background:var(--pop3); }
+.players .pill:nth-child(5n+3){ background:var(--pop2); color:#fff; } .players .pill:nth-child(5n+4){ background:#8bf0b0; }
+.cnt-line { display:flex; justify-content:space-between; align-items:center; }
+.cnt-line b { font-size:1.4em; }
+
+/* ---------------- 先生：出題 ---------------- */
+.qhead { display:flex; justify-content:space-between; align-items:center; }
+.qno { font-weight:900; font-size:1.3em; background:rgba(255,255,255,.18); border-radius:999px; padding:.3em 1em; }
+.ring { --p:60; width:5em; height:5em; border-radius:50%; background:conic-gradient(var(--pop1) calc(var(--p)*1%), rgba(255,255,255,.2) 0); display:grid; place-items:center; position:relative; }
+.ring::before { content:""; position:absolute; inset:.5em; border-radius:50%; background:var(--bg3); }
+.ring b { position:relative; font-size:2em; font-weight:900; }
+.qcard { background:#fff; color:var(--ink-dark); border-radius:1.2em; padding:1.2em 1.6em; text-align:center; font-weight:900; font-size:2.35em; line-height:1.35; box-shadow:var(--shadow); flex:0 0 auto; }
+.qcard.small { font-size:1.6em; }
+.answered { align-self:center; font-weight:900; font-size:1.3em; background:rgba(0,0,0,.22); border-radius:999px; padding:.3em 1.2em; }
+.grid4 { display:grid; grid-template-columns:1fr 1fr; gap:1em; flex:1; min-height:0; }
+.tile { position:relative; border-radius:1em; display:flex; align-items:center; gap:.7em; padding:.6em 1em; font-weight:900; font-size:1.7em; color:#fff; box-shadow:var(--shadow); text-align:left; overflow:hidden; min-height:0; }
+.tile .sh { flex:0 0 auto; width:1.5em; height:1.5em; border-radius:50%; background:rgba(255,255,255,.95); display:grid; place-items:center; font-size:.95em; }
+.t0{background:var(--c-red)} .t0 .sh{color:var(--c-red)}
+.t1{background:var(--c-blue)} .t1 .sh{color:var(--c-blue)}
+.t2{background:var(--c-yellow);color:var(--ink-dark)} .t2 .sh{color:#a37400}
+.t3{background:var(--c-green)} .t3 .sh{color:var(--c-green)}
+.tile.dim { opacity:.3; box-shadow:none; }
+.tile .n { margin-left:auto; font-size:1.2em; background:rgba(0,0,0,.25); border-radius:.6em; padding:0 .55em; }
+.tile.right::after { content:"✓ 正解"; position:absolute; right:.6em; top:-.05em; transform:translateY(-50%); background:#fff; color:#0b7a3f; border-radius:999px; padding:.05em .6em; font-size:.55em; font-weight:900; }
+
+/* ---------------- 先生：正解発表（分布） ---------------- */
+.dist { display:grid; grid-template-columns:repeat(4,1fr); gap:1em; flex:1; min-height:0; }
+.dist .col { display:flex; flex-direction:column; justify-content:flex-end; align-items:stretch; gap:.45em; min-height:0; position:relative; }
+.dist .num { position:absolute; left:0; right:0; bottom:100%; padding-bottom:.3em; text-align:center; font-weight:900; font-size:1.7em; line-height:1; }
+.dist .barwrap { flex:1; display:flex; align-items:flex-end; min-height:0; padding-top:3.4em; }
+.dist .barwrap i { display:block; position:relative; width:100%; border-radius:.7em .7em 0 0; }
+.dist .tile { font-size:1.25em; flex:0 0 auto; min-height:3.2em; justify-content:flex-start; }
+.dist .col.dim .num, .dist .col.dim .barwrap { opacity:.35; }
+.dist .tile.right::after { display:none; }
+.dist .col:not(.dim) .num::before { content:"✓ 正解"; display:block; width:max-content; margin:0 auto .35em; font-size:.5em; background:#fff; color:#0b7a3f; border-radius:999px; padding:.15em .7em; }
+/* ---------------- ランキング ---------------- */
+.rk { display:flex; flex-direction:column; gap:.7em; }
+.rk .row { display:flex; align-items:center; gap:.8em; }
+.rk .no { width:2.2em; height:2.2em; border-radius:50%; background:#fff; color:var(--ink-dark); font-weight:900; display:grid; place-items:center; flex:0 0 auto; }
+.rk .row:nth-child(1) .no { background:var(--pop1); } .rk .row:nth-child(2) .no { background:#e3e6f2; } .rk .row:nth-child(3) .no { background:#f0b27a; }
+.rk .bar2 { flex:1; height:2.6em; background:rgba(255,255,255,.14); border-radius:.8em; position:relative; overflow:hidden; }
+.rk .bar2 i { position:absolute; left:0; top:0; bottom:0; background:linear-gradient(90deg,var(--pop3),#7be7ff); border-radius:.8em; }
+.rk .row:nth-child(1) .bar2 i { background:linear-gradient(90deg,var(--pop1),#ffe58a); }
+.rk .bar2 span { position:relative; line-height:2.6em; padding-left:.9em; font-weight:900; font-size:1.15em; color:var(--ink-dark); }
+.rk .pt { width:5.5em; text-align:right; font-weight:900; font-size:1.3em; font-variant-numeric:tabular-nums; flex:0 0 auto; }
+.rk .row.me .bar2 { outline:.18em solid #fff; }
+.title2 { font-weight:900; font-size:2em; }
+
+/* ---------------- 先生：終了（表彰台） ---------------- */
+.podium { display:flex; justify-content:center; align-items:flex-end; gap:1.2em; height:15em; }
+.podium .p { width:11em; border-radius:1em 1em 0 0; text-align:center; padding-top:.7em; font-weight:900; color:var(--ink-dark); box-shadow:var(--shadow); }
+.podium .p b { display:block; font-size:1.3em; } .podium .p small { font-size:1em; opacity:.8; }
+.p1 { height:100%; background:var(--pop1); } .p2 { height:72%; background:#e3e6f2; } .p3 { height:56%; background:#f0b27a; }
+.crown { font-size:2em; }
+.confetti { position:absolute; inset:0; pointer-events:none; overflow:hidden; }
+.confetti span { position:absolute; top:-8%; width:.6em; height:1em; opacity:.95; animation:fall linear infinite; }
+@keyframes fall { to { transform:translateY(125cqh) rotate(540deg); } }
+
+/* ---------------- 生徒：共通 ---------------- */
+.stu-top { display:flex; justify-content:space-between; align-items:center; }
+.stu-top .pill { font-size:1.05em; }
+.stu-q { font-weight:900; font-size:1.9em; line-height:1.4; text-align:center; background:#fff; color:var(--ink-dark); border-radius:1em; padding:.9em 1em; box-shadow:var(--shadow); }
+.stu-tiles { flex:1; display:grid; grid-template-columns:1fr 1fr; gap:.9em; min-height:0; }
+.stu-tiles .tile { font-size:1.55em; justify-content:center; text-align:center; flex-direction:column; gap:.25em; padding:.5em; }
+.stu-tiles .tile .sh { width:1.35em; height:1.35em; }
+.tile.picked { outline:.2em solid #fff; transform:scale(1.02); }
+.timebar { height:.8em; background:rgba(255,255,255,.2); border-radius:.5em; overflow:hidden; }
+.timebar i { display:block; height:100%; width:60%; background:var(--pop1); border-radius:.5em; }
+.field { background:#fff; color:var(--ink-dark); border-radius:.8em; padding:.7em 1em; font-size:1.6em; font-weight:800; width:100%; text-align:left; box-shadow:inset 0 .1em 0 rgba(0,0,0,.1); }
+.field.ph { color:#9a93b8; }
+.joincol { width:min(24em,100%); display:flex; flex-direction:column; gap:.9em; align-items:stretch; }
+.flabel { font-weight:900; text-align:left; margin-bottom:-.4em; }
+
+/* ---------------- 生徒：結果（全面カラー） ---------------- */
+.res { padding:0; }
+.res .inner { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.5em; text-align:center; padding:2em; }
+.res.ok  { background:radial-gradient(circle at 50% 30%, #4ee68c, var(--ok) 55%, #14924a); }
+.res.ng  { background:radial-gradient(circle at 50% 30%, #ff7b88, var(--ng) 55%, #c9283a); }
+.res.late{ background:radial-gradient(circle at 50% 30%, #ffc266, var(--late) 55%, #cf7a00); }
+.res .icon { width:2.9em; height:2.9em; border-radius:50%; background:#fff; display:grid; place-items:center; font-size:3.6em; line-height:1; font-weight:900; box-shadow:var(--shadow); }
+.res.ok .icon{color:var(--ok)} .res.ng .icon{color:var(--ng)} .res.late .icon{color:var(--late)}
+.res h2 { font-size:3.4em; font-weight:900; text-shadow:0 .06em 0 rgba(0,0,0,.2); }
+.res .plus { font-size:2.4em; font-weight:900; background:rgba(0,0,0,.22); border-radius:999px; padding:.1em .8em; }
+.res .ans { font-size:1.35em; font-weight:800; background:rgba(255,255,255,.95); color:var(--ink-dark); border-radius:.8em; padding:.4em 1em; }
+.res .rank { font-size:1.4em; font-weight:900; }
+.res .rank b { font-size:1.6em; }
+.hint { font-size:.95em; opacity:.85; }
+
+.dots span { display:inline-block; width:.7em; height:.7em; border-radius:50%; background:#fff; margin:0 .25em; animation:b 1s infinite ease-in-out; }
+.dots span:nth-child(2){animation-delay:.15s} .dots span:nth-child(3){animation-delay:.3s}
+@keyframes b { 0%,80%,100%{transform:translateY(0);opacity:.5} 40%{transform:translateY(-.5em);opacity:1} }
+
+/* スマホ縦（幅が狭いとき） */
+@container st (max-width: 600px) {
+  .screen { font-size:clamp(11px,3.4cqw,18px); padding:1.8em 1.4em; }
+  .stu-q { font-size:1.45em; padding:.7em .8em; }
+  .stu-tiles { grid-template-columns:1fr; grid-auto-rows:1fr; }
+  .stu-tiles .tile { flex-direction:row; justify-content:flex-start; text-align:left; font-size:1.35em; }
+  .res h2 { font-size:2.6em; } .res .icon { font-size:3em; }
+  .logo { font-size:2em; } .joincol { width:100%; }
+}
+
+/* ======================================================================
+   モーション
+   ・画面が表示されるたびに、CSSアニメーションが最初から再生される
+   ・本番では OS の「視差効果を減らす」設定を尊重して、すべて止める
+   ====================================================================== */
+.screen { z-index:1; }
+.deco { position:absolute; inset:0; pointer-events:none; overflow:hidden; z-index:0; transition:opacity .3s; }
+.deco i { position:absolute; display:none; }
+/* 飾りの置き場所（10か所・全背景で共通。絵柄は背景ごとに変える） */
+.deco i:nth-child(1){left:6%;top:64%}  .deco i:nth-child(2){left:86%;top:12%} .deco i:nth-child(3){left:74%;top:72%}
+.deco i:nth-child(4){left:20%;top:8%}  .deco i:nth-child(5){left:46%;top:86%} .deco i:nth-child(6){left:92%;top:46%}
+.deco i:nth-child(7){left:30%;top:40%} .deco i:nth-child(8){left:58%;top:14%} .deco i:nth-child(9){left:12%;top:30%}
+.deco i:nth-child(10){left:64%;top:52%}
+
+/* ---- ポップ：丸・三角・四角がゆっくり漂う ---- */
+[data-bg="pop"] .deco i:nth-child(-n+6) { display:block; opacity:.12; background:#fff; animation:drift 34s ease-in-out infinite alternate; }
+[data-bg="pop"] .deco i:nth-child(1){width:7cqw;height:7cqw;border-radius:50%}
+[data-bg="pop"] .deco i:nth-child(2){width:5cqw;height:5cqw;border-radius:1cqw;background:var(--pop3)}
+[data-bg="pop"] .deco i:nth-child(3){width:8cqw;height:8cqw;clip-path:polygon(50% 0,100% 100%,0 100%);background:var(--pop1)}
+[data-bg="pop"] .deco i:nth-child(4){width:4cqw;height:4cqw;border-radius:50%;background:var(--pop2)}
+[data-bg="pop"] .deco i:nth-child(5){width:6cqw;height:6cqw;border-radius:1.2cqw;rotate:20deg}
+[data-bg="pop"] .deco i:nth-child(6){width:3.4cqw;height:3.4cqw;border-radius:50%;background:var(--pop3)}
+
+
+
+
+/* ---- 夕やけ：大きな太陽と、流れる雲 ---- */
+[data-bg="sunset"] .deco i:nth-child(1){display:block;left:62%;top:50%;width:26cqw;height:26cqw;border-radius:50%;background:radial-gradient(circle,#fff1a8 0 36%,rgba(255,210,63,.6) 40%,rgba(255,210,63,0) 70%);animation:sunbreath 9s ease-in-out infinite alternate}
+[data-bg="sunset"] .deco i:nth-child(2){display:block;left:10%;top:18%;width:16cqw;height:4.2cqw;border-radius:99px;background:rgba(255,255,255,.2);animation:cloud 80s ease-in-out infinite alternate}
+[data-bg="sunset"] .deco i:nth-child(3){display:block;left:56%;top:10%;width:12cqw;height:3.4cqw;border-radius:99px;background:rgba(255,255,255,.16);animation:cloud 100s ease-in-out infinite alternate-reverse}
+[data-bg="sunset"] .deco i:nth-child(4){display:block;left:28%;top:72%;width:18cqw;height:4.6cqw;border-radius:99px;background:rgba(255,255,255,.14);animation:cloud 90s ease-in-out infinite alternate}
+
+/* ---- 森：葉っぱがゆっくり揺れ、ホタルが光る ---- */
+[data-bg="forest"] .deco i:nth-child(-n+6) { display:block; background:#6be39a; opacity:.16; border-radius:0 100% 0 100%; animation:leaf 40s ease-in-out infinite alternate; }
+[data-bg="forest"] .deco i:nth-child(1){width:8cqw;height:8cqw;rotate:20deg}
+[data-bg="forest"] .deco i:nth-child(2){width:6cqw;height:6cqw;rotate:-40deg}
+[data-bg="forest"] .deco i:nth-child(3){width:9cqw;height:9cqw;rotate:70deg}
+[data-bg="forest"] .deco i:nth-child(4){width:5cqw;height:5cqw;rotate:10deg}
+[data-bg="forest"] .deco i:nth-child(5){width:7cqw;height:7cqw;rotate:-20deg}
+[data-bg="forest"] .deco i:nth-child(6){width:5.5cqw;height:5.5cqw;rotate:50deg}
+[data-bg="forest"] .deco i:nth-child(n+7) { display:block; width:.9cqw; height:.9cqw; border-radius:50%; background:#fff7a8; box-shadow:0 0 1.2cqw .4cqw rgba(255,247,168,.7); animation:glow 7s ease-in-out infinite, drift 30s ease-in-out infinite alternate; }
+[data-bg="forest"] .deco i:nth-child(8){animation-delay:-2s,-6s} [data-bg="forest"] .deco i:nth-child(9){animation-delay:-4s,-12s} [data-bg="forest"] .deco i:nth-child(10){animation-delay:-5.5s,-3s}
+
+@keyframes drift { from { transform:translate(0,0) rotate(0deg); } to { transform:translate(.9cqw,-1.3cqw) rotate(10deg); } }
+@keyframes twinkle { 0%,100% { opacity:.15; transform:scale(.8); } 50% { opacity:.9; transform:scale(1.25); } }
+@keyframes rise { from { transform:translate(0,0); } 50% { transform:translate(1.2cqw,-60cqh); } to { transform:translate(-.8cqw,-118cqh); } }
+@keyframes sway { from { transform:translateX(-2.5cqw); } to { transform:translateX(2.5cqw); } }
+@keyframes sunbreath { from { transform:scale(1); opacity:.85; } to { transform:scale(1.06); opacity:1; } }
+@keyframes cloud { from { transform:translateX(0); } to { transform:translateX(7cqw); } }
+@keyframes leaf { from { transform:translate(0,0); } to { transform:translate(1.2cqw,1.6cqw); } }
+@keyframes glow { 0%,100% { opacity:.2; } 50% { opacity:1; } }
+
+@keyframes dropIn  { from { opacity:0; transform:translateY(-3.5em) scale(.96); } to { opacity:1; transform:none; } }
+@keyframes slideUp { from { opacity:0; transform:translateY(2.2em); } to { opacity:1; transform:none; } }
+@keyframes slideDn { from { opacity:0; transform:translateY(-1.6em); } to { opacity:1; transform:none; } }
+@keyframes popIn   { 0% { opacity:0; transform:scale(.55); } 70% { opacity:1; transform:scale(1.06); } 100% { transform:scale(1); } }
+@keyframes pulse   { 0%,100% { transform:scale(1); } 50% { transform:scale(1.045); } }
+@keyframes breathe { 0%,100% { transform:scale(1); } 50% { transform:scale(1.025); } }
+@keyframes wiggle  { 0%,100% { transform:rotate(0) scale(1); } 20% { transform:rotate(-2.5deg) scale(1.04); } 40% { transform:rotate(2.5deg) scale(1.04); } 60% { transform:rotate(0) scale(1); } }
+@keyframes shake   { 0%,100% { transform:translateX(0); } 15% { transform:translateX(-.5em); } 35% { transform:translateX(.5em); } 55% { transform:translateX(-.35em); } 75% { transform:translateX(.35em); } }
+@keyframes swing   { 0%,100% { transform:rotate(-10deg); } 50% { transform:rotate(10deg); } }
+@keyframes grow    { from { transform:scaleY(0); } to { transform:scaleY(1); } }
+@keyframes rise    { from { transform:scaleY(0); } to { transform:scaleY(1); } }
+@keyframes bob     { 0%,100% { translate:0 0; } 50% { translate:0 -.28em; } }
+@keyframes chipIn  { 0% { opacity:0; transform:translateY(.6em) scale(.9); } 100% { opacity:1; transform:none; } }
+@keyframes iconPop { 0% { transform:scale(0) rotate(-40deg); } 65% { transform:scale(1.18) rotate(6deg); } 100% { transform:scale(1) rotate(0); } }
+@keyframes floaty  { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-.18em); } }
+@keyframes hurry   { 0%,100% { transform:scale(1); } 50% { transform:scale(1.12); } }
+@keyframes fadeDim { from { opacity:1; } to { opacity:.3; } }
+@keyframes tilt    { 0%,100% { transform:rotate(-6deg); } 50% { transform:rotate(-1deg); } }
+
+/* ---- ボタン：押した感触 ---- */
+.btn { transition:transform .12s, box-shadow .12s; }
+.btn:hover { transform:translateY(-.12em); }
+.btn:active { transform:translateY(.28em); box-shadow:0 .17em 0 rgba(0,0,0,.28); }
+
+/* ---- ロゴ ---- */
+.screen.on .logo-img { animation:slideDn .6s cubic-bezier(.2,1.4,.4,1) both; }
+
+/* ---- 先生：準備 ---- */
+.screen.on .setup { animation:slideUp .6s cubic-bezier(.2,1.2,.4,1) .15s both; }
+
+/* ---- 先生：待機室 ---- */
+.screen.on .joinbox .card { animation:slideUp .6s cubic-bezier(.2,1.2,.4,1) both; }
+.screen.on .joinbox .card:nth-child(2) { animation-delay:.12s; }
+.screen.on .joinbox .card:nth-child(3) { animation-delay:.24s; }
+.screen.on .cnt-line .btn { animation:breathe 4.5s ease-in-out 1.8s infinite; }
+.players .pill { animation:chipIn .45s cubic-bezier(.25,.9,.35,1) both; animation-delay:calc(var(--i,0) * 45ms + .4s); }
+.players .pill.extra { animation-delay:0s; }
+#pcount.bump { display:inline-block; animation:softpop .35s ease-out both; }
+@keyframes softpop { 0% { transform:scale(1.25); } 100% { transform:scale(1); } }
+
+/* ---- 出題 ---- */
+.screen.on .qhead > * { animation:slideDn .5s cubic-bezier(.2,1.3,.4,1) both; }
+.screen.on .qhead > *:nth-child(2) { animation-delay:.08s; }
+.screen.on .qhead > *:nth-child(3) { animation-delay:.16s; }
+.screen.on .qcard, .screen.on .stu-q { animation:dropIn .65s cubic-bezier(.2,1.4,.4,1) .1s both; }
+.screen.on .grid4 .tile, .screen.on .stu-tiles .tile { animation:popIn .5s cubic-bezier(.2,1.5,.4,1) both; }
+.screen.on .grid4 .tile:nth-child(1), .screen.on .stu-tiles .tile:nth-child(1) { animation-delay:.45s; }
+.screen.on .grid4 .tile:nth-child(2), .screen.on .stu-tiles .tile:nth-child(2) { animation-delay:.55s; }
+.screen.on .grid4 .tile:nth-child(3), .screen.on .stu-tiles .tile:nth-child(3) { animation-delay:.65s; }
+.screen.on .grid4 .tile:nth-child(4), .screen.on .stu-tiles .tile:nth-child(4) { animation-delay:.75s; }
+.ring.hurry { animation:hurry .5s ease-in-out infinite; }
+.ring.hurry { background:conic-gradient(var(--pop2) calc(var(--p)*1%), rgba(255,255,255,.2) 0); }
+.timebar i { transition:width .1s linear; }
+.timebar.hurry i { background:var(--pop2); }
+.screen.on .answered { animation:popIn .5s both; }
+
+/* ---- 回答後（生徒）---- */
+.screen.on .stu-tiles .tile.dim { animation:fadeDim .45s ease-out .1s both; }
+.screen.on .stu-tiles .tile.picked { animation:pulse 1.4s ease-in-out infinite; }
+
+/* ---- 正解発表 ---- */
+.screen.on .dist .barwrap i { transform-origin:bottom; animation:grow .9s cubic-bezier(.2,.9,.3,1) .35s both; }
+.screen.on .dist .num { animation:popIn .5s both; animation-delay:1.15s; }
+.screen.on .dist .tile { animation:slideUp .5s cubic-bezier(.2,1.2,.4,1) both; }
+.screen.on .dist .tile.right { animation:slideUp .5s cubic-bezier(.2,1.2,.4,1) both, pulse 1.6s ease-in-out 1.4s infinite; }
+.screen.on .title2 { animation:popIn .55s cubic-bezier(.2,1.5,.4,1) both; }
+
+/* ---- ランキング（JSで並べ替え）---- */
+.rkAnim { position:relative; height:calc(3.6em * 5 - .9em); font-size:1em; }
+.rkAnim .row { position:absolute; left:0; right:0; top:0; height:2.7em; transform:translateY(calc(var(--pos,0) * 3.6em));
+               transition:transform .9s cubic-bezier(.3,1.25,.5,1); }
+.rkAnim .bar2 { height:2.7em; }
+.rkAnim .bar2 i { transition:width 1s cubic-bezier(.2,.9,.3,1); width:0; }
+.rkAnim .bar2 span { line-height:2.7em; }
+.rkAnim.rk .row .no { background:#fff; transition:background .3s; }
+.rkAnim.rk .row[data-rank="1"] .no { background:var(--pop1); }
+.rkAnim.rk .row[data-rank="2"] .no { background:#e3e6f2; }
+.rkAnim.rk .row[data-rank="3"] .no { background:#f0b27a; }
+.rkAnim.rk .row .bar2 i { background:linear-gradient(90deg,var(--pop3),#7be7ff); }
+.rkAnim.rk .row[data-rank="1"] .bar2 i { background:linear-gradient(90deg,var(--pop1),#ffe58a); }
+.rkAnim .delta { width:4.2em; text-align:right; font-weight:900; color:var(--pop1); opacity:0; transform:translateY(.5em); transition:opacity .35s, transform .35s; flex:0 0 auto; }
+.rkAnim .delta.show { opacity:1; transform:none; }
+.rkAnim .mv { width:3.4em; font-weight:900; font-size:.95em; opacity:0; transform:scale(.4); transition:opacity .3s, transform .4s cubic-bezier(.2,1.8,.4,1); flex:0 0 auto; }
+.rkAnim .mv.show { opacity:1; transform:scale(1); }
+.mv.up { color:#7dffb0; } .mv.dn { color:#ff9aa6; } .mv.eq { color:rgba(255,255,255,.6); }
+.rkAnim .row.lift { z-index:2; }
+.rkAnim .row.lift .bar2 { box-shadow:0 0 0 .18em var(--pop1), 0 .4em 1.2em rgba(0,0,0,.35); }
+.up { color:#eaffd9; font-weight:900; }
+
+/* ---- 先生：終了（表彰台）---- */
+.screen.on .podium .p { transform-origin:bottom; animation:rise .8s cubic-bezier(.2,1.15,.4,1) both; }
+.screen.on .podium .p3 { animation-delay:.3s; } .screen.on .podium .p2 { animation-delay:.8s; } .screen.on .podium .p1 { animation-delay:1.4s; }
+.screen.on .crown { animation:dropIn .7s cubic-bezier(.2,1.6,.4,1) 2.1s both, floaty 2.4s ease-in-out 2.8s infinite; }
+.screen.on .podium .p b, .screen.on .podium .p small { animation:popIn .5s both; animation-delay:1s; }
+
+/* ---- 生徒：参加・待機 ---- */
+.screen.on .joincol > * { animation:slideUp .55s cubic-bezier(.2,1.2,.4,1) both; }
+.screen.on .joincol > *:nth-child(2) { animation-delay:.1s; } .screen.on .joincol > *:nth-child(3) { animation-delay:.18s; }
+.screen.on .joincol > *:nth-child(4) { animation-delay:.26s; } .screen.on .joincol > *:nth-child(5) { animation-delay:.34s; }
+.screen.on .joincol > *:nth-child(6) { animation-delay:.42s; }
+.screen[data-name="② 待機"].on .logo-img { animation:slideDn .6s both, floaty 5s ease-in-out .8s infinite; }
+
+/* ---- 生徒：結果 ---- */
+.screen.on .res .icon, .screen.res.on .icon { animation:iconPop .75s cubic-bezier(.2,1.5,.4,1) .1s both; }
+.screen.res.ng.on .icon { animation:iconPop .6s cubic-bezier(.2,1.5,.4,1) .1s both, shake .6s ease-in-out .8s both; }
+.screen.res.late.on .icon { animation:iconPop .6s cubic-bezier(.2,1.5,.4,1) .1s both; }
+.screen.res.late.on .icon > * { display:inline-block; animation:swing 1s ease-in-out .8s 3; }
+.screen.res.on h2 { animation:slideUp .5s cubic-bezier(.2,1.4,.4,1) .45s both; }
+.screen.res.on .plus { animation:popIn .55s cubic-bezier(.2,1.6,.4,1) .75s both; }
+.screen.res.on .ans { animation:slideUp .5s cubic-bezier(.2,1.2,.4,1) 1s both; }
+.screen.res.on .rank { animation:slideUp .5s cubic-bezier(.2,1.2,.4,1) 1.25s both; }
+.screen.res.on .rank b { display:inline-block; animation:popIn .6s cubic-bezier(.2,1.8,.4,1) 1.5s both; }
+.screen.res.on .hint { animation:slideUp .5s both; animation-delay:1.5s; }
+.screen.on .stu-top .pill { animation:slideDn .45s cubic-bezier(.2,1.3,.4,1) both; }
+
+/* ---- 生徒：終了 ---- */
+.screen.on .card { animation:popIn .6s cubic-bezier(.2,1.5,.4,1) .3s both; }
+.screen.on .setup.card { animation:slideUp .6s cubic-bezier(.2,1.2,.4,1) .15s both; }
+.screen.on .joinbox .card { animation-name:slideUp; }
+.screen.on .title2 + .podium { animation:none; }
+
+body.nomotion *, body.nomotion *::before, body.nomotion *::after { animation:none !important; transition:none !important; }
+
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation:none !important; transition:none !important; } }
+
+
+/* ======================================================================
+   本番ページ用の追加（実際の入力欄・エラー表示・一時停止の表示）
+   ====================================================================== */
+.setup select, .setup input[type=number] { font:inherit; font-weight:700; color:var(--ink-dark); background:#f2effd; border:2px solid #d6cdf7; border-radius:.7em; padding:.55em .8em; width:100%; }
+.setup label.chk { display:flex; gap:.5em; align-items:center; margin:.9em 0 .3em; }
+.setup label.chk input { width:1.2em; height:1.2em; }
+.err { background:rgba(255,255,255,.95); color:#b3261e; font-weight:800; border-radius:.7em; padding:.5em .9em; margin-top:.8em; }
+input.field { font:inherit; font-weight:800; font-size:1.6em; border:0; outline:0; }
+input.field::placeholder { color:#9a93b8; }
+input.field:focus { box-shadow:0 0 0 .14em var(--pop1); }
+.pausebadge { background:var(--pop1); color:var(--ink-dark); font-weight:900; border-radius:999px; padding:.3em .9em; }
+.chip-x { margin-left:.35em; font:inherit; font-size:.8em; font-weight:900; color:#b3261e; background:rgba(255,255,255,.75); border:0; border-radius:999px; padding:0 .5em; cursor:pointer; }
+.players .pill { display:inline-flex; align-items:center; }
+.screen .qimg { max-height:22cqh; max-width:100%; display:block; margin:0 auto; border-radius:.8em; }
+.qcard.hasimg { display:flex; flex-direction:column; gap:.6em; }
+.logo-img.small { height:4.4em; }
+.qr svg { width:100%; height:100%; display:block; border-radius:.4em; background:#fff; }
+.qr { background:#fff; padding:.35em; }
+
+/* 生徒の選択肢は本物のボタン（見た目はタイルと同じ） */
+button.tile { appearance:none; font:inherit; font-weight:900; border:0; cursor:pointer; color:#fff; }
+button.tile.t2 { color:var(--ink-dark); }
+button.tile:disabled { cursor:default; }
+.stu-tiles .tile { font-size:1.55em; }

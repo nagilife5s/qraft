@@ -1,0 +1,56 @@
+[
+  {
+    "key": "space",
+    "name": "宇宙",
+    "file": "img/bg/space.webp",
+    "thumb": "img/bg/thumb-space.webp",
+    "scrim": 0.12,
+    "avg": "#352962",
+    "safe": 12
+  },
+  {
+    "key": "sea",
+    "name": "海",
+    "file": "img/bg/sea.webp",
+    "thumb": "img/bg/thumb-sea.webp",
+    "scrim": 0.35,
+    "avg": "#2f6a8b",
+    "safe": 9
+  },
+  {
+    "key": "lab",
+    "name": "実験室",
+    "file": "img/bg/lab.webp",
+    "thumb": "img/bg/thumb-lab.webp",
+    "scrim": 0.12,
+    "avg": "#355f63",
+    "safe": 17
+  },
+  {
+    "key": "fantasy",
+    "name": "ファンタジー",
+    "file": "img/bg/fantasy.webp",
+    "thumb": "img/bg/thumb-fantasy.webp",
+    "scrim": 0.12,
+    "avg": "#463761",
+    "safe": 18
+  },
+  {
+    "key": "safari",
+    "name": "サバンナ",
+    "file": "img/bg/safari.webp",
+    "thumb": "img/bg/thumb-safari.webp",
+    "scrim": 0.22,
+    "avg": "#824542",
+    "safe": 8
+  },
+  {
+    "key": "chalk",
+    "name": "黒板",
+    "file": "img/bg/chalk.webp",
+    "thumb": "img/bg/thumb-chalk.webp",
+    "scrim": 0.12,
+    "avg": "#334739",
+    "safe": 11
+  }
+]

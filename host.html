@@ -1,158 +1,159 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" data-bg="pop">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Qraft 先生用</title>
-<style>
-  :root { --bg:#f6f4ee; --ink:#1d1d1f; --mute:#6b6b70; --card:#fff; --line:#dcd8cc; --accent:#1268c3; }
-  * { box-sizing: border-box; }
-  body { margin:0; background:var(--bg); color:var(--ink);
-         font-family:-apple-system,"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; line-height:1.6; }
-  main { max-width: 1100px; margin: 0 auto; padding: 24px 20px 60px; }
-  h1 { font-size: 1.5rem; margin: 0 0 .6em; }
-  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:20px 22px; margin-bottom:18px; }
-  label { display:block; font-weight:600; margin:.9em 0 .25em; }
-  select, input[type=number] { font-size:1.05rem; padding:.45em .6em; border:1px solid var(--line); border-radius:8px; }
-  button { font-size:1.05rem; padding:.65em 1.4em; border:0; border-radius:10px; background:var(--accent); color:#fff; cursor:pointer; font-weight:600; }
-  button.sub { background:#fff; color:var(--ink); border:1px solid var(--line); }
-  button.warn { background:#b3261e; }
-  button:disabled { opacity:.45; cursor:default; }
-  .row { display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
-  .hide { display:none !important; }
-  .err { color:#b3261e; font-weight:600; margin-top:.8em; }
-
-  .pin { font-size: clamp(3rem, 12vw, 7rem); font-weight:800; letter-spacing:.12em; line-height:1.1; }
-  .url { font-size: clamp(1.1rem, 3vw, 1.8rem); font-weight:700; color:var(--accent); word-break:break-all; }
-  .players { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
-  .chip { background:#eef3fb; border:1px solid #c9d9f0; border-radius:999px; padding:.3em .5em .3em .9em; display:inline-flex; gap:.4em; align-items:center; }
-  .chip button { padding:.1em .55em; font-size:.85rem; background:#fff; color:#b3261e; border:1px solid #e3b5b1; border-radius:999px; }
-
-  .qhead { display:flex; justify-content:space-between; align-items:baseline; color:var(--mute); font-weight:600; }
-  .qtext { font-size: clamp(1.6rem, 4.2vw, 3rem); font-weight:800; margin:.3em 0 .5em; line-height:1.35; }
-  .qimg { max-width:100%; max-height:34vh; display:block; margin:0 auto 14px; border-radius:10px; }
-  .bar { height:14px; background:#e6e2d6; border-radius:7px; overflow:hidden; margin:6px 0 14px; }
-  .bar > i { display:block; height:100%; width:100%; background:var(--accent); }
-  .grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-  .ch { color:#fff; border-radius:12px; padding:18px 20px; font-size: clamp(1.1rem, 2.6vw, 1.9rem); font-weight:700; display:flex; gap:.6em; align-items:center; position:relative; min-height:4.2em; overflow:hidden; }
-  .ch.dim { opacity:.28; }
-  .ch .cnt { margin-left:auto; font-size:1.4em; font-weight:800; }
-  .ch .fill { position:absolute; left:0; bottom:0; height:6px; background:rgba(255,255,255,.7); }
-  .ok-mark { background:#fff; color:#1d1d1f; border-radius:999px; padding:0 .6em; font-size:.8em; }
-  .rank li { font-size: clamp(1.2rem, 3vw, 2rem); font-weight:700; padding:.25em 0; display:flex; gap:.8em; }
-  .rank .pt { margin-left:auto; font-variant-numeric:tabular-nums; }
-  .rank ol { padding-left:0; list-style:none; margin:0; }
-  .rank .no { width:2em; color:var(--mute); }
-  .badge { background:#fff3cd; border:1px solid #ecd58a; padding:.3em .8em; border-radius:8px; font-weight:700; }
-  .mute { color:var(--mute); }
-  @media (max-width:640px){ .grid{grid-template-columns:1fr;} }
-</style>
+<link rel="icon" type="image/png" href="img/favicon-32.png">
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+<link rel="stylesheet" href="theme.css">
 </head>
 <body>
-<main>
+<div id="app">
 
 <!-- ① 準備 -->
-<section id="setup" class="card">
-  <h1>Qraft（先生用）</h1>
-  <label for="setSel">問題セット</label>
-  <select id="setSel"></select>
-  <div class="row">
-    <div><label for="count">出題数</label><input id="count" type="number" min="1" value="8" style="width:6em"></div>
-    <div><label for="limitSel">1問の制限時間</label>
-      <select id="limitSel"><option>10</option><option selected>20</option><option>30</option><option>45</option><option>60</option></select> 秒</div>
+<section class="screen" id="s-setup">
+  <div class="center" style="flex:1; display:flex; flex-direction:column; gap:1em">
+    <img class="logo-img" src="img/logo-wordmark.webp" alt="Qraft" style="height:6.2em">
+    <div class="card setup">
+      <label style="margin-top:0" for="setSel">問題セット</label><select id="setSel"></select>
+      <div class="two">
+        <div><label for="count">出題数</label><input id="count" type="number" min="1" value="8"></div>
+        <div><label for="limitSel">1問の制限時間</label>
+          <select id="limitSel"><option value="10">10 秒</option><option value="20" selected>20 秒</option><option value="30">30 秒</option><option value="45">45 秒</option><option value="60">60 秒</option></select></div>
+      </div>
+      <label class="chk"><input id="shuf" type="checkbox" checked> 選択肢の順番をシャッフルする</label>
+      <label>背景</label><div class="bgrow"></div>
+      <div style="text-align:center;margin-top:1.4em"><button class="btn" id="btnCreate">ルームを作る</button></div>
+      <div id="setupErr" class="err hide"></div>
+    </div>
   </div>
-  <label><input id="shuf" type="checkbox" checked> 選択肢の順番をシャッフルする</label>
-  <p><button id="btnCreate">ルームを作る</button></p>
-  <div id="setupErr" class="err hide"></div>
 </section>
 
 <!-- ② 待機室 -->
-<section id="lobby" class="card hide">
-  <div class="mute">生徒は次のアドレスを開いて、PINを入力します</div>
-  <div class="url" id="joinUrl"></div>
-  <div class="mute" style="margin-top:.6em">PIN</div>
-  <div class="pin" id="pin">------</div>
-  <div class="row" style="margin-top:10px">
-    <button id="btnStart" disabled>ゲームを始める</button>
-    <span id="playerCount" class="mute"></span>
+<section class="screen" id="s-lobby" style="padding-top:2.2em; gap:1em">
+  <div class="lobby-top"><img class="logo-img" src="img/logo-wordmark.webp" alt="Qraft" style="height:4.6em"><span class="qno" id="setTitle"></span></div>
+  <div class="joinbox">
+    <div class="card" style="flex:1.05"><div class="lab">① このアドレスを開く</div><div class="url" id="joinUrl"></div></div>
+    <div class="card" style="flex:1.35"><div class="lab">② PINを入れる</div><div class="pin" id="pin">------</div></div>
+    <div class="card" id="qrcard" style="flex:.55"><div class="qr" id="qr"></div><div class="lab" style="margin-top:.5em">QRで開く</div></div>
+  </div>
+  <div class="cnt-line">
+    <b>👥 <span id="pcount">0</span>人が参加中</b>
+    <div style="display:flex;gap:.8em;align-items:center">
+      <div class="bgpick"><button type="button" class="fab">🎨 背景</button><div class="sw"></div></div>
+      <button class="btn" id="btnStart" disabled>ゲームを始める</button>
+    </div>
   </div>
   <div class="players" id="players"></div>
 </section>
 
-<!-- ③ ゲーム中 -->
-<section id="game" class="hide">
-  <div class="card">
-    <div class="qhead"><span id="qno"></span><span id="timer"></span></div>
-    <div class="bar"><i id="barFill"></i></div>
-    <div class="qtext" id="qtext"></div>
-    <img id="qimg" class="qimg hide" alt="">
-    <div class="grid" id="choices"></div>
-    <div class="mute" id="meta" style="margin-top:12px"></div>
-  </div>
-  <div class="card rank hide" id="rankCard">
-    <div class="qhead"><span id="rankTitle">ランキング</span></div>
-    <ol id="rankList"></ol>
-  </div>
-  <div class="row">
-    <button id="btnPause" class="sub">一時停止</button>
-    <button id="btnNext" class="sub">次へ（待ちをスキップ）</button>
-    <button id="btnEnd" class="warn">ゲームを終了</button>
-    <span id="pauseNote" class="badge hide">一時停止中（結果・ランキング画面で止まります）</span>
-  </div>
+<!-- ③ 出題中 -->
+<section class="screen" id="s-q">
+  <div class="qhead"><span class="qno" id="qno"></span><div class="ring" id="ring"><b>20</b></div><span class="qno" id="ansCount"></span></div>
+  <div class="qcard" id="qcard"><img id="qimg" class="qimg hide" alt=""><span id="qtext"></span></div>
+  <div class="grid4" id="tiles"></div>
+  <div class="hostbar"></div>
 </section>
 
-<!-- ④ 終了 -->
-<section id="finish" class="card hide">
-  <h1>ゲーム終了</h1>
-  <div class="rank"><ol id="finalList"></ol></div>
-  <p><button id="btnClose" class="warn">ルームを閉じる</button>
-     <span class="mute">（閉じると生徒の画面にも終了が表示されます）</span></p>
+<!-- ④ 正解発表 -->
+<section class="screen" id="s-reveal">
+  <div class="qhead"><span class="qno" id="rqno"></span><span class="title2">正解は…！</span><span class="qno" id="rans"></span></div>
+  <div class="qcard small" id="rqtext"></div>
+  <div class="dist" id="dist"></div>
+  <div class="hostbar"></div>
 </section>
 
-</main>
+<!-- ⑤ ランキング -->
+<section class="screen" id="s-rank">
+  <div class="qhead"><span class="qno" id="kprog"></span><span class="title2">🏆 ランキング</span><span class="qno">順位が動きます</span></div>
+  <div style="flex:1; display:flex; align-items:center"><div class="rk rkAnim" id="rk" style="width:100%"></div></div>
+  <div class="hostbar"></div>
+</section>
+
+<!-- ⑥ 終了 -->
+<section class="screen" id="s-end">
+  <div class="confetti" id="conf"></div>
+  <div class="center" style="flex:1; display:flex; flex-direction:column; gap:.6em">
+    <div class="title2" style="font-size:2.8em">🎉 ゲーム終了！</div>
+    <div class="podium" id="podium"></div>
+    <div class="mut" id="rest" style="font-weight:800; font-size:1.2em"></div>
+    <button class="btn sub" id="btnClose" style="margin-top:1em">ルームを閉じる</button>
+    <div class="mut" style="font-size:.95em">閉じると、生徒の画面にも終了が表示されます</div>
+  </div>
+  <div class="bgpick fixed"><button type="button" class="fab">🎨 背景</button><div class="sw"></div></div>
+</section>
+
+</div>
 
 <script src="firebase-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script type="module">
 import { signIn, db, ref, set, get, update, remove, onValue, serverTimestamp, serverNow,
-         calcScore, CHOICE_STYLE, RESULT_SEC, RANK_SEC, sleep, shuffle } from './lib.js';
+         calcScore, CHOICE_STYLE, RESULT_SEC, RANK_SEC, sleep, shuffle,
+         $, el, fmt, motionOn, showScreen, later, stopAnim, countUp, confetti, qrSvg, buildRank,
+         loadBackgrounds, applyBg, buildBgPickers, savedBg, saveBg, mountStage } from './lib.js';
 
-var $ = function (id) { return document.getElementById(id); };
-function show(id, on) { $(id).classList.toggle('hide', !on); }
+mountStage();
 
 var uid = null, pin = null;
 var game = [];            /* [{text, image, choices[], correct}] */
 var limit = 20;           /* 秒 */
 var players = {};         /* uid -> {nick} */
-var scores = {};          /* uid -> {nick,total,last,ok,qi} */
+var scores = {};          /* uid -> {nick,total,last,ok,qi,c} */
 var answers = {};         /* 現在の問題の回答 uid -> {c,t} */
 var unsubAnswers = null;
 var paused = false, skip = false, ended = false, started = false;
-var tStart = 0;
+var tStart = 0, rankRows = [], setTitle = '';
+var BGS = [], curBg = savedBg();
+
+/* 先生の操作バー（一時停止・次へ・終了・背景）を、必要な画面に差し込む */
+var HOSTBAR = '<button class="btn ghost hb-pause">一時停止</button><button class="btn ghost hb-next">次へ</button><button class="btn ghost hb-end">終了</button>' +
+  '<span class="pausebadge hide hb-badge">⏸ 一時停止中</span><span style="flex:1"></span>' +
+  '<div class="bgpick"><button type="button" class="fab">🎨 背景</button><div class="sw"></div></div>';
+document.querySelectorAll('.hostbar').forEach(function (b) { b.innerHTML = HOSTBAR; });
+
+/* ---------------------------------------------------------------- 背景（先生だけが選べる） */
+function pickBg(k) {
+  curBg = k; saveBg(k); applyBg(k, BGS);
+  /* 部屋ができていれば、生徒の画面にも反映する。state は先生だけが書けるルールなので、生徒は変えられない */
+  if (pin) update(ref(db, 'rooms/' + pin + '/state'), { bg: k }).catch(function () {});
+}
+
+/* state は丸ごと書き直すので、毎回 bg を含める */
+function stateOf(extra) { return Object.assign({ bg: curBg, t: serverTimestamp() }, extra); }
 
 /* ---------------------------------------------------------------- 準備 */
 (async function init() {
   try {
     uid = (await signIn()).uid;
+    BGS = await loadBackgrounds();
+    if (!BGS.some(function (b) { return b.key === curBg; })) curBg = 'pop';
+    applyBg(curBg, BGS, true);
+    buildBgPickers(BGS, curBg, pickBg);
+
     var idx = await (await fetch('questions/index.json')).json();
     var sel = $('setSel');
     idx.forEach(function (s) {
       var o = document.createElement('option');
       o.value = s.file; o.textContent = s.title + '（' + s.count + '問）';
-      o.dataset.count = s.count;
+      o.dataset.count = s.count; o.dataset.title = s.title;
       sel.appendChild(o);
     });
     sel.onchange = function () { $('count').value = sel.selectedOptions[0].dataset.count; };
     sel.onchange();
   } catch (e) { setupErr(e.message); $('btnCreate').disabled = true; }
+  showScreen('s-setup');
 })();
 
-function setupErr(msg) { $('setupErr').textContent = msg; show('setupErr', true); }
+function setupErr(msg) { $('setupErr').textContent = msg; $('setupErr').classList.remove('hide'); }
 
 $('btnCreate').onclick = async function () {
-  show('setupErr', false);
+  $('setupErr').classList.add('hide');
   $('btnCreate').disabled = true;
   try {
     var data = await (await fetch('questions/' + $('setSel').value)).json();
+    setTitle = $('setSel').selectedOptions[0].dataset.title || '';
     var qs = shuffle(data.questions.slice());
     var n = Math.max(1, Math.min(Number($('count').value) || qs.length, qs.length));
     qs = qs.slice(0, n);
@@ -174,32 +175,51 @@ $('btnCreate').onclick = async function () {
       if (!(await get(ref(db, 'rooms/' + pin + '/hostUid'))).exists()) break;
     }
     await set(ref(db, 'rooms/' + pin + '/hostUid'), uid);
-    await set(ref(db, 'rooms/' + pin + '/state'), { phase: 'lobby', t: serverTimestamp() });
+    await set(ref(db, 'rooms/' + pin + '/state'), stateOf({ phase: 'lobby' }));
 
     onValue(ref(db, 'rooms/' + pin + '/players'), function (s) { players = s.val() || {}; renderLobby(); });
 
     var base = location.href.replace(/host\.html.*$/, '');
-    $('joinUrl').textContent = base + 'play.html';
-    $('pin').textContent = pin;
-    show('setup', false); show('lobby', true);
+    var host = base.replace(/^https?:\/\//, '');
+    var u = $('joinUrl'); u.textContent = '';
+    var cut = host.indexOf('/');
+    u.appendChild(document.createTextNode(cut < 0 ? host : host.slice(0, cut)));
+    u.appendChild(document.createElement('wbr'));
+    u.appendChild(document.createTextNode(cut < 0 ? 'play.html' : host.slice(cut) + 'play.html'));
+    $('pin').textContent = pin.slice(0, 3) + ' ' + pin.slice(3);
+    $('setTitle').textContent = setTitle + '・' + game.length + '問';
+    var svg = qrSvg(base + 'play.html?pin=' + pin);
+    if (svg) $('qr').innerHTML = svg; else $('qrcard').classList.add('hide');   /* QRのライブラリが読めなかったら、QRだけ隠す */
+    showScreen('s-lobby');
   } catch (e) {
     setupErr('ルームを作れませんでした: ' + e.message);
     $('btnCreate').disabled = false;
   }
 };
 
+/* ---------------------------------------------------------------- 待機室 */
+var chipEls = {}, firstRender = true;
 function renderLobby() {
   var ids = Object.keys(players);
-  $('playerCount').textContent = ids.length + '人が参加中';
+  var cnt = $('pcount');
+  if (cnt.textContent !== String(ids.length)) {
+    cnt.textContent = ids.length;
+    if (motionOn) { cnt.classList.remove('bump'); void cnt.offsetWidth; cnt.classList.add('bump'); }
+  }
   $('btnStart').disabled = ids.length === 0 || started;
-  var box = $('players'); box.textContent = '';
-  ids.forEach(function (id) {
-    var c = document.createElement('span'); c.className = 'chip';
-    var t = document.createElement('span'); t.textContent = players[id].nick;
-    var b = document.createElement('button'); b.textContent = '退出'; b.title = 'この参加者を退出させる';
+  var box = $('players');
+  /* 増えた人だけ足し、いなくなった人だけ消す（全員を作り直すと、動きが毎回やり直しになるため） */
+  ids.forEach(function (id, i) {
+    if (chipEls[id]) { chipEls[id].firstChild.textContent = players[id].nick; return; }
+    var c = el('span', 'pill' + (firstRender ? '' : ' extra'));
+    c.style.setProperty('--i', i);
+    c.appendChild(el('span', '', players[id].nick));
+    var b = el('button', 'chip-x', '退出'); b.title = 'この参加者を退出させる';
     b.onclick = function () { kick(id); };
-    c.appendChild(t); c.appendChild(b); box.appendChild(c);
+    c.appendChild(b); box.appendChild(c); chipEls[id] = c;
   });
+  Object.keys(chipEls).forEach(function (id) { if (!players[id]) { chipEls[id].remove(); delete chipEls[id]; } });
+  firstRender = false;
 }
 
 async function kick(id) {
@@ -210,18 +230,19 @@ async function kick(id) {
 /* ---------------------------------------------------------------- ゲーム本体 */
 $('btnStart').onclick = function () {
   started = true;
-  show('lobby', false); show('game', true);
   window.addEventListener('beforeunload', function (e) { if (!ended) { e.preventDefault(); e.returnValue = ''; } });
   runGame();
 };
 
-$('btnPause').onclick = function () {
-  paused = !paused;
-  $('btnPause').textContent = paused ? '再開' : '一時停止';
-  show('pauseNote', paused);
-};
-$('btnNext').onclick = function () { skip = true; };
-$('btnEnd').onclick = function () { if (confirm('ゲームを終了しますか？')) { ended = true; skip = true; } };
+document.querySelectorAll('.hb-pause').forEach(function (b) {
+  b.onclick = function () {
+    paused = !paused;
+    document.querySelectorAll('.hb-pause').forEach(function (x) { x.textContent = paused ? '再開' : '一時停止'; });
+    document.querySelectorAll('.hb-badge').forEach(function (x) { x.classList.toggle('hide', !paused); });
+  };
+});
+document.querySelectorAll('.hb-next').forEach(function (b) { b.onclick = function () { skip = true; }; });
+document.querySelectorAll('.hb-end').forEach(function (b) { b.onclick = function () { if (confirm('ゲームを終了しますか？')) { ended = true; skip = true; } }; });
 
 async function runGame() {
   for (var i = 0; i < game.length && !ended; i++) {
@@ -249,68 +270,62 @@ async function hold(ms) {
 }
 
 function activeIds() { return Object.keys(players); }
+function ansLabel() {
+  var n = activeIds().filter(function (id) { return answers[id]; }).length;
+  return '回答 ' + n + ' / ' + activeIds().length + '人';
+}
 
 async function askQuestion(i) {
   var q = game[i];
-  show('rankCard', false);
+  stopAnim(); showScreen('s-q');
   $('qno').textContent = '問題 ' + (i + 1) + ' / ' + game.length;
   $('qtext').textContent = q.text;
   var img = $('qimg');
-  if (q.image) { img.src = q.image; show('qimg', true); } else { show('qimg', false); }
-  renderChoices(q, null);
+  if (q.image) { img.src = q.image; img.classList.remove('hide'); } else { img.classList.add('hide'); }
+  var tiles = $('tiles'); tiles.textContent = '';
+  q.choices.forEach(function (text, idx) {
+    var d = el('div', 'tile t' + idx);
+    d.appendChild(el('span', 'sh', CHOICE_STYLE[idx].shape)); d.appendChild(el('span', '', text));
+    tiles.appendChild(d);
+  });
+  var ring = $('ring'); ring.classList.remove('hurry'); ring.style.setProperty('--p', 100); ring.querySelector('b').textContent = limit;
 
   answers = {};
+  $('ansCount').textContent = ansLabel();
   if (unsubAnswers) unsubAnswers();
   unsubAnswers = onValue(ref(db, 'rooms/' + pin + '/answers/' + i), function (s) {
     answers = s.val() || {};
-    var n = activeIds().filter(function (id) { return answers[id]; }).length;
-    $('meta').textContent = '回答 ' + n + ' / ' + activeIds().length + '人';
+    $('ansCount').textContent = ansLabel();
   });
 
-  await set(ref(db, 'rooms/' + pin + '/state'), {
+  await set(ref(db, 'rooms/' + pin + '/state'), stateOf({
     phase: 'question', i: i, n: game.length, text: q.text, image: q.image,
-    choices: q.choices, limit: limit, t: serverTimestamp()
-  });
+    choices: q.choices, limit: limit
+  }));
   tStart = (await get(ref(db, 'rooms/' + pin + '/state/t'))).val();
 
   var limitMs = limit * 1000;
   while (!ended) {
     await sleep(100);
-    var el = serverNow() - tStart;
-    var left = Math.max(0, limitMs - el);
-    $('timer').textContent = Math.ceil(left / 1000) + ' 秒';
-    $('barFill').style.width = (left / limitMs * 100) + '%';
-    if (el >= limitMs) break;
+    var el_ = serverNow() - tStart;
+    var left = Math.max(0, limitMs - el_);
+    ring.style.setProperty('--p', left / limitMs * 100);
+    ring.querySelector('b').textContent = Math.ceil(left / 1000);
+    ring.classList.toggle('hurry', left <= 5000 && left > 0);
+    if (el_ >= limitMs) break;
     if (skip) { skip = false; break; }
     var ids = activeIds();
     if (ids.length && ids.every(function (id) { return answers[id]; })) { await sleep(800); break; }
   }
-  $('timer').textContent = '';
-  $('barFill').style.width = '0%';
-}
-
-function renderChoices(q, counts) {
-  var box = $('choices'); box.textContent = '';
-  q.choices.forEach(function (text, idx) {
-    var d = document.createElement('div'); d.className = 'ch';
-    d.style.background = CHOICE_STYLE[idx].color;
-    var s = document.createElement('span'); s.textContent = CHOICE_STYLE[idx].shape;
-    var t = document.createElement('span'); t.textContent = text;
-    d.appendChild(s); d.appendChild(t);
-    if (counts) {
-      if (idx !== q.correct) d.classList.add('dim');
-      else { var m = document.createElement('span'); m.className = 'ok-mark'; m.textContent = '正解'; d.appendChild(m); }
-      var c = document.createElement('span'); c.className = 'cnt'; c.textContent = counts[idx];
-      d.appendChild(c);
-    }
-    box.appendChild(d);
-  });
+  ring.classList.remove('hurry');
 }
 
 async function showResult(i) {
   var q = game[i], limitMs = limit * 1000;
   var counts = q.choices.map(function () { return 0; });
   var answered = 0;
+  var prevTotals = {};
+  Object.keys(scores).forEach(function (id) { prevTotals[id] = scores[id].total; });
 
   /* 採点。今いる参加者全員を対象にする（未回答は0点） */
   activeIds().forEach(function (id) {
@@ -319,21 +334,62 @@ async function showResult(i) {
     if (a) {
       answered++; c = a.c;
       if (a.c >= 0 && a.c < counts.length) counts[a.c]++;
-      var el = a.t - tStart;
-      if (a.c === q.correct && el <= limitMs + 1500) { pts = calcScore(el, limitMs); ok = true; }
+      var el_ = a.t - tStart;
+      if (a.c === q.correct && el_ <= limitMs + 1500) { pts = calcScore(el_, limitMs); ok = true; }
     }
     scores[id] = { nick: players[id].nick, total: prev + pts, last: pts, ok: ok, qi: i, c: c };
   });
   /* 退出した人の得点は残さない */
   Object.keys(scores).forEach(function (id) { if (!players[id]) delete scores[id]; });
+  rankRows = computeRank(prevTotals);
 
   await set(ref(db, 'rooms/' + pin + '/scores'), scores);
-  await set(ref(db, 'rooms/' + pin + '/state'), {
+  await set(ref(db, 'rooms/' + pin + '/state'), stateOf({
     phase: 'result', i: i, n: game.length, text: q.text, image: q.image,
-    choices: q.choices, correct: q.correct, counts: counts, answered: answered, t: serverTimestamp()
+    choices: q.choices, correct: q.correct, counts: counts, answered: answered
+  }));
+
+  /* 画面：棒グラフの下に選択肢を並べる */
+  stopAnim(); showScreen('s-reveal');
+  $('rqno').textContent = '問題 ' + (i + 1) + ' / ' + game.length;
+  $('rans').textContent = '回答 ' + answered + ' / ' + activeIds().length + '人';
+  $('rqtext').textContent = q.text;
+  var max = Math.max.apply(null, counts.concat([1]));
+  var dist = $('dist'); dist.textContent = '';
+  q.choices.forEach(function (text, idx) {
+    var col = el('div', 'col' + (idx === q.correct ? '' : ' dim'));
+    var bw = el('div', 'barwrap'), bar = el('i'); bar.style.height = Math.max(counts[idx] ? 4 : 0, counts[idx] / max * 100) + '%'; bar.style.background = CHOICE_STYLE[idx].color;
+    var num = el('b', 'num', '0'); bar.appendChild(num); bw.appendChild(bar);
+    var t = el('div', 'tile t' + idx + (idx === q.correct ? ' right' : ' dim'));
+    t.appendChild(el('span', 'sh', CHOICE_STYLE[idx].shape)); t.appendChild(el('span', '', text));
+    col.appendChild(bw); col.appendChild(t); dist.appendChild(col);
+    countUp(num, counts[idx], 800, 1150, false);
   });
-  renderChoices(q, counts);
-  $('meta').textContent = '回答 ' + answered + ' / ' + activeIds().length + '人';
+}
+
+/* 上位5人の、前後の得点と順位の動き */
+function computeRank(prevTotals) {
+  var ids = Object.keys(scores);
+  var after = {}, prev = {};
+  ids.forEach(function (id) { after[id] = scores[id].total; prev[id] = prevTotals[id] || 0; });
+  function rankOf(t) { var r = {}; ids.forEach(function (id) { r[id] = ids.filter(function (o) { return t[o] > t[id]; }).length + 1; }); return r; }
+  var rb = rankOf(prev), ra = rankOf(after);
+  var ord = ids.slice().sort(function (a, b) { return after[b] - after[a] || (scores[a].nick < scores[b].nick ? -1 : 1); });
+  var top = ord.slice(0, 5);
+  var byPrev = top.slice().sort(function (a, b) { return prev[b] - prev[a] || ord.indexOf(a) - ord.indexOf(b); });
+  return top.map(function (id, idx) {
+    return { nick: scores[id].nick, prev: prev[id], total: after[id], from: byPrev.indexOf(id), to: idx, mv: rb[id] - ra[id] };
+  });
+}
+
+async function showRanking(i) {
+  await set(ref(db, 'rooms/' + pin + '/state'), stateOf({
+    phase: 'ranking', i: i, n: game.length,
+    rows: rankRows.map(function (r) { return { nick: r.nick, prev: r.prev, total: r.total, from: r.from, to: r.to, mv: r.mv }; })
+  }));
+  stopAnim(); showScreen('s-rank');
+  $('kprog').textContent = (i + 1) + ' / ' + game.length + '問 終了';
+  buildRank($('rk'), rankRows.map(function (r) { return Object.assign({}, r); }), '');
 }
 
 function topList(n) {
@@ -341,32 +397,23 @@ function topList(n) {
     .sort(function (a, b) { return b.total - a.total; }).slice(0, n);
 }
 
-function drawRank(list, ol) {
-  ol.textContent = '';
-  list.forEach(function (r, idx) {
-    var li = document.createElement('li');
-    var no = document.createElement('span'); no.className = 'no'; no.textContent = (idx + 1) + '位';
-    var nm = document.createElement('span'); nm.textContent = r.nick;
-    var pt = document.createElement('span'); pt.className = 'pt'; pt.textContent = r.total + '点';
-    li.appendChild(no); li.appendChild(nm); li.appendChild(pt); ol.appendChild(li);
-  });
-}
-
-async function showRanking(i) {
-  var top = topList(5);
-  await set(ref(db, 'rooms/' + pin + '/state'), { phase: 'ranking', i: i, n: game.length, top: top, t: serverTimestamp() });
-  $('rankTitle').textContent = '上位5位（' + (i + 1) + '問終了時点）';
-  drawRank(top, $('rankList'));
-  show('rankCard', true);
-}
-
 async function finish() {
   ended = true;
   if (unsubAnswers) { unsubAnswers(); unsubAnswers = null; }
   var top = topList(5);
-  await set(ref(db, 'rooms/' + pin + '/state'), { phase: 'end', n: game.length, top: top, t: serverTimestamp() });
-  show('game', false); show('finish', true);
-  drawRank(top, $('finalList'));
+  await set(ref(db, 'rooms/' + pin + '/state'), stateOf({ phase: 'end', n: game.length, top: top }));
+  stopAnim(); showScreen('s-end');
+  confetti($('conf'), 46);
+  var pod = $('podium'); pod.textContent = '';
+  [[1, 'p2'], [0, 'p1'], [2, 'p3']].forEach(function (pair) {
+    var r = top[pair[0]]; if (!r) return;
+    var p = el('div', 'p ' + pair[1]);
+    if (pair[0] === 0) p.appendChild(el('div', 'crown', '👑'));
+    p.appendChild(el('b', '', r.nick)); p.appendChild(el('small', '', fmt(r.total) + '点'));
+    p.appendChild(el('div', '', String(pair[0] + 1))); p.lastChild.style.cssText = 'font-size:' + (pair[0] === 0 ? '2.4em' : '2em') + ';margin-top:.3em';
+    pod.appendChild(p);
+  });
+  $('rest').textContent = top.slice(3).map(function (r, i) { return (i + 4) + '位 ' + r.nick + '（' + fmt(r.total) + '点）'; }).join('　');
 }
 
 $('btnClose').onclick = async function () {

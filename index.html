@@ -1,20 +1,28 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" data-bg="pop">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Qraft</title>
+<link rel="icon" type="image/png" href="img/favicon-32.png">
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+<link rel="stylesheet" href="theme.css">
 <style>
-  body { font-family: -apple-system, "Hiragino Kaku Gothic ProN", sans-serif;
-         max-width: 30em; margin: 3em auto; padding: 0 1em; line-height: 1.8; }
-  a.btn { display:block; text-align:center; padding:1em; margin:.8em 0; border-radius:12px;
-          background:#1268c3; color:#fff; font-weight:700; text-decoration:none; font-size:1.2rem; }
-  a.sub { background:#fff; color:#1d1d1f; border:1px solid #dcd8cc; }
+  .entry { width:min(24em, 90%); display:flex; flex-direction:column; gap:1em; margin-top:1em; }
+  .entry a { text-decoration:none; text-align:center; display:block; }
 </style>
 </head>
 <body>
-<h1>Qraft</h1>
-<a class="btn" href="play.html">ゲームに参加する（生徒）</a>
-<a class="btn sub" href="host.html">ゲームを開く（先生）</a>
+<div id="app" class="bg">
+  <div class="deco"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  <section class="screen on center" style="gap:.4em">
+    <img class="logo-img" src="img/logo-wordmark.webp" alt="Qraft" style="height:11em">
+    <div class="mut" style="font-size:1.2em; font-weight:800">理科のクイズ対戦</div>
+    <div class="entry">
+      <a class="btn" href="play.html">ゲームに参加する（生徒）</a>
+      <a class="btn sub" href="host.html">ゲームを開く（先生）</a>
+    </div>
+  </section>
+</div>
 </body>
 </html>
