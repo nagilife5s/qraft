@@ -518,7 +518,7 @@ export function mountScene(box, mini) {
     var zone = ctx.phase === 'zone' || ctx.phase === 'zoneres';
     robot.style.left = (zone ? -30 : -4 + Math.min(ctx.frac, 1) * 40) + '%';
     robot.classList.toggle('near', !zone && ctx.frac > .7);
-    tgtV = (zone || !motionOn) ? 0 : 0.38 + 0.4 * Math.min(1, ctx.frac || 0);          /* 場面の高さ×この値 ／秒 で道が流れる */
+    tgtV = (zone || !motionOn) ? 0 : 0.2 + 0.2 * Math.min(1, ctx.frac || 0);          /* 場面の高さ×この値 ／秒 で道が流れる */
     sc.style.setProperty('--danger', zone ? 0 : Math.max(0, Math.min(1, (ctx.frac - .35) / .65)));
     zl.textContent = '';
     /* 通路の絵の「床」が、場面の縦のどこにあるか（絵は 16:9 で下に寄せて拡大。横長の場面ほど上が切れて、床が広く見える） */
