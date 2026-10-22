@@ -627,3 +627,18 @@ button.tile:disabled { cursor:default; }
 .bframe { display:inline-block; padding:.45em; border-radius:1em; background:repeating-linear-gradient(135deg,#ffd23f 0 .9em,#2a1a40 .9em 1.8em); box-shadow:var(--shadow), 0 0 1.2em rgba(255,210,63,.35); line-height:0; }
 .bframe canvas { border-radius:.5em; box-shadow:inset 0 0 .6em rgba(0,0,0,.3); }
 .bframe.mini { padding:.25em; border-radius:.6em; }
+
+/* ===== 画像の素材（Geminiの絵）に差し替え ===== */
+.scene { background:#6a35a8 url("img/robot/corridor.webp") center bottom / cover no-repeat; }
+.scene .wallband, .scene .floor { display:none; }
+.scene .rbot img { display:block; height:calc(var(--cs) * 5.4); width:auto; pointer-events:none; }
+.scene.mini .rbot img { height:calc(var(--cs) * 4.6); }
+.scene .rbot { font-size:inherit; }
+.avx .avimg { display:block; height:1.15em; width:auto; pointer-events:none; }
+.avx { vertical-align:middle; }
+.avx .acc.face { top:.38em; }
+.avopt .avx { font-size:1em; }
+.avgrid .avopt { padding:.15em .25em; min-width:2.4em; }
+.scene .rbot { top:62%; }
+.scene .zone { top:54%; bottom:3%; }
+.scene .ch .av { filter:drop-shadow(0 .08em .08em rgba(0,0,0,.35)); }

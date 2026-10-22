@@ -396,6 +396,7 @@ export var ACCS = [
   { e: '🧢', k: 'hat', n: 'ぼうし' }, { e: '🎓', k: 'hat', n: 'がくしゃぼう' }, { e: '🎅', k: 'hat', n: 'サンタ' }, { e: '🎧', k: 'hat', n: 'ヘッドホン' },
   { e: '👓', k: 'face', n: 'めがね' }, { e: '🕶️', k: 'face', n: 'サングラス' }, { e: '🥽', k: 'face', n: 'ゴーグル' }, { e: '😷', k: 'face', n: 'マスク' }
 ];
+export var ANIMAL_IMG = ['fox', 'panda', 'rabbit', 'bear', 'tiger', 'frog', 'monkey', 'penguin'];   /* ANIMALS の先頭8つと同じ順番。絵は img/robot/animal-*.webp */
 export function parseAv(s, uid) {
   var m = /^(\d{1,2})\.(\d{1,2})$/.exec(s || '');
   var c = m ? Number(m[1]) : hashOf(uid || '') % ANIMALS.length, a = m ? Number(m[2]) : 0;
@@ -403,7 +404,8 @@ export function parseAv(s, uid) {
 }
 export function avatarEl(s, uid) {
   var v = parseAv(s, uid), x = el('span', 'avx'); x.dataset.av = s || '';
-  x.appendChild(document.createTextNode(ANIMALS[v.c]));
+  if (ANIMAL_IMG[v.c]) { var im = el('img', 'avimg'); im.src = 'img/robot/animal-' + ANIMAL_IMG[v.c] + '.webp'; im.alt = ANIMALS[v.c]; im.draggable = false; x.appendChild(im); }
+  else x.appendChild(document.createTextNode(ANIMALS[v.c]));
   if (v.a) x.appendChild(el('span', 'acc ' + ACCS[v.a].k, ACCS[v.a].e));
   return x;
 }
@@ -424,7 +426,7 @@ export function mountAvatarPicker(box, uid) {
     [].forEach.call(ag.children, function (b, i) { b.classList.toggle('on', i === cur.a); });
     try { localStorage.setItem('qraft.avatar', str()); } catch (e) {}
   }
-  ANIMALS.forEach(function (e, i) { var b = el('button', 'avopt', e); b.type = 'button'; b.onclick = function () { cur.c = i; draw(); }; cg.appendChild(b); });
+  ANIMALS.forEach(function (e, i) { var b = el('button', 'avopt'); b.type = 'button'; b.appendChild(avatarEl(i + '.0', uid)); b.onclick = function () { cur.c = i; draw(); }; cg.appendChild(b); });
   ACCS.forEach(function (a, i) { var b = el('button', 'avopt', a.e || '✕'); b.type = 'button'; b.title = a.n; b.onclick = function () { cur.a = i; draw(); }; ag.appendChild(b); });
   lab.onclick = function () { panel.classList.toggle('hide'); lab.textContent = panel.classList.contains('hide') ? 'キャラをかえる' : 'とじる'; };
   draw();
@@ -472,14 +474,9 @@ export function zoneEval(uids, runs, caps, zstart) {
 /* 場面（宇宙ステーションの通路）。先生の大画面と生徒の小画面で共通 */
 export function mountScene(box, mini) {
   box.textContent = '';
-  var sc = el('div', 'scene' + (mini ? ' mini' : '')), floor = el('div', 'floor'), robot = el('div', 'rbot', '🤖'), crowd = el('div', 'crowd');
-  var wall = el('div', 'wallband');
-  wall.appendChild(el('div', 'ceil'));
-  [10, 34, 58, 82].forEach(function (x) { var w = el('div', 'win'); w.style.left = x + '%'; w.appendChild(el('i')); wall.appendChild(w); });
-  wall.appendChild(el('div', 'pipe'));
-  sc.appendChild(wall);
-  ['edge top', 'edge bot', 'lane', 'arrows'].forEach(function (c) { floor.appendChild(el('div', c)); });
-  sc.appendChild(floor); sc.appendChild(crowd); sc.appendChild(robot);
+  var sc = el('div', 'scene' + (mini ? ' mini' : '')), floor = el('div', 'floor'), robot = el('div', 'rbot'), crowd = el('div', 'crowd');
+  var bi = el('img'); bi.src = 'img/robot/boss.webp'; bi.alt = '🤖'; bi.draggable = false; robot.appendChild(bi);
+  sc.appendChild(crowd); sc.appendChild(robot);
   sc.appendChild(el('div', 'danger'));
   var zl = el('div', 'zones'); sc.appendChild(zl);
   box.appendChild(sc);
@@ -498,7 +495,7 @@ export function mountScene(box, mini) {
       crowd.appendChild(c); chars[p.uid] = c;
     });
     var n = list.length;
-    sc.style.setProperty('--cs', (mini ? 1.15 : Math.max(1.3, Math.min(2.9, 20 / Math.sqrt(Math.max(n, 1)) / 1.6))) + 'em');
+    sc.style.setProperty('--cs', (mini ? 1.15 : Math.max(1.5, Math.min(4.2, 26 / Math.sqrt(Math.max(n, 1)) / 1.6))) + 'em');
   };
   /* ctx: {phase, frac, caps, choice:{uid:z}, order:[uid], me, caught:[uid]} */
   api.draw = function (ctx) {
@@ -519,9 +516,9 @@ export function mountScene(box, mini) {
       var c = chars[u], h = hashOf(u), x, y, z = ctx.choice ? ctx.choice[u] : null;
       if (zone && z != null && z < Z) {
         var k = cnt[z] = (cnt[z] || 0) + 1, per = Math.max(2, Math.ceil(Math.sqrt(ctx.caps[z] * 1.6)));
-        x = 6 + z * (88 / Z) + (88 / Z - 2) * (((k - 1) % per) + .5) / per; y = 50 + Math.floor((k - 1) / per) * 9;
-      } else if (zone) { x = 14 + (h % 70); y = 92; }
-      else { x = 50 + (h % 1000) / 1000 * 42; y = 40 + ((h >>> 10) % 1000) / 1000 * 46; }
+        x = 6 + z * (88 / Z) + (88 / Z - 2) * (((k - 1) % per) + .5) / per; y = 66 + Math.floor((k - 1) / per) * 8;
+      } else if (zone) { x = 14 + (h % 70); y = 94; }
+      else { x = 50 + (h % 1000) / 1000 * 42; y = 66 + ((h >>> 10) % 1000) / 1000 * 26; }
       c.style.left = x + '%'; c.style.top = y + '%'; c.style.zIndex = Math.round(y);
       c.classList.toggle('me', u === ctx.me);
       c.classList.toggle('out', !!(ctx.caught && ctx.caught.indexOf(u) >= 0));

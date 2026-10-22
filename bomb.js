@@ -118,6 +118,14 @@ export function step(g, inputs) {
 }
 
 /* 盤面を描く（canvas）。px = 盤面の横幅。me = 自分の番号（枠で目立たせる）。emojis/names は表示用 */
+/* 絵（Geminiの動物・小ロボット）。読み込めるまで、また9番目以降の動物は絵文字で描く */
+var SPR = {};
+function sprite(name) {
+  if (SPR[name] === undefined) { var im = new Image(); im.src = 'img/robot/' + name + '.webp'; SPR[name] = im; }
+  var im2 = SPR[name]; return im2.complete && im2.naturalWidth ? im2 : null;
+}
+var ANIMAL_NAMES = ['fox', 'panda', 'rabbit', 'bear', 'tiger', 'frog', 'monkey', 'penguin'];
+function putSprite(ctx, im, cx, baseY, h) { var w = h * im.naturalWidth / im.naturalHeight; ctx.drawImage(im, cx - w / 2, baseY - h, w, h); }
 var PCOL = ['#ff5a5a', '#35a7ff', '#ffd23f', '#3ddc84', '#c264ff', '#ff9f1c'];
 export function draw(ctx, g, px, opt) {
   opt = opt || {};
@@ -183,7 +191,8 @@ export function draw(ctx, g, px, opt) {
     var m = glide(r, now, 1 / (RULE.robotMove * TICK_MS)), cx = (r.vx + .5) * c, cy = (r.vy + .55) * c;
     shadow(ctx, c, r.vx, r.vy);
     ctx.strokeStyle = 'rgba(255,60,80,' + (.35 + .3 * Math.sin(now / 160)) + ')'; ctx.lineWidth = Math.max(1.5, c * .05); ctx.beginPath(); ctx.ellipse(cx, (r.vy + .86) * c, c * .38, c * .14, 0, 0, 6.283); ctx.stroke();
-    ctx.font = (c * .74) + 'px serif'; ctx.fillText('🤖', cx, cy - bob(m, now) * c);
+    var rs = sprite('mini');
+    if (rs) putSprite(ctx, rs, cx, (r.vy + .9) * c - bob(m, now) * c, c * .86); else { ctx.font = (c * .74) + 'px serif'; ctx.fillText('🤖', cx, cy - bob(m, now) * c); }
   });
 
   /* プレイヤー：足元に色のリング。名前札つき */
@@ -193,7 +202,8 @@ export function draw(ctx, g, px, opt) {
     if (p.down > 0) ctx.globalAlpha = .45; else if (p.invul > 0 && Math.floor(now / 100) % 2) ctx.globalAlpha = .4;
     shadow(ctx, c, p.vx, p.vy);
     ctx.strokeStyle = PCOL[i % PCOL.length]; ctx.lineWidth = Math.max(2, c * .09); ctx.beginPath(); ctx.ellipse(cx, (p.vy + .86) * c, c * .36, c * .13, 0, 0, 6.283); ctx.stroke();
-    ctx.font = (c * .8) + 'px serif'; ctx.fillText(em, cx, cy - bob(m, now) * c);
+    var ai = opt.chars ? opt.chars[i] : -1, ps = ANIMAL_NAMES[ai] ? sprite('animal-' + ANIMAL_NAMES[ai]) : null;
+    if (ps) putSprite(ctx, ps, cx, (p.vy + .92) * c - bob(m, now) * c, c * .9); else { ctx.font = (c * .8) + 'px serif'; ctx.fillText(em, cx, cy - bob(m, now) * c); }
     if (p.down > 0) { ctx.font = (c * .5) + 'px serif'; ctx.fillText('💫', cx, (p.vy + .12) * c); }
     ctx.restore();
     if (opt.names && c >= 26 && opt.names[i]) {
