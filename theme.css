@@ -642,3 +642,9 @@ button.tile:disabled { cursor:default; }
 .scene .rbot { top:62%; }
 .scene .zone { top:54%; bottom:3%; }
 .scene .ch .av { filter:drop-shadow(0 .08em .08em rgba(0,0,0,.35)); }
+
+.avx .acc img { display:block; height:.5em; width:auto; }
+.avx .acc.hat { top:-.3em; }
+.avx .acc.face { top:.34em; } .avx .acc.face img { height:.34em; }
+.avopt .accimg { display:block; height:1.4em; width:auto; max-width:2.6em; }
+.avprev { font-size:3.2em; line-height:1.2; padding-top:.35em; }

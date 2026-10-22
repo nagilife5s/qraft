@@ -396,7 +396,8 @@ export var ACCS = [
   { e: '🧢', k: 'hat', n: 'ぼうし' }, { e: '🎓', k: 'hat', n: 'がくしゃぼう' }, { e: '🎅', k: 'hat', n: 'サンタ' }, { e: '🎧', k: 'hat', n: 'ヘッドホン' },
   { e: '👓', k: 'face', n: 'めがね' }, { e: '🕶️', k: 'face', n: 'サングラス' }, { e: '🥽', k: 'face', n: 'ゴーグル' }, { e: '😷', k: 'face', n: 'マスク' }
 ];
-export var ANIMAL_IMG = ['fox', 'panda', 'rabbit', 'bear', 'tiger', 'frog', 'monkey', 'penguin'];   /* ANIMALS の先頭8つと同じ順番。絵は img/robot/animal-*.webp */
+export var ANIMAL_IMG = ['fox', 'panda', 'rabbit', 'bear', 'tiger', 'frog', 'monkey', 'penguin', 'lion', 'cow', 'pig', 'koala', 'hamster', 'unicorn', 'octopus', 'owl', 'dog', 'cat', 'chick', 'raccoon'];   /* ANIMALS と同じ順番。絵は img/robot/animal-*.webp */
+export var ACC_IMG = ['', 'tophat', 'crown', 'bow', 'cap', 'gradcap', 'santa', 'headphones', 'glasses', 'sunglasses', 'goggles', 'mask'];   /* ACCS と同じ順番。絵は img/robot/acc-*.webp */
 export function parseAv(s, uid) {
   var m = /^(\d{1,2})\.(\d{1,2})$/.exec(s || '');
   var c = m ? Number(m[1]) : hashOf(uid || '') % ANIMALS.length, a = m ? Number(m[2]) : 0;
@@ -406,7 +407,7 @@ export function avatarEl(s, uid) {
   var v = parseAv(s, uid), x = el('span', 'avx'); x.dataset.av = s || '';
   if (ANIMAL_IMG[v.c]) { var im = el('img', 'avimg'); im.src = 'img/robot/animal-' + ANIMAL_IMG[v.c] + '.webp'; im.alt = ANIMALS[v.c]; im.draggable = false; x.appendChild(im); }
   else x.appendChild(document.createTextNode(ANIMALS[v.c]));
-  if (v.a) x.appendChild(el('span', 'acc ' + ACCS[v.a].k, ACCS[v.a].e));
+  if (v.a) { var ac = el('span', 'acc ' + ACCS[v.a].k); var ai = el('img'); ai.src = 'img/robot/acc-' + ACC_IMG[v.a] + '.webp'; ai.alt = ACCS[v.a].e; ai.draggable = false; ac.appendChild(ai); x.appendChild(ac); }
   return x;
 }
 export function myAvatar() { try { return localStorage.getItem('qraft.avatar') || ''; } catch (e) { return ''; } }
@@ -427,7 +428,7 @@ export function mountAvatarPicker(box, uid) {
     try { localStorage.setItem('qraft.avatar', str()); } catch (e) {}
   }
   ANIMALS.forEach(function (e, i) { var b = el('button', 'avopt'); b.type = 'button'; b.appendChild(avatarEl(i + '.0', uid)); b.onclick = function () { cur.c = i; draw(); }; cg.appendChild(b); });
-  ACCS.forEach(function (a, i) { var b = el('button', 'avopt', a.e || '✕'); b.type = 'button'; b.title = a.n; b.onclick = function () { cur.a = i; draw(); }; ag.appendChild(b); });
+  ACCS.forEach(function (a, i) { var b = el('button', 'avopt'); b.type = 'button'; b.title = a.n; if (i) { var ii = el('img', 'accimg'); ii.src = 'img/robot/acc-' + ACC_IMG[i] + '.webp'; ii.alt = a.e; b.appendChild(ii); } else b.textContent = '✕'; b.onclick = function () { cur.a = i; draw(); }; ag.appendChild(b); });
   lab.onclick = function () { panel.classList.toggle('hide'); lab.textContent = panel.classList.contains('hide') ? 'キャラをかえる' : 'とじる'; };
   draw();
   return { get: str };

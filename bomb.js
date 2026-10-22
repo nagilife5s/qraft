@@ -124,7 +124,8 @@ function sprite(name) {
   if (SPR[name] === undefined) { var im = new Image(); im.src = 'img/robot/' + name + '.webp'; SPR[name] = im; }
   var im2 = SPR[name]; return im2.complete && im2.naturalWidth ? im2 : null;
 }
-var ANIMAL_NAMES = ['fox', 'panda', 'rabbit', 'bear', 'tiger', 'frog', 'monkey', 'penguin'];
+var ANIMAL_NAMES = ['fox', 'panda', 'rabbit', 'bear', 'tiger', 'frog', 'monkey', 'penguin', 'lion', 'cow', 'pig', 'koala', 'hamster', 'unicorn', 'octopus', 'owl', 'dog', 'cat', 'chick', 'raccoon'];
+var ACC_NAMES = ['', 'tophat', 'crown', 'bow', 'cap', 'gradcap', 'santa', 'headphones', 'glasses', 'sunglasses', 'goggles', 'mask'];
 function putSprite(ctx, im, cx, baseY, h) { var w = h * im.naturalWidth / im.naturalHeight; ctx.drawImage(im, cx - w / 2, baseY - h, w, h); }
 var PCOL = ['#ff5a5a', '#35a7ff', '#ffd23f', '#3ddc84', '#c264ff', '#ff9f1c'];
 export function draw(ctx, g, px, opt) {
@@ -133,6 +134,7 @@ export function draw(ctx, g, px, opt) {
   /* 起きたこと（爆発・撃破・巻き込まれ）を、火花や点数の飛び出しに変える */
   g.fx = g.fx || [];
   (g.evq || []).forEach(function (e) {
+    if (e.k === 'boom') g.fx.push({ k: 'b', x: e.x + .5, y: e.y + .5, t0: now, life: 380 });
     if (e.k === 'boom') for (var n = 0; n < 16; n++) {
       var a = Math.random() * 6.283, v = .004 + Math.random() * .008;
       g.fx.push({ k: 's', x: e.x + .5, y: e.y + .5, vx: Math.cos(a) * v, vy: Math.sin(a) * v, t0: now, life: 380 + Math.random() * 300, col: Math.random() < .5 ? '#ffd23f' : '#ff7a1c' });
@@ -166,6 +168,8 @@ export function draw(ctx, g, px, opt) {
     var near = b.t < 8, pulse = 1 + .1 * Math.sin(now / (near ? 45 : 130)), cx = (b.x + .5) * c, cy = (b.y + .58) * c, r = c * .3 * pulse;
     shadow(ctx, c, b.x, b.y);
     if (near) { var gl = ctx.createRadialGradient(cx, cy, r * .4, cx, cy, r * 2.2); gl.addColorStop(0, 'rgba(255,60,40,.55)'); gl.addColorStop(1, 'rgba(255,60,40,0)'); ctx.fillStyle = gl; ctx.fillRect(cx - r * 2.3, cy - r * 2.3, r * 4.6, r * 4.6); }
+    var bs = sprite('bomb');
+    if (bs) { putSprite(ctx, bs, cx, cy + r * 1.15, r * 2.6); return; }
     var bg = ctx.createRadialGradient(cx - r * .35, cy - r * .4, r * .1, cx, cy, r); bg.addColorStop(0, '#6a6a7a'); bg.addColorStop(1, '#14141c');
     ctx.fillStyle = bg; ctx.beginPath(); ctx.arc(cx, cy, r, 0, 6.283); ctx.fill();
     ctx.fillStyle = 'rgba(255,255,255,.75)'; ctx.beginPath(); ctx.ellipse(cx - r * .38, cy - r * .42, r * .22, r * .13, -.6, 0, 6.283); ctx.fill();
@@ -204,6 +208,8 @@ export function draw(ctx, g, px, opt) {
     ctx.strokeStyle = PCOL[i % PCOL.length]; ctx.lineWidth = Math.max(2, c * .09); ctx.beginPath(); ctx.ellipse(cx, (p.vy + .86) * c, c * .36, c * .13, 0, 0, 6.283); ctx.stroke();
     var ai = opt.chars ? opt.chars[i] : -1, ps = ANIMAL_NAMES[ai] ? sprite('animal-' + ANIMAL_NAMES[ai]) : null;
     if (ps) putSprite(ctx, ps, cx, (p.vy + .92) * c - bob(m, now) * c, c * .9); else { ctx.font = (c * .8) + 'px serif'; ctx.fillText(em, cx, cy - bob(m, now) * c); }
+    var ak = opt.accs ? opt.accs[i] : 0, as = ak ? sprite('acc-' + ACC_NAMES[ak]) : null;
+    if (as) { var face = ak >= 8, bobY = bob(m, now) * c; putSprite(ctx, as, cx + c * .04, (p.vy + (face ? .5 : .3)) * c - bobY, c * (face ? .22 : .32)); }
     if (p.down > 0) { ctx.font = (c * .5) + 'px serif'; ctx.fillText('💫', cx, (p.vy + .12) * c); }
     ctx.restore();
     if (opt.names && c >= 26 && opt.names[i]) {
@@ -218,7 +224,8 @@ export function draw(ctx, g, px, opt) {
   g.fx = g.fx.filter(function (f) { return now - f.t0 < f.life; });
   g.fx.forEach(function (f) {
     var k = (now - f.t0) / f.life;
-    if (f.k === 's') { ctx.fillStyle = f.col; ctx.globalAlpha = 1 - k; ctx.beginPath(); ctx.arc((f.x + f.vx * (now - f.t0)) * c, (f.y + f.vy * (now - f.t0) + k * .3) * c, c * .07 * (1 - k * .6), 0, 6.283); ctx.fill(); ctx.globalAlpha = 1; }
+    if (f.k === 'b') { var bm = sprite('boom'); if (bm) { var sc2 = .6 + k * 1.1; ctx.globalAlpha = 1 - k * k; putSprite(ctx, bm, f.x * c, (f.y + .5 * sc2) * c, c * 1.7 * sc2); ctx.globalAlpha = 1; } }
+    else if (f.k === 's') { ctx.fillStyle = f.col; ctx.globalAlpha = 1 - k; ctx.beginPath(); ctx.arc((f.x + f.vx * (now - f.t0)) * c, (f.y + f.vy * (now - f.t0) + k * .3) * c, c * .07 * (1 - k * .6), 0, 6.283); ctx.fill(); ctx.globalAlpha = 1; }
     else { ctx.font = '900 ' + Math.round(c * .5) + 'px sans-serif'; ctx.globalAlpha = 1 - k * k; ctx.lineWidth = c * .12; ctx.strokeStyle = 'rgba(40,10,70,.9)'; ctx.strokeText(f.text, f.x * c, (f.y - k * .9) * c); ctx.fillStyle = f.col; ctx.fillText(f.text, f.x * c, (f.y - k * .9) * c); ctx.globalAlpha = 1; }
   });
 }

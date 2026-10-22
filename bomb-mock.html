@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>ボンバーマン モック</title>
-<link rel="stylesheet" href="theme.css?v=20261022192957">
+<link rel="stylesheet" href="theme.css?v=20261022194020">
 <style>
   #mockbar { position:fixed; bottom:.4em; left:50%; transform:translateX(-50%); z-index:50; display:flex; gap:.4em; flex-wrap:wrap; justify-content:center; background:rgba(0,0,0,.75); padding:.35em .6em; border-radius:999px; font-size:13px; max-width:96vw; }
   #mockbar button { font:inherit; font-weight:800; border:0; border-radius:999px; padding:.3em .9em; cursor:pointer; background:#fff; color:#222; }
@@ -53,7 +53,8 @@
 import { W, H, TICK_MS, RULE, newGame, step, draw } from './bomb.js';
 var NAMES = 'そら ひなた れん あおい ゆうと みお はると さくら りく めい そうた ひより かいと ゆい たくみ ここな いつき みさき しょう なな けんた あかり だいき ゆず ひろと りこ まお こうた はな ゆうま みく りょう あやね とわ ふうか れお つむぎ ゆうり'.split(' ');
 var EM = ['🦊', '🐼', '🐰', '🐻', '🐯', '🐸', '🐵', '🐧', '🦁', '🐮', '🐷', '🐨', '🐹', '🦄', '🐙', '🦉'];
-var CH = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];   /* 動物の番号（0〜7は絵、8以降は絵文字） */
+var ACCS_MOCK = [0, 1, 8, 3, 0, 9];
+function charsOf(k) { return [0, 1, 2, 3, 4, 5].map(function (i) { return (i + k * 3) % 20; }); }
 function $(id) { return document.getElementById(id); }
 var view = 'stu', speed = 1, games = [], inputs = [], flee = [], held = [], pressB = false, acc = 0, last = performance.now(), me = 0;
 var sizes = [6, 6, 6, 6, 6, 5, 5];
@@ -90,14 +91,14 @@ function frame(now) {
   while (acc >= TICK_MS) { acc -= TICK_MS; tick(); }
   var g = games[0];
   if (view === 'stu') {
-    draw(ctx, g, cv.width, { me: me, emojis: EM, chars: CH, names: NAMES });
+    draw(ctx, g, cv.width, { me: me, emojis: EM, chars: charsOf(0), accs: ACCS_MOCK, names: NAMES });
     var left = Math.max(0, (RULE.length - g.t) / 10);
     $('sT').textContent = '残り ' + Math.ceil(left) + ' 秒'; $('sS').textContent = 'あなた ' + g.players[me].score + ' 点';
     var order = g.players.map(function (p, i) { return i; }).sort(function (a, b) { return g.players[b].score - g.players[a].score; });
     $('rank').innerHTML = order.map(function (i) { return '<div class="row' + (i === me ? ' me' : '') + '"><span>' + EM[i] + ' ' + NAMES[i] + '</span><span>' + g.players[i].score + '</span></div>'; }).join('');
   } else if (view === 'host') {
     $('hT').textContent = '残り ' + Math.ceil(Math.max(0, (RULE.length - g.t) / 10)) + ' 秒';
-    document.querySelectorAll('#g7 canvas').forEach(function (c, k) { draw(c.getContext('2d'), games[k], c.width, { emojis: EM, chars: CH }); });
+    document.querySelectorAll('#g7 canvas').forEach(function (c, k) { draw(c.getContext('2d'), games[k], c.width, { emojis: EM, chars: charsOf(k), accs: ACCS_MOCK }); });
     document.querySelectorAll('#g7 .sc').forEach(function (e, k) { e.textContent = games[k].players.map(function (p) { return p.score; }).join(' / '); });
   }
   if (view !== 'end' && g.over) { show('end'); var all = []; games.forEach(function (gg, k) { gg.players.forEach(function (p, i) { all.push({ n: NAMES[(k * 6 + i) % NAMES.length], s: p.score, e: EM[i] }); }); });
