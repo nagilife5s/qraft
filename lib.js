@@ -429,7 +429,14 @@ export function zoneEval(uids, runs, caps, zstart) {
 export function mountScene(box, mini) {
   box.textContent = '';
   var sc = el('div', 'scene' + (mini ? ' mini' : '')), floor = el('div', 'floor'), robot = el('div', 'rbot', '🤖'), crowd = el('div', 'crowd');
-  sc.appendChild(el('div', 'wallband')); sc.appendChild(floor); sc.appendChild(crowd); sc.appendChild(robot);
+  var wall = el('div', 'wallband');
+  wall.appendChild(el('div', 'ceil'));
+  [10, 34, 58, 82].forEach(function (x) { var w = el('div', 'win'); w.style.left = x + '%'; w.appendChild(el('i')); wall.appendChild(w); });
+  wall.appendChild(el('div', 'pipe'));
+  sc.appendChild(wall);
+  ['edge top', 'edge bot', 'lane', 'arrows'].forEach(function (c) { floor.appendChild(el('div', c)); });
+  sc.appendChild(floor); sc.appendChild(crowd); sc.appendChild(robot);
+  sc.appendChild(el('div', 'danger'));
   var zl = el('div', 'zones'); sc.appendChild(zl);
   box.appendChild(sc);
   var chars = {}, api = {};
@@ -450,6 +457,7 @@ export function mountScene(box, mini) {
     var zone = ctx.phase === 'zone' || ctx.phase === 'zoneres';
     robot.style.left = (zone ? -30 : -4 + Math.min(ctx.frac, 1) * 40) + '%';
     robot.classList.toggle('near', !zone && ctx.frac > .7);
+    sc.style.setProperty('--danger', zone ? 0 : Math.max(0, Math.min(1, (ctx.frac - .35) / .65)));
     zl.textContent = '';
     var Z = (ctx.caps || []).length, slots = {};
     if (zone) ctx.caps.forEach(function (cap, z) {
@@ -462,9 +470,9 @@ export function mountScene(box, mini) {
       var c = chars[u], h = hashOf(u), x, y, z = ctx.choice ? ctx.choice[u] : null;
       if (zone && z != null && z < Z) {
         var k = cnt[z] = (cnt[z] || 0) + 1, per = Math.max(2, Math.ceil(Math.sqrt(ctx.caps[z] * 1.6)));
-        x = 6 + z * (88 / Z) + (88 / Z - 2) * (((k - 1) % per) + .5) / per; y = 44 + Math.floor((k - 1) / per) * 10;
-      } else if (zone) { x = 14 + (h % 70); y = 90; }
-      else { x = 50 + (h % 1000) / 1000 * 42; y = 22 + ((h >>> 10) % 1000) / 1000 * 62; }
+        x = 6 + z * (88 / Z) + (88 / Z - 2) * (((k - 1) % per) + .5) / per; y = 50 + Math.floor((k - 1) / per) * 9;
+      } else if (zone) { x = 14 + (h % 70); y = 92; }
+      else { x = 50 + (h % 1000) / 1000 * 42; y = 40 + ((h >>> 10) % 1000) / 1000 * 46; }
       c.style.left = x + '%'; c.style.top = y + '%'; c.style.zIndex = Math.round(y);
       c.classList.toggle('me', u === ctx.me);
       c.classList.toggle('out', !!(ctx.caught && ctx.caught.indexOf(u) >= 0));

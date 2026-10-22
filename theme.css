@@ -534,19 +534,53 @@ button.tile:disabled { cursor:default; }
 .rbar .ri { position:absolute; left:.2em; top:50%; transform:translateY(-50%); font-size:1.2em; }
 .rbar .fl { position:absolute; right:.4em; top:50%; transform:translateY(-50%); font-size:1.2em; }
 .lives { font-size:1.4em; letter-spacing:.05em; white-space:nowrap; }
-.scene { position:relative; flex:1; min-height:0; border-radius:1em; overflow:hidden; background:#5a2d86; --cs:2em; container-type:size; box-shadow:var(--shadow); }
+.scene { position:relative; flex:1; min-height:0; border-radius:1em; overflow:hidden; background:#3b1a66; --cs:2em; --danger:0; container-type:size; box-shadow:var(--shadow), inset 0 0 0 .22em #2b1250; }
 .scene.mini { flex:none; height:11em; --cs:1.15em; }
-.scene .wallband { position:absolute; left:0; right:0; top:0; height:20%; background:linear-gradient(#7a46b5,#5a2d86); border-bottom:.25em solid #3d1a66; }
-.scene .wallband::before, .scene .wallband::after { content:""; position:absolute; top:22%; height:56%; width:22%; background:linear-gradient(#a8e3ff,#5fa8e8); border:.2em solid #3d1a66; border-radius:.5em; opacity:.9; }
-.scene .wallband::before { left:14%; } .scene .wallband::after { left:62%; }
-.scene .floor { position:absolute; left:0; right:0; top:20%; bottom:0; background:
-  linear-gradient(90deg, rgba(255,255,255,.1) 2px, transparent 2px) 0 0/9em 100%,
-  linear-gradient(0deg, rgba(255,255,255,.1) 2px, transparent 2px) 0 0/100% 5.5em,
-  linear-gradient(#c995d8,#a770c2); }
-.scene[data-phase="quiz"] .floor { animation:floorrun 1.6s linear infinite; }
-@keyframes floorrun { to { background-position:-9em 0, 0 0, 0 0; } }
+/* 壁：継ぎ目のあるパネル＋天井ライト＋窓（星と惑星）＋ネオンのパイプ */
+.scene .wallband { position:absolute; left:0; right:0; top:0; height:32%; border-bottom:.4em solid #2b1250; overflow:hidden;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 9em, rgba(0,0,0,.28) 9em 9.25em, rgba(255,255,255,.12) 9.25em 9.4em),
+    linear-gradient(#9a63d6, #6a38a8 55%, #4a2380); }
+.scene[data-phase="quiz"] .wallband { animation:wallrun 5s linear infinite; }
+@keyframes wallrun { to { background-position:-9.4em 0, 0 0; } }
+.scene .ceil { position:absolute; left:0; right:0; top:0; height:11%; background:linear-gradient(#2b1250,#43207a); border-bottom:.12em solid #7d4cc0; }
+.scene .ceil::after { content:""; position:absolute; inset:25% 0; background:repeating-linear-gradient(90deg, #fff7c2 0 3.2em, transparent 3.2em 8em); border-radius:1em; opacity:.85; filter:blur(.05em); }
+.scene .win { position:absolute; top:22%; width:16%; height:44%; border:.28em solid #d9c8f5; border-radius:.7em; background:linear-gradient(#0b0e3d,#2b1a78); box-shadow:inset 0 0 .8em rgba(0,0,0,.8), 0 .15em 0 #2b1250; overflow:hidden; }
+.scene .win i { position:absolute; inset:0; background:
+    radial-gradient(circle at 72% 62%, #ff9ad5 0 16%, #c0509a 17% 22%, transparent 23%),
+    radial-gradient(circle, #fff 0 1.2px, transparent 1.8px) 0 0/1.6em 1.3em,
+    radial-gradient(circle, #cfe8ff 0 1px, transparent 1.6px) .7em .5em/2.1em 1.9em; }
+.scene .win::after { content:""; position:absolute; inset:0; background:linear-gradient(115deg, rgba(255,255,255,.25) 0 18%, transparent 19% 100%); }
+.scene .pipe { position:absolute; left:0; right:0; bottom:9%; height:12%; background:linear-gradient(#cfc5e6,#8f84ad 45%,#5a4d7a); border-top:.1em solid #fff3; border-bottom:.12em solid #2b1250; }
+.scene .pipe::after { content:""; position:absolute; left:0; right:0; top:42%; height:16%; background:linear-gradient(90deg,#35e0ff,#ff5fa2,#35e0ff); background-size:30% 100%; box-shadow:0 0 .6em #35e0ff; animation:neon 2.2s linear infinite; }
+@keyframes neon { to { background-position:30% 0; } }
+/* 床：道。両端に黄黒の注意ライン、中央に流れる矢印レーン、光るタイル */
+.scene .floor { position:absolute; left:0; right:0; top:32%; bottom:0; overflow:hidden; background:
+    linear-gradient(90deg, rgba(255,255,255,.14) .16em, transparent .16em) 0 0/10em 100%,
+    linear-gradient(0deg, rgba(0,0,0,.12) .16em, transparent .16em) 0 0/100% 4.6em,
+    radial-gradient(ellipse at 50% 0%, rgba(255,255,255,.28), transparent 60%),
+    linear-gradient(#d9a8e8,#b178cf 50%,#8f55b5); }
+.scene[data-phase="quiz"] .floor { animation:floorrun 1.4s linear infinite; }
+@keyframes floorrun { to { background-position:-10em 0, 0 0, 0 0, 0 0; } }
+.scene .floor .edge { position:absolute; left:0; right:0; height:5%; background:repeating-linear-gradient(135deg,#ffd23f 0 1.1em,#2a1a40 1.1em 2.2em); box-shadow:0 .1em .3em rgba(0,0,0,.4); }
+.scene[data-phase="quiz"] .floor .edge { animation:edgerun 1s linear infinite; }
+@keyframes edgerun { to { background-position:-3.1em 0; } }
+.scene .floor .edge.top { top:0; } .scene .floor .edge.bot { bottom:0; }
+.scene .floor .lane { position:absolute; left:0; right:0; top:48%; height:.35em; background:repeating-linear-gradient(90deg,rgba(255,255,255,.75) 0 4em,transparent 4em 7em); border-radius:1em; opacity:.8; }
+.scene[data-phase="quiz"] .floor .lane { animation:lanerun .9s linear infinite; }
+@keyframes lanerun { to { background-position:-7em 0; } }
+.scene .floor .arrows { position:absolute; left:0; right:0; top:62%; height:20%; background:
+    repeating-linear-gradient(90deg, rgba(255,255,255,.0) 0 5em, rgba(255,255,255,.0) 5em 7em); }
+.scene .floor .arrows::before { content:"▶ ▶ ▶ ▶ ▶ ▶ ▶ ▶ ▶ ▶ ▶ ▶ ▶ ▶ ▶ ▶"; position:absolute; left:0; top:0; white-space:nowrap; color:rgba(255,255,255,.35); font-size:calc(var(--cs) * 1.3); letter-spacing:1.6em; line-height:1; }
+.scene[data-phase="quiz"] .floor .arrows::before { animation:arrowrun 1.2s linear infinite; }
+@keyframes arrowrun { to { transform:translateX(-4.6em); } }
+/* 危険：ロボットが近いほど、左側が赤く光る */
+.scene .danger { position:absolute; inset:0; pointer-events:none; z-index:95; opacity:var(--danger); background:linear-gradient(90deg, rgba(255,40,70,.55), rgba(255,40,70,0) 55%); animation:alarm .7s ease-in-out infinite alternate; }
+@keyframes alarm { from { filter:brightness(.7); } to { filter:brightness(1.25); } }
+.scene[data-phase="zone"] .danger, .scene[data-phase="zoneres"] .danger { display:none; }
 .scene .crowd { position:absolute; inset:0; }
 .scene .ch { position:absolute; transform:translate(-50%,-50%); text-align:center; transition:left 1s cubic-bezier(.3,.9,.3,1), top 1s cubic-bezier(.3,.9,.3,1); }
+.scene .ch::after { content:""; position:absolute; left:50%; bottom:calc(var(--cs) * .28); width:calc(var(--cs) * .95); height:calc(var(--cs) * .28); transform:translateX(-50%); background:radial-gradient(rgba(30,0,60,.45), transparent 70%); z-index:-1; }
 .scene .ch .av { display:block; font-size:var(--cs); line-height:1; filter:drop-shadow(0 .08em .08em rgba(0,0,0,.4)); }
 .scene .ch .nm { display:block; font-size:calc(var(--cs) * .3); font-weight:800; color:#fff; text-shadow:0 0 .3em #000,0 0 .3em #000; white-space:nowrap; max-width:6em; overflow:hidden; text-overflow:ellipsis; margin:0 auto; }
 .scene .ch.run .av { animation:bob .45s ease-in-out infinite alternate; }
@@ -554,12 +588,12 @@ button.tile:disabled { cursor:default; }
 @keyframes bob { from { transform:translateY(0) rotate(-4deg); } to { transform:translateY(-.18em) rotate(4deg); } }
 .scene .ch.me .av { filter:drop-shadow(0 0 .2em #ffd23f) drop-shadow(0 0 .1em #ffd23f); }
 .scene .ch.out { opacity:.4; filter:grayscale(1); }
-.scene .rbot { position:absolute; top:52%; transform:translate(-50%,-50%); font-size:calc(var(--cs) * 4.6); line-height:1; transition:left .5s linear; z-index:90; filter:drop-shadow(.1em .1em .15em rgba(0,0,0,.6)); }
+.scene .rbot { position:absolute; text-shadow:0 0 .6em rgba(255,60,80,.6); top:52%; transform:translate(-50%,-50%); font-size:calc(var(--cs) * 4.6); line-height:1; transition:left .5s linear; z-index:90; filter:drop-shadow(.1em .1em .15em rgba(0,0,0,.6)); }
 .scene.mini .rbot { font-size:calc(var(--cs) * 4); }
 .scene .rbot.near { animation:shake .2s linear infinite; }
 @keyframes shake { 0% { transform:translate(-50%,-50%) rotate(-2deg); } 50% { transform:translate(-48%,-52%) rotate(2deg); } 100% { transform:translate(-50%,-50%) rotate(-2deg); } }
 .scene .zones { position:absolute; inset:0; pointer-events:none; }
-.scene .zone { position:absolute; top:24%; bottom:14%; border:.25em dashed #7be06f; background:rgba(123,224,111,.28); border-radius:.8em; text-align:center; color:#fff; padding-top:.2em; }
+.scene .zone { position:absolute; top:36%; bottom:12%; border:.28em solid #7be06f; background:repeating-linear-gradient(135deg, rgba(123,224,111,.32) 0 1em, rgba(123,224,111,.2) 1em 2em); box-shadow:0 0 1em rgba(123,224,111,.7), inset 0 0 1em rgba(123,224,111,.5); border-radius:.8em; text-align:center; color:#fff; padding-top:.2em; }
 .scene .zone b { font-size:1.3em; display:block; text-shadow:0 .05em .2em #000; } .scene .zone small { font-size:.95em; font-weight:800; text-shadow:0 .05em .2em #000; }
 .zbtns { display:flex; gap:.6em; }
 .zbtn { flex:1; font:inherit; font-weight:900; font-size:1.2em; border:0; border-radius:.9em; padding:.6em .3em; background:#7be06f; color:#0e3a12; box-shadow:var(--shadow); cursor:pointer; }
