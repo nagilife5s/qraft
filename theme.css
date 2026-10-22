@@ -648,3 +648,8 @@ button.tile:disabled { cursor:default; }
 .avx .acc.face { top:.34em; } .avx .acc.face img { height:.34em; }
 .avopt .accimg { display:block; height:1.4em; width:auto; max-width:2.6em; }
 .avprev { font-size:3.2em; line-height:1.2; padding-top:.35em; }
+/* ジェットで飛ぶ大ロボット：ふわふわ上下に揺れる。近づくと速く・激しく */
+.scene .rbot img { animation:hover 1.2s ease-in-out infinite alternate; transform-origin:70% 60%; }
+.scene .rbot.near img { animation-duration:.45s; }
+@keyframes hover { from { transform:translateY(-4%) rotate(-1.5deg); } to { transform:translateY(4%) rotate(1.5deg); } }
+@media (prefers-reduced-motion: reduce) { .scene .rbot img { animation:none; } }
