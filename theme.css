@@ -148,7 +148,7 @@ button[data-bg="forest"] i { background:linear-gradient(170deg,#25a862,#062f24);
 .rk .bar2 { flex:1; height:2.6em; background:rgba(255,255,255,.62); border-radius:.8em; position:relative; overflow:hidden; }
 .rk .bar2 i { position:absolute; left:0; top:0; bottom:0; background:linear-gradient(90deg,var(--pop3),#7be7ff); border-radius:.8em; }
 .rk .row:nth-child(1) .bar2 i { background:linear-gradient(90deg,var(--pop1),#ffe58a); }
-.rk .bar2 span { position:relative; line-height:2.6em; padding-left:.9em; font-weight:900; font-size:1.15em; color:var(--ink-dark); }
+.rk .bar2 > span { position:relative; line-height:2.6em; padding-left:.9em; font-weight:900; font-size:1.15em; color:var(--ink-dark); }
 .rk .pt { width:5.5em; text-align:right; font-weight:900; font-size:1.3em; font-variant-numeric:tabular-nums; flex:0 0 auto; }
 .rk .row.me .bar2 { outline:.18em solid #fff; }
 .title2 { font-weight:900; font-size:2em; }
@@ -332,7 +332,7 @@ button[data-bg="forest"] i { background:linear-gradient(170deg,#25a862,#062f24);
                transition:transform .9s cubic-bezier(.3,1.25,.5,1); }
 .rkAnim .bar2 { height:2.7em; }
 .rkAnim .bar2 i { transition:width 1s cubic-bezier(.2,.9,.3,1); width:0; }
-.rkAnim .bar2 span { line-height:2.7em; }
+.rkAnim .bar2 > span { line-height:2.7em; }
 .rkAnim.rk .row .no { background:#fff; transition:background .3s; }
 .rkAnim.rk .row[data-rank="1"] .no { background:var(--pop1); }
 .rkAnim.rk .row[data-rank="2"] .no { background:#e3e6f2; }
@@ -700,8 +700,8 @@ button.tile:disabled { cursor:default; }
 .jc-s { font-weight:800; font-size:.9em; opacity:.92; margin-top:.2em; line-height:1.5; }
 
 /* クラシック：ランキング・表彰台にキャラ */
-.rk .row .bar2 span .rkav { font-size:1.5em; margin-right:.3em; vertical-align:middle; }
-.rk .row .bar2 span .rkav .avimg { height:1.3em; }
+.rk .row .bar2 > span .rkav { font-size:1.5em; margin-right:.3em; vertical-align:middle; }
+.rk .row .bar2 > span .rkav .avimg { height:1.3em; }
 .podium .pav { font-size:3.4em; line-height:1.15; display:flex; justify-content:center; margin-bottom:.1em; }
 .podium .p1 .pav { font-size:4.6em; }
 .podium .pav .avx { display:inline-block; }

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Qraft ジェットチェイス（先生）</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
-<link rel="stylesheet" href="theme.css?v=20261022204032">
+<link rel="stylesheet" href="theme.css?v=20261022204221">
 </head>
 <body>
 <div id="app">
@@ -69,15 +69,15 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261022204032"></script>
+<script src="firebase-config.js?v=20261022204221"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script type="module">
-import { mountSetPicker } from './lib.js?v=20261022204032';
-import { newGame, step, draw as bdraw, serialize, RULE as BRULE, W as BW, H as BH } from './bomb.js?v=20261022204032';
+import { mountSetPicker } from './lib.js?v=20261022204221';
+import { newGame, step, draw as bdraw, serialize, RULE as BRULE, W as BW, H as BH } from './bomb.js?v=20261022204221';
 import { shuffle, signIn, db, ref, set, get, update, remove, onValue, serverNow,
          avatarEl, ROBOT, robotTarget, robotFrac, mountScene, parseAv,
          $, el, showScreen, confetti, qrSvg,
-         loadBackgrounds, applyBg, buildBgPickers, mountStage } from './lib.js?v=20261022204032';
+         loadBackgrounds, applyBg, buildBgPickers, mountStage } from './lib.js?v=20261022204221';
 
 mountStage();
 
