@@ -6,25 +6,51 @@
 <title>Qraft</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261022202243">
+<link rel="stylesheet" href="theme.css?v=20261022203405">
 <style>
-  .entry { width:min(24em, 90%); display:flex; flex-direction:column; gap:1em; margin-top:1em; }
-  .entry a { text-decoration:none; text-align:center; display:block; }
+  .menu { width:min(44em, 94%); display:grid; grid-template-columns:repeat(auto-fit, minmax(11.5em, 1fr)); gap:1em; margin-top:1.2em; }
+  .mcard { display:flex; flex-direction:column; align-items:center; gap:.4em; text-decoration:none; color:var(--ink-dark); background:#fff; border:0; font:inherit; cursor:pointer; border-radius:1.2em; padding:1em .8em .9em; box-shadow:var(--shadow); transition:transform .15s, box-shadow .15s; }
+  .mcard:hover { transform:translateY(-.25em) scale(1.02); }
+  .mcard:active { transform:translateY(.1em); }
+  .mcard .ic { height:6.2em; display:flex; align-items:flex-end; justify-content:center; gap:.2em; }
+  .mcard .ic img { height:100%; width:auto; filter:drop-shadow(0 .15em .15em rgba(40,10,70,.3)); }
+  .mcard .ic.two img { height:78%; }
+  .mcard b { font-size:1.35em; font-weight:900; }
+  .mcard small { font-size:.9em; font-weight:700; opacity:.7; text-align:center; }
+  .mcard.join { background:var(--pop1); } .mcard.open { background:#fff; } .mcard.home { background:#8bf0b0; }
+  .mcard.mecha { background:#ffd9d2; }
+  .back { margin-top:1.4em; }
+  .mtitle { font-weight:900; font-size:1.7em; margin-top:.8em; }
+  @media (prefers-reduced-motion: no-preference) { .screen.on .mcard { animation:popIn .5s cubic-bezier(.2,1.5,.4,1) both; } .screen.on .mcard:nth-child(2) { animation-delay:.08s; } .screen.on .mcard:nth-child(3) { animation-delay:.16s; } }
 </style>
 </head>
 <body>
 <div id="app" class="bg">
   <div class="deco"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-  <section class="screen on center" style="gap:.4em">
-    <img class="logo-img" src="img/logo-wordmark.webp" alt="Qraft" style="height:11em">
-    <div class="mut" style="font-size:1.2em; font-weight:800">理科のクイズ対戦</div>
-    <div class="entry">
-      <a class="btn" href="play.html">ゲームに参加する（生徒）</a>
-      <a class="btn" href="home.html" style="background:#8bf0b0">おうちで練習する</a>
-      <a class="btn sub" href="host.html">ゲームを開く（先生）</a>
-      <a class="btn sub" href="chase-host.html">追いかけっこを開く（先生）</a>
+
+  <section class="screen on center" id="v-main" style="gap:.2em">
+    <img class="logo-img" src="img/logo-wordmark.webp" alt="Qraft" style="height:10em">
+    <div class="menu">
+      <a class="mcard join" href="play.html"><div class="ic two"><img src="img/robot/animal-fox.webp" alt=""><img src="img/robot/animal-panda.webp" alt=""></div><b>ゲームに参加する</b><small>PINを入れて参加</small></a>
+      <button class="mcard open" id="goOpen" type="button"><div class="ic"><img src="img/robot/boom.webp" alt=""></div><b>ゲームを開く</b><small>モードを選んで部屋を作る</small></button>
+      <a class="mcard home" href="home.html"><div class="ic"><img src="img/robot/animal-owl.webp" alt=""></div><b>おうちで練習</b><small>ひとりで問題に挑戦</small></a>
     </div>
   </section>
+
+  <section class="screen center" id="v-modes" style="gap:.2em">
+    <img class="logo-img" src="img/logo-wordmark.webp" alt="Qraft" style="height:6.4em">
+    <div class="mtitle">モードをえらぶ</div>
+    <div class="menu">
+      <a class="mcard open" href="host.html"><div class="ic"><img src="img/logo-mark.webp" alt=""></div><b>クラシック</b><small>早押しで得点を競う</small></a>
+      <a class="mcard mecha" href="chase-host.html"><div class="ic"><img src="img/robot/boss.webp" alt=""></div><b>メカ大脱走</b><small>みんなで協力して逃げ切れ</small></a>
+    </div>
+    <button class="btn sub back" id="goBack" type="button">もどる</button>
+  </section>
 </div>
+<script>
+  function show(id) { document.querySelectorAll('.screen').forEach(function (s) { s.classList.toggle('on', s.id === id); }); }
+  document.getElementById('goOpen').onclick = function () { show('v-modes'); };
+  document.getElementById('goBack').onclick = function () { show('v-main'); };
+</script>
 </body>
 </html>

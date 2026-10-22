@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Qraft ロボットラン（先生）</title>
+<title>Qraft メカ大脱走（先生）</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
-<link rel="stylesheet" href="theme.css?v=20261022202243">
+<link rel="stylesheet" href="theme.css?v=20261022203405">
 </head>
 <body>
 <div id="app">
@@ -15,7 +15,7 @@
   <div class="setup-wrap">
     <img class="logo-img" src="img/logo-wordmark.webp" alt="Qraft" style="height:5em">
     <div class="card setup">
-      <div style="font-weight:900; font-size:1.3em">🤖 ロボットラン（みんなで ロボットから にげきれ！）</div>
+      <div style="font-weight:900; font-size:1.3em">🤖 メカ大脱走（みんなで メカから にげきれ！）</div>
       <label>問題セット（複数えらべます。家庭練習と同じ、正解が公開されたセットです）</label>
       <div class="pk-row" id="gradeRow"></div>
       <div class="pk-row small" id="unitRow"></div>
@@ -75,14 +75,14 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261022202243"></script>
+<script src="firebase-config.js?v=20261022203405"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script type="module">
-import { newGame, step, draw as bdraw, serialize, RULE as BRULE, W as BW, H as BH } from './bomb.js?v=20261022202243';
+import { newGame, step, draw as bdraw, serialize, RULE as BRULE, W as BW, H as BH } from './bomb.js?v=20261022203405';
 import { shuffle, signIn, db, ref, set, get, update, remove, onValue, serverNow,
          avatarEl, ROBOT, robotTarget, robotFrac, mountScene, parseAv,
          $, el, showScreen, confetti, qrSvg,
-         loadBackgrounds, applyBg, buildBgPickers, mountStage } from './lib.js?v=20261022202243';
+         loadBackgrounds, applyBg, buildBgPickers, mountStage } from './lib.js?v=20261022203405';
 
 mountStage();
 
@@ -175,7 +175,7 @@ $('btnCreate').onclick = async function () {
     u.appendChild(document.createElement('wbr'));
     u.appendChild(document.createTextNode(cut < 0 ? 'chase-play.html' : host.slice(cut) + 'chase-play.html'));
     $('pin').textContent = pin.slice(0, 3) + ' ' + pin.slice(3);
-    $('setTitle').textContent = 'ロボットラン・3レベル';
+    $('setTitle').textContent = 'メカ大脱走・3レベル';
     var svg = qrSvg(base + 'chase-play.html?pin=' + pin);
     if (svg) $('qr').innerHTML = svg; else $('qrcard').classList.add('hide');
     showScreen('s-lobby');

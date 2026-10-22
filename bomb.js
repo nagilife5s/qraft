@@ -154,7 +154,9 @@ export function draw(ctx, g, px, opt) {
   }
   /* 柱の影 → 柱（立体のブロック） */
   for (y = 0; y < H; y++) for (x = 0; x < W; x++) if (isPillar(x, y)) { ctx.fillStyle = 'rgba(60,20,100,.22)'; ctx.fillRect(x * c + c * .1, (y + 1) * c - c * .05, c * .95, c * .28); }
-  for (y = 0; y < H; y++) for (x = 0; x < W; x++) if (isPillar(x, y)) {
+  var blk = sprite('block');
+  if (blk) { for (y = 0; y < H; y++) for (x = 0; x < W; x++) if (isPillar(x, y)) putSprite(ctx, blk, (x + .5) * c, (y + 1.02) * c, c * 1.1); }
+  else for (y = 0; y < H; y++) for (x = 0; x < W; x++) if (isPillar(x, y)) {
     var X = x * c, Y = y * c, top = ctx.createLinearGradient(X, Y, X, Y + c * .78);
     top.addColorStop(0, '#b79bff'); top.addColorStop(1, '#7c5be0');
     ctx.fillStyle = '#4a2fb0'; round(ctx, X + c * .04, Y + c * .12, c * .92, c * .86, c * .14); ctx.fill();

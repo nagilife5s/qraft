@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Qraft ロボットラン</title>
+<title>Qraft メカ大脱走</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261022202243">
+<link rel="stylesheet" href="theme.css?v=20261022203405">
 <style>
   .brow { display:flex; gap:.4em; align-items:center; background:rgba(255,255,255,.92); color:var(--ink-dark); border-radius:.6em; padding:.15em .6em; font-weight:800; font-size:.95em; }
   .brow.me { outline:.15em solid #ffd23f; }
@@ -103,12 +103,12 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261022202243"></script>
+<script src="firebase-config.js?v=20261022203405"></script>
 <script type="module">
-import { newView, applyData, draw as bdraw, RULE as BRULE, W as BW, H as BH } from './bomb.js?v=20261022202243';
+import { newView, applyData, draw as bdraw, RULE as BRULE, W as BW, H as BH } from './bomb.js?v=20261022203405';
 import { parseAv, mountAvatarPicker, avatarEl, signIn, db, ref, set, get, onValue, serverNow, CHOICE_STYLE, shuffle,
          ROBOT, robotFrac, mountScene, prepareQuestion, maskOf, isTextCorrect,
-         $, el, showScreen, confetti, loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261022202243';
+         $, el, showScreen, confetti, loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261022203405';
 
 mountStage();
 
