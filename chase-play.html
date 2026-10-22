@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="ja" data-bg="sea">
+<html lang="ja" data-bg="space">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Qraft 追いかけっこ</title>
+<title>Qraft ロボットラン</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261022144625">
+<link rel="stylesheet" href="theme.css?v=20261022150334">
 <style>
   .fb { text-align:center; font-weight:900; font-size:1.3em; min-height:1.6em; }
   .fb.ok { color:#8bf0b0; } .fb.ng { color:#ffd23f; }
@@ -34,7 +34,7 @@
 <!-- 待機 -->
 <section class="screen" id="s-wait">
   <div class="center" style="flex:1; display:flex; flex-direction:column; gap:.7em">
-    <div style="font-size:4em" id="waitEm">🛥️</div>
+    <div style="font-size:4em">🤖</div>
     <div style="font-weight:900; font-size:2.4em">参加できました！</div>
     <div class="pill" id="meNick" style="font-size:1.6em"></div>
     <div class="mut" style="font-size:1.3em; margin-top:.4em">先生がスタートするのを待っています</div>
@@ -42,20 +42,31 @@
   </div>
 </section>
 
-<!-- 競争中 -->
+<!-- ゲーム中 -->
 <section class="screen" id="s-q" style="gap:.5em">
-  <div class="chase-top"><span class="pill" id="kpill"></span><span class="bigtime" id="remain" style="font-size:1.8em"></span><span class="pill" id="apill" style="background:var(--pop1)"></span></div>
-  <div class="arena mini" id="arena"></div>
-  <div class="caughtbar hide" id="caughtbar"></div>
-  <div class="stu-q" id="sq"><img id="sqimg" class="qimg hide" alt=""><span id="sqtext"></span></div>
-  <div class="stu-tiles" id="stiles"></div>
-  <div id="textbox" class="hide">
-    <input type="text" id="textAns" maxlength="40" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="send" placeholder="ここに答えを入力">
-    <div class="tnote" id="tnote"></div>
+  <div class="rhud">
+    <span class="pill" id="hLevel"></span>
+    <div class="rbar"><span class="ri">🤖</span><i id="hFill"></i><span class="fl">🏁</span></div>
+    <span class="pill" id="hTime" style="background:#fff;color:var(--ink-dark)"></span>
+    <span class="lives" id="hLives"></span>
   </div>
-  <div class="q-foot">
-    <button class="btn hide" id="btnSubmit">答える</button>
-    <div class="fb" id="fb"></div>
+  <div id="sceneBox"></div>
+  <div class="banner hide" id="banner"></div>
+  <div id="quizBox" style="display:flex; flex-direction:column; gap:.5em; flex:1; min-height:0">
+    <div class="stu-q" id="sq"><img id="sqimg" class="qimg hide" alt=""><span id="sqtext"></span></div>
+    <div class="stu-tiles" id="stiles"></div>
+    <div id="textbox" class="hide">
+      <input type="text" id="textAns" maxlength="40" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="send" placeholder="ここに答えを入力">
+      <div class="tnote" id="tnote"></div>
+    </div>
+    <div class="q-foot">
+      <button class="btn hide" id="btnSubmit">答える</button>
+      <div class="fb" id="fb"></div>
+    </div>
+  </div>
+  <div id="zoneBox" class="hide" style="display:flex; flex-direction:column; gap:.6em; flex:1; justify-content:center">
+    <div class="banner" id="zInfo">安全地帯を えらべ！ 先に押した人から入れるよ</div>
+    <div class="zbtns" id="zbtns"></div>
   </div>
 </section>
 
@@ -64,11 +75,12 @@
   <div class="confetti" id="conf-end"></div>
   <div class="center" style="flex:1; display:flex; flex-direction:column; gap:.6em">
     <div style="font-size:4em" id="endEm"></div>
-    <div class="title2" style="font-size:2.4em" id="endTitle"></div>
+    <div class="title2" style="font-size:2.2em" id="endTitle"></div>
     <div class="card" style="min-width:16em">
-      <div style="font-size:3.6em; font-weight:900; color:var(--bg2); line-height:1.1"><span id="endk">0</span><small style="font-size:.4em"> 問せいかい（<span id="enda">0</span>問中）</small></div>
+      <div class="mut" style="color:#5b5478; font-weight:800">あなたの正解</div>
+      <div style="font-size:3.6em; font-weight:900; color:var(--bg2); line-height:1.1"><span id="endk">0</span><small style="font-size:.4em"> 問（<span id="enda">0</span>問中）</small></div>
+      <div class="mut" style="color:#5b5478; font-weight:800; margin-top:.3em">クラス全体 <span id="endAll">0</span> 問</div>
     </div>
-    <div class="mut" id="endAll"></div>
   </div>
 </section>
 
@@ -77,22 +89,23 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261022144625"></script>
+<script src="firebase-config.js?v=20261022150334"></script>
 <script type="module">
-import { signIn, db, ref, set, get, onValue, serverTimestamp, serverNow, CHOICE_STYLE, shuffle,
-         CHASE, chasePos, chaseX, prepareQuestion, maskOf, isTextCorrect,
-         $, el, showScreen, confetti, loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261022144625';
+import { signIn, db, ref, set, get, onValue, serverNow, CHOICE_STYLE, shuffle,
+         ROBOT, robotFrac, mountScene, avatarOf, prepareQuestion, maskOf, isTextCorrect,
+         $, el, showScreen, confetti, loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261022150334';
 
 mountStage();
 
 var uid = null, pin = null, nick = '';
-var state = null, kicked = false, closed = false, BGS = [], bgReady = false;
-var T = 480, G = 12, chaser = 'shark', started = false, finished = false;
-var k = 0, a = 0, isCaught = false, goalAt = null, pool = [], queue = [], run = null, locked = false, selMask = 0, mk = null, wall = null, timerId = null;
+var state = null, runs = {}, players = {}, kicked = false, closed = false, BGS = [], bgReady = false;
+var started = false, finished = false, timerId = null, scene = null;
+var k = 0, a = 0, myZ = null, myZt = 0, pool = [], queue = [], run = null, locked = false, selMask = 0;
+var lastLevel = 0, lastFail = 0, lastPhase = '', bannerUntil = 0;
 
 /* ------------------------------------------------------------ 参加（クラシックと同じ入り口） */
 (async function boot() {
-  BGS = await loadBackgrounds(); bgReady = true; applyBg('sea', BGS, true);
+  BGS = await loadBackgrounds(); bgReady = true; applyBg('space', BGS, true);
   showScreen('s-join');
   try { uid = (await signIn()).uid; } catch (e) { joinErr(e.message); $('btnJoin').disabled = true; return; }
   var saved = null; try { saved = JSON.parse(localStorage.getItem('qraft.player') || 'null'); } catch (e) {}
@@ -125,13 +138,15 @@ async function join(p, n, silent) {
 }
 
 function start() {
-  $('meNick').textContent = nick;
+  $('meNick').textContent = avatarOf(uid) + ' ' + nick;
   onValue(ref(db, 'rooms/' + pin + '/state'), function (s) {
     state = s.val();
     if (!state) { closed = true; try { localStorage.removeItem('qraft.player'); } catch (e) {} }
-    else { if (bgReady) applyBg(state.bg || 'sea', BGS); T = state.T || T; G = state.G || G; chaser = state.chaser || chaser; }
+    else if (bgReady) applyBg(state.bg || 'space', BGS);
     render();
   });
+  onValue(ref(db, 'rooms/' + pin + '/run'), function (s) { runs = s.val() || {}; });
+  onValue(ref(db, 'rooms/' + pin + '/players'), function (s) { players = s.val() || {}; });
   onValue(ref(db, 'rooms/' + pin + '/kicked/' + uid), function (s) { if (s.val()) { kicked = true; render(); } });
   render();
 }
@@ -141,60 +156,93 @@ function render() {
   if (closed) { if (!finished) showScreen('s-closed'); return; }
   if (!state) return;
   if (state.mode !== 'chase') { location.replace('play.html?pin=' + pin + (/[?&]sess=1/.test(location.search) ? '&sess=1' : '')); return; }
-  $('waitEm').textContent = CHASE[chaser].me;
   if (state.phase === 'lobby') { if (!started) showScreen('s-wait'); }
-  else if (state.phase === 'run' && state.start && !started && !finished) beginRun();
-  else if (state.phase === 'end' && !finished) endGame();
-  if (finished && state.esc != null) $('endAll').textContent = 'クラスで ' + state.esc + ' / ' + state.all + ' 人が にげきりました';
+  else if (state.phase === 'end') { if (!finished) endGame(); }
+  else if (!started && !finished) beginRun();
 }
 
-/* ------------------------------------------------------------ 競争 */
+/* ------------------------------------------------------------ ゲーム */
 async function beginRun() {
   started = true;
   try {
     pool = [];
-    for (var i = 0; i < (state.sets || []).length; i++) {
-      var d = await (await fetch('home/' + state.sets[i] + '.json')).json();
-      pool = pool.concat(d.questions);
-    }
-  } catch (e) { alert('問題を読めませんでした。ページを更新してください。'); return; }
-  buildArena(); nextQuestion(); showScreen('s-q');
-  timerId = setInterval(tick, 200); tick();
+    for (var i = 0; i < (state.sets || []).length; i++) pool = pool.concat((await (await fetch('home/' + state.sets[i] + '.json')).json()).questions);
+  } catch (e) { alert('問題を読めませんでした。ページを更新してください。'); started = false; return; }
+  scene = mountScene($('sceneBox'), true); showScreen('s-q');
+  nextQuestion();
+  timerId = setInterval(tick, 250); tick();
 }
 
-function buildArena() {
-  var ar = $('arena'); ar.textContent = ''; ar.style.setProperty('--fs', '1.1em');
-  var ln = el('div', 'line'); ln.style.left = chaseX(0, G) + '%'; ar.appendChild(ln);
-  var gl = el('div', 'line'); gl.style.left = chaseX(G, G) + '%'; gl.appendChild(el('b', '', '🏁')); ar.appendChild(gl);
-  var lane = el('div', 'lane'); mk = el('div', 'mk'); mk.appendChild(el('span', 'em', CHASE[chaser].me));
-  mk.style.left = chaseX(0, G) + '%'; lane.appendChild(mk); ar.appendChild(lane);
-  wall = el('div', 'wall'); wall.appendChild(el('span', 'ch', CHASE[chaser].chaser)); ar.appendChild(wall);
-}
+function sumK() { return Object.keys(runs).reduce(function (x, id) { return x + (players[id] ? (runs[id].k || 0) : 0); }, 0); }
+function banner(msg, bad, sec) { var b = $('banner'); b.textContent = msg; b.classList.toggle('bad', !!bad); b.classList.remove('hide'); bannerUntil = Date.now() + sec * 1000; }
 
 function tick() {
-  if (finished) return;
-  var sec = (serverNow() - state.start) / 1000, left = Math.max(0, T - sec), sp = chasePos(sec, T, G);
-  $('remain').textContent = Math.floor(left / 60) + ':' + String(Math.floor(left % 60)).padStart(2, '0');
-  wall.style.left = chaseX(sp, G) + '%';
-  if (goalAt == null && !isCaught && k < sp) {
-    isCaught = true; report();
-    $('caughtbar').textContent = CHASE[chaser].chaser + ' につかまった…！ でも、続けて練習できるよ'; $('caughtbar').classList.remove('hide');
-    mk.classList.add('out');
+  if (finished || !state || state.phase === 'lobby') return;
+  var st = state, now = serverNow(), ids = Object.keys(players);
+  scene.setPlayers(ids.map(function (id) { return { uid: id, nick: players[id].nick }; }));
+  var C = sumK() - (st.base || 0), p = Math.min(1, C / st.target), sec = (now - st.qstart) / 1000;
+  $('hLevel').textContent = 'レベル ' + st.level + ' / ' + ROBOT.levels;
+  $('hLives').textContent = new Array(st.lives + 1).join('❤️') + new Array(ROBOT.lives - st.lives + 1).join('🖤');
+  if (bannerUntil < Date.now()) $('banner').classList.add('hide');
+  if (st.level !== lastLevel) { lastLevel = st.level; myZ = null; }
+  if ((st.fail || 0) !== lastFail) { lastFail = st.fail || 0; banner('ロボットにつかまった！ ライフ −1　もう一度！', true, 4); }
+
+  var choice = {};
+  ids.forEach(function (id) { var r = runs[id]; if (r && r.z != null && r.zt >= (st.zstart || 0)) choice[id] = r.z; });
+
+  if (st.phase === 'quiz') {
+    if (lastPhase !== 'quiz') { lastPhase = 'quiz'; $('quizBox').classList.remove('hide'); $('zoneBox').classList.add('hide'); if (st.level > 1 || sec < 3) banner('レベル ' + st.level + ' スタート！', false, 3); }
+    var left = Math.max(0, st.Tl - sec);
+    $('hTime').textContent = Math.floor(left / 60) + ':' + String(Math.floor(left % 60)).padStart(2, '0');
+    $('hFill').style.width = p * 100 + '%';
+    scene.draw({ phase: 'quiz', frac: robotFrac(Math.max(0, sec), p), me: uid });
+  } else if (st.phase === 'zone' || st.phase === 'zoneres') {
+    var zone = st.phase === 'zone';
+    if (lastPhase !== st.phase) { lastPhase = st.phase; $('quizBox').classList.add('hide'); $('zoneBox').classList.remove('hide'); if (zone) { myZ = null; buildZones(); } }
+    var zl = Math.max(0, st.Zt - (now - st.zstart) / 1000);
+    $('hTime').textContent = zone ? '0:' + String(Math.ceil(zl)).padStart(2, '0') : '';
+    $('hFill').style.width = '100%';
+    var caught = st.zres || [];
+    scene.draw({ phase: st.phase, caps: st.caps, choice: choice, me: uid, caught: caught });
+    if (zone) refreshZones(choice);
+    else {
+      var me = caught.indexOf(uid) >= 0;
+      $('zInfo').textContent = me ? 'ざんねん…つかまった！ 次はゾーンを早めに！' : caught.length ? 'セーフ！（' + caught.length + '人が つかまった）' : '全員 無事に入れた！';
+      $('zInfo').classList.toggle('bad', me);
+    }
   }
-  if (left <= 0) endGame();
+}
+
+/* ---- 安全地帯 */
+function buildZones() {
+  var box = $('zbtns'); box.textContent = ''; $('zInfo').textContent = '安全地帯を えらべ！ 先に押した人から入れるよ'; $('zInfo').classList.remove('bad');
+  state.caps.forEach(function (cap, z) {
+    var b = el('button', 'zbtn'); b.appendChild(document.createTextNode('ゾーン' + 'ABC'[z])); b.appendChild(el('small', '', ''));
+    b.onclick = function () { if (state.phase !== 'zone') return; myZ = z; myZt = serverNow(); report(); };
+    box.appendChild(b);
+  });
+}
+function refreshZones(choice) {
+  var cnt = state.caps.map(function () { return 0; });
+  Object.keys(choice).forEach(function (id) { if (choice[id] < cnt.length) cnt[choice[id]]++; });
+  [].forEach.call($('zbtns').children, function (b, z) {
+    b.lastChild.textContent = cnt[z] + ' / ' + state.caps[z] + ' 人';
+    b.classList.toggle('mine', myZ === z); b.classList.toggle('full', cnt[z] >= state.caps[z] && myZ !== z);
+  });
 }
 
 function report() {
-  var o = { k: k, a: a, u: serverTimestamp() };
-  if (isCaught) o.c = 1; if (goalAt != null) o.g = goalAt;
+  var o = { k: k, a: a, u: serverNow() };
+  o.u = { '.sv': 'timestamp' };
+  if (myZ != null) { o.z = myZ; o.zt = myZt; }
   set(ref(db, 'rooms/' + pin + '/run/' + uid), o).catch(function () {});
 }
 
+/* ---- 問題（正解で進捗に加算。まちがえた問題は、あとでもう一度出る） */
 function nextQuestion() {
   if (!queue.length) queue = shuffle(pool.map(function (_, i) { return i; }));
-  var q = prepareQuestion(pool[queue.pop()], true);
+  var qi = queue.pop(), q = prepareQuestion(pool[qi], true); q.qi = qi;
   run = q; locked = false; selMask = 0;
-  $('kpill').textContent = '🏁 ' + k + ' / ' + G; $('apill').textContent = a + ' 問に答えた';
   $('sqtext').textContent = q.text;
   var im = $('sqimg'); if (q.image) { im.src = q.image; im.classList.remove('hide'); } else im.classList.add('hide');
   $('sq').classList.toggle('hasimg', !!q.image);
@@ -227,7 +275,6 @@ $('btnSubmit').onclick = function () {
   if (locked) return;
   if (run.type === 'text') judge(null, $('textAns').value.trim()); else if (selMask) judge(selMask, null);
 };
-
 function flash(bad) { var f = $('flash'); f.className = 'cflash' + (bad ? ' bad' : ''); void f.offsetWidth; f.classList.add('on'); }
 
 function judge(mask, text) {
@@ -243,27 +290,23 @@ function judge(mask, text) {
   a++;
   $('btnSubmit').classList.add('hide');
   var fb = $('fb');
-  if (ok) {
-    k++; fb.className = 'fb ok'; fb.textContent = '✓ せいかい！ すすんだ！'; flash(false);
-    if (mk) mk.style.left = chaseX(Math.min(k, G), G) + '%';
-    if (k >= G && goalAt == null) { goalAt = Math.round((serverNow() - state.start) / 1000); mk.classList.remove('out'); $('caughtbar').classList.add('hide'); }
-  } else {
+  if (ok) { k++; fb.className = 'fb ok'; fb.textContent = '✓ せいかい！ チームが すすんだ！'; flash(false); }
+  else {
     fb.className = 'fb ng'; flash(true);
     fb.textContent = '✕ ざんねん… ' + (q.type === 'text' ? '正解は 「' + q.accept.slice(0, 3).join(' ／ ') + '」' : '');
+    var pos = Math.min(queue.length, 3 + Math.floor(Math.random() * 5)); queue.splice(queue.length - pos, 0, q.qi);   /* まちがえた問題は、数問あとにもう一度 */
   }
-  $('kpill').textContent = '🏁 ' + k + ' / ' + G; $('apill').textContent = a + ' 問に答えた';
   report();
-  setTimeout(function () { if (!finished) nextQuestion(); }, ok ? 700 : 1900);
+  setTimeout(function () { if (!finished && state && (state.phase === 'quiz' || state.phase === 'zone' || state.phase === 'zoneres')) nextQuestion(); }, ok ? 700 : 1900);
 }
 
 function endGame() {
   if (finished) return; finished = true; clearInterval(timerId);
-  var won = goalAt != null;
-  $('endEm').textContent = won ? '🏁' : CHASE[chaser].chaser;
-  $('endTitle').textContent = won ? 'にげきった！おめでとう！' : 'つかまってしまった…';
-  $('endk').textContent = k; $('enda').textContent = a;
-  $('endAll').textContent = state && state.esc != null ? 'クラスで ' + state.esc + ' / ' + state.all + ' 人が にげきりました' : '';
-  showScreen('s-end'); if (won) confetti($('conf-end'), 40);
+  var win = state.result === 'clear';
+  $('endEm').textContent = win ? '🎉' : '🤖';
+  $('endTitle').textContent = win ? '全レベルクリア！ にげきった！' : 'ロボットにつかまってしまった…';
+  $('endk').textContent = k; $('enda').textContent = a; $('endAll').textContent = state.total != null ? state.total : sumK();
+  showScreen('s-end'); if (win) confetti($('conf-end'), 40);
 }
 </script>
 </body>

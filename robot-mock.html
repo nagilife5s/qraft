@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ja" data-bg="space">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>ロボットラン モック</title>
+<link rel="stylesheet" href="theme.css">
+<style>
+  #mockbar { position:fixed; bottom:.4em; left:50%; transform:translateX(-50%); z-index:50; display:flex; gap:.4em; flex-wrap:wrap; justify-content:center; background:rgba(0,0,0,.75); padding:.35em .6em; border-radius:999px; font-size:13px; max-width:96vw; }
+  #mockbar button { font:inherit; font-weight:800; border:0; border-radius:999px; padding:.3em .9em; cursor:pointer; background:#fff; color:#222; }
+  #mockbar button.on { background:#ffd23f; }
+  #app { padding-bottom:3.6em; }
+</style>
+</head>
+<body>
+<div id="app">
+  <section class="screen on" id="s-run" style="gap:.5em">
+    <div class="rhud">
+      <span class="pill" id="hLevel"></span>
+      <div class="rbar"><span class="ri">🤖</span><i id="hFill"></i><span class="fl">🏁</span></div>
+      <span class="pill" id="hTime" style="background:#fff;color:var(--ink-dark)"></span>
+      <span class="lives" id="hLives"></span>
+    </div>
+    <div id="sceneBox" style="flex:1; display:flex; min-height:0"></div>
+    <div class="chase-top"><span class="banner hide" id="hBanner"></span><span class="pill" id="hStat" style="margin-left:auto"></span></div>
+  </section>
+</div>
+<div id="mockbar"></div>
+<script src="firebase-config.js"></script>
+<script type="module">
+import { ROBOT, robotFrac, zonePlan, mountScene, $, el } from './lib.js';
+var NAMES = 'そら ひなた れん あおい ゆうと みお はると さくら りく めい そうた ひより かいと ゆい たくみ ここな いつき みさき しょう なな けんた あかり だいき ゆず ひろと りこ まお こうた はな ゆうま みく りょう あやね とわ ふうか れお つむぎ ゆうり'.split(' ');
+var N = 36, level = 1, lives = 3, mode = 'quiz', t0 = Date.now(), speed = 10, K = 0, scene, caps, choice = {}, caught = [], zStart = 0;
+var list = NAMES.slice(0, N).map(function (n, i) { return { uid: 'u' + i * 7919, nick: n, pace: 15 + Math.random() * 25, acc: .4 + Math.random() * .55, next: 5 + Math.random() * 20 } });
+scene = mountScene($('sceneBox'), false); scene.setPlayers(list);
+function target() { return Math.max(3, Math.round(N * ROBOT.per[level - 1])); }
+function reset(m) {
+  mode = m; t0 = Date.now(); K = 0; caps = zonePlan(N, level); choice = {}; caught = [];
+  list.forEach(function (p) { p.next = 5 + Math.random() * 20; });
+  if (m === 'zone' || m === 'zoneres') {
+    var order = list.map(function (p) { return p.uid; }).sort(function () { return Math.random() - .5; });
+    var cnt = caps.map(function () { return 0; });
+    order.forEach(function (u, i) { var z = Math.floor(Math.random() * caps.length); if (i < N - 3) { choice[u] = z; cnt[z]++; } });
+    if (m === 'zoneres') { Object.keys(choice).forEach(function (u) { }); caught = order.slice(N - 3); }
+  }
+  bar();
+}
+function bar() {
+  var b = $('mockbar'); b.textContent = '';
+  [['quiz', 'クイズ中（普通）'], ['lag', 'クイズ中（ロボット接近）'], ['zone', '安全地帯'], ['zoneres', '安全地帯の結果']].forEach(function (x) {
+    var e = el('button', mode === x[0] ? 'on' : '', x[1]); e.onclick = function () { reset(x[0]); }; b.appendChild(e);
+  });
+  [1, 2, 3].forEach(function (l) { var e = el('button', level === l ? 'on' : '', 'レベル' + l); e.onclick = function () { level = l; reset(mode); }; b.appendChild(e); });
+  [[8, '8人'], [20, '20人'], [36, '36人']].forEach(function (x) { var e = el('button', N === x[0] ? 'on' : '', x[1]); e.onclick = function () { N = x[0]; scene.setPlayers(list.slice(0, N)); reset(mode); }; b.appendChild(e); });
+}
+reset('quiz'); scene.setPlayers(list.slice(0, N));
+setInterval(function () {
+  var sec = (Date.now() - t0) / 1000 * speed, ids = list.slice(0, N);
+  $('hLevel').textContent = 'レベル ' + level + ' / 3';
+  $('hLives').textContent = '❤️❤️❤️';
+  if (mode === 'quiz' || mode === 'lag') {
+    var T = ROBOT.Tl, tg = target();
+    sec = Math.min(sec, T * .98);
+    K = 0; ids.forEach(function (p) { var n = Math.floor(sec / p.pace * (mode === 'lag' ? .4 : 1)); K += Math.floor(n * p.acc); });
+    var pr = Math.min(1, K / tg), fr = robotFrac(sec, pr), left = T - sec;
+    $('hTime').textContent = Math.floor(left / 60) + ':' + String(Math.floor(left % 60)).padStart(2, '0');
+    $('hFill').style.width = pr * 100 + '%';
+    $('hStat').textContent = '正解 ' + K + ' / ' + tg;
+    scene.draw({ phase: 'quiz', frac: fr });
+    $('hBanner').classList.add('hide');
+    if (sec >= T * .98 || pr >= 1) t0 = Date.now();
+  } else {
+    $('hTime').textContent = mode === 'zone' ? '0:12' : '';
+    $('hFill').style.width = '100%';
+    $('hStat').textContent = 'ゾーンに入った ' + Object.keys(choice).length + ' / ' + N + ' 人';
+    scene.draw({ phase: mode, caps: caps, choice: choice, caught: caught });
+    $('hBanner').textContent = mode === 'zone' ? '安全地帯に入れ！ 定員を超えると つかまる！ 相談しよう' : '3人が つかまった！'; $('hBanner').classList.toggle('bad', mode === 'zoneres'); $('hBanner').classList.remove('hide');
+  }
+}, 250);
+</script>
+</body>
+</html>

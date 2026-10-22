@@ -388,18 +388,88 @@ export function isTextCorrect(input, accept) {
 }
 
 /* ====================================================================
-   追いかけっこ（サブマリン／ロボットラン）
-   ・各自が自分の乗り物を進め、1つの追手（サメ／ロボット）から逃げる。
-   ・追手の位置は「経過時間」だけで決まる（先生が開始時刻を書き、全員が同じ式で計算する）。
-   ・位置の単位は「問」。乗り物は正解1問につき1つ進む。追手は −2 から出発し、制限時間でちょうどゴールに着く。
+   ロボットラン（Kahootの「Robot Run」に合わせた、クラス全員で協力するモード）
+   ・全員のキャラが1つの群れになり、1体の巨大ロボットに追われる。
+   ・各自のペースで解く。全員の正解数の合計が「チームの進捗」。目標に届けばクリア。
+   ・追いつかれる（遅れすぎ／時間切れ）とライフが1つ減り、そのレベルの問題をやり直す。
+   ・目標に届いたら「安全地帯」ミニゲーム。人数に上限があるゾーンを、先着で取り合う（相談してよい）。
+   ・レベルは3つ。ライフは3つ（チーム共通）。
    ==================================================================== */
-export const CHASE = {
-  shark: { name: 'サブマリン', me: '🛥️', chaser: '🦈', bg: 'sea' },
-  robot: { name: 'ロボットラン', me: '🏃', chaser: '🤖', bg: 'lab' }
-};
-/* ゴールの問数を、制限時間から決める。1問25秒ペースで、6割の正答率なら逃げ切れる目安 */
-export function chaseGoal(T) { return Math.max(3, Math.round(T / 25 * 0.6)); }
-/* 開始から sec 秒後の追手の位置 */
-export function chasePos(sec, T, G) { return -2 + (G + 2) * Math.min(sec, T) / T; }
-/* 位置 → 横方向の % */
-export function chaseX(p, G) { return 4 + (p + 2) / (G + 2) * 88; }
+export var ANIMALS = ['🦊', '🐼', '🐰', '🐻', '🐯', '🐸', '🐵', '🐧', '🦁', '🐮', '🐷', '🐨', '🐹', '🦄', '🐙', '🦉', '🐶', '🐱', '🐥', '🦝'];
+export function hashOf(s) { var h = 2166136261; for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+export function avatarOf(uid) { return ANIMALS[hashOf(uid) % ANIMALS.length]; }
+export var ROBOT = { levels: 3, lives: 3, Tl: 180, Zt: 20, per: [3, 3.6, 4.2], lagMax: 0.6 };
+/* 人数 N のときの、そのレベルの目標（チーム全体の正解数） */
+export function robotTarget(N, level) { return Math.max(3, Math.round(N * ROBOT.per[level - 1])); }
+/* ロボットの近さ 0〜1（1で追いつかれる）。時間の進み(sec/Tl)に対して、進捗 p が遅れるほど近づく */
+export function robotFrac(sec, p) { var lag = sec / ROBOT.Tl - p; return Math.max(0.04, Math.min(1.2, 0.12 + lag / ROBOT.lagMax * 0.88)); }
+/* 安全地帯の定員。N人に対し、合計が N+2 以上になるようにする（レベルが上がるほど偏りが大きい） */
+export function zonePlan(N, level) {
+  var f = level === 1 ? [0.5, 0.5] : level === 2 ? [0.25, 0.35, 0.4] : [0.15, 0.3, 0.55];
+  var caps = f.map(function (x) { return Math.max(1, Math.ceil(x * N)); });
+  var sum = caps.reduce(function (a, b) { return a + b; }, 0);
+  caps[caps.length - 1] += Math.max(0, N + 2 - sum);
+  return caps;
+}
+/* ゾーンの評価：先に押した順に定員まで入れる。入れなかった人（選ばなかった人も）が「つかまった」 */
+export function zoneEval(uids, runs, caps, zstart) {
+  var caught = [], by = caps.map(function () { return []; });
+  uids.forEach(function (id) {
+    var r = runs[id];
+    if (r && r.z != null && r.zt >= zstart && r.z < caps.length) by[r.z].push({ id: id, t: r.zt }); else caught.push(id);
+  });
+  by.forEach(function (list, z) {
+    list.sort(function (a, b) { return a.t - b.t; });
+    list.slice(caps[z]).forEach(function (x) { caught.push(x.id); });
+  });
+  return caught;
+}
+
+/* 場面（宇宙ステーションの通路）。先生の大画面と生徒の小画面で共通 */
+export function mountScene(box, mini) {
+  box.textContent = '';
+  var sc = el('div', 'scene' + (mini ? ' mini' : '')), floor = el('div', 'floor'), robot = el('div', 'rbot', '🤖'), crowd = el('div', 'crowd');
+  sc.appendChild(el('div', 'wallband')); sc.appendChild(floor); sc.appendChild(crowd); sc.appendChild(robot);
+  var zl = el('div', 'zones'); sc.appendChild(zl);
+  box.appendChild(sc);
+  var chars = {}, api = {};
+  api.setPlayers = function (list) {
+    var keep = {}; list.forEach(function (p) { keep[p.uid] = 1; });
+    Object.keys(chars).forEach(function (u) { if (!keep[u]) { chars[u].remove(); delete chars[u]; } });
+    list.forEach(function (p) {
+      if (chars[p.uid]) { chars[p.uid].querySelector('.nm').textContent = p.nick; return; }
+      var c = el('div', 'ch'); c.appendChild(el('span', 'av', avatarOf(p.uid))); c.appendChild(el('span', 'nm', p.nick));
+      crowd.appendChild(c); chars[p.uid] = c;
+    });
+    var n = list.length;
+    sc.style.setProperty('--cs', (mini ? 1.15 : Math.max(1.3, Math.min(2.9, 20 / Math.sqrt(Math.max(n, 1)) / 1.6))) + 'em');
+  };
+  /* ctx: {phase, frac, caps, choice:{uid:z}, order:[uid], me, caught:[uid]} */
+  api.draw = function (ctx) {
+    sc.dataset.phase = ctx.phase;
+    var zone = ctx.phase === 'zone' || ctx.phase === 'zoneres';
+    robot.style.left = (zone ? -30 : -4 + Math.min(ctx.frac, 1) * 40) + '%';
+    robot.classList.toggle('near', !zone && ctx.frac > .7);
+    zl.textContent = '';
+    var Z = (ctx.caps || []).length, slots = {};
+    if (zone) ctx.caps.forEach(function (cap, z) {
+      var zd = el('div', 'zone'); zd.style.left = (6 + z * (88 / Z)) + '%'; zd.style.width = (88 / Z - 2) + '%';
+      zd.appendChild(el('b', '', 'ゾーン' + 'ABC'[z])); zd.appendChild(el('small', '', '定員 ' + cap + ' 人'));
+      zl.appendChild(zd);
+    });
+    var ids = Object.keys(chars), cnt = {};
+    ids.forEach(function (u) {
+      var c = chars[u], h = hashOf(u), x, y, z = ctx.choice ? ctx.choice[u] : null;
+      if (zone && z != null && z < Z) {
+        var k = cnt[z] = (cnt[z] || 0) + 1, per = Math.max(2, Math.ceil(Math.sqrt(ctx.caps[z] * 1.6)));
+        x = 6 + z * (88 / Z) + (88 / Z - 2) * (((k - 1) % per) + .5) / per; y = 44 + Math.floor((k - 1) / per) * 10;
+      } else if (zone) { x = 14 + (h % 70); y = 90; }
+      else { x = 50 + (h % 1000) / 1000 * 42; y = 22 + ((h >>> 10) % 1000) / 1000 * 62; }
+      c.style.left = x + '%'; c.style.top = y + '%'; c.style.zIndex = Math.round(y);
+      c.classList.toggle('me', u === ctx.me);
+      c.classList.toggle('out', !!(ctx.caught && ctx.caught.indexOf(u) >= 0));
+      c.classList.toggle('run', !zone);
+    });
+  };
+  return api;
+}

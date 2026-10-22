@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="ja" data-bg="sea">
+<html lang="ja" data-bg="space">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Qraft 追いかけっこ（先生）</title>
+<title>Qraft ロボットラン（先生）</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
-<link rel="stylesheet" href="theme.css?v=20261022144625">
+<link rel="stylesheet" href="theme.css?v=20261022150334">
 </head>
 <body>
 <div id="app">
@@ -15,21 +15,14 @@
   <div class="setup-wrap">
     <img class="logo-img" src="img/logo-wordmark.webp" alt="Qraft" style="height:5em">
     <div class="card setup">
-      <div style="font-weight:900; font-size:1.3em">追いかけっこ（みんなで にげきれ！）</div>
-      <label>ゲーム</label>
-      <div class="pk-row" id="chRow"></div>
+      <div style="font-weight:900; font-size:1.3em">🤖 ロボットラン（みんなで ロボットから にげきれ！）</div>
       <label>問題セット（複数えらべます。家庭練習と同じ、正解が公開されたセットです）</label>
       <div class="pk-row" id="gradeRow"></div>
       <div class="pk-row small" id="unitRow"></div>
       <input type="text" id="setFilter" placeholder="題名でさがす" autocomplete="off">
       <div class="setlist" id="setList"></div>
       <div class="selbar hide" id="selBar"><span id="selInfo"></span><button type="button" class="linkbtn" id="selClear">選びなおす</button></div>
-      <div class="two">
-        <div><label for="timeSel">制限時間</label>
-          <select id="timeSel"><option value="8">おまかせ（8分）</option><option value="5">5分</option><option value="10">10分</option><option value="15">15分</option></select></div>
-        <div><label>ゴール（自動）</label><div class="note" id="goalNote" style="font-size:1.1em; font-weight:800"></div></div>
-      </div>
-      <div class="note">それぞれが自分の乗り物で、制限時間までに「ゴール」の数だけ正解すれば逃げ切り。追手は、時間とともに後ろから迫ってきます。まちがえても減りません（進まないだけ）。</div>
+      <div class="note" id="goalNote"></div>
       <label>背景</label><div class="bgrow"></div>
       <div style="text-align:center;margin-top:1.4em"><button class="btn" id="btnCreate">ルームを作る</button></div>
       <div id="setupErr" class="err hide"></div>
@@ -55,27 +48,25 @@
   <div class="players" id="players"></div>
 </section>
 
-<!-- ③ 競争中 -->
-<section class="screen" id="s-run" style="gap:.6em">
-  <div class="chase-top">
-    <span class="pill" id="runTitle"></span>
-    <span class="bigtime" id="remain"></span>
-    <span class="pill" id="runStat"></span>
-    <button class="btn ghost" id="btnEnd">ゲームを終える</button>
+<!-- ③ ゲーム中 -->
+<section class="screen" id="s-run" style="gap:.5em">
+  <div class="rhud">
+    <span class="pill" id="hLevel"></span>
+    <div class="rbar"><span class="ri">🤖</span><i id="hFill"></i><span class="fl">🏁</span></div>
+    <span class="pill" id="hTime" style="background:#fff;color:var(--ink-dark)"></span>
+    <span class="lives" id="hLives"></span>
   </div>
-  <div class="arena" id="arena"></div>
+  <div id="sceneBox" style="flex:1; display:flex; min-height:0"></div>
+  <div class="chase-top"><span class="banner hide" id="hBanner"></span><span class="pill" id="hStat" style="margin-left:auto"></span><button class="btn ghost" id="btnEnd">ゲームを終える</button></div>
 </section>
 
 <!-- ④ 終了 -->
 <section class="screen" id="s-end">
   <div class="confetti" id="conf"></div>
   <div class="center" style="flex:1; display:flex; flex-direction:column; gap:.6em">
+    <div style="font-size:5em" id="endEm"></div>
     <div class="title2" style="font-size:2.8em" id="endTitle"></div>
-    <div class="card" style="min-width:20em">
-      <div style="font-size:4em; font-weight:900; color:var(--bg2); line-height:1.1"><span id="endEsc">0</span><small style="font-size:.4em"> / <span id="endAll">0</span> 人が にげきった</small></div>
-    </div>
-    <div class="mut" id="endEscNames" style="font-weight:800; font-size:1.15em; max-width:60em"></div>
-    <div class="mut" id="endCaughtNames" style="font-size:1em; max-width:60em"></div>
+    <div class="card" style="min-width:20em"><div class="mut" style="color:#5b5478;font-weight:800">クラス全体の正解数</div><div style="font-size:4em; font-weight:900; color:var(--bg2); line-height:1.1"><span id="endK">0</span><small style="font-size:.4em"> 問</small></div><div style="font-weight:800" id="endSub"></div></div>
     <button class="btn sub" id="btnClose" style="margin-top:1em">ルームを閉じる</button>
   </div>
   <div class="bgpick fixed"><button type="button" class="fab">🎨 背景</button><div class="sw"></div></div>
@@ -83,24 +74,22 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261022144625"></script>
+<script src="firebase-config.js?v=20261022150334"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script type="module">
-import { signIn, db, ref, set, get, update, remove, onValue, serverTimestamp, serverNow,
-         CHASE, chaseGoal, chasePos, chaseX,
-         $, el, motionOn, showScreen, confetti, qrSvg,
-         loadBackgrounds, applyBg, buildBgPickers, savedBg, saveBg, mountStage } from './lib.js?v=20261022144625';
+import { signIn, db, ref, set, get, update, remove, onValue, serverNow,
+         ROBOT, robotTarget, robotFrac, zonePlan, zoneEval, mountScene,
+         $, el, showScreen, confetti, qrSvg,
+         loadBackgrounds, applyBg, buildBgPickers, mountStage } from './lib.js?v=20261022150334';
 
 mountStage();
 
-var uid = null, pin = null, BGS = [], curBg = 'sea', chaser = 'shark';
+var uid = null, pin = null, BGS = [], curBg = 'space';
 var SETS = [], picked = {}, gradeSel = 0, unitSel = '';
-var players = {}, runs = {}, st = null, started = false, ended = false, caught = {}, tickId = null;
-var T = 480, G = 12;
+var players = {}, runs = {}, S = null, started = false, ended = false, tickId = null, scene = null, bannerUntil = 0;
 var GL = { 0: 'すべて', 1: '1年', 2: '2年', 3: '3年' };
 
 function pill(text, on, onclick, field) { var b = el('button', 'pk' + (on ? ' on' : ''), text); b.type = 'button'; if (field) b.dataset.f = field; b.onclick = onclick; return b; }
-function stateOf(extra) { return Object.assign({ mode: 'chase', bg: curBg, t: serverTimestamp() }, extra); }
 function pickBg(k) { curBg = k; applyBg(k, BGS); if (pin) update(ref(db, 'rooms/' + pin + '/state'), { bg: k }).catch(function () {}); }
 
 /* ------------------------------------------------------------ 準備 */
@@ -112,21 +101,11 @@ function pickBg(k) { curBg = k; applyBg(k, BGS); if (pin) update(ref(db, 'rooms/
     SETS = await (await fetch('home/index.json', { cache: 'no-cache' })).json();
     try { JSON.parse(localStorage.getItem('qraft.chase.picked') || '[]').forEach(function (f) { if (SETS.some(function (x) { return x.id === f; })) picked[f] = true; }); } catch (e) {}
     $('setFilter').oninput = renderList; $('selClear').onclick = function () { picked = {}; renderList(); };
-    $('timeSel').onchange = goalNote;
-    renderChaser(); renderPicker(); goalNote();
+    $('goalNote').textContent = 'レベル1〜3。各レベル ' + (ROBOT.Tl / 60) + ' 分の中で、クラス全員の正解数の合計が「目標」に届けばクリア（目標は人数に合わせて自動で決まります）。追いつかれるとライフが1つ減って、そのレベルをやり直し。クリアすると「安全地帯」ミニゲーム。ライフは ' + ROBOT.lives + ' つです。';
+    renderPicker();
   } catch (e) { setupErr(e.message); $('btnCreate').disabled = true; }
   showScreen('s-setup');
 })();
-
-function renderChaser() {
-  var r = $('chRow'); r.textContent = '';
-  Object.keys(CHASE).forEach(function (k) {
-    r.appendChild(pill(CHASE[k].me + ' ' + CHASE[k].name + '（' + CHASE[k].chaser + 'から逃げる）', k === chaser, function () {
-      chaser = k; curBg = CHASE[k].bg; applyBg(curBg, BGS); renderChaser();
-    }));
-  });
-}
-function goalNote() { T = Number($('timeSel').value) * 60; G = chaseGoal(T); $('goalNote').textContent = G + ' 問せいかい'; }
 
 function renderPicker() {
   var gr = $('gradeRow'); gr.textContent = '';
@@ -176,16 +155,15 @@ $('btnCreate').onclick = async function () {
     var ids = Object.keys(picked).filter(function (i) { return SETS.some(function (x) { return x.id === i; }); });
     if (!ids.length) throw new Error('問題セットを1つ以上えらんでください');
     try { localStorage.setItem('qraft.chase.picked', JSON.stringify(ids)); } catch (e) {}
-    goalNote();
     for (var i = 0; i < 20; i++) {
       pin = String(Math.floor(100000 + Math.random() * 900000));
       if (!(await get(ref(db, 'rooms/' + pin + '/hostUid'))).exists()) break;
     }
     await set(ref(db, 'rooms/' + pin + '/hostUid'), uid);
-    await set(ref(db, 'rooms/' + pin + '/state'), stateOf({ phase: 'lobby', chaser: chaser, T: T, G: G, sets: ids }));
+    S = { mode: 'chase', phase: 'lobby', bg: curBg, sets: ids, fail: 0 };
+    await set(ref(db, 'rooms/' + pin + '/state'), S);
     onValue(ref(db, 'rooms/' + pin + '/players'), function (s) { players = s.val() || {}; renderLobby(); });
     onValue(ref(db, 'rooms/' + pin + '/run'), function (s) { runs = s.val() || {}; });
-    onValue(ref(db, 'rooms/' + pin + '/state'), function (s) { st = s.val(); });
 
     var base = location.href.replace(/chase-host\.html.*$/, ''), host = base.replace(/^https?:\/\//, ''), cut = host.indexOf('/');
     var u = $('joinUrl'); u.textContent = '';
@@ -193,7 +171,7 @@ $('btnCreate').onclick = async function () {
     u.appendChild(document.createElement('wbr'));
     u.appendChild(document.createTextNode(cut < 0 ? 'chase-play.html' : host.slice(cut) + 'chase-play.html'));
     $('pin').textContent = pin.slice(0, 3) + ' ' + pin.slice(3);
-    $('setTitle').textContent = CHASE[chaser].name + '・' + Math.round(T / 60) + '分・ゴール ' + G + ' 問';
+    $('setTitle').textContent = 'ロボットラン・3レベル';
     var svg = qrSvg(base + 'chase-play.html?pin=' + pin);
     if (svg) $('qr').innerHTML = svg; else $('qrcard').classList.add('hide');
     showScreen('s-lobby');
@@ -219,67 +197,89 @@ function renderLobby() {
   Object.keys(chipEls).forEach(function (id) { if (!players[id]) { chipEls[id].remove(); delete chipEls[id]; } });
 }
 
-/* ------------------------------------------------------------ 競争 */
-var lanes = {};
+/* ------------------------------------------------------------ ゲーム進行（先生の画面がすべて決める） */
+function sumK() { return Object.keys(runs).reduce(function (a, id) { return a + (players[id] ? (runs[id].k || 0) : 0); }, 0); }
+function save(extra) { Object.assign(S, extra); return update(ref(db, 'rooms/' + pin + '/state'), extra); }
+function levelStart(level) {
+  var N = S.N;
+  return { phase: 'quiz', level: level, target: robotTarget(N, level), qstart: serverNow(), base: sumK(), caps: zonePlan(N, level), Tl: ROBOT.Tl, Zt: ROBOT.Zt };
+}
+
 $('btnStart').onclick = async function () {
   started = true; $('btnStart').disabled = true;
   window.addEventListener('beforeunload', function (e) { if (!ended) { e.preventDefault(); e.returnValue = ''; } });
-  await update(ref(db, 'rooms/' + pin + '/state'), { phase: 'run', start: serverTimestamp() });
-  var s = (await get(ref(db, 'rooms/' + pin + '/state'))).val(); st = s;
-  buildArena(); showScreen('s-run');
-  $('runTitle').textContent = CHASE[chaser].name + '　ゴール ' + G + ' 問';
+  S.N = Object.keys(players).length; S.lives = ROBOT.lives; S.total = 0;
+  await save(Object.assign({ N: S.N, lives: S.lives }, levelStart(1)));
+  scene = mountScene($('sceneBox'), false); showScreen('s-run');
   tickId = setInterval(tick, 250);
 };
 
-function buildArena() {
-  var a = $('arena'); a.textContent = ''; lanes = {};
-  var ids = Object.keys(players);
-  a.style.setProperty('--fs', Math.max(.55, Math.min(1.25, 22 / Math.max(ids.length, 6))) + 'em');
-  var ln = el('div', 'line'); ln.style.left = chaseX(0, G) + '%'; ln.appendChild(el('b', '', 'スタート')); a.appendChild(ln);
-  var gl = el('div', 'line'); gl.style.left = chaseX(G, G) + '%'; gl.appendChild(el('b', '', 'ゴール 🏁')); a.appendChild(gl);
-  ids.forEach(function (id) {
-    var lane = el('div', 'lane'), mk = el('div', 'mk');
-    mk.appendChild(el('span', 'em', CHASE[chaser].me)); mk.appendChild(el('span', 'nm', players[id].nick));
-    mk.style.left = chaseX(0, G) + '%'; lane.appendChild(mk); a.appendChild(lane); lanes[id] = mk;
-  });
-  var w = el('div', 'wall'); w.appendChild(el('span', 'ch', CHASE[chaser].chaser)); a.appendChild(w); lanes._wall = w;
-}
+function banner(msg, bad, sec) { var b = $('hBanner'); b.textContent = msg; b.classList.toggle('bad', !!bad); b.classList.remove('hide'); bannerUntil = Date.now() + sec * 1000; }
 
 function tick() {
-  if (!st || !st.start) return;
-  var sec = (serverNow() - st.start) / 1000, left = Math.max(0, T - sec);
-  var sp = chasePos(sec, T, G);
-  $('remain').textContent = Math.floor(left / 60) + ':' + String(Math.floor(left % 60)).padStart(2, '0');
-  lanes._wall.style.left = chaseX(sp, G) + '%';
-  var nOut = 0, nWin = 0, ids = Object.keys(players);
-  ids.forEach(function (id) {
-    var r = runs[id] || { k: 0 }, mk = lanes[id]; if (!mk) return;
-    var won = r.g != null || r.k >= G;
-    if (!won && (r.c || r.k < sp)) caught[id] = true;
-    mk.style.left = chaseX(Math.min(r.k, G), G) + '%';
-    mk.classList.toggle('out', !!caught[id] && !won); mk.classList.toggle('won', won);
-    if (won) nWin++; else if (caught[id]) nOut++;
-  });
-  $('runStat').textContent = '🏁 ' + nWin + '　' + CHASE[chaser].chaser + ' ' + nOut + ' / ' + ids.length + '人';
-  if (left <= 0) finish();
-}
-$('btnEnd').onclick = function () { if (confirm('ゲームを終えますか？')) finish(); };
+  if (!S || ended) return;
+  var now = serverNow(), ids = Object.keys(players), list = ids.map(function (id) { return { uid: id, nick: players[id].nick }; });
+  scene.setPlayers(list);
+  var K = sumK(), C = K - (S.base || 0), p = Math.min(1, C / S.target), sec = (now - S.qstart) / 1000, frac = robotFrac(Math.max(0, sec), p);
+  var choice = {}, caught = S.zres || [];
+  ids.forEach(function (id) { var r = runs[id]; if (r && r.z != null && r.zt >= (S.zstart || 0)) choice[id] = r.z; });
 
-async function finish() {
-  if (ended) return; ended = true; clearInterval(tickId);
-  var esc = [], cau = [];
-  Object.keys(players).forEach(function (id) {
-    var r = runs[id] || { k: 0 }, won = r.g != null || r.k >= G;
-    (won ? esc : cau).push({ nick: players[id].nick, k: r.k || 0, g: r.g });
-  });
-  esc.sort(function (a, b) { return (a.g || 9e9) - (b.g || 9e9); });
-  await update(ref(db, 'rooms/' + pin + '/state'), { phase: 'end', esc: esc.length, all: esc.length + cau.length });
-  $('endTitle').textContent = esc.length === esc.length + cau.length && esc.length ? '🎉 全員にげきった！' : CHASE[chaser].chaser + ' ゲーム終了';
-  $('endEsc').textContent = esc.length; $('endAll').textContent = esc.length + cau.length;
-  $('endEscNames').textContent = esc.length ? '🏁 ' + esc.map(function (x, i) { return (i + 1) + '. ' + x.nick; }).join('　') : '';
-  $('endCaughtNames').textContent = cau.length ? CHASE[chaser].chaser + ' につかまった人：' + cau.map(function (x) { return x.nick + '（' + x.k + '問）'; }).join('　') : '';
-  showScreen('s-end'); if (esc.length) confetti($('conf'), 46);
+  $('hLevel').textContent = 'レベル ' + S.level + ' / ' + ROBOT.levels;
+  $('hLives').textContent = new Array(S.lives + 1).join('❤️') + new Array(ROBOT.lives - S.lives + 1).join('🖤');
+  if (bannerUntil < Date.now()) $('hBanner').classList.add('hide');
+
+  if (S.phase === 'quiz') {
+    var left = Math.max(0, S.Tl - sec);
+    $('hTime').textContent = Math.floor(left / 60) + ':' + String(Math.floor(left % 60)).padStart(2, '0');
+    $('hFill').style.width = p * 100 + '%';
+    $('hStat').textContent = '正解 ' + C + ' / ' + S.target;
+    scene.draw({ phase: 'quiz', frac: frac });
+    if (sec < 3) { if (bannerUntil < Date.now()) banner('レベル ' + S.level + ' スタート！ 問題に答えて ロボットから にげろ！', false, 3); return; }
+    if (p >= 1) {
+      banner('クリア！ 安全地帯へ急げ！', false, 3);
+      save({ phase: 'zone', zstart: serverNow(), zres: null });
+    } else if (frac >= 1 || sec >= S.Tl) {
+      var lives = S.lives - 1;
+      if (lives <= 0) return finish('lose', lives);
+      banner('ロボットにつかまった！ ライフ −1　もう一度！', true, 4);
+      save(Object.assign({ lives: lives, fail: (S.fail || 0) + 1 }, levelStart(S.level)));
+    }
+  } else if (S.phase === 'zone') {
+    var zl = Math.max(0, S.Zt - (now - S.zstart) / 1000);
+    $('hTime').textContent = '0:' + String(Math.ceil(zl)).padStart(2, '0');
+    $('hFill').style.width = '100%';
+    var chosen = Object.keys(choice).length;
+    $('hStat').textContent = 'ゾーンに入った ' + chosen + ' / ' + ids.length + ' 人';
+    scene.draw({ phase: 'zone', caps: S.caps, choice: choice });
+    if (bannerUntil < Date.now()) banner('安全地帯に入れ！ 定員を超えると つかまる！ 相談しよう', false, 1);
+    if (zl <= 0) {
+      var cg = zoneEval(ids, runs, S.caps, S.zstart), tol = 1 + Math.floor(S.N / 10), lives2 = S.lives - (cg.length >= tol ? 1 : 0);
+      save({ phase: 'zoneres', zres: cg, lives: lives2, zrstart: serverNow() });
+      if (lives2 <= 0) finish('lose', lives2);
+    }
+  } else if (S.phase === 'zoneres') {
+    scene.draw({ phase: 'zoneres', caps: S.caps, choice: choice, caught: S.zres || [] });
+    var nc = (S.zres || []).length, tol2 = 1 + Math.floor(S.N / 10);
+    if (bannerUntil < Date.now()) banner(nc ? nc + '人が つかまった！' + (nc >= tol2 ? ' ライフ −1' : '（セーフ）') : '全員 無事に入れた！', nc >= tol2, 1);
+    $('hTime').textContent = '';
+    if (now - S.zrstart > 5000) {
+      if (S.level >= ROBOT.levels) finish('clear', S.lives); else save(levelStart(S.level + 1));
+    }
+  }
 }
+
+async function finish(result, lives) {
+  if (ended) return; ended = true; clearInterval(tickId);
+  var K = sumK();
+  await update(ref(db, 'rooms/' + pin + '/state'), { phase: 'end', result: result, total: K, lives: Math.max(0, lives) });
+  var win = result === 'clear';
+  $('endEm').textContent = win ? '🎉' : '🤖';
+  $('endTitle').textContent = win ? '全レベル クリア！ ロボットから にげきった！' : 'ロボットに つかまってしまった…';
+  $('endK').textContent = K;
+  $('endSub').textContent = (S.level && !win ? 'レベル ' + S.level + ' で ゲームオーバー' : '') + (win ? '残りライフ ' + lives + ' / ' + ROBOT.lives : '');
+  showScreen('s-end'); if (win) confetti($('conf'), 46);
+}
+$('btnEnd').onclick = function () { if (confirm('ゲームを終えますか？')) finish('lose', 0); };
 $('btnClose').onclick = async function () { await remove(ref(db, 'rooms/' + pin)); location.reload(); };
 </script>
 </body>
