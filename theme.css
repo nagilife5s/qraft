@@ -145,7 +145,7 @@ button[data-bg="forest"] i { background:linear-gradient(170deg,#25a862,#062f24);
 .rk .row { display:flex; align-items:center; gap:.8em; }
 .rk .no { width:2.2em; height:2.2em; border-radius:50%; background:#fff; color:var(--ink-dark); font-weight:900; display:grid; place-items:center; flex:0 0 auto; }
 .rk .row:nth-child(1) .no { background:var(--pop1); } .rk .row:nth-child(2) .no { background:#e3e6f2; } .rk .row:nth-child(3) .no { background:#f0b27a; }
-.rk .bar2 { flex:1; height:2.6em; background:rgba(255,255,255,.14); border-radius:.8em; position:relative; overflow:hidden; }
+.rk .bar2 { flex:1; height:2.6em; background:rgba(255,255,255,.62); border-radius:.8em; position:relative; overflow:hidden; }
 .rk .bar2 i { position:absolute; left:0; top:0; bottom:0; background:linear-gradient(90deg,var(--pop3),#7be7ff); border-radius:.8em; }
 .rk .row:nth-child(1) .bar2 i { background:linear-gradient(90deg,var(--pop1),#ffe58a); }
 .rk .bar2 span { position:relative; line-height:2.6em; padding-left:.9em; font-weight:900; font-size:1.15em; color:var(--ink-dark); }
@@ -409,3 +409,6 @@ button.tile { appearance:none; font:inherit; font-weight:900; border:0; cursor:p
 button.tile.t2 { color:var(--ink-dark); }
 button.tile:disabled { cursor:default; }
 .stu-tiles .tile { font-size:1.55em; }
+
+#s-setup { overflow-y:auto; }
+#s-setup .setup-wrap { margin:auto 0; display:flex; flex-direction:column; align-items:center; gap:1em; }
