@@ -223,7 +223,7 @@ export var BG_DEFAULT = 'pop';
 
 export async function loadBackgrounds() {
   var man = [];
-  try { man = await (await fetch('img/bg/backgrounds.json')).json(); } catch (e) {}
+  try { man = await (await fetch('img/bg/backgrounds.json', { cache: 'no-cache' })).json(); } catch (e) {}
   var by = {}; man.forEach(function (m) { by[m.key] = m; });
   var list = [];
   BG_ORDER.forEach(function (k) {

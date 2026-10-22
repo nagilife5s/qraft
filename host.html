@@ -6,7 +6,7 @@
 <title>Qraft 先生用</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="theme.css?v=20261022134621">
 </head>
 <body>
 <div id="app">
@@ -91,13 +91,13 @@
 
 </div>
 
-<script src="firebase-config.js"></script>
+<script src="firebase-config.js?v=20261022134621"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script type="module">
 import { signIn, db, ref, set, get, update, remove, onValue, serverTimestamp, serverNow,
          calcScore, CHOICE_STYLE, RESULT_SEC, RANK_SEC, sleep, shuffle,
          $, el, fmt, motionOn, showScreen, later, stopAnim, countUp, confetti, qrSvg, buildRank,
-         loadBackgrounds, applyBg, buildBgPickers, savedBg, saveBg, mountStage, decryptSet, prepareQuestion, maskOf } from './lib.js';
+         loadBackgrounds, applyBg, buildBgPickers, savedBg, saveBg, mountStage, decryptSet, prepareQuestion, maskOf } from './lib.js?v=20261022134621';
 
 mountStage();
 
@@ -137,7 +137,7 @@ function stateOf(extra) { return Object.assign({ bg: curBg, t: serverTimestamp()
     applyBg(curBg, BGS, true);
     buildBgPickers(BGS, curBg, pickBg);
 
-    SETS = await (await fetch('questions/index.json')).json();
+    SETS = await (await fetch('questions/index.json', { cache: 'no-cache' })).json();   /* 一覧は、いつも最新を取る */
     try { $('pw').value = localStorage.getItem('qraft.pw') || ''; } catch (e) {}
     renderSets('');
     $('setFilter').oninput = function () { renderSets(this.value.trim()); };
