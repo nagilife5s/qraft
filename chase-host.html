@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ja" data-bg="sea">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Qraft 追いかけっこ（先生）</title>
+<link rel="icon" type="image/png" href="img/favicon-32.png">
+<link rel="stylesheet" href="theme.css?v=20261022144625">
+</head>
+<body>
+<div id="app">
+
+<!-- ① 準備 -->
+<section class="screen" id="s-setup">
+  <div class="setup-wrap">
+    <img class="logo-img" src="img/logo-wordmark.webp" alt="Qraft" style="height:5em">
+    <div class="card setup">
+      <div style="font-weight:900; font-size:1.3em">追いかけっこ（みんなで にげきれ！）</div>
+      <label>ゲーム</label>
+      <div class="pk-row" id="chRow"></div>
+      <label>問題セット（複数えらべます。家庭練習と同じ、正解が公開されたセットです）</label>
+      <div class="pk-row" id="gradeRow"></div>
+      <div class="pk-row small" id="unitRow"></div>
+      <input type="text" id="setFilter" placeholder="題名でさがす" autocomplete="off">
+      <div class="setlist" id="setList"></div>
+      <div class="selbar hide" id="selBar"><span id="selInfo"></span><button type="button" class="linkbtn" id="selClear">選びなおす</button></div>
+      <div class="two">
+        <div><label for="timeSel">制限時間</label>
+          <select id="timeSel"><option value="8">おまかせ（8分）</option><option value="5">5分</option><option value="10">10分</option><option value="15">15分</option></select></div>
+        <div><label>ゴール（自動）</label><div class="note" id="goalNote" style="font-size:1.1em; font-weight:800"></div></div>
+      </div>
+      <div class="note">それぞれが自分の乗り物で、制限時間までに「ゴール」の数だけ正解すれば逃げ切り。追手は、時間とともに後ろから迫ってきます。まちがえても減りません（進まないだけ）。</div>
+      <label>背景</label><div class="bgrow"></div>
+      <div style="text-align:center;margin-top:1.4em"><button class="btn" id="btnCreate">ルームを作る</button></div>
+      <div id="setupErr" class="err hide"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ② 待機室 -->
+<section class="screen" id="s-lobby" style="padding-top:2.2em; gap:1em">
+  <div class="lobby-top"><img class="logo-img" src="img/logo-wordmark.webp" alt="Qraft" style="height:4.6em"><span class="qno" id="setTitle"></span></div>
+  <div class="joinbox">
+    <div class="card" style="flex:1.05"><div class="lab">① このアドレスを開く</div><div class="url" id="joinUrl"></div></div>
+    <div class="card" style="flex:1.35"><div class="lab">② PINを入れる</div><div class="pin" id="pin">------</div></div>
+    <div class="card" id="qrcard" style="flex:.55"><div class="qr" id="qr"></div><div class="lab" style="margin-top:.5em">QRで開く</div></div>
+  </div>
+  <div class="cnt-line">
+    <b>👥 <span id="pcount">0</span>人が参加中</b>
+    <div style="display:flex;gap:.8em;align-items:center">
+      <div class="bgpick"><button type="button" class="fab">🎨 背景</button><div class="sw"></div></div>
+      <button class="btn" id="btnStart" disabled>スタート！</button>
+    </div>
+  </div>
+  <div class="players" id="players"></div>
+</section>
+
+<!-- ③ 競争中 -->
+<section class="screen" id="s-run" style="gap:.6em">
+  <div class="chase-top">
+    <span class="pill" id="runTitle"></span>
+    <span class="bigtime" id="remain"></span>
+    <span class="pill" id="runStat"></span>
+    <button class="btn ghost" id="btnEnd">ゲームを終える</button>
+  </div>
+  <div class="arena" id="arena"></div>
+</section>
+
+<!-- ④ 終了 -->
+<section class="screen" id="s-end">
+  <div class="confetti" id="conf"></div>
+  <div class="center" style="flex:1; display:flex; flex-direction:column; gap:.6em">
+    <div class="title2" style="font-size:2.8em" id="endTitle"></div>
+    <div class="card" style="min-width:20em">
+      <div style="font-size:4em; font-weight:900; color:var(--bg2); line-height:1.1"><span id="endEsc">0</span><small style="font-size:.4em"> / <span id="endAll">0</span> 人が にげきった</small></div>
+    </div>
+    <div class="mut" id="endEscNames" style="font-weight:800; font-size:1.15em; max-width:60em"></div>
+    <div class="mut" id="endCaughtNames" style="font-size:1em; max-width:60em"></div>
+    <button class="btn sub" id="btnClose" style="margin-top:1em">ルームを閉じる</button>
+  </div>
+  <div class="bgpick fixed"><button type="button" class="fab">🎨 背景</button><div class="sw"></div></div>
+</section>
+
+</div>
+
+<script src="firebase-config.js?v=20261022144625"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<script type="module">
+import { signIn, db, ref, set, get, update, remove, onValue, serverTimestamp, serverNow,
+         CHASE, chaseGoal, chasePos, chaseX,
+         $, el, motionOn, showScreen, confetti, qrSvg,
+         loadBackgrounds, applyBg, buildBgPickers, savedBg, saveBg, mountStage } from './lib.js?v=20261022144625';
+
+mountStage();
+
+var uid = null, pin = null, BGS = [], curBg = 'sea', chaser = 'shark';
+var SETS = [], picked = {}, gradeSel = 0, unitSel = '';
+var players = {}, runs = {}, st = null, started = false, ended = false, caught = {}, tickId = null;
+var T = 480, G = 12;
+var GL = { 0: 'すべて', 1: '1年', 2: '2年', 3: '3年' };
+
+function pill(text, on, onclick, field) { var b = el('button', 'pk' + (on ? ' on' : ''), text); b.type = 'button'; if (field) b.dataset.f = field; b.onclick = onclick; return b; }
+function stateOf(extra) { return Object.assign({ mode: 'chase', bg: curBg, t: serverTimestamp() }, extra); }
+function pickBg(k) { curBg = k; applyBg(k, BGS); if (pin) update(ref(db, 'rooms/' + pin + '/state'), { bg: k }).catch(function () {}); }
+
+/* ------------------------------------------------------------ 準備 */
+(async function init() {
+  try {
+    uid = (await signIn()).uid;
+    BGS = await loadBackgrounds();
+    applyBg(curBg, BGS, true); buildBgPickers(BGS, curBg, pickBg);
+    SETS = await (await fetch('home/index.json', { cache: 'no-cache' })).json();
+    try { JSON.parse(localStorage.getItem('qraft.chase.picked') || '[]').forEach(function (f) { if (SETS.some(function (x) { return x.id === f; })) picked[f] = true; }); } catch (e) {}
+    $('setFilter').oninput = renderList; $('selClear').onclick = function () { picked = {}; renderList(); };
+    $('timeSel').onchange = goalNote;
+    renderChaser(); renderPicker(); goalNote();
+  } catch (e) { setupErr(e.message); $('btnCreate').disabled = true; }
+  showScreen('s-setup');
+})();
+
+function renderChaser() {
+  var r = $('chRow'); r.textContent = '';
+  Object.keys(CHASE).forEach(function (k) {
+    r.appendChild(pill(CHASE[k].me + ' ' + CHASE[k].name + '（' + CHASE[k].chaser + 'から逃げる）', k === chaser, function () {
+      chaser = k; curBg = CHASE[k].bg; applyBg(curBg, BGS); renderChaser();
+    }));
+  });
+}
+function goalNote() { T = Number($('timeSel').value) * 60; G = chaseGoal(T); $('goalNote').textContent = G + ' 問せいかい'; }
+
+function renderPicker() {
+  var gr = $('gradeRow'); gr.textContent = '';
+  [0, 1, 2, 3].forEach(function (g) {
+    var n = SETS.filter(function (s) { return !g || s.grade === g; }).length;
+    gr.appendChild(pill(GL[g] + '（' + n + '）', g === gradeSel, function () { gradeSel = g; unitSel = ''; renderPicker(); }));
+  });
+  var ur = $('unitRow'); ur.textContent = '';
+  var seen = {}, units = [];
+  SETS.filter(function (s) { return !gradeSel || s.grade === gradeSel; }).forEach(function (s) {
+    if (!seen[s.unit]) { seen[s.unit] = { unit: s.unit, uo: s.uo, g: s.grade, f: s.field, n: 0 }; units.push(seen[s.unit]); }
+    seen[s.unit].n++;
+  });
+  units.sort(function (a, b) { return a.uo - b.uo; });
+  ur.appendChild(pill('すべての単元', unitSel === '', function () { unitSel = ''; renderPicker(); }));
+  units.forEach(function (u) {
+    ur.appendChild(pill((gradeSel || !u.g ? '' : u.g + '年・') + u.unit + '（' + u.n + '）', unitSel === u.unit, function () { unitSel = u.unit; renderPicker(); }, u.f));
+  });
+  renderList();
+}
+function renderList() {
+  var f = $('setFilter').value.trim(), box = $('setList'); box.textContent = '';
+  SETS.filter(function (s) { return (!gradeSel || s.grade === gradeSel) && (!unitSel || s.unit === unitSel) && (!f || s.title.indexOf(f) >= 0); })
+    .forEach(function (s) {
+      var row = el('label', 'setrow' + (picked[s.id] ? ' on' : ''));
+      var cb = el('input'); cb.type = 'checkbox'; cb.checked = !!picked[s.id];
+      cb.onchange = function () { if (cb.checked) picked[s.id] = true; else delete picked[s.id]; row.classList.toggle('on', cb.checked); updateSel(); };
+      row.appendChild(cb);
+      var nm = el('div', 'nm'); nm.appendChild(el('span', '', s.title));
+      if (!unitSel) nm.appendChild(el('span', 'tag', (s.grade ? s.grade + '年・' : '') + s.unit));
+      row.appendChild(nm); row.appendChild(el('div', 'meta', s.count + '問'));
+      box.appendChild(row);
+    });
+  updateSel();
+}
+function updateSel() {
+  var ids = Object.keys(picked), n = 0;
+  ids.forEach(function (i) { var s = SETS.filter(function (x) { return x.id === i; })[0]; if (s) n += s.count; });
+  $('selBar').classList.toggle('hide', !ids.length);
+  $('selInfo').textContent = '選んだセット：' + ids.length + ' つ・合計 ' + n + ' 問';
+}
+function setupErr(msg) { $('setupErr').textContent = msg; $('setupErr').classList.remove('hide'); }
+
+$('btnCreate').onclick = async function () {
+  $('setupErr').classList.add('hide'); $('btnCreate').disabled = true;
+  try {
+    var ids = Object.keys(picked).filter(function (i) { return SETS.some(function (x) { return x.id === i; }); });
+    if (!ids.length) throw new Error('問題セットを1つ以上えらんでください');
+    try { localStorage.setItem('qraft.chase.picked', JSON.stringify(ids)); } catch (e) {}
+    goalNote();
+    for (var i = 0; i < 20; i++) {
+      pin = String(Math.floor(100000 + Math.random() * 900000));
+      if (!(await get(ref(db, 'rooms/' + pin + '/hostUid'))).exists()) break;
+    }
+    await set(ref(db, 'rooms/' + pin + '/hostUid'), uid);
+    await set(ref(db, 'rooms/' + pin + '/state'), stateOf({ phase: 'lobby', chaser: chaser, T: T, G: G, sets: ids }));
+    onValue(ref(db, 'rooms/' + pin + '/players'), function (s) { players = s.val() || {}; renderLobby(); });
+    onValue(ref(db, 'rooms/' + pin + '/run'), function (s) { runs = s.val() || {}; });
+    onValue(ref(db, 'rooms/' + pin + '/state'), function (s) { st = s.val(); });
+
+    var base = location.href.replace(/chase-host\.html.*$/, ''), host = base.replace(/^https?:\/\//, ''), cut = host.indexOf('/');
+    var u = $('joinUrl'); u.textContent = '';
+    u.appendChild(document.createTextNode(cut < 0 ? host : host.slice(0, cut)));
+    u.appendChild(document.createElement('wbr'));
+    u.appendChild(document.createTextNode(cut < 0 ? 'chase-play.html' : host.slice(cut) + 'chase-play.html'));
+    $('pin').textContent = pin.slice(0, 3) + ' ' + pin.slice(3);
+    $('setTitle').textContent = CHASE[chaser].name + '・' + Math.round(T / 60) + '分・ゴール ' + G + ' 問';
+    var svg = qrSvg(base + 'chase-play.html?pin=' + pin);
+    if (svg) $('qr').innerHTML = svg; else $('qrcard').classList.add('hide');
+    showScreen('s-lobby');
+  } catch (e) {
+    setupErr('ルームを作れませんでした: ' + e.message);
+    $('btnCreate').disabled = false;
+  }
+};
+
+/* ------------------------------------------------------------ 待機室 */
+var chipEls = {};
+function renderLobby() {
+  var ids = Object.keys(players);
+  $('pcount').textContent = ids.length;
+  $('btnStart').disabled = ids.length === 0 || started;
+  var box = $('players');
+  ids.forEach(function (id) {
+    if (chipEls[id]) { chipEls[id].firstChild.textContent = players[id].nick; return; }
+    var c = el('span', 'pill extra'); c.appendChild(el('span', '', players[id].nick));
+    var b = el('button', 'chip-x', '退出'); b.onclick = function () { var u = {}; u['kicked/' + id] = true; u['players/' + id] = null; u['run/' + id] = null; update(ref(db, 'rooms/' + pin), u); };
+    c.appendChild(b); box.appendChild(c); chipEls[id] = c;
+  });
+  Object.keys(chipEls).forEach(function (id) { if (!players[id]) { chipEls[id].remove(); delete chipEls[id]; } });
+}
+
+/* ------------------------------------------------------------ 競争 */
+var lanes = {};
+$('btnStart').onclick = async function () {
+  started = true; $('btnStart').disabled = true;
+  window.addEventListener('beforeunload', function (e) { if (!ended) { e.preventDefault(); e.returnValue = ''; } });
+  await update(ref(db, 'rooms/' + pin + '/state'), { phase: 'run', start: serverTimestamp() });
+  var s = (await get(ref(db, 'rooms/' + pin + '/state'))).val(); st = s;
+  buildArena(); showScreen('s-run');
+  $('runTitle').textContent = CHASE[chaser].name + '　ゴール ' + G + ' 問';
+  tickId = setInterval(tick, 250);
+};
+
+function buildArena() {
+  var a = $('arena'); a.textContent = ''; lanes = {};
+  var ids = Object.keys(players);
+  a.style.setProperty('--fs', Math.max(.55, Math.min(1.25, 22 / Math.max(ids.length, 6))) + 'em');
+  var ln = el('div', 'line'); ln.style.left = chaseX(0, G) + '%'; ln.appendChild(el('b', '', 'スタート')); a.appendChild(ln);
+  var gl = el('div', 'line'); gl.style.left = chaseX(G, G) + '%'; gl.appendChild(el('b', '', 'ゴール 🏁')); a.appendChild(gl);
+  ids.forEach(function (id) {
+    var lane = el('div', 'lane'), mk = el('div', 'mk');
+    mk.appendChild(el('span', 'em', CHASE[chaser].me)); mk.appendChild(el('span', 'nm', players[id].nick));
+    mk.style.left = chaseX(0, G) + '%'; lane.appendChild(mk); a.appendChild(lane); lanes[id] = mk;
+  });
+  var w = el('div', 'wall'); w.appendChild(el('span', 'ch', CHASE[chaser].chaser)); a.appendChild(w); lanes._wall = w;
+}
+
+function tick() {
+  if (!st || !st.start) return;
+  var sec = (serverNow() - st.start) / 1000, left = Math.max(0, T - sec);
+  var sp = chasePos(sec, T, G);
+  $('remain').textContent = Math.floor(left / 60) + ':' + String(Math.floor(left % 60)).padStart(2, '0');
+  lanes._wall.style.left = chaseX(sp, G) + '%';
+  var nOut = 0, nWin = 0, ids = Object.keys(players);
+  ids.forEach(function (id) {
+    var r = runs[id] || { k: 0 }, mk = lanes[id]; if (!mk) return;
+    var won = r.g != null || r.k >= G;
+    if (!won && (r.c || r.k < sp)) caught[id] = true;
+    mk.style.left = chaseX(Math.min(r.k, G), G) + '%';
+    mk.classList.toggle('out', !!caught[id] && !won); mk.classList.toggle('won', won);
+    if (won) nWin++; else if (caught[id]) nOut++;
+  });
+  $('runStat').textContent = '🏁 ' + nWin + '　' + CHASE[chaser].chaser + ' ' + nOut + ' / ' + ids.length + '人';
+  if (left <= 0) finish();
+}
+$('btnEnd').onclick = function () { if (confirm('ゲームを終えますか？')) finish(); };
+
+async function finish() {
+  if (ended) return; ended = true; clearInterval(tickId);
+  var esc = [], cau = [];
+  Object.keys(players).forEach(function (id) {
+    var r = runs[id] || { k: 0 }, won = r.g != null || r.k >= G;
+    (won ? esc : cau).push({ nick: players[id].nick, k: r.k || 0, g: r.g });
+  });
+  esc.sort(function (a, b) { return (a.g || 9e9) - (b.g || 9e9); });
+  await update(ref(db, 'rooms/' + pin + '/state'), { phase: 'end', esc: esc.length, all: esc.length + cau.length });
+  $('endTitle').textContent = esc.length === esc.length + cau.length && esc.length ? '🎉 全員にげきった！' : CHASE[chaser].chaser + ' ゲーム終了';
+  $('endEsc').textContent = esc.length; $('endAll').textContent = esc.length + cau.length;
+  $('endEscNames').textContent = esc.length ? '🏁 ' + esc.map(function (x, i) { return (i + 1) + '. ' + x.nick; }).join('　') : '';
+  $('endCaughtNames').textContent = cau.length ? CHASE[chaser].chaser + ' につかまった人：' + cau.map(function (x) { return x.nick + '（' + x.k + '問）'; }).join('　') : '';
+  showScreen('s-end'); if (esc.length) confetti($('conf'), 46);
+}
+$('btnClose').onclick = async function () { await remove(ref(db, 'rooms/' + pin)); location.reload(); };
+</script>
+</body>
+</html>

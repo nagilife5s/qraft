@@ -6,7 +6,7 @@
 <title>Qraft</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261022143250">
+<link rel="stylesheet" href="theme.css?v=20261022144625">
 </head>
 <body>
 <div id="app">
@@ -120,11 +120,11 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261022143250"></script>
+<script src="firebase-config.js?v=20261022144625"></script>
 <script type="module">
 import { signIn, db, ref, set, get, onValue, serverTimestamp, serverNow, CHOICE_STYLE,
          $, el, fmt, motionOn, showScreen, stopAnim, countUp, confetti, buildRank,
-         loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261022143250';
+         loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261022144625';
 
 mountStage();
 
@@ -163,6 +163,11 @@ async function join(p, n, silent) {
     if (!(await get(ref(db, 'rooms/' + p + '/hostUid'))).exists()) {
       try { localStorage.removeItem('qraft.player'); } catch (e) {}
       throw new Error(silent ? '' : 'その PIN の部屋が見つかりません。');
+    }
+    var stt = (await get(ref(db, 'rooms/' + p + '/state'))).val();
+    if (stt && stt.mode === 'chase') {          /* 追いかけっこの部屋は、専用の画面へ */
+      try { localStorage.setItem('qraft.player', JSON.stringify({ pin: p, nick: n })); } catch (e) {}
+      location.replace('chase-play.html?pin=' + p + (/[?&]sess=1/.test(location.search) ? '&sess=1' : '')); return;
     }
     if ((await get(ref(db, 'rooms/' + p + '/kicked/' + uid))).exists()) {
       kicked = true;

@@ -386,3 +386,20 @@ export function isTextCorrect(input, accept) {
   }
   return false;
 }
+
+/* ====================================================================
+   追いかけっこ（サブマリン／ロボットラン）
+   ・各自が自分の乗り物を進め、1つの追手（サメ／ロボット）から逃げる。
+   ・追手の位置は「経過時間」だけで決まる（先生が開始時刻を書き、全員が同じ式で計算する）。
+   ・位置の単位は「問」。乗り物は正解1問につき1つ進む。追手は −2 から出発し、制限時間でちょうどゴールに着く。
+   ==================================================================== */
+export const CHASE = {
+  shark: { name: 'サブマリン', me: '🛥️', chaser: '🦈', bg: 'sea' },
+  robot: { name: 'ロボットラン', me: '🏃', chaser: '🤖', bg: 'lab' }
+};
+/* ゴールの問数を、制限時間から決める。1問25秒ペースで、6割の正答率なら逃げ切れる目安 */
+export function chaseGoal(T) { return Math.max(3, Math.round(T / 25 * 0.6)); }
+/* 開始から sec 秒後の追手の位置 */
+export function chasePos(sec, T, G) { return -2 + (G + 2) * Math.min(sec, T) / T; }
+/* 位置 → 横方向の % */
+export function chaseX(p, G) { return 4 + (p + 2) / (G + 2) * 88; }

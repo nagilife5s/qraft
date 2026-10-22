@@ -522,3 +522,27 @@ button.tile:disabled { cursor:default; }
 .linkbtn { background:none; border:0; color:#b3261e; font:inherit; font-weight:800; cursor:pointer; text-decoration:underline; margin-left:auto; }
 .setup label.setrow { display:flex; margin:0; }
 .setup label.setrow .nm { font-weight:800; }
+
+/* ===== 追いかけっこ（サブマリン／ロボットラン） ===== */
+.arena { flex:1; position:relative; display:flex; flex-direction:column; min-height:0; background:rgba(8,6,32,.5); border-radius:1em; overflow:hidden; --fs:1em; }
+.arena.mini { flex:none; height:6.4em; }
+.arena .lane { position:relative; flex:1 1 0; min-height:0; border-bottom:1px dashed rgba(255,255,255,.1); }
+.arena .mk { position:absolute; top:50%; left:0; transform:translate(-50%,-50%); white-space:nowrap; font-size:var(--fs); font-weight:800; transition:left .7s cubic-bezier(.3,.9,.3,1); display:flex; align-items:center; gap:.3em; text-shadow:0 .08em .2em rgba(0,0,0,.7); }
+.arena .mk .em { font-size:1.35em; line-height:1; }
+.arena .mk.out { filter:grayscale(1); opacity:.45; }
+.arena .mk.won .nm { color:#8bf0b0; }
+.arena .wall { position:absolute; top:0; bottom:0; left:0; width:6%; transform:translateX(-100%); background:linear-gradient(90deg, rgba(255,50,70,0) 0, rgba(255,50,70,.55) 100%); transition:left .25s linear; pointer-events:none; z-index:3; }
+.arena .wall .ch { position:absolute; right:-.1em; top:50%; transform:translateY(-50%); font-size:3.2em; filter:drop-shadow(0 .1em .3em rgba(0,0,0,.6)); }
+.arena.mini .wall .ch { font-size:2.6em; }
+.arena .line { position:absolute; top:0; bottom:0; width:0; border-left:.18em dashed rgba(255,255,255,.55); z-index:1; }
+.arena .line b { position:absolute; top:.2em; left:.3em; font-size:.8em; white-space:nowrap; }
+.chase-top { display:flex; justify-content:space-between; align-items:center; gap:.6em; }
+.chase-top .pill { font-size:1.1em; }
+.bigtime { font-weight:900; font-size:2.4em; font-variant-numeric:tabular-nums; }
+.cflash { position:fixed; inset:0; pointer-events:none; z-index:20; opacity:0; background:rgba(139,240,176,.25); }
+.cflash.bad { background:rgba(255,90,90,.25); }
+.cflash.on { animation:cflash .6s ease-out; }
+@keyframes cflash { 0% { opacity:1 } 100% { opacity:0 } }
+.caughtbar { background:#ff5a5a; color:#fff; font-weight:900; text-align:center; border-radius:.7em; padding:.3em .6em; }
+.stu-tiles .tile.right-ans { outline:.2em solid #8bf0b0; }
+.stu-tiles .tile.wrong-pick { outline:.2em solid #ff5a5a; opacity:.6; }
