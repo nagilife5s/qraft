@@ -447,3 +447,9 @@ button.tile:disabled { cursor:default; }
   .qcard.hasimg .qimg, .stu-q.hasimg .qimg { max-height:18cqh; }
   .stu-tiles.n5 .tile, .stu-tiles.n6 .tile { font-size:1.05em; }
 }
+
+/* 出題画面は、選択肢の高さを確保するために、上下の余白と部品の間隔を詰める（6択でも収まるように） */
+#s-q { padding-top:1.6em; padding-bottom:1em; gap:.7em; }
+.q-foot { display:flex; gap:1em; align-items:center; justify-content:center; flex-wrap:wrap; }
+.q-foot #btnSubmit { font-size:1.1em; padding:.35em 1.8em; }
+.stu-tiles.n5 .tile, .stu-tiles.n6 .tile { font-size:1.15em; }

@@ -6,7 +6,7 @@
 <title>Qraft</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261022134621">
+<link rel="stylesheet" href="theme.css?v=20261022134821">
 </head>
 <body>
 <div id="app">
@@ -43,8 +43,10 @@
   <div class="timebar" id="timebar"><i></i></div>
   <div class="stu-q" id="sq"><img id="sqimg" class="qimg hide" alt=""><span id="sqtext"></span></div>
   <div class="stu-tiles" id="stiles"></div>
-  <button class="btn hide" id="btnSubmit">送信</button>
-  <div class="center" id="ansState" style="display:flex; font-weight:900; font-size:1.3em; min-height:1.6em"></div>
+  <div class="q-foot">
+    <button class="btn hide" id="btnSubmit">送信</button>
+    <div class="center" id="ansState" style="display:flex; font-weight:900; font-size:1.3em; min-height:1.6em"></div>
+  </div>
 </section>
 
 <!-- 結果：正解 -->
@@ -114,11 +116,11 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261022134621"></script>
+<script src="firebase-config.js?v=20261022134821"></script>
 <script type="module">
 import { signIn, db, ref, set, get, onValue, serverTimestamp, serverNow, CHOICE_STYLE,
          $, el, fmt, motionOn, showScreen, stopAnim, countUp, confetti, buildRank,
-         loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261022134621';
+         loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261022134821';
 
 mountStage();
 
