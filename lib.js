@@ -506,20 +506,26 @@ export function mountScene(box, mini) {
     robot.classList.toggle('near', !zone && ctx.frac > .7);
     sc.style.setProperty('--danger', zone ? 0 : Math.max(0, Math.min(1, (ctx.frac - .35) / .65)));
     zl.textContent = '';
+    /* 通路の絵の「床」が、場面の縦のどこにあるか（絵は 16:9 で下に寄せて拡大。横長の場面ほど上が切れて、床が広く見える） */
+    var asp = sc.clientWidth / Math.max(1, sc.clientHeight), kz = Math.max(1, asp / 1.79);
+    var ft = Math.max(8, (1 - 0.44 * kz) * 100), fb = (1 - 0.06 * kz) * 100;          /* 床の上端・下端（%） */
+    var y0 = ft + 9, y1 = fb - 7;                                                      /* キャラの足元が来る範囲 */
     var Z = (ctx.caps || []).length, slots = {};
     if (zone) ctx.caps.forEach(function (cap, z) {
-      var zd = el('div', 'zone'); zd.style.left = (6 + z * (88 / Z)) + '%'; zd.style.width = (88 / Z - 2) + '%';
+      var zd = el('div', 'zone'); zd.style.top = (ft + 3) + '%'; zd.style.bottom = (100 - fb + 2) + '%'; zd.style.left = (6 + z * (88 / Z)) + '%'; zd.style.width = (88 / Z - 2) + '%';
       zd.appendChild(el('b', '', 'ゾーン' + 'ABC'[z])); zd.appendChild(el('small', '', '定員 ' + cap + ' 人'));
       zl.appendChild(zd);
     });
     var ids = Object.keys(chars), cnt = {};
-    ids.forEach(function (u) {
+    ids.forEach(function (u, ix) {
       var c = chars[u], h = hashOf(u), x, y, z = ctx.choice ? ctx.choice[u] : null;
+      /* 通路全体に、むらなく散らす（低食い違い数列。人数が変わっても、既存の人はほぼ動かない） */
+      var rx = (0.5 + ix * 0.7548776662) % 1, ry = (0.5 + ix * 0.5698402910) % 1;
       if (zone && z != null && z < Z) {
         var k = cnt[z] = (cnt[z] || 0) + 1, per = Math.max(2, Math.ceil(Math.sqrt(ctx.caps[z] * 1.6)));
-        x = 6 + z * (88 / Z) + (88 / Z - 2) * (((k - 1) % per) + .5) / per; y = 66 + Math.floor((k - 1) / per) * 8;
-      } else if (zone) { x = 14 + (h % 70); y = 94; }
-      else { x = 50 + (h % 1000) / 1000 * 42; y = 66 + ((h >>> 10) % 1000) / 1000 * 26; }
+        x = 6 + z * (88 / Z) + (88 / Z - 2) * (((k - 1) % per) + .5) / per; y = ft + 14 + Math.floor((k - 1) / per) * 8;
+      } else if (zone) { x = 14 + (h % 70); y = fb - 4; }
+      else { x = 24 + rx * 70; y = y0 + ry * (y1 - y0); }
       c.style.left = x + '%'; c.style.top = y + '%'; c.style.zIndex = Math.round(y);
       c.classList.toggle('me', u === ctx.me);
       c.classList.toggle('out', !!(ctx.caught && ctx.caught.indexOf(u) >= 0));
