@@ -6,7 +6,7 @@
 <title>Qraft ジェットチェイス</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261022204718">
+<link rel="stylesheet" href="theme.css?v=20261022204845">
 <style>
   .brow { display:flex; gap:.4em; align-items:center; background:rgba(255,255,255,.92); color:var(--ink-dark); border-radius:.6em; padding:.15em .6em; font-weight:800; font-size:.95em; }
   .brow.me { outline:.15em solid #ffd23f; }
@@ -103,12 +103,12 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261022204718"></script>
+<script src="firebase-config.js?v=20261022204845"></script>
 <script type="module">
-import { newView, applyData, draw as bdraw, RULE as BRULE, W as BW, H as BH } from './bomb.js?v=20261022204718';
+import { newView, applyData, draw as bdraw, RULE as BRULE, W as BW, H as BH } from './bomb.js?v=20261022204845';
 import { parseAv, mountAvatarPicker, avatarEl, signIn, db, ref, set, get, onValue, serverNow, CHOICE_STYLE, shuffle,
          ROBOT, robotFrac, mountScene, prepareQuestion, maskOf, isTextCorrect,
-         $, el, showScreen, confetti, loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261022204718';
+         $, el, showScreen, confetti, loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261022204845';
 
 mountStage();
 
@@ -145,6 +145,12 @@ async function join(p, n, silent) {
     if (!(await get(ref(db, 'rooms/' + p + '/hostUid'))).exists()) {
       try { localStorage.removeItem('qraft.player'); } catch (e) {}
       throw new Error(silent ? '' : 'その PIN の部屋が見つかりません。');
+    }
+    var stt = (await get(ref(db, 'rooms/' + p + '/state'))).val();
+    /* 終わった部屋には入らない（前回の部屋が、閉じられずに残っていると「ゲーム終了」になってしまうため） */
+    if (!stt || stt.phase === 'end') {
+      try { localStorage.removeItem('qraft.player'); } catch (e) {}
+      throw new Error(silent ? '' : 'そのゲームは、もう終了しています。');
     }
     if ((await get(ref(db, 'rooms/' + p + '/kicked/' + uid))).exists()) kicked = true;
     else await set(ref(db, 'rooms/' + p + '/players/' + uid), { nick: n, av: avPick.get() });
@@ -354,6 +360,7 @@ function judge(mask, text) {
 
 function endGame() {
   if (finished) return; finished = true; clearInterval(timerId);
+  try { localStorage.removeItem('qraft.player'); } catch (e) {}
   var win = state.result === 'clear';
   $('endEm').textContent = win ? '🎉' : '🤖';
   $('endTitle').textContent = win ? '全レベルクリア！ にげきった！' : 'ロボットにつかまってしまった…';

@@ -6,7 +6,7 @@
 <title>Qraft</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261022204718">
+<link rel="stylesheet" href="theme.css?v=20261022204845">
 </head>
 <body>
 <div id="app">
@@ -123,11 +123,11 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261022204718"></script>
+<script src="firebase-config.js?v=20261022204845"></script>
 <script type="module">
 import { mountAvatarPicker, avatarEl, signIn, db, ref, set, get, onValue, serverTimestamp, serverNow, CHOICE_STYLE,
          $, el, fmt, motionOn, showScreen, stopAnim, countUp, confetti, buildRank,
-         loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261022204718';
+         loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261022204845';
 
 mountStage();
 
@@ -168,6 +168,11 @@ async function join(p, n, silent) {
       throw new Error(silent ? '' : 'その PIN の部屋が見つかりません。');
     }
     var stt = (await get(ref(db, 'rooms/' + p + '/state'))).val();
+    /* 終わった部屋には入らない（前回の部屋が、閉じられずに残っていると「ゲーム終了」になってしまうため） */
+    if (!stt || stt.phase === 'end') {
+      try { localStorage.removeItem('qraft.player'); } catch (e) {}
+      throw new Error(silent ? '' : 'そのゲームは、もう終了しています。');
+    }
     if (stt && stt.mode === 'chase') {          /* 追いかけっこの部屋は、専用の画面へ */
       try { localStorage.setItem('qraft.player', JSON.stringify({ pin: p, nick: n })); } catch (e) {}
       location.replace('chase-play.html?pin=' + p + (/[?&]sess=1/.test(location.search) ? '&sess=1' : '')); return;
@@ -192,6 +197,7 @@ function start() {
   onValue(ref(db, 'rooms/' + pin + '/state'), function (s) {
     state = s.val();
     if (!state) { closed = true; clearSaved(); }
+    else if (state.phase === 'end') clearSaved();            /* 終わったら、次に開いたときに自動で戻らないようにする */
     else if (bgReady) applyBg(state.bg || 'pop', BGS);          /* 先生が選んだ背景に合わせる */
     render();
   });
