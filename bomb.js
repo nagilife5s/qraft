@@ -2,9 +2,9 @@
  * ボンバーマン・ミニゲームの盤面エンジン（通信なし）。
  * ・ロボットランの「安全地帯」の代わりに遊ぶ。5〜6人の小グループで1つの盤面を使う。
  * ・本番では、先生の画面がこのエンジンで全グループを動かし、生徒の入力（向き・爆弾）を毎ステップ取り込む。
- * ・1ステップ=0.1秒。盤面は 13×11。柱は (奇数, 奇数) のマス。
+ * ・1ステップ=0.1秒。盤面は 15×13。柱は (奇数, 奇数) のマス。
  */
-export var W = 13, H = 11;
+export var W = 15, H = 13;
 export var TICK_MS = 100;
 export var RULE = {
   fuse: 20,        /* 爆弾が爆発するまで 2.0秒 */
@@ -17,9 +17,9 @@ export var RULE = {
   hitPenalty: 30,  /* 巻き込まれたときの減点（0未満にはならない） */
   robotPts: 100,   /* 小ロボットを倒した得点 */
   robotMove: 4,    /* 小ロボットは 0.4秒で1マス */
-  length: 750      /* ゲームの長さ 75秒 */
+  length: 600      /* ゲームの長さ 60秒 */
 };
-var SPAWN = [[0, 0], [W - 1, H - 1], [W - 1, 0], [0, H - 1], [6, 0], [6, H - 1]];
+var SPAWN = [[0, 0], [W - 1, H - 1], [W - 1, 0], [0, H - 1], [Math.floor(W / 2), 0], [Math.floor(W / 2), H - 1]];
 var DX = [0, 0, 0, -1, 1], DY = [0, -1, 1, 0, 0];   /* 0:なし 1:上 2:下 3:左 4:右 */
 
 export function isPillar(x, y) { return x % 2 === 1 && y % 2 === 1; }
@@ -140,14 +140,36 @@ export function draw(ctx, g, px, opt) {
     ctx.font = (c * .72 * s) + 'px serif'; ctx.fillText('💣', (b.x + .5) * c, (b.y + .55) * c);
     if (b.t < 8) { ctx.fillStyle = 'rgba(255,60,60,.35)'; ctx.fillRect(b.x * c, b.y * c, c, c); }
   });
-  g.robots.forEach(function (r) { ctx.font = (c * .72) + 'px serif'; ctx.fillText('🤖', (r.x + .5) * c, (r.y + .55) * c); });
+  g.robots.forEach(function (r) {
+    var m = glide(r, now, 1 / (RULE.robotMove * TICK_MS));
+    shadow(ctx, c, r.vx, r.vy);
+    ctx.font = (c * .72) + 'px serif'; ctx.fillText('🤖', (r.vx + .5) * c, (r.vy + .55) * c - bob(m, now) * c);
+  });
   g.players.forEach(function (p, i) {
     var em = (opt.emojis && opt.emojis[i]) || '🐻';
+    var m = glide(p, now, 1 / (RULE.move * TICK_MS));
     ctx.save();
-    if (p.down > 0) { ctx.globalAlpha = .45; ctx.font = (c * .72) + 'px serif'; ctx.fillText('💫', (p.x + .5) * c, (p.y + .3) * c); }
+    shadow(ctx, c, p.vx, p.vy);
+    if (p.down > 0) { ctx.globalAlpha = .45; ctx.font = (c * .72) + 'px serif'; ctx.fillText('💫', (p.vx + .5) * c, (p.vy + .3) * c); }
     else if (p.invul > 0 && Math.floor(now / 100) % 2) ctx.globalAlpha = .4;
-    ctx.font = (c * .8) + 'px serif'; ctx.fillText(em, (p.x + .5) * c, (p.y + .55) * c);
+    ctx.font = (c * .8) + 'px serif'; ctx.fillText(em, (p.vx + .5) * c, (p.vy + .55) * c - bob(m, now) * c);
     ctx.restore();
-    if (opt.me === i) { ctx.strokeStyle = '#ffd23f'; ctx.lineWidth = Math.max(2, c * .08); ctx.strokeRect(p.x * c + 1, p.y * c + 1, c - 2, c - 2); }
+    if (opt.me === i) { ctx.strokeStyle = '#ffd23f'; ctx.lineWidth = Math.max(2, c * .08); ctx.strokeRect(p.vx * c + 1, p.vy * c + 1, c - 2, c - 2); }
   });
+}
+
+/* 見た目の位置（vx, vy）を、実際のマス（x, y）へ一定の速さで滑らかに寄せる。戻り値=動いている間 true。
+   位置が大きく飛んだとき（復活など）はその場で合わせる。draw が何回呼ばれても、時間で計算するので速さは変わらない */
+function glide(o, now, speed) {
+  if (o.vx === undefined || Math.abs(o.vx - o.x) > 2.5 || Math.abs(o.vy - o.y) > 2.5) { o.vx = o.x; o.vy = o.y; o.vt = now; }
+  var dt = Math.min(100, now - (o.vt || now)); o.vt = now;
+  var dx = o.x - o.vx, dy = o.y - o.vy, dist = Math.abs(dx) + Math.abs(dy);
+  if (dist < 0.001) return false;
+  var k = Math.min(1, speed * 1.08 * dt / dist);
+  o.vx += dx * k; o.vy += dy * k;
+  return true;
+}
+function bob(moving, now) { return moving ? Math.abs(Math.sin(now / 75)) * .09 : 0; }
+function shadow(ctx, c, vx, vy) {
+  ctx.fillStyle = 'rgba(40,10,70,.28)'; ctx.beginPath(); ctx.ellipse((vx + .5) * c, (vy + .86) * c, c * .3, c * .1, 0, 0, 6.2832); ctx.fill();
 }
