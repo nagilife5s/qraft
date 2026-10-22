@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ja" data-bg="pop">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>ボンバーマン モック</title>
+<link rel="stylesheet" href="theme.css?v=20261022190413">
+<style>
+  #mockbar { position:fixed; bottom:.4em; left:50%; transform:translateX(-50%); z-index:50; display:flex; gap:.4em; flex-wrap:wrap; justify-content:center; background:rgba(0,0,0,.75); padding:.35em .6em; border-radius:999px; font-size:13px; max-width:96vw; }
+  #mockbar button { font:inherit; font-weight:800; border:0; border-radius:999px; padding:.3em .9em; cursor:pointer; background:#fff; color:#222; }
+  #mockbar button.on { background:#ffd23f; }
+  #app { padding-bottom:3.6em; }
+  .bhud { display:flex; align-items:center; gap:.7em; flex-wrap:wrap; }
+  .bhud .pill { font-weight:900; }
+  .boards { flex:1; min-height:0; display:flex; align-items:center; justify-content:center; gap:1em; }
+  canvas { border-radius:.6em; box-shadow:var(--shadow); background:#d8b4e8; max-width:100%; }
+  .side { display:flex; flex-direction:column; gap:.4em; min-width:11em; }
+  .row { display:flex; justify-content:space-between; gap:.6em; background:rgba(255,255,255,.9); color:var(--ink-dark); border-radius:.6em; padding:.25em .7em; font-weight:800; }
+  .row.me { outline:.15em solid #ffd23f; }
+  .grid7 { display:grid; grid-template-columns:repeat(4, 1fr); gap:.6em; width:100%; }
+  .grid7 .cell { background:rgba(0,0,0,.35); border-radius:.6em; padding:.3em; color:#fff; font-size:.85em; font-weight:800; }
+  .grid7 canvas { width:100%; display:block; }
+  .pad { display:grid; grid-template-columns:repeat(3,3.2em); grid-template-rows:repeat(2,3.2em); gap:.3em; }
+  .pad button, .bombbtn { font:inherit; font-size:1.3em; font-weight:900; border:0; border-radius:.6em; background:#fff; color:var(--ink-dark); box-shadow:var(--shadow); }
+  .bombbtn { width:4.4em; height:4.4em; border-radius:50%; background:#ff5a5a; color:#fff; }
+  .hint { opacity:.85; font-weight:700; }
+</style>
+</head>
+<body>
+<div id="app" class="bg">
+  <div class="deco"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  <section class="screen on" id="v-stu" style="gap:.5em">
+    <div class="bhud"><span class="pill" id="sT"></span><span class="pill" style="background:var(--pop1)" id="sS"></span><span class="hint" id="sHint">矢印キー（またはWASD）で動く ／ スペースで爆弾</span></div>
+    <div class="boards"><canvas id="cv"></canvas><div class="side"><div id="rank" style="display:flex;flex-direction:column;gap:.4em"></div>
+      <div class="pad" id="pad"><span></span><button data-d="1">▲</button><span></span><button data-d="3">◀</button><button data-d="2">▼</button><button data-d="4">▶</button></div>
+      <button class="bombbtn" id="bb">💣</button></div></div>
+  </section>
+  <section class="screen" id="v-host" style="gap:.5em">
+    <div class="bhud"><span class="pill" id="hT"></span><span class="pill" style="background:var(--pop1)">全 7 グループ（40人）</span></div>
+    <div class="grid7" id="g7"></div>
+  </section>
+  <section class="screen" id="v-end">
+    <div class="center" style="flex:1; display:flex; flex-direction:column; gap:.6em">
+      <div class="title2" style="font-size:2.4em">💥 ミニゲーム終了！</div>
+      <div class="card" style="min-width:18em"><div id="endRank" style="display:flex;flex-direction:column;gap:.3em;font-weight:800"></div></div>
+      <div class="mut">この得点が、個人の得点として最後のランキングに足されます</div>
+    </div>
+  </section>
+</div>
+<div id="mockbar"></div>
+<script type="module">
+import { W, H, TICK_MS, RULE, newGame, step, draw } from './bomb.js';
+var NAMES = 'そら ひなた れん あおい ゆうと みお はると さくら りく めい そうた ひより かいと ゆい たくみ ここな いつき みさき しょう なな けんた あかり だいき ゆず ひろと りこ まお こうた はな ゆうま みく りょう あやね とわ ふうか れお つむぎ ゆうり'.split(' ');
+var EM = ['🦊', '🐼', '🐰', '🐻', '🐯', '🐸', '🐵', '🐧', '🦁', '🐮', '🐷', '🐨', '🐹', '🦄', '🐙', '🦉'];
+function $(id) { return document.getElementById(id); }
+var view = 'stu', speed = 1, games = [], inputs = [], flee = [], held = [], pressB = false, acc = 0, last = performance.now(), me = 0;
+var sizes = [6, 6, 6, 6, 6, 5, 5];
+
+function start() {
+  games = sizes.map(function (n, k) { return newGame(n, 1000 + k * 17 + Math.floor(Math.random() * 999)); });
+  inputs = games.map(function (g) { return g.players.map(function () { return { d: 0, b: false }; }); });
+  flee = games.map(function (g) { return g.players.map(function () { return 0; }); });
+  held = []; pressB = false; me = 0; show(view === 'end' ? 'stu' : view); bar();
+}
+/* ボット：近くに小ロボットがいたら爆弾を置いて逃げる。それ以外はうろうろ */
+function bot(g, k, i) {
+  var p = g.players[i], inp = inputs[k][i]; inp.b = false;
+  if (p.down) { inp.d = 0; return; }
+  if (flee[k][i] > 0) { flee[k][i]--; var bb = g.bombs.filter(function (b) { return b.o === i; })[0]; if (bb) { inp.d = away(g, p, bb); return; } }
+  var near = g.robots.some(function (r) { return Math.abs(r.x - p.x) + Math.abs(r.y - p.y) <= 2; });
+  if (near && Math.random() < .5 && g.bombs.filter(function (b) { return b.o === i; }).length < 1) { inp.b = true; flee[k][i] = 14; return; }
+  if (Math.random() < .35) inp.d = Math.random() < .25 ? 0 : 1 + Math.floor(Math.random() * 4);
+  else if (g.robots.length && Math.random() < .5) { var r = g.robots[0]; inp.d = Math.abs(r.x - p.x) > Math.abs(r.y - p.y) ? (r.x > p.x ? 4 : 3) : (r.y > p.y ? 2 : 1); }
+}
+function away(g, p, b) { var best = 0, bd = -1; [1, 2, 3, 4].forEach(function (d) { var nx = p.x + [0, 0, 0, -1, 1][d], ny = p.y + [0, -1, 1, 0, 0][d]; var dd = Math.abs(nx - b.x) + Math.abs(ny - b.y); if (nx >= 0 && ny >= 0 && nx < W && ny < H && !(nx % 2 && ny % 2) && dd > bd) { bd = dd; best = d; } }); return best; }
+
+function tick() {
+  games.forEach(function (g, k) {
+    g.players.forEach(function (p, i) { if (!(k === 0 && i === me && view === 'stu')) bot(g, k, i); });
+    if (view === 'stu') { var m = inputs[0][me]; m.d = held.length ? held[held.length - 1] : 0; m.b = pressB; pressB = false; }
+    step(g, inputs[k]);
+  });
+}
+var cv = $('cv'), ctx = cv.getContext('2d');
+function sizeCanvas() { var px = Math.min(innerWidth - 260, (innerHeight - 170) * W / H, 760); px = Math.max(260, Math.floor(px)); cv.width = px; cv.height = Math.floor(px / W * H); cv.style.width = px + 'px'; }
+function frame(now) {
+  acc += (now - last) * speed; last = now;
+  while (acc >= TICK_MS) { acc -= TICK_MS; tick(); }
+  var g = games[0];
+  if (view === 'stu') {
+    draw(ctx, g, cv.width, { me: me, emojis: EM });
+    var left = Math.max(0, (RULE.length - g.t) / 10);
+    $('sT').textContent = '残り ' + Math.ceil(left) + ' 秒'; $('sS').textContent = 'あなた ' + g.players[me].score + ' 点';
+    var order = g.players.map(function (p, i) { return i; }).sort(function (a, b) { return g.players[b].score - g.players[a].score; });
+    $('rank').innerHTML = order.map(function (i) { return '<div class="row' + (i === me ? ' me' : '') + '"><span>' + EM[i] + ' ' + NAMES[i] + '</span><span>' + g.players[i].score + '</span></div>'; }).join('');
+  } else if (view === 'host') {
+    $('hT').textContent = '残り ' + Math.ceil(Math.max(0, (RULE.length - g.t) / 10)) + ' 秒';
+    document.querySelectorAll('#g7 canvas').forEach(function (c, k) { draw(c.getContext('2d'), games[k], c.width, { emojis: EM }); });
+    document.querySelectorAll('#g7 .sc').forEach(function (e, k) { e.textContent = games[k].players.map(function (p) { return p.score; }).join(' / '); });
+  }
+  if (view !== 'end' && g.over) { show('end'); var all = []; games.forEach(function (gg, k) { gg.players.forEach(function (p, i) { all.push({ n: NAMES[(k * 6 + i) % NAMES.length], s: p.score, e: EM[i] }); }); });
+    all.sort(function (a, b) { return b.s - a.s; }); $('endRank').innerHTML = all.slice(0, 5).map(function (r, i) { return (i + 1) + '位　' + r.e + ' ' + r.n + '　' + r.s + '点'; }).join('<br>'); }
+  requestAnimationFrame(frame);
+}
+function buildHost() {
+  var box = $('g7'); box.textContent = '';
+  games.forEach(function (g, k) { var d = document.createElement('div'); d.className = 'cell'; d.innerHTML = 'グループ ' + (k + 1) + '　<span class="sc"></span>'; var c = document.createElement('canvas'); c.width = 260; c.height = Math.floor(260 / W * H); d.appendChild(c); box.appendChild(d); });
+}
+function show(v) { view = v; document.querySelectorAll('.screen').forEach(function (s) { s.classList.toggle('on', s.id === 'v-' + v); }); if (v === 'host') buildHost(); if (v === 'stu') sizeCanvas(); bar(); }
+function bar() {
+  var b = $('mockbar'); b.textContent = '';
+  [['stu', '生徒の画面（操作できる）'], ['host', '先生の画面（全グループ）']].forEach(function (x) { var e = document.createElement('button'); e.textContent = x[1]; e.className = view === x[0] ? 'on' : ''; e.onclick = function () { show(x[0]); }; b.appendChild(e); });
+  [[1, '等速'], [3, '3倍速']].forEach(function (x) { var e = document.createElement('button'); e.textContent = x[1]; e.className = speed === x[0] ? 'on' : ''; e.onclick = function () { speed = x[0]; bar(); }; b.appendChild(e); });
+  var r = document.createElement('button'); r.textContent = '▶ 最初から'; r.onclick = start; b.appendChild(r);
+}
+var KEY = { ArrowUp: 1, w: 1, W: 1, ArrowDown: 2, s: 2, S: 2, ArrowLeft: 3, a: 3, A: 3, ArrowRight: 4, d: 4, D: 4 };
+addEventListener('keydown', function (e) { if (KEY[e.key]) { e.preventDefault(); if (held.indexOf(KEY[e.key]) < 0) held.push(KEY[e.key]); } else if (e.key === ' ') { e.preventDefault(); pressB = true; } });
+addEventListener('keyup', function (e) { if (KEY[e.key]) held = held.filter(function (d) { return d !== KEY[e.key]; }); });
+document.querySelectorAll('#pad button').forEach(function (b) { var d = Number(b.dataset.d); b.onpointerdown = function () { held.push(d); }; b.onpointerup = b.onpointerleave = function () { held = held.filter(function (x) { return x !== d; }); }; });
+$('bb').onpointerdown = function () { pressB = true; };
+addEventListener('resize', sizeCanvas);
+start(); requestAnimationFrame(frame);
+</script>
+</body>
+</html>
