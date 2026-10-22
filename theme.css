@@ -453,3 +453,10 @@ button.tile:disabled { cursor:default; }
 .q-foot { display:flex; gap:1em; align-items:center; justify-content:center; flex-wrap:wrap; }
 .q-foot #btnSubmit { font-size:1.1em; padding:.35em 1.8em; }
 .stu-tiles.n5 .tile, .stu-tiles.n6 .tile { font-size:1.15em; }
+
+/* 5〜6択の正解発表：選択肢のタイルを小さくして、棒グラフの高さを確保する */
+.dist.n5 .tile, .dist.n6 .tile { font-size:.78em; padding:.3em .45em; min-height:0; gap:.3em; }
+.dist.n5 .tile .sh, .dist.n6 .tile .sh { width:1.2em; height:1.2em; font-size:.9em; }
+.dist.n5 .tile img.ch-img, .dist.n6 .tile img.ch-img { max-height:3em; }
+.dist { min-height:8em; }
+#s-reveal .qcard.small { font-size:1.35em; padding:.5em 1em; }
