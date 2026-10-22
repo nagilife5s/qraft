@@ -435,3 +435,15 @@ button.tile:disabled { cursor:default; }
 /* 問題セットの検索・パスワード */
 .setup input[type=text], .setup input[type=password] { font:inherit; font-weight:700; color:var(--ink-dark); background:#f2effd; border:2px solid #d6cdf7; border-radius:.7em; padding:.55em .8em; width:100%; }
 .setup .note { font-size:.8em; opacity:.65; margin-top:.3em; font-weight:700; }
+
+/* 画像つきの問題：画像を左・文章を右の横並びにして、選択肢の高さを確保する */
+.qcard.hasimg, .stu-q.hasimg { display:grid; grid-template-columns:minmax(0,38%) minmax(0,1fr); align-items:center; gap:1em; text-align:left; }
+.qcard.hasimg .qimg, .stu-q.hasimg .qimg { max-height:27cqh; width:100%; object-fit:contain; margin:0; }
+.qcard.hasimg { font-size:1.85em; padding:.6em 1em; } .stu-q.hasimg { font-size:1.45em; padding:.5em .9em; }
+.grid4.n5 .tile, .grid4.n6 .tile { padding:.25em .9em; min-height:0; }
+.stu-tiles.n5 .tile, .stu-tiles.n6 .tile { padding:.2em .6em; min-height:0; }
+@container st (max-width: 600px) {
+  .qcard.hasimg, .stu-q.hasimg { grid-template-columns:1fr; text-align:center; }
+  .qcard.hasimg .qimg, .stu-q.hasimg .qimg { max-height:18cqh; }
+  .stu-tiles.n5 .tile, .stu-tiles.n6 .tile { font-size:1.05em; }
+}

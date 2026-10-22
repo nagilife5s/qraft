@@ -306,6 +306,7 @@ async function askQuestion(i) {
   $('qtext').textContent = q.text;
   var img = $('qimg');
   if (q.image) { img.src = q.image; img.classList.remove('hide'); } else { img.classList.add('hide'); }
+  $('qcard').classList.toggle('hasimg', !!q.image);
   var tiles = $('tiles'); tiles.textContent = ''; tiles.className = 'grid4 n' + q.choices.length;
   q.choices.forEach(function (c, idx) { tiles.appendChild(tileEl(c, idx)); });
   var ring = $('ring'); ring.classList.remove('hurry'); ring.style.setProperty('--p', 100); ring.querySelector('b').textContent = limit;

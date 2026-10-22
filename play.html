@@ -242,6 +242,7 @@ function drawQuestion() {
   $('sqtext').textContent = state.text;
   var im = $('sqimg');
   if (state.image) { im.src = state.image; im.classList.remove('hide'); } else { im.classList.add('hide'); }
+  $('sq').classList.toggle('hasimg', !!state.image);
   var box = $('stiles'); box.textContent = ''; box.className = 'stu-tiles n' + state.choices.length;
   selMask = 0;
   state.choices.forEach(function (c, idx) {
