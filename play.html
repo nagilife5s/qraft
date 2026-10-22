@@ -43,6 +43,7 @@
   <div class="timebar" id="timebar"><i></i></div>
   <div class="stu-q" id="sq"><img id="sqimg" class="qimg hide" alt=""><span id="sqtext"></span></div>
   <div class="stu-tiles" id="stiles"></div>
+  <button class="btn hide" id="btnSubmit">送信</button>
   <div class="center" id="ansState" style="display:flex; font-weight:900; font-size:1.3em; min-height:1.6em"></div>
 </section>
 
@@ -123,7 +124,7 @@ mountStage();
 
 var uid = null, pin = null, nick = '';
 var state = null, scores = {}, kicked = false, closed = false;
-var answeredQ = -1, pickedIdx = -1, lastKey = '', timerId = null, BGS = [], bgReady = false;
+var answeredQ = -1, pickedIdx = -1, selMask = 0, lastKey = '', timerId = null, BGS = [], bgReady = false;
 
 /* ---------------------------------------------------------------- 起動と参加 */
 (async function boot() {
@@ -241,14 +242,18 @@ function drawQuestion() {
   $('sqtext').textContent = state.text;
   var im = $('sqimg');
   if (state.image) { im.src = state.image; im.classList.remove('hide'); } else { im.classList.add('hide'); }
-  var box = $('stiles'); box.textContent = '';
-  state.choices.forEach(function (t, idx) {
+  var box = $('stiles'); box.textContent = ''; box.className = 'stu-tiles n' + state.choices.length;
+  selMask = 0;
+  state.choices.forEach(function (c, idx) {
     var b = el('button', 'tile t' + idx);
-    b.appendChild(el('span', 'sh', CHOICE_STYLE[idx].shape)); b.appendChild(el('span', '', t));
-    b.onclick = function () { answer(idx); };
+    b.appendChild(el('span', 'sh', CHOICE_STYLE[idx].shape));
+    if (c.image) { var im = el('img', 'ch-img'); im.src = c.image; im.alt = ''; b.appendChild(im); }
+    if (c.t) b.appendChild(el('span', 'tx', c.t));
+    b.onclick = function () { if (state.multi) toggle(idx, b); else answer(idx); };
     box.appendChild(b);
   });
-  $('ansState').textContent = '';
+  var sb = $('btnSubmit'); sb.classList.toggle('hide', !state.multi); sb.disabled = true;
+  $('ansState').textContent = state.multi ? 'あてはまるものを すべて選んで「送信」' : '';
   var ring = $('timebar'); ring.classList.remove('hurry');
   answeredQ = answeredQ === state.i ? answeredQ : -1;    /* 画面を更新しても、回答済みの印は引き継ぐ */
   if (answeredQ === state.i) markPicked();
@@ -256,13 +261,14 @@ function drawQuestion() {
 
 function drawResult(variant, me, r) {
   if (variant === 'collect') { showScreen('s-collect'); return; }
-  var q = state.choices[state.correct];
-  var ansText = '正解は ' + CHOICE_STYLE[state.correct].shape + ' ' + q;
+  var cs = [].concat(state.correct);
+  var q = cs.map(function (i) { var c = state.choices[i]; return CHOICE_STYLE[i].shape + ' ' + (c.t || '（画像）'); }).join('　');
+  var ansText = '正解は ' + q;
   if (variant === 'ok') {
     showScreen('s-ok'); confetti($('conf-ok'), 26);
     countUp($('okpts'), me.last, 900, 900, false);
     countUp($('oktotal'), me.total, 900, 1500, true);
-    $('okans').textContent = CHOICE_STYLE[state.correct].shape + ' ' + q;
+    $('okans').textContent = q;
     $('okrank').textContent = r ? r.rank : '-'; $('okn').textContent = r ? r.n : '-';
     var mv = r ? r.move : 0;
     $('okup').textContent = mv > 0 ? '▲ ' + mv + 'つ上がった！' : mv < 0 ? '▼ ' + (-mv) + 'つ下がった' : '順位キープ！';
@@ -295,11 +301,35 @@ async function answer(idx) {
 
 function markPicked() {
   document.querySelectorAll('#stiles .tile').forEach(function (b, i) {
-    b.classList.toggle('dim', pickedIdx >= 0 && i !== pickedIdx);
-    b.classList.toggle('picked', i === pickedIdx);
+    var mine = state && state.multi ? !!(selMask & (1 << i)) : i === pickedIdx;
+    b.classList.toggle('dim', !mine);
+    b.classList.toggle('picked', mine && !(state && state.multi));
     b.disabled = true; b.style.pointerEvents = 'none';
   });
+  $('btnSubmit').classList.add('hide');
 }
+
+/* 複数選択：押すたびに選択が付く・外れる。最後に「送信」 */
+function toggle(idx, b) {
+  if (!state || answeredQ === state.i) return;
+  selMask ^= (1 << idx);
+  b.classList.toggle('sel', !!(selMask & (1 << idx)));
+  $('btnSubmit').disabled = selMask === 0;
+}
+$('btnSubmit').onclick = async function () {
+  if (!state || state.phase !== 'question' || !state.multi || answeredQ === state.i || !selMask) return;
+  var q = state.i;
+  answeredQ = q; markPicked();
+  try {
+    await set(ref(db, 'rooms/' + pin + '/answers/' + q + '/' + uid), { m: selMask, t: serverTimestamp() });
+    $('ansState').textContent = '✋ 回答しました！ みんなを待っています…';
+  } catch (e) {
+    answeredQ = -1;
+    document.querySelectorAll('#stiles .tile').forEach(function (x) { x.disabled = false; x.style.pointerEvents = ''; x.classList.remove('dim'); });
+    $('btnSubmit').classList.remove('hide');
+    $('ansState').textContent = 'すでに回答済みか、送れませんでした。';
+  }
+};
 
 /* 残り時間の表示（サーバー時刻で計算） */
 function tick() {
@@ -311,7 +341,11 @@ function tick() {
   tb.classList.toggle('hurry', left <= 5000 && left > 0);
   $('secpill').textContent = '残り ' + Math.ceil(left / 1000) + ' 秒';
   if (left <= 0) {
-    document.querySelectorAll('#stiles .tile').forEach(function (b, i) { if (i !== pickedIdx) { b.disabled = true; b.classList.add('dim'); } });
+    document.querySelectorAll('#stiles .tile').forEach(function (b, i) {
+      var mine = state.multi ? !!(selMask & (1 << i)) && answeredQ === state.i : i === pickedIdx;
+      if (!mine) { b.disabled = true; b.classList.add('dim'); b.classList.remove('sel'); }
+    });
+    $('btnSubmit').classList.add('hide');
     if (answeredQ !== state.i) $('ansState').textContent = '時間切れです';
   }
 }

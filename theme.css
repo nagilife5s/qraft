@@ -412,3 +412,26 @@ button.tile:disabled { cursor:default; }
 
 #s-setup { overflow-y:auto; }
 #s-setup .setup-wrap { margin:auto 0; display:flex; flex-direction:column; align-items:center; gap:1em; }
+
+/* ======================================================================
+   5〜6択・複数選択・選択肢の画像
+   ====================================================================== */
+.t4 { background:var(--c-purple, #8e44ad); } .t4 .sh { color:#8e44ad; }
+.t5 { background:#e67e22; } .t5 .sh { color:#e67e22; }
+.tile .tx { min-width:0; overflow-wrap:anywhere; }
+.tile img.ch-img { max-height:5.2em; max-width:100%; object-fit:contain; background:#fff; border-radius:.4em; padding:.15em; flex:0 1 auto; }
+.grid4.n5, .grid4.n6 { gap:.7em; } .grid4.n5 .tile, .grid4.n6 .tile { font-size:1.35em; }
+.stu-tiles.n5 .tile, .stu-tiles.n6 .tile { font-size:1.25em; }
+.stu-tiles { grid-auto-rows:1fr; }
+.dist { grid-template-columns:repeat(var(--n, 4), 1fr); }
+.dist .tile { font-size:1.15em; }
+.dist.n5 .tile, .dist.n6 .tile { font-size:.9em; }
+/* 複数選択：押すと選択が付く。最後に「送信」 */
+.tile.sel { outline:.2em solid #fff; transform:scale(1.02); }
+.tile.sel::before { content:"✓"; position:absolute; right:.5em; top:.3em; background:#fff; color:#1d1630; border-radius:50%; width:1.4em; height:1.4em; display:grid; place-items:center; font-size:.7em; font-weight:900; }
+#btnSubmit { align-self:center; font-size:1.2em; padding:.5em 2.2em; }
+.multi-hint { font-weight:900; text-align:center; background:rgba(0,0,0,.28); border-radius:999px; padding:.25em 1em; align-self:center; }
+
+/* 問題セットの検索・パスワード */
+.setup input[type=text], .setup input[type=password] { font:inherit; font-weight:700; color:var(--ink-dark); background:#f2effd; border:2px solid #d6cdf7; border-radius:.7em; padding:.55em .8em; width:100%; }
+.setup .note { font-size:.8em; opacity:.65; margin-top:.3em; font-weight:700; }

@@ -16,7 +16,12 @@
   <div class="setup-wrap">
     <img class="logo-img" src="img/logo-wordmark.webp" alt="Qraft" style="height:5em">
     <div class="card setup">
-      <label style="margin-top:0" for="setSel">問題セット</label><select id="setSel"></select>
+      <label style="margin-top:0" for="setFilter">問題セット</label>
+      <input type="text" id="setFilter" placeholder="さがす（例：イオン、細胞、力）" autocomplete="off">
+      <select id="setSel" size="6" style="margin-top:.4em"></select>
+      <div id="pwRow" class="hide"><label for="pw">問題のパスワード</label>
+        <input type="password" id="pw" autocomplete="off" placeholder="先生だけが知っているパスワード">
+        <div class="note">一度入れると、このパソコンのこのブラウザに覚えておきます</div></div>
       <div class="two">
         <div><label for="count">出題数</label><input id="count" type="number" min="1" value="8"></div>
         <div><label for="limitSel">1問の制限時間</label>
@@ -92,7 +97,7 @@
 import { signIn, db, ref, set, get, update, remove, onValue, serverTimestamp, serverNow,
          calcScore, CHOICE_STYLE, RESULT_SEC, RANK_SEC, sleep, shuffle,
          $, el, fmt, motionOn, showScreen, later, stopAnim, countUp, confetti, qrSvg, buildRank,
-         loadBackgrounds, applyBg, buildBgPickers, savedBg, saveBg, mountStage } from './lib.js';
+         loadBackgrounds, applyBg, buildBgPickers, savedBg, saveBg, mountStage, decryptSet, prepareQuestion, maskOf } from './lib.js';
 
 mountStage();
 
@@ -132,19 +137,31 @@ function stateOf(extra) { return Object.assign({ bg: curBg, t: serverTimestamp()
     applyBg(curBg, BGS, true);
     buildBgPickers(BGS, curBg, pickBg);
 
-    var idx = await (await fetch('questions/index.json')).json();
-    var sel = $('setSel');
-    idx.forEach(function (s) {
-      var o = document.createElement('option');
-      o.value = s.file; o.textContent = s.title + '（' + s.count + '問）';
-      o.dataset.count = s.count; o.dataset.title = s.title;
-      sel.appendChild(o);
-    });
-    sel.onchange = function () { $('count').value = sel.selectedOptions[0].dataset.count; };
-    sel.onchange();
+    SETS = await (await fetch('questions/index.json')).json();
+    try { $('pw').value = localStorage.getItem('qraft.pw') || ''; } catch (e) {}
+    renderSets('');
+    $('setFilter').oninput = function () { renderSets(this.value.trim()); };
+    $('setSel').onchange = onSetChange;
   } catch (e) { setupErr(e.message); $('btnCreate').disabled = true; }
   showScreen('s-setup');
 })();
+
+var SETS = [];
+function renderSets(f) {
+  var sel = $('setSel'), keep = sel.value; sel.textContent = '';
+  var list = SETS.filter(function (s) { return !f || s.title.indexOf(f) >= 0; });
+  list.forEach(function (s) {
+    var o = document.createElement('option'); o.value = s.file; o.textContent = s.title + '（' + s.count + '問）'; sel.appendChild(o);
+  });
+  if (list.some(function (s) { return s.file === keep; })) sel.value = keep; else if (list.length) sel.selectedIndex = 0;
+  onSetChange();
+}
+function currentSet() { var f = $('setSel').value; return SETS.filter(function (s) { return s.file === f; })[0]; }
+function onSetChange() {
+  var s = currentSet(); if (!s) return;
+  $('count').value = s.count; $('count').max = s.count;
+  $('pwRow').classList.toggle('hide', !s.enc);
+}
 
 function setupErr(msg) { $('setupErr').textContent = msg; $('setupErr').classList.remove('hide'); }
 
@@ -152,22 +169,20 @@ $('btnCreate').onclick = async function () {
   $('setupErr').classList.add('hide');
   $('btnCreate').disabled = true;
   try {
-    var data = await (await fetch('questions/' + $('setSel').value)).json();
-    setTitle = $('setSel').selectedOptions[0].dataset.title || '';
+    var entry = currentSet(); if (!entry) throw new Error('問題セットを選んでください');
+    var data = await (await fetch('questions/' + entry.file)).json();
+    if (data.enc) {
+      var pwv = $('pw').value; if (!pwv) throw new Error('問題のパスワードを入れてください');
+      data = await decryptSet(data, pwv);                      /* パスワードが違うと、ここで「パスワードが違います」になる */
+      try { localStorage.setItem('qraft.pw', pwv); } catch (e) {}
+    }
+    setTitle = entry.title;
     var qs = shuffle(data.questions.slice());
     var n = Math.max(1, Math.min(Number($('count').value) || qs.length, qs.length));
     qs = qs.slice(0, n);
     limit = Number($('limitSel').value);
     var doShuffle = $('shuf').checked;
-    game = qs.map(function (q) {
-      var order = q.choices.map(function (_, i) { return i; });
-      if (doShuffle && q.shuffle !== false) shuffle(order);
-      return {
-        text: q.q, image: q.image || null,
-        choices: order.map(function (i) { return q.choices[i]; }),
-        correct: order.indexOf(q.answer)
-      };
-    });
+    game = qs.map(function (q) { return prepareQuestion(q, doShuffle); });
 
     /* 使われていない PIN を引く */
     for (var i = 0; i < 20; i++) {
@@ -269,6 +284,15 @@ async function hold(ms) {
   }
 }
 
+/* 選択肢のタイル（形・画像・文字） */
+function tileEl(c, idx) {
+  var d = el('div', 'tile t' + idx);
+  d.appendChild(el('span', 'sh', CHOICE_STYLE[idx].shape));
+  if (c.image) { var im = el('img', 'ch-img'); im.src = c.image; im.alt = ''; d.appendChild(im); }
+  if (c.t) d.appendChild(el('span', 'tx', c.t));
+  return d;
+}
+
 function activeIds() { return Object.keys(players); }
 function ansLabel() {
   var n = activeIds().filter(function (id) { return answers[id]; }).length;
@@ -278,16 +302,12 @@ function ansLabel() {
 async function askQuestion(i) {
   var q = game[i];
   stopAnim(); showScreen('s-q');
-  $('qno').textContent = '問題 ' + (i + 1) + ' / ' + game.length;
+  $('qno').textContent = '問題 ' + (i + 1) + ' / ' + game.length + (q.multi ? '・複数選択' : '');
   $('qtext').textContent = q.text;
   var img = $('qimg');
   if (q.image) { img.src = q.image; img.classList.remove('hide'); } else { img.classList.add('hide'); }
-  var tiles = $('tiles'); tiles.textContent = '';
-  q.choices.forEach(function (text, idx) {
-    var d = el('div', 'tile t' + idx);
-    d.appendChild(el('span', 'sh', CHOICE_STYLE[idx].shape)); d.appendChild(el('span', '', text));
-    tiles.appendChild(d);
-  });
+  var tiles = $('tiles'); tiles.textContent = ''; tiles.className = 'grid4 n' + q.choices.length;
+  q.choices.forEach(function (c, idx) { tiles.appendChild(tileEl(c, idx)); });
   var ring = $('ring'); ring.classList.remove('hurry'); ring.style.setProperty('--p', 100); ring.querySelector('b').textContent = limit;
 
   answers = {};
@@ -300,7 +320,7 @@ async function askQuestion(i) {
 
   await set(ref(db, 'rooms/' + pin + '/state'), stateOf({
     phase: 'question', i: i, n: game.length, text: q.text, image: q.image,
-    choices: q.choices, limit: limit
+    choices: q.choices, multi: q.multi, limit: limit
   }));
   tStart = (await get(ref(db, 'rooms/' + pin + '/state/t'))).val();
 
@@ -332,10 +352,14 @@ async function showResult(i) {
     var prev = scores[id] ? scores[id].total : 0;
     var a = answers[id], pts = 0, ok = false, c = -1;
     if (a) {
-      answered++; c = a.c;
-      if (a.c >= 0 && a.c < counts.length) counts[a.c]++;
+      answered++;
+      var chosen = [];                                         /* 選んだ番号 */
+      if (a.m != null) { for (var b = 0; b < counts.length; b++) if (a.m & (1 << b)) chosen.push(b); c = a.m; }
+      else if (a.c != null) { chosen = [a.c]; c = a.c; }
+      chosen.forEach(function (b) { if (b >= 0 && b < counts.length) counts[b]++; });
       var el_ = a.t - tStart;
-      if (a.c === q.correct && el_ <= limitMs + 1500) { pts = calcScore(el_, limitMs); ok = true; }
+      var right = q.multi ? (a.m === maskOf(q.correct)) : (a.c != null && q.correct.indexOf(a.c) >= 0);
+      if (right && el_ <= limitMs + 1500) { pts = calcScore(el_, limitMs); ok = true; }
     }
     scores[id] = { nick: players[id].nick, total: prev + pts, last: pts, ok: ok, qi: i, c: c };
   });
@@ -346,7 +370,7 @@ async function showResult(i) {
   await set(ref(db, 'rooms/' + pin + '/scores'), scores);
   await set(ref(db, 'rooms/' + pin + '/state'), stateOf({
     phase: 'result', i: i, n: game.length, text: q.text, image: q.image,
-    choices: q.choices, correct: q.correct, counts: counts, answered: answered
+    choices: q.choices, multi: q.multi, correct: q.correct, counts: counts, answered: answered
   }));
 
   /* 画面：棒グラフの下に選択肢を並べる */
@@ -355,13 +379,13 @@ async function showResult(i) {
   $('rans').textContent = '回答 ' + answered + ' / ' + activeIds().length + '人';
   $('rqtext').textContent = q.text;
   var max = Math.max.apply(null, counts.concat([1]));
-  var dist = $('dist'); dist.textContent = '';
-  q.choices.forEach(function (text, idx) {
-    var col = el('div', 'col' + (idx === q.correct ? '' : ' dim'));
+  var dist = $('dist'); dist.textContent = ''; dist.className = 'dist n' + q.choices.length; dist.style.setProperty('--n', q.choices.length);
+  q.choices.forEach(function (c, idx) {
+    var isOk = q.correct.indexOf(idx) >= 0;
+    var col = el('div', 'col' + (isOk ? '' : ' dim'));
     var bw = el('div', 'barwrap'), bar = el('i'); bar.style.height = Math.max(counts[idx] ? 4 : 0, counts[idx] / max * 100) + '%'; bar.style.background = CHOICE_STYLE[idx].color;
     var num = el('b', 'num', '0'); bar.appendChild(num); bw.appendChild(bar);
-    var t = el('div', 'tile t' + idx + (idx === q.correct ? ' right' : ' dim'));
-    t.appendChild(el('span', 'sh', CHOICE_STYLE[idx].shape)); t.appendChild(el('span', '', text));
+    var t = tileEl(c, idx); t.className += isOk ? ' right' : ' dim';
     col.appendChild(bw); col.appendChild(t); dist.appendChild(col);
     countUp(num, counts[idx], 800, 1150, false);
   });

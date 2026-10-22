@@ -59,7 +59,9 @@ export const CHOICE_STYLE = [
   { shape: '▲', color: '#e21b3c' },
   { shape: '◆', color: '#1368ce' },
   { shape: '●', color: '#ffc00a' },
-  { shape: '■', color: '#1fa95b' }
+  { shape: '■', color: '#1fa95b' },
+  { shape: '★', color: '#8e44ad' },        /* 5択・6択のとき */
+  { shape: '⬢', color: '#e67e22' }
 ];
 
 export const RESULT_SEC = 8;   /* 正解と分布を見せる秒数 */
@@ -303,3 +305,45 @@ export function mountStage() {
   for (var i = 0; i < 10; i++) deco.appendChild(el('i'));
   app.insertBefore(deco, app.firstChild); app.insertBefore(fade, app.firstChild);
 }
+
+
+/* ====================================================================
+   問題セット
+   ・暗号化した問題ファイル（{enc:1, salt, iv, ct, iter}）を、先生が入れたパスワードで開く。
+     鍵は PBKDF2-SHA256 でパスワードから作り、AES-GCM で復号する（tools/encrypt.js と対）。
+     暗号文のままでは、公開リポジトリのファイルを見つけても中身（問題・正解）は読めない。
+   ==================================================================== */
+function b64(s) { var bin = atob(s), a = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i); return a; }
+
+export async function decryptSet(enc, password) {
+  var km = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveKey']);
+  var key = await crypto.subtle.deriveKey({ name: 'PBKDF2', salt: b64(enc.salt), iterations: enc.iter, hash: 'SHA-256' },
+    km, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
+  try {
+    var plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: b64(enc.iv) }, key, b64(enc.ct));
+    return JSON.parse(new TextDecoder().decode(plain));
+  } catch (e) {
+    throw new Error('パスワードが違います');
+  }
+}
+
+/*
+ * 問題を、ゲームで使う形にそろえる。
+ *   choices … 文字列、または {t:文字, image:画像}   answer … 正解の番号（または、どれでも正解の番号の配列）
+ *   answers … 全部選べたら正解（複数選択）          shuffle:false で選択肢を入れ替えない
+ * 戻り値: {text, image, choices:[{t,image}], correct:[番号...], multi}
+ */
+export function prepareQuestion(q, doShuffle) {
+  var choices = q.choices.map(function (c) { return typeof c === 'string' ? { t: c, image: null } : { t: c.t || '', image: c.image || null }; });
+  var order = choices.map(function (_, i) { return i; });
+  if (doShuffle && q.shuffle !== false) shuffle(order);
+  var multi = Array.isArray(q.answers);
+  var src = multi ? q.answers : (Array.isArray(q.answer) ? q.answer : [q.answer]);
+  return {
+    text: q.q, image: q.image || null,
+    choices: order.map(function (i) { return choices[i]; }),
+    correct: src.map(function (a) { return order.indexOf(a); }).sort(function (a, b) { return a - b; }),
+    multi: multi
+  };
+}
+export function maskOf(list) { return list.reduce(function (m, i) { return m | (1 << i); }, 0); }
