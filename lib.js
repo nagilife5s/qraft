@@ -482,6 +482,19 @@ export function mountScene(box, mini) {
   var zl = el('div', 'zones'); sc.appendChild(zl);
   box.appendChild(sc);
   var chars = {}, api = {}, prevK = {};
+  /* 道が後ろへ流れる：通路の絵を左右反転でつないだ「ループ画像」を、一定の速さで横へずらし続ける。
+     速さは、ロボットが近いほど速い（あわてて逃げる感じ）。安全地帯のあいだは止める */
+  var LOOP_AR = 4000 / 1116, off = 0, curV = 0, tgtV = 0, lastT = performance.now();
+  (function scrollLoop(now) {
+    if (!sc.isConnected) return;
+    var dt = Math.min(0.1, (now - lastT) / 1000); lastT = now;
+    var hh = sc.clientHeight, kz = Math.max(1, sc.clientWidth / Math.max(1, hh) / 1.79), loopW = hh * kz * LOOP_AR;
+    curV += (tgtV - curV) * Math.min(1, dt * 3);
+    off = (off + curV * hh * kz * dt) % loopW;
+    sc.style.backgroundSize = 'auto ' + (kz * 100) + '%';
+    sc.style.backgroundPosition = (-off) + 'px 100%';
+    requestAnimationFrame(scrollLoop);
+  })(lastT);
   function dash(c) { c.classList.remove('dash'); void c.offsetWidth; c.classList.add('dash'); setTimeout(function () { c.classList.remove('dash'); }, 950); }
   api.setPlayers = function (list) {
     var keep = {}; list.forEach(function (p) { keep[p.uid] = 1; });
@@ -505,6 +518,7 @@ export function mountScene(box, mini) {
     var zone = ctx.phase === 'zone' || ctx.phase === 'zoneres';
     robot.style.left = (zone ? -30 : -4 + Math.min(ctx.frac, 1) * 40) + '%';
     robot.classList.toggle('near', !zone && ctx.frac > .7);
+    tgtV = (zone || !motionOn) ? 0 : 0.55 + 0.6 * Math.min(1, ctx.frac || 0);          /* 場面の高さ×この値 ／秒 で道が流れる */
     sc.style.setProperty('--danger', zone ? 0 : Math.max(0, Math.min(1, (ctx.frac - .35) / .65)));
     zl.textContent = '';
     /* 通路の絵の「床」が、場面の縦のどこにあるか（絵は 16:9 で下に寄せて拡大。横長の場面ほど上が切れて、床が広く見える） */
