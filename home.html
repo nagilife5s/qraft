@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ja" data-bg="pop">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Qraft 家庭練習</title>
+<link rel="icon" type="image/png" href="img/favicon-32.png">
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+<link rel="stylesheet" href="theme.css?v=20261022142911">
+<style>
+  .hm { width:min(46em,100%); margin:0 auto; display:flex; flex-direction:column; gap:.8em; min-height:0; }
+  .hm .row { display:flex; flex-wrap:wrap; gap:.5em; align-items:center; }
+  .hm select.field { font-size:1.2em; width:auto; }
+  .hm .list { overflow:auto; display:flex; flex-direction:column; gap:.4em; min-height:0; max-height:46vh; }
+  .hm .item { display:flex; align-items:center; gap:.7em; background:#fff; color:var(--ink-dark); border:0; border-radius:.8em; padding:.6em .9em; font:inherit; font-weight:800; text-align:left; cursor:pointer; box-shadow:var(--shadow); }
+  .hm .item small { margin-left:auto; opacity:.7; white-space:nowrap; }
+  .hm .item .tag { font-size:.75em; background:#eee; border-radius:999px; padding:.1em .6em; }
+  .fb { text-align:center; font-weight:900; font-size:1.5em; min-height:2.4em; }
+  .fb.ok { color:#8bf0b0; } .fb.ng { color:#ffd23f; }
+  .wrongline { background:rgba(255,255,255,.95); color:var(--ink-dark); border-radius:.7em; padding:.5em .9em; font-weight:800; text-align:left; margin-top:.3em; }
+  .hist { font-size:.95em; }
+  .hist table { border-collapse:collapse; width:100%; background:#fff; color:var(--ink-dark); border-radius:.6em; overflow:hidden; }
+  .hist td, .hist th { padding:.3em .6em; text-align:left; }
+  .hist th { background:#eee; }
+  .stu-tiles .tile.right-ans { outline:.2em solid #8bf0b0; }
+  .stu-tiles .tile.wrong-pick { outline:.2em solid #ff5a5a; opacity:.6; }
+  .scr { overflow:auto; }
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- 本人確認 -->
+<section class="screen" id="s-id">
+  <div class="center" style="flex:1; display:flex; flex-direction:column; gap:1em">
+    <img class="logo-img" src="img/logo-wordmark.webp" alt="Qraft" style="height:6.4em">
+    <div style="font-weight:900; font-size:1.8em">おうちで 練習</div>
+    <div class="joincol">
+      <div class="flabel">学年</div>
+      <div class="row" id="idG"></div>
+      <div class="flabel">クラス</div>
+      <div class="row" id="idC"></div>
+      <div class="flabel">出席番号</div>
+      <select class="field" id="idN"></select>
+      <button class="btn" id="btnId" style="margin-top:.4em">はじめる</button>
+      <div class="mut" style="font-size:.9em">練習の結果は、先生が見られます（名前は出ません。学年・クラス・番号だけ）。</div>
+    </div>
+  </div>
+</section>
+
+<!-- セット選び -->
+<section class="screen" id="s-pick">
+  <div class="hm">
+    <div class="stu-top"><span class="pill" id="who"></span><button class="btn ghost" id="btnWho">本人確認をやり直す</button></div>
+    <div style="font-weight:900; font-size:1.6em">練習するセットを えらぼう</div>
+    <div class="row" id="gradeRow"></div>
+    <div class="row" id="unitRow"></div>
+    <input class="field" id="setFilter" placeholder="題名で さがす" autocomplete="off" style="font-size:1.2em">
+    <div class="list" id="setList"></div>
+    <div class="row">
+      <span style="font-weight:800">問題数</span>
+      <select class="field" id="cnt"><option value="10">10問</option><option value="20">20問</option><option value="0">ぜんぶ</option></select>
+    </div>
+    <div class="hist hide" id="histBox"><div style="font-weight:900; margin-bottom:.3em">このたんまつの さいきんの記録</div><div id="hist"></div></div>
+  </div>
+</section>
+
+<!-- 出題 -->
+<section class="screen" id="s-q">
+  <div class="stu-top"><span class="pill" id="qno"></span><span class="pill" id="qset" style="background:var(--pop1)"></span></div>
+  <div class="stu-q" id="sq"><img id="sqimg" class="qimg hide" alt=""><span id="sqtext"></span></div>
+  <div class="stu-tiles" id="stiles"></div>
+  <div id="textbox" class="hide">
+    <input type="text" id="textAns" maxlength="40" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="send" placeholder="ここに答えを入力">
+    <div class="tnote" id="tnote"></div>
+  </div>
+  <div class="q-foot">
+    <button class="btn hide" id="btnSubmit">答える</button>
+    <div class="fb" id="fb"></div>
+    <button class="btn hide" id="btnNext">次へ</button>
+  </div>
+</section>
+
+<!-- 結果 -->
+<section class="screen" id="s-end">
+  <div class="confetti" id="conf-end"></div>
+  <div class="center" style="flex:1; display:flex; flex-direction:column; gap:.6em">
+    <div class="title2" style="font-size:2.4em">おつかれさま！</div>
+    <div class="card" style="min-width:16em">
+      <div class="mut" style="color:#5b5478; font-weight:800" id="endset"></div>
+      <div style="font-size:4.4em; font-weight:900; color:var(--bg2); line-height:1.1"><span id="endk">0</span><small style="font-size:.4em"> / <span id="endn">0</span> 問せいかい</small></div>
+      <div style="font-weight:900; font-size:1.2em" id="endmsg"></div>
+    </div>
+    <div class="mut" id="saveState"></div>
+    <div class="row" style="justify-content:center; display:flex; gap:.6em; flex-wrap:wrap">
+      <button class="btn hide" id="btnRetry">まちがえた問題を もう一度</button>
+      <button class="btn sub" id="btnAgain">おなじセットで もう一度</button>
+      <button class="btn sub" id="btnBack">セットをえらびなおす</button>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<script src="firebase-config.js?v=20261022142911"></script>
+<script type="module">
+import { signIn, db, ref, set, get, serverTimestamp, CHOICE_STYLE, shuffle, prepareQuestion, maskOf, isTextCorrect,
+         $, el, motionOn, showScreen, confetti, loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261022142911';
+import { push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+mountStage();
+
+var me = null;                    /* {g, c, n} */
+var SETS = [], gradeSel = 0, unitSel = '';
+var run = null;                   /* {id, title, qs:[{src, p}], order:[...], pos, ok, wrong:[番号], answered} */
+var selMask = 0, locked = false;
+var GL = { 0: 'すべて', 1: '1年', 2: '2年', 3: '3年' };
+var store = { get: function (k) { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } },
+              set: function (k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
+
+function pill(text, on, onclick, field) { var b = el('button', 'pk' + (on ? ' on' : ''), text); b.type = 'button'; if (field) b.dataset.f = field; b.onclick = onclick; return b; }
+
+/* ------------------------------------------------------------ 起動 */
+(async function boot() {
+  var bgs = await loadBackgrounds(); applyBg('pop', bgs, true);
+  showScreen('s-id');
+  var N = $('idN'); for (var i = 1; i <= 40; i++) N.appendChild(new Option(i + ' 番', i));
+  var saved = store.get('qraft.home.me');
+  var g = saved ? saved.g : 0, c = saved ? saved.c : 0;
+  function drawId() {
+    var gr = $('idG'); gr.textContent = '';
+    [1, 2, 3].forEach(function (x) { gr.appendChild(pill(x + '年', g === x, function () { g = x; drawId(); })); });
+    var cr = $('idC'); cr.textContent = '';
+    [1, 2, 3, 4, 5, 6].forEach(function (x) { cr.appendChild(pill(x + '組', c === x, function () { c = x; drawId(); })); });
+  }
+  if (saved) N.value = saved.n;
+  drawId();
+  $('btnId').onclick = function () {
+    if (!g || !c) { alert('学年とクラスを選んでください'); return; }
+    me = { g: g, c: c, n: Number(N.value) }; store.set('qraft.home.me', me);
+    openPick();
+  };
+  $('btnWho').onclick = function () { showScreen('s-id'); };
+  try {
+    SETS = await (await fetch('home/index.json', { cache: 'no-cache' })).json();
+  } catch (e) { alert('問題の一覧を読めませんでした。ページを更新してください。'); }
+  signIn().catch(function () {});            /* 先に匿名ログインしておく（結果の送信に使う） */
+  if (saved && new URLSearchParams(location.search).get('go') !== '0' && saved.auto) { me = saved; openPick(); }
+})();
+
+function sid() { return me.g + '-' + me.c + '-' + me.n; }
+
+/* ------------------------------------------------------------ セット選び */
+function openPick() {
+  $('who').textContent = me.g + '年' + me.c + '組 ' + me.n + '番';
+  gradeSel = me.g; unitSel = '';
+  renderPicker(); showScreen('s-pick'); renderHist();
+}
+$('setFilter').addEventListener('input', renderList);
+
+function renderPicker() {
+  var gr = $('gradeRow'); gr.textContent = '';
+  [0, 1, 2, 3].forEach(function (g) {
+    var n = SETS.filter(function (s) { return !g || s.grade === g; }).length;
+    gr.appendChild(pill(GL[g] + '（' + n + '）', g === gradeSel, function () { gradeSel = g; unitSel = ''; renderPicker(); }));
+  });
+  var ur = $('unitRow'); ur.textContent = '';
+  var seen = {}, units = [];
+  SETS.filter(function (s) { return !gradeSel || s.grade === gradeSel; }).forEach(function (s) {
+    if (!seen[s.unit]) { seen[s.unit] = { unit: s.unit, uo: s.uo, g: s.grade, f: s.field, n: 0 }; units.push(seen[s.unit]); }
+    seen[s.unit].n++;
+  });
+  units.sort(function (a, b) { return a.uo - b.uo; });
+  ur.appendChild(pill('すべての単元', unitSel === '', function () { unitSel = ''; renderPicker(); }));
+  units.forEach(function (u) {
+    ur.appendChild(pill((gradeSel || !u.g ? '' : u.g + '年・') + u.unit + '（' + u.n + '）', unitSel === u.unit, function () { unitSel = u.unit; renderPicker(); }, u.f));
+  });
+  renderList();
+}
+
+function renderList() {
+  var f = $('setFilter').value.trim();
+  var best = store.get('qraft.home.best') || {};
+  var box = $('setList'); box.textContent = '';
+  SETS.filter(function (s) { return (!gradeSel || s.grade === gradeSel) && (!unitSel || s.unit === unitSel) && (!f || s.title.indexOf(f) >= 0); })
+    .forEach(function (s) {
+      var b = el('button', 'item'); b.type = 'button';
+      b.appendChild(el('span', '', s.title));
+      if (!unitSel) b.appendChild(el('span', 'tag', (s.grade ? s.grade + '年・' : '') + s.unit));
+      var bs = best[s.id];
+      b.appendChild(el('small', '', s.count + '問' + (bs ? '　ベスト ' + bs + '%' : '')));
+      b.onclick = function () { startSet(s); };
+      box.appendChild(b);
+    });
+  if (!box.firstChild) box.appendChild(el('div', 'mut', 'セットが見つかりません'));
+}
+
+function renderHist() {
+  var h = (store.get('qraft.home.hist') || []).filter(function (x) { return x.sid === sid(); }).slice(0, 5);
+  $('histBox').classList.toggle('hide', !h.length);
+  var t = el('table'); var hd = el('tr'); ['日時', 'セット', 'せいかい'].forEach(function (x) { hd.appendChild(el('th', '', x)); }); t.appendChild(hd);
+  h.forEach(function (x) {
+    var d = new Date(x.at), r = el('tr');
+    r.appendChild(el('td', '', (d.getMonth() + 1) + '/' + d.getDate() + ' ' + d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0')));
+    r.appendChild(el('td', '', x.title)); r.appendChild(el('td', '', x.k + ' / ' + x.n)); t.appendChild(r);
+  });
+  $('hist').textContent = ''; $('hist').appendChild(t);
+}
+
+/* ------------------------------------------------------------ 練習 */
+var cur = null;                    /* 選んだセット（読み込み済み） */
+async function startSet(s) {
+  try {
+    var d = await (await fetch('home/' + s.id + '.json')).json();
+    cur = { id: s.id, title: s.title, questions: d.questions };
+  } catch (e) { alert('問題を読めませんでした。もう一度ためしてください。'); return; }
+  var n = Number($('cnt').value) || cur.questions.length;
+  var idx = shuffle(cur.questions.map(function (_, i) { return i; })).slice(0, Math.min(n, cur.questions.length));
+  begin(idx, false);
+}
+function begin(idxList, isRetry) {
+  run = { id: cur.id, title: cur.title, list: idxList, pos: 0, ok: 0, wrong: [], retry: isRetry };
+  showQ();
+}
+
+function showQ() {
+  var qi = run.list[run.pos], src = cur.questions[qi];
+  var p = prepareQuestion(src, true);
+  run.p = p; run.src = src; selMask = 0; locked = false;
+  $('qno').textContent = '問題 ' + (run.pos + 1) + ' / ' + run.list.length;
+  $('qset').textContent = run.title.length > 18 ? run.title.slice(0, 18) + '…' : run.title;
+  $('sqtext').textContent = p.text;
+  var im = $('sqimg'); if (p.image) { im.src = p.image; im.classList.remove('hide'); } else im.classList.add('hide');
+  $('sq').classList.toggle('hasimg', !!p.image);
+  var isText = p.type === 'text';
+  var box = $('stiles'); box.textContent = ''; box.className = 'stu-tiles n' + p.choices.length; box.classList.toggle('hide', isText);
+  $('textbox').classList.toggle('hide', !isText);
+  p.choices.forEach(function (c, idx) {
+    var b = el('button', 'tile t' + idx);
+    b.appendChild(el('span', 'sh', CHOICE_STYLE[idx].shape));
+    if (c.image) { var i2 = el('img', 'ch-img'); i2.src = c.image; i2.alt = ''; b.appendChild(i2); }
+    if (c.t) b.appendChild(el('span', 'tx', c.t));
+    b.onclick = function () {
+      if (locked) return;
+      if (p.multi) { selMask ^= (1 << idx); b.classList.toggle('sel', !!(selMask & (1 << idx))); $('btnSubmit').disabled = !selMask; }
+      else judge(maskOf([idx]), null);
+    };
+    box.appendChild(b);
+  });
+  $('btnSubmit').classList.toggle('hide', !(p.multi || isText)); $('btnSubmit').disabled = true;
+  $('btnNext').classList.add('hide'); $('fb').textContent = ''; $('fb').className = 'fb';
+  if (p.multi) $('fb').textContent = 'あてはまるものを すべて選んで「答える」';
+  if (isText) {
+    var inp = $('textAns'); inp.value = ''; inp.disabled = false; inp.inputMode = p.numeric ? 'decimal' : 'text';
+    $('tnote').textContent = p.numeric ? '数字で答えてね' : '答えを打ち込んで、Enter か「答える」';
+    setTimeout(function () { inp.focus(); }, 300);
+  }
+  showScreen('s-q');
+}
+
+$('textAns').addEventListener('input', function () { $('btnSubmit').disabled = !this.value.trim(); });
+$('textAns').addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.isComposing && this.value.trim() && !locked) { e.preventDefault(); $('btnSubmit').click(); } });
+$('btnSubmit').onclick = function () {
+  if (locked) return;
+  if (run.p.type === 'text') judge(null, $('textAns').value.trim());
+  else if (selMask) judge(selMask, null);
+};
+$('btnNext').onclick = function () { run.pos++; if (run.pos >= run.list.length) finish(); else showQ(); };
+
+function judge(mask, text) {
+  locked = true;
+  var p = run.p, ok;
+  if (p.type === 'text') { ok = isTextCorrect(text, p.accept); $('textAns').disabled = true; }
+  else ok = mask === maskOf(p.correct);
+  document.querySelectorAll('#stiles .tile').forEach(function (b, i) {
+    b.style.pointerEvents = 'none';
+    var isC = p.correct.indexOf(i) >= 0, picked = !!(mask & (1 << i));
+    if (isC) b.classList.add('right-ans'); else if (picked) b.classList.add('wrong-pick');
+    if (!isC && !picked) b.classList.add('dim');
+  });
+  var fb = $('fb');
+  if (ok) {
+    run.ok++; fb.className = 'fb ok'; fb.textContent = '✓ せいかい！';
+  } else {
+    run.wrong.push(run.list[run.pos]); fb.className = 'fb ng';
+    fb.textContent = '✕ ざんねん… ' + (p.type === 'text' ? '正解は 「' + p.accept.slice(0, 3).join(' ／ ') + '」' : '');
+  }
+  $('btnSubmit').classList.add('hide');
+  var nb = $('btnNext'); nb.textContent = run.pos + 1 >= run.list.length ? '結果を見る' : '次へ'; nb.classList.remove('hide'); nb.focus();
+}
+
+/* ------------------------------------------------------------ 終了と保存 */
+async function finish() {
+  var n = run.list.length, k = run.ok;
+  $('endset').textContent = run.title + (run.retry ? '（やりなおし）' : '');
+  $('endk').textContent = k; $('endn').textContent = n;
+  var pct = Math.round(k / n * 100);
+  $('endmsg').textContent = pct === 100 ? '🎉 ぜんぶ正解！' : pct >= 80 ? 'すばらしい！' : pct >= 50 ? 'もうすこし！' : 'まちがえたところを やりなおそう';
+  $('btnRetry').classList.toggle('hide', !run.wrong.length);
+  showScreen('s-end'); if (pct >= 80) confetti($('conf-end'), 40);
+  if (!run.retry) {                         /* ベストは、通常の練習だけで更新 */
+    var best = store.get('qraft.home.best') || {}; if (!best[run.id] || best[run.id] < pct) best[run.id] = pct; store.set('qraft.home.best', best);
+  }
+  var h = store.get('qraft.home.hist') || [];
+  h.unshift({ sid: sid(), id: run.id, title: run.title, k: k, n: n, at: Date.now() }); store.set('qraft.home.hist', h.slice(0, 50));
+  $('saveState').textContent = '記録を送っています…';
+  try {
+    var u = await signIn();
+    await set(push(ref(db, 'practice/' + sid())), { f: run.id, n: n, k: k, w: run.wrong.map(function (i) { return i + 1; }).join(',').slice(0, 300), r: run.retry ? 1 : 0, t: serverTimestamp() });
+    $('saveState').textContent = '✓ 記録を先生に送りました';
+  } catch (e) {
+    $('saveState').textContent = '記録を送れませんでした（通信を確認してください）。';
+  }
+}
+$('btnRetry').onclick = function () { begin(shuffle(run.wrong.slice()), true); };
+$('btnAgain').onclick = function () {
+  var n = Number($('cnt').value) || cur.questions.length;
+  begin(shuffle(cur.questions.map(function (_, i) { return i; })).slice(0, Math.min(n, cur.questions.length)), false);
+};
+$('btnBack').onclick = function () { openPick(); };
+</script>
+</body>
+</html>

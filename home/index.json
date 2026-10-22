@@ -1,0 +1,1937 @@
+[
+ {
+  "title": "顕微鏡の部品の名前",
+  "count": 9,
+  "types": {
+   "choice": 0,
+   "multi": 0,
+   "text": 9
+  },
+  "grade": 1,
+  "unit": "分類",
+  "field": "生物",
+  "uo": 0,
+  "no": 0,
+  "id": "3642fe2b"
+ },
+ {
+  "title": "顕微鏡の使い方",
+  "count": 10,
+  "types": {
+   "choice": 3,
+   "multi": 0,
+   "text": 7
+  },
+  "grade": 1,
+  "unit": "分類",
+  "field": "生物",
+  "uo": 0,
+  "no": 1,
+  "id": "6fc9ec01"
+ },
+ {
+  "title": "【分類】被子植物の花のつくり",
+  "count": 11,
+  "types": {
+   "choice": 1,
+   "multi": 0,
+   "text": 10
+  },
+  "grade": 1,
+  "unit": "分類",
+  "field": "生物",
+  "uo": 0,
+  "no": 2,
+  "id": "8bea6755"
+ },
+ {
+  "title": "サクラとマツの比較",
+  "count": 6,
+  "types": {
+   "choice": 2,
+   "multi": 0,
+   "text": 4
+  },
+  "grade": 1,
+  "unit": "分類",
+  "field": "生物",
+  "uo": 0,
+  "no": 3,
+  "id": "b3d90836"
+ },
+ {
+  "title": "マツの花のつくり",
+  "count": 9,
+  "types": {
+   "choice": 2,
+   "multi": 1,
+   "text": 6
+  },
+  "grade": 1,
+  "unit": "分類",
+  "field": "生物",
+  "uo": 0,
+  "no": 4,
+  "id": "633feb7f"
+ },
+ {
+  "title": "シダ植物",
+  "count": 9,
+  "types": {
+   "choice": 4,
+   "multi": 1,
+   "text": 4
+  },
+  "grade": 1,
+  "unit": "分類",
+  "field": "生物",
+  "uo": 0,
+  "no": 5,
+  "id": "c32c576a"
+ },
+ {
+  "title": "ゼニゴケの特徴",
+  "count": 10,
+  "types": {
+   "choice": 5,
+   "multi": 0,
+   "text": 5
+  },
+  "grade": 1,
+  "unit": "分類",
+  "field": "生物",
+  "uo": 0,
+  "no": 6,
+  "id": "8aca394e"
+ },
+ {
+  "title": "【分類】植物の分類【一問一答】",
+  "count": 15,
+  "types": {
+   "choice": 0,
+   "multi": 0,
+   "text": 15
+  },
+  "grade": 1,
+  "unit": "分類",
+  "field": "生物",
+  "uo": 0,
+  "no": 7,
+  "id": "5fd0a764"
+ },
+ {
+  "title": "双子葉類と単子葉類",
+  "count": 10,
+  "types": {
+   "choice": 3,
+   "multi": 2,
+   "text": 5
+  },
+  "grade": 1,
+  "unit": "分類",
+  "field": "生物",
+  "uo": 0,
+  "no": 8,
+  "id": "539441f4"
+ },
+ {
+  "title": "植物の分類",
+  "count": 16,
+  "types": {
+   "choice": 16,
+   "multi": 0,
+   "text": 0
+  },
+  "grade": 1,
+  "unit": "分類",
+  "field": "生物",
+  "uo": 0,
+  "no": 9,
+  "id": "6260869c"
+ },
+ {
+  "title": "無セキツイ動物の特徴",
+  "count": 12,
+  "types": {
+   "choice": 0,
+   "multi": 4,
+   "text": 8
+  },
+  "grade": 1,
+  "unit": "分類",
+  "field": "生物",
+  "uo": 0,
+  "no": 10,
+  "id": "90ef54ec"
+ },
+ {
+  "title": "セキツイ動物の分類",
+  "count": 8,
+  "types": {
+   "choice": 7,
+   "multi": 1,
+   "text": 0
+  },
+  "grade": 1,
+  "unit": "分類",
+  "field": "生物",
+  "uo": 0,
+  "no": 11,
+  "id": "27b21044"
+ },
+ {
+  "title": "セキツイ動物の分類のしかた",
+  "count": 7,
+  "types": {
+   "choice": 0,
+   "multi": 0,
+   "text": 7
+  },
+  "grade": 1,
+  "unit": "分類",
+  "field": "生物",
+  "uo": 0,
+  "no": 12,
+  "id": "dca60f10"
+ },
+ {
+  "title": "火山",
+  "count": 14,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 7
+  },
+  "grade": 1,
+  "unit": "大地",
+  "field": "地学",
+  "uo": 1,
+  "no": 0,
+  "id": "c74a0ba6"
+ },
+ {
+  "title": "火成岩",
+  "count": 14,
+  "types": {
+   "choice": 2,
+   "multi": 0,
+   "text": 12
+  },
+  "grade": 1,
+  "unit": "大地",
+  "field": "地学",
+  "uo": 1,
+  "no": 1,
+  "id": "592a0f8b"
+ },
+ {
+  "title": "地震",
+  "count": 10,
+  "types": {
+   "choice": 0,
+   "multi": 0,
+   "text": 10
+  },
+  "grade": 1,
+  "unit": "大地",
+  "field": "地学",
+  "uo": 1,
+  "no": 2,
+  "id": "ff0f2291"
+ },
+ {
+  "title": "地震波",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "grade": 1,
+  "unit": "大地",
+  "field": "地学",
+  "uo": 1,
+  "no": 3,
+  "id": "3a1f8b07"
+ },
+ {
+  "title": "地震のしくみ",
+  "count": 13,
+  "types": {
+   "choice": 1,
+   "multi": 0,
+   "text": 12
+  },
+  "grade": 1,
+  "unit": "大地",
+  "field": "地学",
+  "uo": 1,
+  "no": 4,
+  "id": "7521b2cb"
+ },
+ {
+  "title": "火山の形・火山噴出物",
+  "count": 23,
+  "types": {
+   "choice": 23,
+   "multi": 0,
+   "text": 0
+  },
+  "grade": 1,
+  "unit": "大地",
+  "field": "地学",
+  "uo": 1,
+  "no": 99,
+  "id": "2d065973"
+ },
+ {
+  "title": "蒸留",
+  "count": 4,
+  "types": {
+   "choice": 3,
+   "multi": 0,
+   "text": 1
+  },
+  "grade": 1,
+  "unit": "物質",
+  "field": "化学",
+  "uo": 2,
+  "no": 13,
+  "id": "da080cb2"
+ },
+ {
+  "title": "凸レンズ",
+  "count": 11,
+  "types": {
+   "choice": 8,
+   "multi": 0,
+   "text": 3
+  },
+  "grade": 1,
+  "unit": "音・光・力",
+  "field": "物理",
+  "uo": 3,
+  "no": 0,
+  "id": "a0284cf8"
+ },
+ {
+  "title": "音",
+  "count": 16,
+  "types": {
+   "choice": 9,
+   "multi": 1,
+   "text": 6
+  },
+  "grade": 1,
+  "unit": "音・光・力",
+  "field": "物理",
+  "uo": 3,
+  "no": 1,
+  "id": "3afa3618"
+ },
+ {
+  "title": "力",
+  "count": 7,
+  "types": {
+   "choice": 5,
+   "multi": 0,
+   "text": 2
+  },
+  "grade": 1,
+  "unit": "音・光・力",
+  "field": "物理",
+  "uo": 3,
+  "no": 2,
+  "id": "5060b184"
+ },
+ {
+  "title": "バネののび",
+  "count": 6,
+  "types": {
+   "choice": 0,
+   "multi": 0,
+   "text": 6
+  },
+  "grade": 1,
+  "unit": "音・光・力",
+  "field": "物理",
+  "uo": 3,
+  "no": 3,
+  "id": "6152d91a"
+ },
+ {
+  "title": "力のつりあい",
+  "count": 9,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 3
+  },
+  "grade": 1,
+  "unit": "音・光・力",
+  "field": "物理",
+  "uo": 3,
+  "no": 4,
+  "id": "2e251098"
+ },
+ {
+  "title": "いろいろな力の種類",
+  "count": 13,
+  "types": {
+   "choice": 13,
+   "multi": 0,
+   "text": 0
+  },
+  "grade": 1,
+  "unit": "音・光・力",
+  "field": "物理",
+  "uo": 3,
+  "no": 99,
+  "id": "5edf2eb0"
+ },
+ {
+  "title": "力のはたらき",
+  "count": 16,
+  "types": {
+   "choice": 16,
+   "multi": 0,
+   "text": 0
+  },
+  "grade": 1,
+  "unit": "音・光・力",
+  "field": "物理",
+  "uo": 3,
+  "no": 99,
+  "id": "b8667338"
+ },
+ {
+  "title": "炭酸水素ナトリウムの加熱",
+  "count": 14,
+  "types": {
+   "choice": 9,
+   "multi": 0,
+   "text": 5
+  },
+  "grade": 2,
+  "unit": "化学変化",
+  "field": "化学",
+  "uo": 4,
+  "no": 0,
+  "id": "533f55f7"
+ },
+ {
+  "title": "酸化銀の加熱",
+  "count": 7,
+  "types": {
+   "choice": 1,
+   "multi": 1,
+   "text": 5
+  },
+  "grade": 2,
+  "unit": "化学変化",
+  "field": "化学",
+  "uo": 4,
+  "no": 1,
+  "id": "5ee2bd8c"
+ },
+ {
+  "title": "水の電気分解",
+  "count": 6,
+  "types": {
+   "choice": 3,
+   "multi": 1,
+   "text": 2
+  },
+  "grade": 2,
+  "unit": "化学変化",
+  "field": "化学",
+  "uo": 4,
+  "no": 2,
+  "id": "0974336b"
+ },
+ {
+  "title": "【化学】元素記号",
+  "count": 16,
+  "types": {
+   "choice": 0,
+   "multi": 0,
+   "text": 16
+  },
+  "grade": 2,
+  "unit": "化学変化",
+  "field": "化学",
+  "uo": 4,
+  "no": 3,
+  "id": "4a59e866"
+ },
+ {
+  "title": "【化学】原子の性質",
+  "count": 5,
+  "types": {
+   "choice": 0,
+   "multi": 1,
+   "text": 4
+  },
+  "grade": 2,
+  "unit": "化学変化",
+  "field": "化学",
+  "uo": 4,
+  "no": 4,
+  "id": "49bf5051"
+ },
+ {
+  "title": "【化学】単体・化合物",
+  "count": 10,
+  "types": {
+   "choice": 2,
+   "multi": 8,
+   "text": 0
+  },
+  "grade": 2,
+  "unit": "化学変化",
+  "field": "化学",
+  "uo": 4,
+  "no": 5,
+  "id": "23eb4168"
+ },
+ {
+  "title": "鉄と硫黄の加熱",
+  "count": 5,
+  "types": {
+   "choice": 2,
+   "multi": 0,
+   "text": 3
+  },
+  "grade": 2,
+  "unit": "化学変化",
+  "field": "化学",
+  "uo": 4,
+  "no": 6,
+  "id": "0babce4b"
+ },
+ {
+  "title": "【用語チェック】物質のなり立ちと化学変化",
+  "count": 15,
+  "types": {
+   "choice": 0,
+   "multi": 0,
+   "text": 15
+  },
+  "grade": 2,
+  "unit": "化学変化",
+  "field": "化学",
+  "uo": 4,
+  "no": 7,
+  "id": "db1632b8"
+ },
+ {
+  "title": "酸化",
+  "count": 13,
+  "types": {
+   "choice": 8,
+   "multi": 0,
+   "text": 5
+  },
+  "grade": 2,
+  "unit": "化学変化",
+  "field": "化学",
+  "uo": 4,
+  "no": 8,
+  "id": "9d3ef90e"
+ },
+ {
+  "title": "質量保存の法則",
+  "count": 7,
+  "types": {
+   "choice": 3,
+   "multi": 1,
+   "text": 3
+  },
+  "grade": 2,
+  "unit": "化学変化",
+  "field": "化学",
+  "uo": 4,
+  "no": 9,
+  "id": "e2b12a91"
+ },
+ {
+  "title": "酸素と銅の計算問題",
+  "count": 5,
+  "types": {
+   "choice": 1,
+   "multi": 0,
+   "text": 4
+  },
+  "grade": 2,
+  "unit": "化学変化",
+  "field": "化学",
+  "uo": 4,
+  "no": 10,
+  "id": "e13dda6c"
+ },
+ {
+  "title": "酸素とマグネシウムの計算問題",
+  "count": 6,
+  "types": {
+   "choice": 2,
+   "multi": 0,
+   "text": 4
+  },
+  "grade": 2,
+  "unit": "化学変化",
+  "field": "化学",
+  "uo": 4,
+  "no": 11,
+  "id": "2ce9143c"
+ },
+ {
+  "title": "還元",
+  "count": 7,
+  "types": {
+   "choice": 4,
+   "multi": 1,
+   "text": 2
+  },
+  "grade": 2,
+  "unit": "化学変化",
+  "field": "化学",
+  "uo": 4,
+  "no": 12,
+  "id": "ebde90b8"
+ },
+ {
+  "title": "マグネシウム・銅と酸素の計算問題（むずい）",
+  "count": 2,
+  "types": {
+   "choice": 0,
+   "multi": 0,
+   "text": 2
+  },
+  "grade": 2,
+  "unit": "化学変化",
+  "field": "化学",
+  "uo": 4,
+  "no": 13,
+  "id": "bc27ae8d"
+ },
+ {
+  "title": "化学変化と熱",
+  "count": 10,
+  "types": {
+   "choice": 6,
+   "multi": 1,
+   "text": 3
+  },
+  "grade": 2,
+  "unit": "化学変化",
+  "field": "化学",
+  "uo": 4,
+  "no": 14,
+  "id": "7fad5588"
+ },
+ {
+  "title": "乾湿計の使い方",
+  "count": 3,
+  "types": {
+   "choice": 2,
+   "multi": 0,
+   "text": 1
+  },
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 5,
+  "no": 0,
+  "id": "8cf91cbb"
+ },
+ {
+  "title": "気象のグラフ",
+  "count": 3,
+  "types": {
+   "choice": 3,
+   "multi": 0,
+   "text": 0
+  },
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 5,
+  "no": 1,
+  "id": "6e6c89e6"
+ },
+ {
+  "title": "圧力",
+  "count": 5,
+  "types": {
+   "choice": 3,
+   "multi": 0,
+   "text": 2
+  },
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 5,
+  "no": 2,
+  "id": "dd8ada07"
+ },
+ {
+  "title": "等圧線",
+  "count": 7,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 1
+  },
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 5,
+  "no": 3,
+  "id": "26724b2e"
+ },
+ {
+  "title": "気圧と風",
+  "count": 17,
+  "types": {
+   "choice": 15,
+   "multi": 0,
+   "text": 2
+  },
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 5,
+  "no": 4,
+  "id": "47392ae8"
+ },
+ {
+  "title": "凝結・露点・湿度",
+  "count": 7,
+  "types": {
+   "choice": 2,
+   "multi": 1,
+   "text": 4
+  },
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 5,
+  "no": 5,
+  "id": "0ff777ed"
+ },
+ {
+  "title": "前線のつくり",
+  "count": 13,
+  "types": {
+   "choice": 5,
+   "multi": 1,
+   "text": 7
+  },
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 5,
+  "no": 6,
+  "id": "39d31380"
+ },
+ {
+  "title": "前線の通過",
+  "count": 9,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 2
+  },
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 5,
+  "no": 7,
+  "id": "52178de3"
+ },
+ {
+  "title": "季節風",
+  "count": 3,
+  "types": {
+   "choice": 2,
+   "multi": 0,
+   "text": 1
+  },
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 5,
+  "no": 8,
+  "id": "4e71cf29"
+ },
+ {
+  "title": "海陸風",
+  "count": 6,
+  "types": {
+   "choice": 5,
+   "multi": 0,
+   "text": 1
+  },
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 5,
+  "no": 9,
+  "id": "12338840"
+ },
+ {
+  "title": "日本の天気",
+  "count": 29,
+  "types": {
+   "choice": 29,
+   "multi": 0,
+   "text": 0
+  },
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 5,
+  "no": 99,
+  "id": "88c37166"
+ },
+ {
+  "title": "気圧の変化",
+  "count": 10,
+  "types": {
+   "choice": 10,
+   "multi": 0,
+   "text": 0
+  },
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 5,
+  "no": 99,
+  "id": "041c00e6"
+ },
+ {
+  "title": "空気中に含まれる水分について",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 5,
+  "no": 99,
+  "id": "412f3514"
+ },
+ {
+  "title": "雲ができる理由",
+  "count": 5,
+  "types": {
+   "choice": 5,
+   "multi": 0,
+   "text": 0
+  },
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 5,
+  "no": 99,
+  "id": "cf5d8f6e"
+ },
+ {
+  "title": "飽和水蒸気量・凝結についての確認問題",
+  "count": 10,
+  "types": {
+   "choice": 10,
+   "multi": 0,
+   "text": 0
+  },
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 5,
+  "no": 99,
+  "id": "2555d1d9"
+ },
+ {
+  "title": "細胞のつくり",
+  "count": 8,
+  "types": {
+   "choice": 1,
+   "multi": 1,
+   "text": 6
+  },
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 6,
+  "no": 0,
+  "id": "39f6b818"
+ },
+ {
+  "title": "単細胞・多細胞生物",
+  "count": 10,
+  "types": {
+   "choice": 4,
+   "multi": 0,
+   "text": 6
+  },
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 6,
+  "no": 1,
+  "id": "9b0a3f2d"
+ },
+ {
+  "title": "植物のからだとはたらき",
+  "count": 9,
+  "types": {
+   "choice": 3,
+   "multi": 0,
+   "text": 6
+  },
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 6,
+  "no": 2,
+  "id": "c634923f"
+ },
+ {
+  "title": "光合成の基礎",
+  "count": 13,
+  "types": {
+   "choice": 5,
+   "multi": 1,
+   "text": 7
+  },
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 6,
+  "no": 3,
+  "id": "92a1344d"
+ },
+ {
+  "title": "光合成の実験",
+  "count": 8,
+  "types": {
+   "choice": 2,
+   "multi": 0,
+   "text": 6
+  },
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 6,
+  "no": 4,
+  "id": "71f459bc"
+ },
+ {
+  "title": "光合成（BTB溶液の問題）",
+  "count": 5,
+  "types": {
+   "choice": 4,
+   "multi": 0,
+   "text": 1
+  },
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 6,
+  "no": 5,
+  "id": "1902629c"
+ },
+ {
+  "title": "光合成と呼吸",
+  "count": 6,
+  "types": {
+   "choice": 5,
+   "multi": 1,
+   "text": 0
+  },
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 6,
+  "no": 6,
+  "id": "ca7cfec1"
+ },
+ {
+  "title": "維管束",
+  "count": 10,
+  "types": {
+   "choice": 6,
+   "multi": 1,
+   "text": 3
+  },
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 6,
+  "no": 7,
+  "id": "6a2b4e66"
+ },
+ {
+  "title": "消化",
+  "count": 15,
+  "types": {
+   "choice": 0,
+   "multi": 5,
+   "text": 10
+  },
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 6,
+  "no": 8,
+  "id": "bafe44a7"
+ },
+ {
+  "title": "だ液の実験",
+  "count": 7,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 1
+  },
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 6,
+  "no": 9,
+  "id": "2f54f9b4"
+ },
+ {
+  "title": "呼気と吸気",
+  "count": 7,
+  "types": {
+   "choice": 6,
+   "multi": 1,
+   "text": 0
+  },
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 6,
+  "no": 10,
+  "id": "726e5edd"
+ },
+ {
+  "title": "呼吸",
+  "count": 10,
+  "types": {
+   "choice": 4,
+   "multi": 0,
+   "text": 6
+  },
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 6,
+  "no": 11,
+  "id": "e867956f"
+ },
+ {
+  "title": "血管",
+  "count": 12,
+  "types": {
+   "choice": 2,
+   "multi": 4,
+   "text": 6
+  },
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 6,
+  "no": 12,
+  "id": "4ffa28fe"
+ },
+ {
+  "title": "血液",
+  "count": 11,
+  "types": {
+   "choice": 4,
+   "multi": 1,
+   "text": 6
+  },
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 6,
+  "no": 13,
+  "id": "87292c6d"
+ },
+ {
+  "title": "排出",
+  "count": 7,
+  "types": {
+   "choice": 0,
+   "multi": 0,
+   "text": 7
+  },
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 6,
+  "no": 14,
+  "id": "4c48566a"
+ },
+ {
+  "title": "心臓",
+  "count": 9,
+  "types": {
+   "choice": 4,
+   "multi": 0,
+   "text": 5
+  },
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 6,
+  "no": 15,
+  "id": "1b24f6bc"
+ },
+ {
+  "title": "感覚器官",
+  "count": 8,
+  "types": {
+   "choice": 2,
+   "multi": 0,
+   "text": 6
+  },
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 6,
+  "no": 16,
+  "id": "98bae84a"
+ },
+ {
+  "title": "神経",
+  "count": 8,
+  "types": {
+   "choice": 2,
+   "multi": 1,
+   "text": 5
+  },
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 6,
+  "no": 17,
+  "id": "432ea9fc"
+ },
+ {
+  "title": "骨と筋肉",
+  "count": 4,
+  "types": {
+   "choice": 1,
+   "multi": 0,
+   "text": 3
+  },
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 6,
+  "no": 18,
+  "id": "04af1339"
+ },
+ {
+  "title": "からだ全体の血液の循環",
+  "count": 5,
+  "types": {
+   "choice": 3,
+   "multi": 2,
+   "text": 0
+  },
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 6,
+  "no": 19,
+  "id": "5e80bb9c"
+ },
+ {
+  "title": "静電気",
+  "count": 16,
+  "types": {
+   "choice": 15,
+   "multi": 0,
+   "text": 1
+  },
+  "grade": 2,
+  "unit": "電気",
+  "field": "物理",
+  "uo": 7,
+  "no": 0,
+  "id": "c4f5ff37"
+ },
+ {
+  "title": "電流の正体",
+  "count": 5,
+  "types": {
+   "choice": 2,
+   "multi": 0,
+   "text": 3
+  },
+  "grade": 2,
+  "unit": "電気",
+  "field": "物理",
+  "uo": 7,
+  "no": 1,
+  "id": "05ca1088"
+ },
+ {
+  "title": "電気の基本",
+  "count": 5,
+  "types": {
+   "choice": 1,
+   "multi": 0,
+   "text": 4
+  },
+  "grade": 2,
+  "unit": "電気",
+  "field": "物理",
+  "uo": 7,
+  "no": 2,
+  "id": "bbb73d10"
+ },
+ {
+  "title": "電流と電圧",
+  "count": 12,
+  "types": {
+   "choice": 4,
+   "multi": 0,
+   "text": 8
+  },
+  "grade": 2,
+  "unit": "電気",
+  "field": "物理",
+  "uo": 7,
+  "no": 3,
+  "id": "7bc6aac7"
+ },
+ {
+  "title": "オームの性質",
+  "count": 7,
+  "types": {
+   "choice": 1,
+   "multi": 0,
+   "text": 6
+  },
+  "grade": 2,
+  "unit": "電気",
+  "field": "物理",
+  "uo": 7,
+  "no": 4,
+  "id": "522e1adf"
+ },
+ {
+  "title": "電気抵抗",
+  "count": 5,
+  "types": {
+   "choice": 2,
+   "multi": 0,
+   "text": 3
+  },
+  "grade": 2,
+  "unit": "電気",
+  "field": "物理",
+  "uo": 7,
+  "no": 5,
+  "id": "3bb72b99"
+ },
+ {
+  "title": "時間の変化と発電",
+  "count": 5,
+  "types": {
+   "choice": 2,
+   "multi": 1,
+   "text": 2
+  },
+  "grade": 2,
+  "unit": "電気",
+  "field": "物理",
+  "uo": 7,
+  "no": 6,
+  "id": "fd6dd8fe"
+ },
+ {
+  "title": "電流が磁界から受ける力",
+  "count": 7,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 1
+  },
+  "grade": 2,
+  "unit": "電気",
+  "field": "物理",
+  "uo": 7,
+  "no": 7,
+  "id": "5bc7ea95"
+ },
+ {
+  "title": "磁界",
+  "count": 9,
+  "types": {
+   "choice": 6,
+   "multi": 1,
+   "text": 2
+  },
+  "grade": 2,
+  "unit": "電気",
+  "field": "物理",
+  "uo": 7,
+  "no": 8,
+  "id": "cc3c06e1"
+ },
+ {
+  "title": "電気製品の消費電力",
+  "count": 7,
+  "types": {
+   "choice": 2,
+   "multi": 0,
+   "text": 5
+  },
+  "grade": 2,
+  "unit": "電気",
+  "field": "物理",
+  "uo": 7,
+  "no": 99,
+  "id": "affd80fe"
+ },
+ {
+  "title": "電流と電圧とは？",
+  "count": 15,
+  "types": {
+   "choice": 15,
+   "multi": 0,
+   "text": 0
+  },
+  "grade": 2,
+  "unit": "電気",
+  "field": "物理",
+  "uo": 7,
+  "no": 99,
+  "id": "12eb6e77"
+ },
+ {
+  "title": "電流の単位変換",
+  "count": 15,
+  "types": {
+   "choice": 15,
+   "multi": 0,
+   "text": 0
+  },
+  "grade": 2,
+  "unit": "電気",
+  "field": "物理",
+  "uo": 7,
+  "no": 99,
+  "id": "ce073637"
+ },
+ {
+  "title": "【イオン】電気を流す物質",
+  "count": 5,
+  "types": {
+   "choice": 1,
+   "multi": 1,
+   "text": 3
+  },
+  "grade": 3,
+  "unit": "イオン",
+  "field": "化学",
+  "uo": 8,
+  "no": 0,
+  "id": "fe0c8882"
+ },
+ {
+  "title": "イオンの基礎",
+  "count": 12,
+  "types": {
+   "choice": 2,
+   "multi": 0,
+   "text": 10
+  },
+  "grade": 3,
+  "unit": "イオン",
+  "field": "化学",
+  "uo": 8,
+  "no": 1,
+  "id": "4ee95149"
+ },
+ {
+  "title": "【イオン】イオン式を選ぼう１",
+  "count": 12,
+  "types": {
+   "choice": 12,
+   "multi": 0,
+   "text": 0
+  },
+  "grade": 3,
+  "unit": "イオン",
+  "field": "化学",
+  "uo": 8,
+  "no": 2,
+  "id": "13ea0c6e"
+ },
+ {
+  "title": "【イオン】イオン式を選ぼう２",
+  "count": 12,
+  "types": {
+   "choice": 12,
+   "multi": 0,
+   "text": 0
+  },
+  "grade": 3,
+  "unit": "イオン",
+  "field": "化学",
+  "uo": 8,
+  "no": 3,
+  "id": "31bc46ec"
+ },
+ {
+  "title": "【イオン】イオン式を覚えよう【選択】",
+  "count": 12,
+  "types": {
+   "choice": 12,
+   "multi": 0,
+   "text": 0
+  },
+  "grade": 3,
+  "unit": "イオン",
+  "field": "化学",
+  "uo": 8,
+  "no": 4,
+  "id": "abca4ae5"
+ },
+ {
+  "title": "【イオン】イオン式を覚えよう【記述】",
+  "count": 12,
+  "types": {
+   "choice": 0,
+   "multi": 0,
+   "text": 12
+  },
+  "grade": 3,
+  "unit": "イオン",
+  "field": "化学",
+  "uo": 8,
+  "no": 5,
+  "id": "dfc9e7ef"
+ },
+ {
+  "title": "塩化銅水溶液の電気分解",
+  "count": 6,
+  "types": {
+   "choice": 3,
+   "multi": 1,
+   "text": 2
+  },
+  "grade": 3,
+  "unit": "イオン",
+  "field": "化学",
+  "uo": 8,
+  "no": 6,
+  "id": "06147353"
+ },
+ {
+  "title": "塩酸の電気分解",
+  "count": 7,
+  "types": {
+   "choice": 3,
+   "multi": 1,
+   "text": 3
+  },
+  "grade": 3,
+  "unit": "イオン",
+  "field": "化学",
+  "uo": 8,
+  "no": 7,
+  "id": "a98a378c"
+ },
+ {
+  "title": "指示薬の性質",
+  "count": 19,
+  "types": {
+   "choice": 18,
+   "multi": 0,
+   "text": 1
+  },
+  "grade": 3,
+  "unit": "イオン",
+  "field": "化学",
+  "uo": 8,
+  "no": 8,
+  "id": "e51401ce"
+ },
+ {
+  "title": "イオンの移動",
+  "count": 9,
+  "types": {
+   "choice": 4,
+   "multi": 0,
+   "text": 5
+  },
+  "grade": 3,
+  "unit": "イオン",
+  "field": "化学",
+  "uo": 8,
+  "no": 9,
+  "id": "781c5438"
+ },
+ {
+  "title": "液性は何性？",
+  "count": 5,
+  "types": {
+   "choice": 5,
+   "multi": 0,
+   "text": 0
+  },
+  "grade": 3,
+  "unit": "イオン",
+  "field": "化学",
+  "uo": 8,
+  "no": 10,
+  "id": "b49375b8"
+ },
+ {
+  "title": "酸とアルカリを混ぜると",
+  "count": 5,
+  "types": {
+   "choice": 2,
+   "multi": 0,
+   "text": 3
+  },
+  "grade": 3,
+  "unit": "イオン",
+  "field": "化学",
+  "uo": 8,
+  "no": 11,
+  "id": "27b462aa"
+ },
+ {
+  "title": "中和の問題【難】",
+  "count": 4,
+  "types": {
+   "choice": 4,
+   "multi": 0,
+   "text": 0
+  },
+  "grade": 3,
+  "unit": "イオン",
+  "field": "化学",
+  "uo": 8,
+  "no": 12,
+  "id": "c1c255c3"
+ },
+ {
+  "title": "ダニエル電池",
+  "count": 8,
+  "types": {
+   "choice": 4,
+   "multi": 3,
+   "text": 1
+  },
+  "grade": 3,
+  "unit": "イオン",
+  "field": "化学",
+  "uo": 8,
+  "no": 13,
+  "id": "56b287d5"
+ },
+ {
+  "title": "電池とイオン",
+  "count": 8,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 2
+  },
+  "grade": 3,
+  "unit": "イオン",
+  "field": "化学",
+  "uo": 8,
+  "no": 14,
+  "id": "3d35cf69"
+ },
+ {
+  "title": "電流を取り出すために必要な条件",
+  "count": 5,
+  "types": {
+   "choice": 3,
+   "multi": 2,
+   "text": 0
+  },
+  "grade": 3,
+  "unit": "イオン",
+  "field": "化学",
+  "uo": 8,
+  "no": 15,
+  "id": "03b77fcf"
+ },
+ {
+  "title": "金属イオンへのなりやすさ",
+  "count": 7,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 1
+  },
+  "grade": 3,
+  "unit": "イオン",
+  "field": "化学",
+  "uo": 8,
+  "no": 16,
+  "id": "3a588a35"
+ },
+ {
+  "title": "いろいろな電池",
+  "count": 7,
+  "types": {
+   "choice": 3,
+   "multi": 0,
+   "text": 4
+  },
+  "grade": 3,
+  "unit": "イオン",
+  "field": "化学",
+  "uo": 8,
+  "no": 17,
+  "id": "d5e1c10c"
+ },
+ {
+  "title": "仕事",
+  "count": 4,
+  "types": {
+   "choice": 1,
+   "multi": 0,
+   "text": 3
+  },
+  "grade": 3,
+  "unit": "エネルギー",
+  "field": "物理",
+  "uo": 9,
+  "no": 8,
+  "id": "673d05b3"
+ },
+ {
+  "title": "仕事の原理",
+  "count": 8,
+  "types": {
+   "choice": 3,
+   "multi": 0,
+   "text": 5
+  },
+  "grade": 3,
+  "unit": "エネルギー",
+  "field": "物理",
+  "uo": 9,
+  "no": 9,
+  "id": "afe70f41"
+ },
+ {
+  "title": "仕事率",
+  "count": 5,
+  "types": {
+   "choice": 1,
+   "multi": 0,
+   "text": 4
+  },
+  "grade": 3,
+  "unit": "エネルギー",
+  "field": "物理",
+  "uo": 9,
+  "no": 10,
+  "id": "fbb272b9"
+ },
+ {
+  "title": "熱の伝わり方",
+  "count": 13,
+  "types": {
+   "choice": 13,
+   "multi": 0,
+   "text": 0
+  },
+  "grade": 3,
+  "unit": "エネルギー",
+  "field": "物理",
+  "uo": 9,
+  "no": 99,
+  "id": "b5698249"
+ },
+ {
+  "title": "宇宙の基礎",
+  "count": 12,
+  "types": {
+   "choice": 0,
+   "multi": 0,
+   "text": 12
+  },
+  "grade": 3,
+  "unit": "天体",
+  "field": "地学",
+  "uo": 10,
+  "no": 0,
+  "id": "6bdb3105"
+ },
+ {
+  "title": "東西南北",
+  "count": 13,
+  "types": {
+   "choice": 13,
+   "multi": 0,
+   "text": 0
+  },
+  "grade": 3,
+  "unit": "天体",
+  "field": "地学",
+  "uo": 10,
+  "no": 1,
+  "id": "dd68365e"
+ },
+ {
+  "title": "天体の観測の基礎知識",
+  "count": 7,
+  "types": {
+   "choice": 4,
+   "multi": 0,
+   "text": 3
+  },
+  "grade": 3,
+  "unit": "天体",
+  "field": "地学",
+  "uo": 10,
+  "no": 2,
+  "id": "057984d7"
+ },
+ {
+  "title": "太陽の日周運動",
+  "count": 8,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 2
+  },
+  "grade": 3,
+  "unit": "天体",
+  "field": "地学",
+  "uo": 10,
+  "no": 3,
+  "id": "20539d9f"
+ },
+ {
+  "title": "星の日周運動",
+  "count": 7,
+  "types": {
+   "choice": 2,
+   "multi": 1,
+   "text": 4
+  },
+  "grade": 3,
+  "unit": "天体",
+  "field": "地学",
+  "uo": 10,
+  "no": 4,
+  "id": "1800cf6d"
+ },
+ {
+  "title": "星の年周運動",
+  "count": 5,
+  "types": {
+   "choice": 1,
+   "multi": 0,
+   "text": 4
+  },
+  "grade": 3,
+  "unit": "天体",
+  "field": "地学",
+  "uo": 10,
+  "no": 5,
+  "id": "f2e0c6c1"
+ },
+ {
+  "title": "四季の星座",
+  "count": 9,
+  "types": {
+   "choice": 8,
+   "multi": 0,
+   "text": 1
+  },
+  "grade": 3,
+  "unit": "天体",
+  "field": "地学",
+  "uo": 10,
+  "no": 6,
+  "id": "9345be12"
+ },
+ {
+  "title": "日食と月食",
+  "count": 6,
+  "types": {
+   "choice": 4,
+   "multi": 0,
+   "text": 2
+  },
+  "grade": 3,
+  "unit": "天体",
+  "field": "地学",
+  "uo": 10,
+  "no": 7,
+  "id": "c84de86a"
+ },
+ {
+  "title": "金星",
+  "count": 6,
+  "types": {
+   "choice": 2,
+   "multi": 2,
+   "text": 2
+  },
+  "grade": 3,
+  "unit": "天体",
+  "field": "地学",
+  "uo": 10,
+  "no": 8,
+  "id": "f51acf8d"
+ },
+ {
+  "title": "太陽",
+  "count": 20,
+  "types": {
+   "choice": 20,
+   "multi": 0,
+   "text": 0
+  },
+  "grade": 3,
+  "unit": "天体",
+  "field": "地学",
+  "uo": 10,
+  "no": 99,
+  "id": "32d6db10"
+ },
+ {
+  "title": "宇宙の基礎２",
+  "count": 11,
+  "types": {
+   "choice": 11,
+   "multi": 0,
+   "text": 0
+  },
+  "grade": 3,
+  "unit": "天体",
+  "field": "地学",
+  "uo": 10,
+  "no": 99,
+  "id": "06c5654b"
+ },
+ {
+  "title": "月の満ち欠け",
+  "count": 10,
+  "types": {
+   "choice": 10,
+   "multi": 0,
+   "text": 0
+  },
+  "grade": 3,
+  "unit": "天体",
+  "field": "地学",
+  "uo": 10,
+  "no": 99,
+  "id": "c38b6aec"
+ },
+ {
+  "title": "たまねぎの根の成長",
+  "count": 4,
+  "types": {
+   "choice": 3,
+   "multi": 0,
+   "text": 1
+  },
+  "grade": 3,
+  "unit": "遺伝",
+  "field": "生物",
+  "uo": 11,
+  "no": 0,
+  "id": "56e38c4b"
+ },
+ {
+  "title": "細胞分裂と染色体",
+  "count": 9,
+  "types": {
+   "choice": 3,
+   "multi": 0,
+   "text": 6
+  },
+  "grade": 3,
+  "unit": "遺伝",
+  "field": "生物",
+  "uo": 11,
+  "no": 1,
+  "id": "e390430d"
+ },
+ {
+  "title": "カエルの生殖",
+  "count": 8,
+  "types": {
+   "choice": 0,
+   "multi": 0,
+   "text": 8
+  },
+  "grade": 3,
+  "unit": "遺伝",
+  "field": "生物",
+  "uo": 11,
+  "no": 2,
+  "id": "f1d2d440"
+ },
+ {
+  "title": "進化の証拠",
+  "count": 9,
+  "types": {
+   "choice": 7,
+   "multi": 1,
+   "text": 1
+  },
+  "grade": 3,
+  "unit": "遺伝",
+  "field": "生物",
+  "uo": 11,
+  "no": 3,
+  "id": "9cdb9a10"
+ },
+ {
+  "title": "進化とは",
+  "count": 6,
+  "types": {
+   "choice": 1,
+   "multi": 1,
+   "text": 4
+  },
+  "grade": 3,
+  "unit": "遺伝",
+  "field": "生物",
+  "uo": 11,
+  "no": 4,
+  "id": "370f8b07"
+ },
+ {
+  "title": "減数分裂・遺伝の基礎知識",
+  "count": 8,
+  "types": {
+   "choice": 1,
+   "multi": 0,
+   "text": 7
+  },
+  "grade": 3,
+  "unit": "遺伝",
+  "field": "生物",
+  "uo": 11,
+  "no": 5,
+  "id": "19552206"
+ }
+]

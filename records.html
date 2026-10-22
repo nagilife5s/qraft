@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Qraft 家庭練習の記録</title>
+<link rel="icon" type="image/png" href="img/favicon-32.png">
+<style>
+  body { font-family:-apple-system,"Hiragino Kaku Gothic ProN",sans-serif; margin:0; background:#f6f4fb; color:#241c4a; }
+  main { max-width:62em; margin:0 auto; padding:1.2em 1em 4em; }
+  h1 { font-size:1.4em; } h2 { font-size:1.1em; margin-top:1.8em; }
+  button, select, input { font:inherit; padding:.45em .9em; border-radius:.5em; border:1px solid #bdb5de; background:#fff; cursor:pointer; }
+  button.main { background:#5b3fd6; color:#fff; border-color:#5b3fd6; font-weight:700; }
+  table { border-collapse:collapse; width:100%; background:#fff; margin-top:.6em; }
+  th, td { border:1px solid #ddd8ee; padding:.4em .7em; text-align:left; font-variant-numeric:tabular-nums; }
+  th { background:#ece8fa; position:sticky; top:0; }
+  tr.sum { cursor:pointer; } tr.sum:hover { background:#f3f0ff; }
+  tr.det td { background:#faf9fe; font-size:.92em; }
+  .bar { display:inline-block; height:.8em; background:#5b3fd6; border-radius:.4em; vertical-align:middle; }
+  .low { color:#b3261e; font-weight:700; }
+  .row { display:flex; flex-wrap:wrap; gap:.6em; align-items:center; margin:.6em 0; }
+  .note { background:#fff; border-radius:.6em; padding:.8em 1em; line-height:1.7; }
+  code { background:#eee; padding:.1em .4em; border-radius:.3em; word-break:break-all; }
+</style>
+</head>
+<body>
+<main>
+<h1>Qraft 家庭練習の記録（先生用）</h1>
+<div id="gate"></div>
+<div id="body" hidden>
+  <div class="row">
+    学年 <select id="fg"><option value="0">すべて</option><option>1</option><option>2</option><option>3</option></select>
+    クラス <select id="fc"><option value="0">すべて</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select>
+    期間 <select id="fd"><option value="0">すべて</option><option value="7">この7日</option><option value="30">この30日</option></select>
+    <button id="btnCsv">CSVを保存</button>
+    <button id="btnReload">読み込み直す</button>
+  </div>
+  <div id="meta"></div>
+  <h2>生徒ごと（行を押すと、練習の一覧）</h2>
+  <div style="overflow:auto"><table id="tbl"></table></div>
+  <h2>セットごと（よく練習されているセット・正答率の低いセット）</h2>
+  <div style="overflow:auto"><table id="tblSet"></table></div>
+  <h2>先生の端末を増やす</h2>
+  <div class="note">この端末のID: <code id="myUid"></code><br>
+    別の端末で開いたときに出るIDを、ここに入れて追加します。<br>
+    <input id="addUid" size="34" placeholder="追加する端末のID"> <button id="btnAdd">追加</button> <span id="addMsg"></span></div>
+</div>
+</main>
+
+<script src="firebase-config.js"></script>
+<script type="module">
+import { signIn, db, ref, set, get } from './lib.js';
+var $ = function (id) { return document.getElementById(id); };
+var uid = null, rows = [], titles = {}, open = {};
+
+function gate(html) { $('gate').innerHTML = html; }
+(async function boot() {
+  try { uid = (await signIn()).uid; } catch (e) { gate('<div class="note">ログインに失敗しました：' + e.message + '</div>'); return; }
+  $('myUid').textContent = uid;
+  try { (await (await fetch('home/index.json', { cache: 'no-cache' })).json()).forEach(function (s) { titles[s.id] = s.title; }); } catch (e) {}
+  await check();
+})();
+
+async function check() {
+  var admin = false;
+  try { admin = (await get(ref(db, 'admins/' + uid))).val() === true; } catch (e) {}
+  if (admin) { gate(''); $('body').hidden = false; load(); return; }
+  gate('<div class="note">この端末は、まだ先生として登録されていません。<br>' +
+    '<b>最初の1回だけ</b>、このボタンで登録できます（登録できるのは最初の1台。2台目以降は、登録済みの端末から追加します）。<br>' +
+    '<button class="main" id="btnClaim" style="margin-top:.6em">この端末を先生として登録する</button> <span id="claimMsg"></span></div>');
+  $('btnClaim').onclick = async function () {
+    try { await set(ref(db, 'admins/' + uid), true); check(); }
+    catch (e) { $('claimMsg').textContent = 'すでに別の端末が登録されています。登録済みの端末で、この端末のID（' + uid + '）を追加してください。'; }
+  };
+}
+
+async function load() {
+  $('meta').textContent = '読み込み中…';
+  var snap = await get(ref(db, 'practice'));
+  rows = [];
+  snap.forEach(function (stu) {
+    var p = stu.key.split('-');
+    stu.forEach(function (a) {
+      var v = a.val();
+      rows.push({ g: +p[0], c: +p[1], n: +p[2], sid: stu.key, f: v.f, nq: v.n, k: v.k, w: v.w || '', r: v.r ? 1 : 0, t: v.t });
+    });
+  });
+  render();
+}
+
+function filtered() {
+  var g = +$('fg').value, c = +$('fc').value, d = +$('fd').value, since = d ? Date.now() - d * 864e5 : 0;
+  return rows.filter(function (r) { return (!g || r.g === g) && (!c || r.c === c) && r.t >= since; });
+}
+function pct(k, n) { return n ? Math.round(k / n * 100) : 0; }
+function when(t) { var d = new Date(t); return (d.getMonth() + 1) + '/' + d.getDate() + ' ' + d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0'); }
+function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+
+function render() {
+  var rs = filtered();
+  $('meta').textContent = '練習 ' + rs.length + ' 回 ／ 生徒 ' + new Set(rs.map(function (r) { return r.sid; })).size + ' 人（全体 ' + rows.length + ' 回）';
+  var by = {};
+  rs.forEach(function (r) { (by[r.sid] = by[r.sid] || []).push(r); });
+  var ids = Object.keys(by).sort(function (a, b) { var x = a.split('-').map(Number), y = b.split('-').map(Number); return x[0] - y[0] || x[1] - y[1] || x[2] - y[2]; });
+  var h = '<tr><th>学年・組・番</th><th>回数</th><th>解いた問題</th><th>正答率</th><th>最後の練習</th></tr>';
+  ids.forEach(function (id) {
+    var a = by[id].sort(function (x, y) { return y.t - x.t; }), n = 0, k = 0;
+    a.forEach(function (r) { n += r.nq; k += r.k; });
+    var p = pct(k, n);
+    h += '<tr class="sum" data-id="' + id + '"><td>' + id.replace(/(\d)-(\d+)-(\d+)/, '$1年$2組 $3番') + '</td><td>' + a.length + '</td><td>' + n + '</td><td' + (p < 60 ? ' class="low"' : '') + '>' + p + '% <span class="bar" style="width:' + p * .6 + 'px"></span></td><td>' + when(a[0].t) + '</td></tr>';
+    if (open[id]) {
+      h += '<tr class="det"><td colspan="5">' + a.map(function (r) {
+        return when(r.t) + '　' + esc(titles[r.f] || r.f) + '　' + r.k + '/' + r.nq + (r.r ? '（やりなおし）' : '') + (r.w ? '　×問 ' + esc(r.w) : '');
+      }).join('<br>') + '</td></tr>';
+    }
+  });
+  $('tbl').innerHTML = h;
+  document.querySelectorAll('tr.sum').forEach(function (tr) { tr.onclick = function () { open[tr.dataset.id] = !open[tr.dataset.id]; render(); }; });
+
+  var bs = {};
+  rs.filter(function (r) { return !r.r; }).forEach(function (r) { var o = bs[r.f] = bs[r.f] || { t: 0, n: 0, k: 0 }; o.t++; o.n += r.nq; o.k += r.k; });
+  var hs = '<tr><th>セット</th><th>回数</th><th>正答率</th></tr>';
+  Object.keys(bs).sort(function (a, b) { return bs[b].t - bs[a].t; }).forEach(function (f) {
+    var p = pct(bs[f].k, bs[f].n);
+    hs += '<tr><td>' + esc(titles[f] || f) + '</td><td>' + bs[f].t + '</td><td' + (p < 60 ? ' class="low"' : '') + '>' + p + '%</td></tr>';
+  });
+  $('tblSet').innerHTML = hs;
+}
+['fg', 'fc', 'fd'].forEach(function (id) { $(id).onchange = render; });
+$('btnReload').onclick = load;
+$('btnCsv').onclick = function () {
+  var l = ['日時,学年,クラス,番号,セットID,セット,問題数,正解数,まちがえた問題番号,やりなおし'];
+  filtered().sort(function (a, b) { return a.t - b.t; }).forEach(function (r) {
+    var d = new Date(r.t), ds = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0') + ' ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+    l.push([ds, r.g, r.c, r.n, r.f, '"' + (titles[r.f] || '').replace(/"/g, '""') + '"', r.nq, r.k, '"' + r.w + '"', r.r].join(','));
+  });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob(['﻿' + l.join('\n')], { type: 'text/csv' }));
+  a.download = 'qraft-practice.csv'; a.click();
+};
+$('btnAdd').onclick = async function () {
+  var u = $('addUid').value.trim(); if (!u) return;
+  try { await set(ref(db, 'admins/' + u), true); $('addMsg').textContent = '追加しました'; } catch (e) { $('addMsg').textContent = '追加できませんでした'; }
+};
+</script>
+</body>
+</html>
