@@ -1,123 +1,19 @@
 [
  {
-  "file": "sets/5fd0a764.json",
-  "title": "【分類】植物の分類【一問一答】",
-  "count": 15,
+  "file": "sets/3642fe2b.json",
+  "title": "顕微鏡の部品の名前",
+  "count": 9,
   "types": {
    "choice": 0,
    "multi": 0,
-   "text": 15
+   "text": 9
   },
   "enc": true,
   "grade": 1,
-  "unit": "植物の分類",
+  "unit": "分類",
   "field": "生物",
-  "uo": 0
- },
- {
-  "file": "sets/8bea6755.json",
-  "title": "【分類】被子植物の花のつくり",
-  "count": 11,
-  "types": {
-   "choice": 1,
-   "multi": 0,
-   "text": 10
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "植物の分類",
-  "field": "生物",
-  "uo": 0
- },
- {
-  "file": "sets/b3d90836.json",
-  "title": "サクラとマツの比較",
-  "count": 6,
-  "types": {
-   "choice": 2,
-   "multi": 0,
-   "text": 4
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "植物の分類",
-  "field": "生物",
-  "uo": 0
- },
- {
-  "file": "sets/c32c576a.json",
-  "title": "シダ植物",
-  "count": 9,
-  "types": {
-   "choice": 4,
-   "multi": 1,
-   "text": 4
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "植物の分類",
-  "field": "生物",
-  "uo": 0
- },
- {
-  "file": "sets/8aca394e.json",
-  "title": "ゼニゴケの特徴",
-  "count": 10,
-  "types": {
-   "choice": 5,
-   "multi": 0,
-   "text": 5
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "植物の分類",
-  "field": "生物",
-  "uo": 0
- },
- {
-  "file": "sets/633feb7f.json",
-  "title": "マツの花のつくり",
-  "count": 9,
-  "types": {
-   "choice": 2,
-   "multi": 1,
-   "text": 6
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "植物の分類",
-  "field": "生物",
-  "uo": 0
- },
- {
-  "file": "sets/539441f4.json",
-  "title": "双子葉類と単子葉類",
-  "count": 10,
-  "types": {
-   "choice": 3,
-   "multi": 2,
-   "text": 5
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "植物の分類",
-  "field": "生物",
-  "uo": 0
- },
- {
-  "file": "sets/6260869c.json",
-  "title": "植物の分類",
-  "count": 16,
-  "types": {
-   "choice": 16,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "植物の分類",
-  "field": "生物",
-  "uo": 0
+  "uo": 0,
+  "no": 0
  },
  {
   "file": "sets/6fc9ec01.json",
@@ -130,54 +26,138 @@
   },
   "enc": true,
   "grade": 1,
-  "unit": "植物の分類",
+  "unit": "分類",
   "field": "生物",
-  "uo": 0
+  "uo": 0,
+  "no": 1
  },
  {
-  "file": "sets/3642fe2b.json",
-  "title": "顕微鏡の部品の名前",
-  "count": 9,
+  "file": "sets/8bea6755.json",
+  "title": "【分類】被子植物の花のつくり",
+  "count": 11,
   "types": {
-   "choice": 0,
+   "choice": 1,
    "multi": 0,
-   "text": 9
+   "text": 10
   },
   "enc": true,
   "grade": 1,
-  "unit": "植物の分類",
+  "unit": "分類",
   "field": "生物",
-  "uo": 0
+  "uo": 0,
+  "no": 2
  },
  {
-  "file": "sets/27b21044.json",
-  "title": "セキツイ動物の分類",
-  "count": 8,
+  "file": "sets/b3d90836.json",
+  "title": "サクラとマツの比較",
+  "count": 6,
   "types": {
-   "choice": 7,
+   "choice": 2,
+   "multi": 0,
+   "text": 4
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "分類",
+  "field": "生物",
+  "uo": 0,
+  "no": 3
+ },
+ {
+  "file": "sets/633feb7f.json",
+  "title": "マツの花のつくり",
+  "count": 9,
+  "types": {
+   "choice": 2,
    "multi": 1,
+   "text": 6
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "分類",
+  "field": "生物",
+  "uo": 0,
+  "no": 4
+ },
+ {
+  "file": "sets/c32c576a.json",
+  "title": "シダ植物",
+  "count": 9,
+  "types": {
+   "choice": 4,
+   "multi": 1,
+   "text": 4
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "分類",
+  "field": "生物",
+  "uo": 0,
+  "no": 5
+ },
+ {
+  "file": "sets/8aca394e.json",
+  "title": "ゼニゴケの特徴",
+  "count": 10,
+  "types": {
+   "choice": 5,
+   "multi": 0,
+   "text": 5
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "分類",
+  "field": "生物",
+  "uo": 0,
+  "no": 6
+ },
+ {
+  "file": "sets/5fd0a764.json",
+  "title": "【分類】植物の分類【一問一答】",
+  "count": 15,
+  "types": {
+   "choice": 0,
+   "multi": 0,
+   "text": 15
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "分類",
+  "field": "生物",
+  "uo": 0,
+  "no": 7
+ },
+ {
+  "file": "sets/539441f4.json",
+  "title": "双子葉類と単子葉類",
+  "count": 10,
+  "types": {
+   "choice": 3,
+   "multi": 2,
+   "text": 5
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "分類",
+  "field": "生物",
+  "uo": 0,
+  "no": 8
+ },
+ {
+  "file": "sets/6260869c.json",
+  "title": "植物の分類",
+  "count": 16,
+  "types": {
+   "choice": 16,
+   "multi": 0,
    "text": 0
   },
   "enc": true,
   "grade": 1,
-  "unit": "動物の分類",
+  "unit": "分類",
   "field": "生物",
-  "uo": 1
- },
- {
-  "file": "sets/dca60f10.json",
-  "title": "セキツイ動物の分類のしかた",
-  "count": 7,
-  "types": {
-   "choice": 0,
-   "multi": 0,
-   "text": 7
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "動物の分類",
-  "field": "生物",
-  "uo": 1
+  "uo": 0,
+  "no": 9
  },
  {
   "file": "sets/90ef54ec.json",
@@ -190,203 +170,42 @@
   },
   "enc": true,
   "grade": 1,
-  "unit": "動物の分類",
+  "unit": "分類",
   "field": "生物",
-  "uo": 1
+  "uo": 0,
+  "no": 10
  },
  {
-  "file": "chu1-mono.json",
-  "title": "中1 身のまわりの物質",
-  "count": 20,
-  "types": {
-   "choice": 20,
-   "multi": 0,
-   "text": 0
-  },
-  "grade": 1,
-  "unit": "身のまわりの物質",
-  "field": "化学",
-  "uo": 2
- },
- {
-  "file": "sets/da080cb2.json",
-  "title": "蒸留",
-  "count": 4,
-  "types": {
-   "choice": 3,
-   "multi": 0,
-   "text": 1
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "身のまわりの物質",
-  "field": "化学",
-  "uo": 2
- },
- {
-  "file": "sets/a0284cf8.json",
-  "title": "凸レンズ",
-  "count": 11,
-  "types": {
-   "choice": 8,
-   "multi": 0,
-   "text": 3
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "光と音",
-  "field": "物理",
-  "uo": 3
- },
- {
-  "file": "sets/3afa3618.json",
-  "title": "音",
-  "count": 16,
-  "types": {
-   "choice": 9,
-   "multi": 1,
-   "text": 6
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "光と音",
-  "field": "物理",
-  "uo": 3
- },
- {
-  "file": "sets/5edf2eb0.json",
-  "title": "いろいろな力の種類",
-  "count": 13,
-  "types": {
-   "choice": 13,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "力と圧力",
-  "field": "物理",
-  "uo": 4
- },
- {
-  "file": "sets/6152d91a.json",
-  "title": "バネののび",
-  "count": 6,
-  "types": {
-   "choice": 0,
-   "multi": 0,
-   "text": 6
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "力と圧力",
-  "field": "物理",
-  "uo": 4
- },
- {
-  "file": "sets/5060b184.json",
-  "title": "力",
-  "count": 7,
-  "types": {
-   "choice": 5,
-   "multi": 0,
-   "text": 2
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "力と圧力",
-  "field": "物理",
-  "uo": 4
- },
- {
-  "file": "sets/2e251098.json",
-  "title": "力のつりあい",
-  "count": 9,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 3
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "力と圧力",
-  "field": "物理",
-  "uo": 4
- },
- {
-  "file": "sets/b8667338.json",
-  "title": "力のはたらき",
-  "count": 16,
-  "types": {
-   "choice": 16,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "力と圧力",
-  "field": "物理",
-  "uo": 4
- },
- {
-  "file": "sets/dd8ada07.json",
-  "title": "圧力",
-  "count": 5,
-  "types": {
-   "choice": 3,
-   "multi": 0,
-   "text": 2
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "力と圧力",
-  "field": "物理",
-  "uo": 4
- },
- {
-  "file": "sets/ff0f2291.json",
-  "title": "地震",
-  "count": 10,
-  "types": {
-   "choice": 0,
-   "multi": 0,
-   "text": 10
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "大地の変化",
-  "field": "地学",
-  "uo": 5
- },
- {
-  "file": "sets/7521b2cb.json",
-  "title": "地震のしくみ",
-  "count": 13,
-  "types": {
-   "choice": 1,
-   "multi": 0,
-   "text": 12
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "大地の変化",
-  "field": "地学",
-  "uo": 5
- },
- {
-  "file": "sets/3a1f8b07.json",
-  "title": "地震波",
-  "count": 7,
+  "file": "sets/27b21044.json",
+  "title": "セキツイ動物の分類",
+  "count": 8,
   "types": {
    "choice": 7,
-   "multi": 0,
+   "multi": 1,
    "text": 0
   },
   "enc": true,
   "grade": 1,
-  "unit": "大地の変化",
-  "field": "地学",
-  "uo": 5
+  "unit": "分類",
+  "field": "生物",
+  "uo": 0,
+  "no": 11
+ },
+ {
+  "file": "sets/dca60f10.json",
+  "title": "セキツイ動物の分類のしかた",
+  "count": 7,
+  "types": {
+   "choice": 0,
+   "multi": 0,
+   "text": 7
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "分類",
+  "field": "生物",
+  "uo": 0,
+  "no": 12
  },
  {
   "file": "sets/c74a0ba6.json",
@@ -399,24 +218,10 @@
   },
   "enc": true,
   "grade": 1,
-  "unit": "大地の変化",
+  "unit": "大地",
   "field": "地学",
-  "uo": 5
- },
- {
-  "file": "sets/2d065973.json",
-  "title": "火山の形・火山噴出物",
-  "count": 23,
-  "types": {
-   "choice": 23,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "大地の変化",
-  "field": "地学",
-  "uo": 5
+  "uo": 1,
+  "no": 0
  },
  {
   "file": "sets/592a0f8b.json",
@@ -429,114 +234,202 @@
   },
   "enc": true,
   "grade": 1,
-  "unit": "大地の変化",
+  "unit": "大地",
   "field": "地学",
-  "uo": 5
+  "uo": 1,
+  "no": 1
  },
  {
-  "file": "sets/4a59e866.json",
-  "title": "【化学】元素記号",
-  "count": 16,
+  "file": "sets/ff0f2291.json",
+  "title": "地震",
+  "count": 10,
   "types": {
    "choice": 0,
    "multi": 0,
-   "text": 16
+   "text": 10
   },
   "enc": true,
-  "grade": 2,
-  "unit": "化学変化と原子・分子",
-  "field": "化学",
-  "uo": 6
+  "grade": 1,
+  "unit": "大地",
+  "field": "地学",
+  "uo": 1,
+  "no": 2
  },
  {
-  "file": "sets/23eb4168.json",
-  "title": "【化学】単体・化合物",
-  "count": 10,
+  "file": "sets/3a1f8b07.json",
+  "title": "地震波",
+  "count": 7,
   "types": {
-   "choice": 2,
-   "multi": 8,
+   "choice": 7,
+   "multi": 0,
    "text": 0
   },
   "enc": true,
-  "grade": 2,
-  "unit": "化学変化と原子・分子",
-  "field": "化学",
-  "uo": 6
+  "grade": 1,
+  "unit": "大地",
+  "field": "地学",
+  "uo": 1,
+  "no": 3
  },
  {
-  "file": "sets/49bf5051.json",
-  "title": "【化学】原子の性質",
-  "count": 5,
+  "file": "sets/7521b2cb.json",
+  "title": "地震のしくみ",
+  "count": 13,
   "types": {
-   "choice": 0,
-   "multi": 1,
-   "text": 4
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "化学変化と原子・分子",
-  "field": "化学",
-  "uo": 6
- },
- {
-  "file": "sets/db1632b8.json",
-  "title": "【用語チェック】物質のなり立ちと化学変化",
-  "count": 15,
-  "types": {
-   "choice": 0,
+   "choice": 1,
    "multi": 0,
-   "text": 15
+   "text": 12
   },
   "enc": true,
-  "grade": 2,
-  "unit": "化学変化と原子・分子",
-  "field": "化学",
-  "uo": 6
+  "grade": 1,
+  "unit": "大地",
+  "field": "地学",
+  "uo": 1,
+  "no": 4
  },
  {
-  "file": "sets/bc27ae8d.json",
-  "title": "マグネシウム・銅と酸素の計算問題（むずい）",
-  "count": 2,
+  "file": "sets/2d065973.json",
+  "title": "火山の形・火山噴出物",
+  "count": 23,
   "types": {
-   "choice": 0,
+   "choice": 23,
    "multi": 0,
-   "text": 2
+   "text": 0
   },
   "enc": true,
-  "grade": 2,
-  "unit": "化学変化と原子・分子",
-  "field": "化学",
-  "uo": 6
+  "grade": 1,
+  "unit": "大地",
+  "field": "地学",
+  "uo": 1,
+  "no": 99
  },
  {
-  "file": "sets/7fad5588.json",
-  "title": "化学変化と熱",
-  "count": 10,
+  "file": "sets/da080cb2.json",
+  "title": "蒸留",
+  "count": 4,
   "types": {
-   "choice": 6,
-   "multi": 1,
+   "choice": 3,
+   "multi": 0,
+   "text": 1
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "物質",
+  "field": "化学",
+  "uo": 2,
+  "no": 13
+ },
+ {
+  "file": "sets/a0284cf8.json",
+  "title": "凸レンズ",
+  "count": 11,
+  "types": {
+   "choice": 8,
+   "multi": 0,
    "text": 3
   },
   "enc": true,
-  "grade": 2,
-  "unit": "化学変化と原子・分子",
-  "field": "化学",
-  "uo": 6
+  "grade": 1,
+  "unit": "音・光・力",
+  "field": "物理",
+  "uo": 3,
+  "no": 0
  },
  {
-  "file": "sets/0974336b.json",
-  "title": "水の電気分解",
-  "count": 6,
+  "file": "sets/3afa3618.json",
+  "title": "音",
+  "count": 16,
   "types": {
-   "choice": 3,
+   "choice": 9,
    "multi": 1,
+   "text": 6
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "音・光・力",
+  "field": "物理",
+  "uo": 3,
+  "no": 1
+ },
+ {
+  "file": "sets/5060b184.json",
+  "title": "力",
+  "count": 7,
+  "types": {
+   "choice": 5,
+   "multi": 0,
    "text": 2
   },
   "enc": true,
-  "grade": 2,
-  "unit": "化学変化と原子・分子",
-  "field": "化学",
-  "uo": 6
+  "grade": 1,
+  "unit": "音・光・力",
+  "field": "物理",
+  "uo": 3,
+  "no": 2
+ },
+ {
+  "file": "sets/6152d91a.json",
+  "title": "バネののび",
+  "count": 6,
+  "types": {
+   "choice": 0,
+   "multi": 0,
+   "text": 6
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "音・光・力",
+  "field": "物理",
+  "uo": 3,
+  "no": 3
+ },
+ {
+  "file": "sets/2e251098.json",
+  "title": "力のつりあい",
+  "count": 9,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 3
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "音・光・力",
+  "field": "物理",
+  "uo": 3,
+  "no": 4
+ },
+ {
+  "file": "sets/5edf2eb0.json",
+  "title": "いろいろな力の種類",
+  "count": 13,
+  "types": {
+   "choice": 13,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "音・光・力",
+  "field": "物理",
+  "uo": 3,
+  "no": 99
+ },
+ {
+  "file": "sets/b8667338.json",
+  "title": "力のはたらき",
+  "count": 16,
+  "types": {
+   "choice": 16,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "音・光・力",
+  "field": "物理",
+  "uo": 3,
+  "no": 99
  },
  {
   "file": "sets/533f55f7.json",
@@ -549,54 +442,10 @@
   },
   "enc": true,
   "grade": 2,
-  "unit": "化学変化と原子・分子",
+  "unit": "化学変化",
   "field": "化学",
-  "uo": 6
- },
- {
-  "file": "sets/e2b12a91.json",
-  "title": "質量保存の法則",
-  "count": 7,
-  "types": {
-   "choice": 3,
-   "multi": 1,
-   "text": 3
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "化学変化と原子・分子",
-  "field": "化学",
-  "uo": 6
- },
- {
-  "file": "sets/ebde90b8.json",
-  "title": "還元",
-  "count": 7,
-  "types": {
-   "choice": 4,
-   "multi": 1,
-   "text": 2
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "化学変化と原子・分子",
-  "field": "化学",
-  "uo": 6
- },
- {
-  "file": "sets/9d3ef90e.json",
-  "title": "酸化",
-  "count": 13,
-  "types": {
-   "choice": 8,
-   "multi": 0,
-   "text": 5
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "化学変化と原子・分子",
-  "field": "化学",
-  "uo": 6
+  "uo": 4,
+  "no": 0
  },
  {
   "file": "sets/5ee2bd8c.json",
@@ -609,39 +458,74 @@
   },
   "enc": true,
   "grade": 2,
-  "unit": "化学変化と原子・分子",
+  "unit": "化学変化",
   "field": "化学",
-  "uo": 6
+  "uo": 4,
+  "no": 1
  },
  {
-  "file": "sets/2ce9143c.json",
-  "title": "酸素とマグネシウムの計算問題",
+  "file": "sets/0974336b.json",
+  "title": "水の電気分解",
   "count": 6,
   "types": {
-   "choice": 2,
-   "multi": 0,
-   "text": 4
+   "choice": 3,
+   "multi": 1,
+   "text": 2
   },
   "enc": true,
   "grade": 2,
-  "unit": "化学変化と原子・分子",
+  "unit": "化学変化",
   "field": "化学",
-  "uo": 6
+  "uo": 4,
+  "no": 2
  },
  {
-  "file": "sets/e13dda6c.json",
-  "title": "酸素と銅の計算問題",
+  "file": "sets/4a59e866.json",
+  "title": "【化学】元素記号",
+  "count": 16,
+  "types": {
+   "choice": 0,
+   "multi": 0,
+   "text": 16
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "化学変化",
+  "field": "化学",
+  "uo": 4,
+  "no": 3
+ },
+ {
+  "file": "sets/49bf5051.json",
+  "title": "【化学】原子の性質",
   "count": 5,
   "types": {
-   "choice": 1,
-   "multi": 0,
+   "choice": 0,
+   "multi": 1,
    "text": 4
   },
   "enc": true,
   "grade": 2,
-  "unit": "化学変化と原子・分子",
+  "unit": "化学変化",
   "field": "化学",
-  "uo": 6
+  "uo": 4,
+  "no": 4
+ },
+ {
+  "file": "sets/23eb4168.json",
+  "title": "【化学】単体・化合物",
+  "count": 10,
+  "types": {
+   "choice": 2,
+   "multi": 8,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "化学変化",
+  "field": "化学",
+  "uo": 4,
+  "no": 5
  },
  {
   "file": "sets/0babce4b.json",
@@ -654,58 +538,62 @@
   },
   "enc": true,
   "grade": 2,
-  "unit": "化学変化と原子・分子",
+  "unit": "化学変化",
   "field": "化学",
-  "uo": 6
+  "uo": 4,
+  "no": 6
  },
  {
-  "file": "sets/522e1adf.json",
-  "title": "オームの性質",
+  "file": "sets/db1632b8.json",
+  "title": "【用語チェック】物質のなり立ちと化学変化",
+  "count": 15,
+  "types": {
+   "choice": 0,
+   "multi": 0,
+   "text": 15
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "化学変化",
+  "field": "化学",
+  "uo": 4,
+  "no": 7
+ },
+ {
+  "file": "sets/9d3ef90e.json",
+  "title": "酸化",
+  "count": 13,
+  "types": {
+   "choice": 8,
+   "multi": 0,
+   "text": 5
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "化学変化",
+  "field": "化学",
+  "uo": 4,
+  "no": 8
+ },
+ {
+  "file": "sets/e2b12a91.json",
+  "title": "質量保存の法則",
   "count": 7,
   "types": {
-   "choice": 1,
-   "multi": 0,
-   "text": 6
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "電流とその利用",
-  "field": "物理",
-  "uo": 7
- },
- {
-  "file": "sets/fd6dd8fe.json",
-  "title": "時間の変化と発電",
-  "count": 5,
-  "types": {
-   "choice": 2,
+   "choice": 3,
    "multi": 1,
-   "text": 2
+   "text": 3
   },
   "enc": true,
   "grade": 2,
-  "unit": "電流とその利用",
-  "field": "物理",
-  "uo": 7
+  "unit": "化学変化",
+  "field": "化学",
+  "uo": 4,
+  "no": 9
  },
  {
-  "file": "sets/cc3c06e1.json",
-  "title": "磁界",
-  "count": 9,
-  "types": {
-   "choice": 6,
-   "multi": 1,
-   "text": 2
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "電流とその利用",
-  "field": "物理",
-  "uo": 7
- },
- {
-  "file": "sets/bbb73d10.json",
-  "title": "電気の基本",
+  "file": "sets/e13dda6c.json",
+  "title": "酸素と銅の計算問題",
   "count": 5,
   "types": {
    "choice": 1,
@@ -714,373 +602,62 @@
   },
   "enc": true,
   "grade": 2,
-  "unit": "電流とその利用",
-  "field": "物理",
-  "uo": 7
+  "unit": "化学変化",
+  "field": "化学",
+  "uo": 4,
+  "no": 10
  },
  {
-  "file": "sets/3bb72b99.json",
-  "title": "電気抵抗",
-  "count": 5,
-  "types": {
-   "choice": 2,
-   "multi": 0,
-   "text": 3
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "電流とその利用",
-  "field": "物理",
-  "uo": 7
- },
- {
-  "file": "sets/affd80fe.json",
-  "title": "電気製品の消費電力",
-  "count": 7,
-  "types": {
-   "choice": 2,
-   "multi": 0,
-   "text": 5
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "電流とその利用",
-  "field": "物理",
-  "uo": 7
- },
- {
-  "file": "sets/5bc7ea95.json",
-  "title": "電流が磁界から受ける力",
-  "count": 7,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 1
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "電流とその利用",
-  "field": "物理",
-  "uo": 7
- },
- {
-  "file": "sets/7bc6aac7.json",
-  "title": "電流と電圧",
-  "count": 12,
-  "types": {
-   "choice": 4,
-   "multi": 0,
-   "text": 8
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "電流とその利用",
-  "field": "物理",
-  "uo": 7
- },
- {
-  "file": "sets/12eb6e77.json",
-  "title": "電流と電圧とは？",
-  "count": 15,
-  "types": {
-   "choice": 15,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "電流とその利用",
-  "field": "物理",
-  "uo": 7
- },
- {
-  "file": "sets/ce073637.json",
-  "title": "電流の単位変換",
-  "count": 15,
-  "types": {
-   "choice": 15,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "電流とその利用",
-  "field": "物理",
-  "uo": 7
- },
- {
-  "file": "sets/05ca1088.json",
-  "title": "電流の正体",
-  "count": 5,
-  "types": {
-   "choice": 2,
-   "multi": 0,
-   "text": 3
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "電流とその利用",
-  "field": "物理",
-  "uo": 7
- },
- {
-  "file": "sets/c4f5ff37.json",
-  "title": "静電気",
-  "count": 16,
-  "types": {
-   "choice": 15,
-   "multi": 0,
-   "text": 1
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "電流とその利用",
-  "field": "物理",
-  "uo": 7
- },
- {
-  "file": "sets/5e80bb9c.json",
-  "title": "からだ全体の血液の循環",
-  "count": 5,
-  "types": {
-   "choice": 3,
-   "multi": 2,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "生物のからだのつくりとはたらき",
-  "field": "生物",
-  "uo": 8
- },
- {
-  "file": "sets/2f54f9b4.json",
-  "title": "だ液の実験",
-  "count": 7,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 1
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "生物のからだのつくりとはたらき",
-  "field": "生物",
-  "uo": 8
- },
- {
-  "file": "sets/ca7cfec1.json",
-  "title": "光合成と呼吸",
+  "file": "sets/2ce9143c.json",
+  "title": "酸素とマグネシウムの計算問題",
   "count": 6,
   "types": {
-   "choice": 5,
-   "multi": 1,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "生物のからだのつくりとはたらき",
-  "field": "生物",
-  "uo": 8
- },
- {
-  "file": "sets/92a1344d.json",
-  "title": "光合成の基礎",
-  "count": 13,
-  "types": {
-   "choice": 5,
-   "multi": 1,
-   "text": 7
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "生物のからだのつくりとはたらき",
-  "field": "生物",
-  "uo": 8
- },
- {
-  "file": "sets/71f459bc.json",
-  "title": "光合成の実験",
-  "count": 8,
-  "types": {
    "choice": 2,
    "multi": 0,
-   "text": 6
+   "text": 4
   },
   "enc": true,
   "grade": 2,
-  "unit": "生物のからだのつくりとはたらき",
-  "field": "生物",
-  "uo": 8
+  "unit": "化学変化",
+  "field": "化学",
+  "uo": 4,
+  "no": 11
  },
  {
-  "file": "sets/1902629c.json",
-  "title": "光合成（BTB溶液の問題）",
-  "count": 5,
-  "types": {
-   "choice": 4,
-   "multi": 0,
-   "text": 1
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "生物のからだのつくりとはたらき",
-  "field": "生物",
-  "uo": 8
- },
- {
-  "file": "sets/9b0a3f2d.json",
-  "title": "単細胞・多細胞生物",
-  "count": 10,
-  "types": {
-   "choice": 4,
-   "multi": 0,
-   "text": 6
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "生物のからだのつくりとはたらき",
-  "field": "生物",
-  "uo": 8
- },
- {
-  "file": "sets/e867956f.json",
-  "title": "呼吸",
-  "count": 10,
-  "types": {
-   "choice": 4,
-   "multi": 0,
-   "text": 6
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "生物のからだのつくりとはたらき",
-  "field": "生物",
-  "uo": 8
- },
- {
-  "file": "sets/726e5edd.json",
-  "title": "呼気と吸気",
+  "file": "sets/ebde90b8.json",
+  "title": "還元",
   "count": 7,
   "types": {
-   "choice": 6,
+   "choice": 4,
    "multi": 1,
-   "text": 0
+   "text": 2
   },
   "enc": true,
   "grade": 2,
-  "unit": "生物のからだのつくりとはたらき",
-  "field": "生物",
-  "uo": 8
+  "unit": "化学変化",
+  "field": "化学",
+  "uo": 4,
+  "no": 12
  },
  {
-  "file": "sets/1b24f6bc.json",
-  "title": "心臓",
-  "count": 9,
-  "types": {
-   "choice": 4,
-   "multi": 0,
-   "text": 5
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "生物のからだのつくりとはたらき",
-  "field": "生物",
-  "uo": 8
- },
- {
-  "file": "sets/98bae84a.json",
-  "title": "感覚器官",
-  "count": 8,
-  "types": {
-   "choice": 2,
-   "multi": 0,
-   "text": 6
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "生物のからだのつくりとはたらき",
-  "field": "生物",
-  "uo": 8
- },
- {
-  "file": "sets/4c48566a.json",
-  "title": "排出",
-  "count": 7,
+  "file": "sets/bc27ae8d.json",
+  "title": "マグネシウム・銅と酸素の計算問題（むずい）",
+  "count": 2,
   "types": {
    "choice": 0,
    "multi": 0,
-   "text": 7
+   "text": 2
   },
   "enc": true,
   "grade": 2,
-  "unit": "生物のからだのつくりとはたらき",
-  "field": "生物",
-  "uo": 8
+  "unit": "化学変化",
+  "field": "化学",
+  "uo": 4,
+  "no": 13
  },
  {
-  "file": "sets/c634923f.json",
-  "title": "植物のからだとはたらき",
-  "count": 9,
-  "types": {
-   "choice": 3,
-   "multi": 0,
-   "text": 6
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "生物のからだのつくりとはたらき",
-  "field": "生物",
-  "uo": 8
- },
- {
-  "file": "sets/bafe44a7.json",
-  "title": "消化",
-  "count": 15,
-  "types": {
-   "choice": 0,
-   "multi": 5,
-   "text": 10
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "生物のからだのつくりとはたらき",
-  "field": "生物",
-  "uo": 8
- },
- {
-  "file": "sets/432ea9fc.json",
-  "title": "神経",
-  "count": 8,
-  "types": {
-   "choice": 2,
-   "multi": 1,
-   "text": 5
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "生物のからだのつくりとはたらき",
-  "field": "生物",
-  "uo": 8
- },
- {
-  "file": "sets/39f6b818.json",
-  "title": "細胞のつくり",
-  "count": 8,
-  "types": {
-   "choice": 1,
-   "multi": 1,
-   "text": 6
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "生物のからだのつくりとはたらき",
-  "field": "生物",
-  "uo": 8
- },
- {
-  "file": "sets/6a2b4e66.json",
-  "title": "維管束",
+  "file": "sets/7fad5588.json",
+  "title": "化学変化と熱",
   "count": 10,
   "types": {
    "choice": 6,
@@ -1089,54 +666,10 @@
   },
   "enc": true,
   "grade": 2,
-  "unit": "生物のからだのつくりとはたらき",
-  "field": "生物",
-  "uo": 8
- },
- {
-  "file": "sets/87292c6d.json",
-  "title": "血液",
-  "count": 11,
-  "types": {
-   "choice": 4,
-   "multi": 1,
-   "text": 6
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "生物のからだのつくりとはたらき",
-  "field": "生物",
-  "uo": 8
- },
- {
-  "file": "sets/4ffa28fe.json",
-  "title": "血管",
-  "count": 12,
-  "types": {
-   "choice": 2,
-   "multi": 4,
-   "text": 6
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "生物のからだのつくりとはたらき",
-  "field": "生物",
-  "uo": 8
- },
- {
-  "file": "sets/04af1339.json",
-  "title": "骨と筋肉",
-  "count": 4,
-  "types": {
-   "choice": 1,
-   "multi": 0,
-   "text": 3
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "生物のからだのつくりとはたらき",
-  "field": "生物",
-  "uo": 8
+  "unit": "化学変化",
+  "field": "化学",
+  "uo": 4,
+  "no": 14
  },
  {
   "file": "sets/8cf91cbb.json",
@@ -1149,114 +682,10 @@
   },
   "enc": true,
   "grade": 2,
-  "unit": "気象とその変化",
+  "unit": "天気",
   "field": "地学",
-  "uo": 9
- },
- {
-  "file": "sets/0ff777ed.json",
-  "title": "凝結・露点・湿度",
-  "count": 7,
-  "types": {
-   "choice": 2,
-   "multi": 1,
-   "text": 4
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "気象とその変化",
-  "field": "地学",
-  "uo": 9
- },
- {
-  "file": "sets/39d31380.json",
-  "title": "前線のつくり",
-  "count": 13,
-  "types": {
-   "choice": 5,
-   "multi": 1,
-   "text": 7
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "気象とその変化",
-  "field": "地学",
-  "uo": 9
- },
- {
-  "file": "sets/52178de3.json",
-  "title": "前線の通過",
-  "count": 9,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 2
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "気象とその変化",
-  "field": "地学",
-  "uo": 9
- },
- {
-  "file": "sets/4e71cf29.json",
-  "title": "季節風",
-  "count": 3,
-  "types": {
-   "choice": 2,
-   "multi": 0,
-   "text": 1
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "気象とその変化",
-  "field": "地学",
-  "uo": 9
- },
- {
-  "file": "sets/88c37166.json",
-  "title": "日本の天気",
-  "count": 29,
-  "types": {
-   "choice": 29,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "気象とその変化",
-  "field": "地学",
-  "uo": 9
- },
- {
-  "file": "sets/47392ae8.json",
-  "title": "気圧と風",
-  "count": 17,
-  "types": {
-   "choice": 15,
-   "multi": 0,
-   "text": 2
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "気象とその変化",
-  "field": "地学",
-  "uo": 9
- },
- {
-  "file": "sets/041c00e6.json",
-  "title": "気圧の変化",
-  "count": 10,
-  "types": {
-   "choice": 10,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "気象とその変化",
-  "field": "地学",
-  "uo": 9
+  "uo": 5,
+  "no": 0
  },
  {
   "file": "sets/6e6c89e6.json",
@@ -1269,39 +698,26 @@
   },
   "enc": true,
   "grade": 2,
-  "unit": "気象とその変化",
+  "unit": "天気",
   "field": "地学",
-  "uo": 9
+  "uo": 5,
+  "no": 1
  },
  {
-  "file": "sets/12338840.json",
-  "title": "海陸風",
-  "count": 6,
+  "file": "sets/dd8ada07.json",
+  "title": "圧力",
+  "count": 5,
   "types": {
-   "choice": 5,
+   "choice": 3,
    "multi": 0,
-   "text": 1
+   "text": 2
   },
   "enc": true,
   "grade": 2,
-  "unit": "気象とその変化",
+  "unit": "天気",
   "field": "地学",
-  "uo": 9
- },
- {
-  "file": "sets/412f3514.json",
-  "title": "空気中に含まれる水分について",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "気象とその変化",
-  "field": "地学",
-  "uo": 9
+  "uo": 5,
+  "no": 2
  },
  {
   "file": "sets/26724b2e.json",
@@ -1314,9 +730,154 @@
   },
   "enc": true,
   "grade": 2,
-  "unit": "気象とその変化",
+  "unit": "天気",
   "field": "地学",
-  "uo": 9
+  "uo": 5,
+  "no": 3
+ },
+ {
+  "file": "sets/47392ae8.json",
+  "title": "気圧と風",
+  "count": 17,
+  "types": {
+   "choice": 15,
+   "multi": 0,
+   "text": 2
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 5,
+  "no": 4
+ },
+ {
+  "file": "sets/0ff777ed.json",
+  "title": "凝結・露点・湿度",
+  "count": 7,
+  "types": {
+   "choice": 2,
+   "multi": 1,
+   "text": 4
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 5,
+  "no": 5
+ },
+ {
+  "file": "sets/39d31380.json",
+  "title": "前線のつくり",
+  "count": 13,
+  "types": {
+   "choice": 5,
+   "multi": 1,
+   "text": 7
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 5,
+  "no": 6
+ },
+ {
+  "file": "sets/52178de3.json",
+  "title": "前線の通過",
+  "count": 9,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 2
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 5,
+  "no": 7
+ },
+ {
+  "file": "sets/4e71cf29.json",
+  "title": "季節風",
+  "count": 3,
+  "types": {
+   "choice": 2,
+   "multi": 0,
+   "text": 1
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 5,
+  "no": 8
+ },
+ {
+  "file": "sets/12338840.json",
+  "title": "海陸風",
+  "count": 6,
+  "types": {
+   "choice": 5,
+   "multi": 0,
+   "text": 1
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 5,
+  "no": 9
+ },
+ {
+  "file": "sets/88c37166.json",
+  "title": "日本の天気",
+  "count": 29,
+  "types": {
+   "choice": 29,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 5,
+  "no": 99
+ },
+ {
+  "file": "sets/041c00e6.json",
+  "title": "気圧の変化",
+  "count": 10,
+  "types": {
+   "choice": 10,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 5,
+  "no": 99
+ },
+ {
+  "file": "sets/412f3514.json",
+  "title": "空気中に含まれる水分について",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 5,
+  "no": 99
  },
  {
   "file": "sets/cf5d8f6e.json",
@@ -1329,9 +890,10 @@
   },
   "enc": true,
   "grade": 2,
-  "unit": "気象とその変化",
+  "unit": "天気",
   "field": "地学",
-  "uo": 9
+  "uo": 5,
+  "no": 99
  },
  {
   "file": "sets/2555d1d9.json",
@@ -1344,69 +906,522 @@
   },
   "enc": true,
   "grade": 2,
-  "unit": "気象とその変化",
+  "unit": "天気",
   "field": "地学",
-  "uo": 9
+  "uo": 5,
+  "no": 99
  },
  {
-  "file": "sets/dfc9e7ef.json",
-  "title": "【イオン】イオン式を覚えよう【記述】",
+  "file": "sets/39f6b818.json",
+  "title": "細胞のつくり",
+  "count": 8,
+  "types": {
+   "choice": 1,
+   "multi": 1,
+   "text": 6
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 6,
+  "no": 0
+ },
+ {
+  "file": "sets/9b0a3f2d.json",
+  "title": "単細胞・多細胞生物",
+  "count": 10,
+  "types": {
+   "choice": 4,
+   "multi": 0,
+   "text": 6
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 6,
+  "no": 1
+ },
+ {
+  "file": "sets/c634923f.json",
+  "title": "植物のからだとはたらき",
+  "count": 9,
+  "types": {
+   "choice": 3,
+   "multi": 0,
+   "text": 6
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 6,
+  "no": 2
+ },
+ {
+  "file": "sets/92a1344d.json",
+  "title": "光合成の基礎",
+  "count": 13,
+  "types": {
+   "choice": 5,
+   "multi": 1,
+   "text": 7
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 6,
+  "no": 3
+ },
+ {
+  "file": "sets/71f459bc.json",
+  "title": "光合成の実験",
+  "count": 8,
+  "types": {
+   "choice": 2,
+   "multi": 0,
+   "text": 6
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 6,
+  "no": 4
+ },
+ {
+  "file": "sets/1902629c.json",
+  "title": "光合成（BTB溶液の問題）",
+  "count": 5,
+  "types": {
+   "choice": 4,
+   "multi": 0,
+   "text": 1
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 6,
+  "no": 5
+ },
+ {
+  "file": "sets/ca7cfec1.json",
+  "title": "光合成と呼吸",
+  "count": 6,
+  "types": {
+   "choice": 5,
+   "multi": 1,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 6,
+  "no": 6
+ },
+ {
+  "file": "sets/6a2b4e66.json",
+  "title": "維管束",
+  "count": 10,
+  "types": {
+   "choice": 6,
+   "multi": 1,
+   "text": 3
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 6,
+  "no": 7
+ },
+ {
+  "file": "sets/bafe44a7.json",
+  "title": "消化",
+  "count": 15,
+  "types": {
+   "choice": 0,
+   "multi": 5,
+   "text": 10
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 6,
+  "no": 8
+ },
+ {
+  "file": "sets/2f54f9b4.json",
+  "title": "だ液の実験",
+  "count": 7,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 1
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 6,
+  "no": 9
+ },
+ {
+  "file": "sets/726e5edd.json",
+  "title": "呼気と吸気",
+  "count": 7,
+  "types": {
+   "choice": 6,
+   "multi": 1,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 6,
+  "no": 10
+ },
+ {
+  "file": "sets/e867956f.json",
+  "title": "呼吸",
+  "count": 10,
+  "types": {
+   "choice": 4,
+   "multi": 0,
+   "text": 6
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 6,
+  "no": 11
+ },
+ {
+  "file": "sets/4ffa28fe.json",
+  "title": "血管",
   "count": 12,
+  "types": {
+   "choice": 2,
+   "multi": 4,
+   "text": 6
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 6,
+  "no": 12
+ },
+ {
+  "file": "sets/87292c6d.json",
+  "title": "血液",
+  "count": 11,
+  "types": {
+   "choice": 4,
+   "multi": 1,
+   "text": 6
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 6,
+  "no": 13
+ },
+ {
+  "file": "sets/4c48566a.json",
+  "title": "排出",
+  "count": 7,
   "types": {
    "choice": 0,
    "multi": 0,
-   "text": 12
+   "text": 7
   },
   "enc": true,
-  "grade": 3,
-  "unit": "化学変化とイオン",
-  "field": "化学",
-  "uo": 10
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 6,
+  "no": 14
  },
  {
-  "file": "sets/abca4ae5.json",
-  "title": "【イオン】イオン式を覚えよう【選択】",
+  "file": "sets/1b24f6bc.json",
+  "title": "心臓",
+  "count": 9,
+  "types": {
+   "choice": 4,
+   "multi": 0,
+   "text": 5
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 6,
+  "no": 15
+ },
+ {
+  "file": "sets/98bae84a.json",
+  "title": "感覚器官",
+  "count": 8,
+  "types": {
+   "choice": 2,
+   "multi": 0,
+   "text": 6
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 6,
+  "no": 16
+ },
+ {
+  "file": "sets/432ea9fc.json",
+  "title": "神経",
+  "count": 8,
+  "types": {
+   "choice": 2,
+   "multi": 1,
+   "text": 5
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 6,
+  "no": 17
+ },
+ {
+  "file": "sets/04af1339.json",
+  "title": "骨と筋肉",
+  "count": 4,
+  "types": {
+   "choice": 1,
+   "multi": 0,
+   "text": 3
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 6,
+  "no": 18
+ },
+ {
+  "file": "sets/5e80bb9c.json",
+  "title": "からだ全体の血液の循環",
+  "count": 5,
+  "types": {
+   "choice": 3,
+   "multi": 2,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 6,
+  "no": 19
+ },
+ {
+  "file": "sets/c4f5ff37.json",
+  "title": "静電気",
+  "count": 16,
+  "types": {
+   "choice": 15,
+   "multi": 0,
+   "text": 1
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "電気",
+  "field": "物理",
+  "uo": 7,
+  "no": 0
+ },
+ {
+  "file": "sets/05ca1088.json",
+  "title": "電流の正体",
+  "count": 5,
+  "types": {
+   "choice": 2,
+   "multi": 0,
+   "text": 3
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "電気",
+  "field": "物理",
+  "uo": 7,
+  "no": 1
+ },
+ {
+  "file": "sets/bbb73d10.json",
+  "title": "電気の基本",
+  "count": 5,
+  "types": {
+   "choice": 1,
+   "multi": 0,
+   "text": 4
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "電気",
+  "field": "物理",
+  "uo": 7,
+  "no": 2
+ },
+ {
+  "file": "sets/7bc6aac7.json",
+  "title": "電流と電圧",
   "count": 12,
   "types": {
-   "choice": 12,
+   "choice": 4,
+   "multi": 0,
+   "text": 8
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "電気",
+  "field": "物理",
+  "uo": 7,
+  "no": 3
+ },
+ {
+  "file": "sets/522e1adf.json",
+  "title": "オームの性質",
+  "count": 7,
+  "types": {
+   "choice": 1,
+   "multi": 0,
+   "text": 6
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "電気",
+  "field": "物理",
+  "uo": 7,
+  "no": 4
+ },
+ {
+  "file": "sets/3bb72b99.json",
+  "title": "電気抵抗",
+  "count": 5,
+  "types": {
+   "choice": 2,
+   "multi": 0,
+   "text": 3
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "電気",
+  "field": "物理",
+  "uo": 7,
+  "no": 5
+ },
+ {
+  "file": "sets/fd6dd8fe.json",
+  "title": "時間の変化と発電",
+  "count": 5,
+  "types": {
+   "choice": 2,
+   "multi": 1,
+   "text": 2
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "電気",
+  "field": "物理",
+  "uo": 7,
+  "no": 6
+ },
+ {
+  "file": "sets/5bc7ea95.json",
+  "title": "電流が磁界から受ける力",
+  "count": 7,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 1
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "電気",
+  "field": "物理",
+  "uo": 7,
+  "no": 7
+ },
+ {
+  "file": "sets/cc3c06e1.json",
+  "title": "磁界",
+  "count": 9,
+  "types": {
+   "choice": 6,
+   "multi": 1,
+   "text": 2
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "電気",
+  "field": "物理",
+  "uo": 7,
+  "no": 8
+ },
+ {
+  "file": "sets/affd80fe.json",
+  "title": "電気製品の消費電力",
+  "count": 7,
+  "types": {
+   "choice": 2,
+   "multi": 0,
+   "text": 5
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "電気",
+  "field": "物理",
+  "uo": 7,
+  "no": 99
+ },
+ {
+  "file": "sets/12eb6e77.json",
+  "title": "電流と電圧とは？",
+  "count": 15,
+  "types": {
+   "choice": 15,
    "multi": 0,
    "text": 0
   },
   "enc": true,
-  "grade": 3,
-  "unit": "化学変化とイオン",
-  "field": "化学",
-  "uo": 10
+  "grade": 2,
+  "unit": "電気",
+  "field": "物理",
+  "uo": 7,
+  "no": 99
  },
  {
-  "file": "sets/13ea0c6e.json",
-  "title": "【イオン】イオン式を選ぼう１",
-  "count": 12,
+  "file": "sets/ce073637.json",
+  "title": "電流の単位変換",
+  "count": 15,
   "types": {
-   "choice": 12,
+   "choice": 15,
    "multi": 0,
    "text": 0
   },
   "enc": true,
-  "grade": 3,
-  "unit": "化学変化とイオン",
-  "field": "化学",
-  "uo": 10
- },
- {
-  "file": "sets/31bc46ec.json",
-  "title": "【イオン】イオン式を選ぼう２",
-  "count": 12,
-  "types": {
-   "choice": 12,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "化学変化とイオン",
-  "field": "化学",
-  "uo": 10
+  "grade": 2,
+  "unit": "電気",
+  "field": "物理",
+  "uo": 7,
+  "no": 99
  },
  {
   "file": "sets/fe0c8882.json",
@@ -1419,24 +1434,10 @@
   },
   "enc": true,
   "grade": 3,
-  "unit": "化学変化とイオン",
+  "unit": "イオン",
   "field": "化学",
-  "uo": 10
- },
- {
-  "file": "sets/d5e1c10c.json",
-  "title": "いろいろな電池",
-  "count": 7,
-  "types": {
-   "choice": 3,
-   "multi": 0,
-   "text": 4
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "化学変化とイオン",
-  "field": "化学",
-  "uo": 10
+  "uo": 8,
+  "no": 0
  },
  {
   "file": "sets/4ee95149.json",
@@ -1449,54 +1450,74 @@
   },
   "enc": true,
   "grade": 3,
-  "unit": "化学変化とイオン",
+  "unit": "イオン",
   "field": "化学",
-  "uo": 10
+  "uo": 8,
+  "no": 1
  },
  {
-  "file": "sets/781c5438.json",
-  "title": "イオンの移動",
-  "count": 9,
+  "file": "sets/13ea0c6e.json",
+  "title": "【イオン】イオン式を選ぼう１",
+  "count": 12,
   "types": {
-   "choice": 4,
-   "multi": 0,
-   "text": 5
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "化学変化とイオン",
-  "field": "化学",
-  "uo": 10
- },
- {
-  "file": "sets/56b287d5.json",
-  "title": "ダニエル電池",
-  "count": 8,
-  "types": {
-   "choice": 4,
-   "multi": 3,
-   "text": 1
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "化学変化とイオン",
-  "field": "化学",
-  "uo": 10
- },
- {
-  "file": "sets/c1c255c3.json",
-  "title": "中和の問題【難】",
-  "count": 4,
-  "types": {
-   "choice": 4,
+   "choice": 12,
    "multi": 0,
    "text": 0
   },
   "enc": true,
   "grade": 3,
-  "unit": "化学変化とイオン",
+  "unit": "イオン",
   "field": "化学",
-  "uo": 10
+  "uo": 8,
+  "no": 2
+ },
+ {
+  "file": "sets/31bc46ec.json",
+  "title": "【イオン】イオン式を選ぼう２",
+  "count": 12,
+  "types": {
+   "choice": 12,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "イオン",
+  "field": "化学",
+  "uo": 8,
+  "no": 3
+ },
+ {
+  "file": "sets/abca4ae5.json",
+  "title": "【イオン】イオン式を覚えよう【選択】",
+  "count": 12,
+  "types": {
+   "choice": 12,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "イオン",
+  "field": "化学",
+  "uo": 8,
+  "no": 4
+ },
+ {
+  "file": "sets/dfc9e7ef.json",
+  "title": "【イオン】イオン式を覚えよう【記述】",
+  "count": 12,
+  "types": {
+   "choice": 0,
+   "multi": 0,
+   "text": 12
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "イオン",
+  "field": "化学",
+  "uo": 8,
+  "no": 5
  },
  {
   "file": "sets/06147353.json",
@@ -1509,9 +1530,10 @@
   },
   "enc": true,
   "grade": 3,
-  "unit": "化学変化とイオン",
+  "unit": "イオン",
   "field": "化学",
-  "uo": 10
+  "uo": 8,
+  "no": 6
  },
  {
   "file": "sets/a98a378c.json",
@@ -1524,9 +1546,10 @@
   },
   "enc": true,
   "grade": 3,
-  "unit": "化学変化とイオン",
+  "unit": "イオン",
   "field": "化学",
-  "uo": 10
+  "uo": 8,
+  "no": 7
  },
  {
   "file": "sets/e51401ce.json",
@@ -1539,9 +1562,26 @@
   },
   "enc": true,
   "grade": 3,
-  "unit": "化学変化とイオン",
+  "unit": "イオン",
   "field": "化学",
-  "uo": 10
+  "uo": 8,
+  "no": 8
+ },
+ {
+  "file": "sets/781c5438.json",
+  "title": "イオンの移動",
+  "count": 9,
+  "types": {
+   "choice": 4,
+   "multi": 0,
+   "text": 5
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "イオン",
+  "field": "化学",
+  "uo": 8,
+  "no": 9
  },
  {
   "file": "sets/b49375b8.json",
@@ -1554,9 +1594,10 @@
   },
   "enc": true,
   "grade": 3,
-  "unit": "化学変化とイオン",
+  "unit": "イオン",
   "field": "化学",
-  "uo": 10
+  "uo": 8,
+  "no": 10
  },
  {
   "file": "sets/27b462aa.json",
@@ -1569,24 +1610,42 @@
   },
   "enc": true,
   "grade": 3,
-  "unit": "化学変化とイオン",
+  "unit": "イオン",
   "field": "化学",
-  "uo": 10
+  "uo": 8,
+  "no": 11
  },
  {
-  "file": "sets/3a588a35.json",
-  "title": "金属イオンへのなりやすさ",
-  "count": 7,
+  "file": "sets/c1c255c3.json",
+  "title": "中和の問題【難】",
+  "count": 4,
   "types": {
-   "choice": 6,
+   "choice": 4,
    "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "イオン",
+  "field": "化学",
+  "uo": 8,
+  "no": 12
+ },
+ {
+  "file": "sets/56b287d5.json",
+  "title": "ダニエル電池",
+  "count": 8,
+  "types": {
+   "choice": 4,
+   "multi": 3,
    "text": 1
   },
   "enc": true,
   "grade": 3,
-  "unit": "化学変化とイオン",
+  "unit": "イオン",
   "field": "化学",
-  "uo": 10
+  "uo": 8,
+  "no": 13
  },
  {
   "file": "sets/3d35cf69.json",
@@ -1599,9 +1658,10 @@
   },
   "enc": true,
   "grade": 3,
-  "unit": "化学変化とイオン",
+  "unit": "イオン",
   "field": "化学",
-  "uo": 10
+  "uo": 8,
+  "no": 14
  },
  {
   "file": "sets/03b77fcf.json",
@@ -1614,99 +1674,42 @@
   },
   "enc": true,
   "grade": 3,
-  "unit": "化学変化とイオン",
+  "unit": "イオン",
   "field": "化学",
-  "uo": 10
+  "uo": 8,
+  "no": 15
  },
  {
-  "file": "sets/56e38c4b.json",
-  "title": "たまねぎの根の成長",
-  "count": 4,
+  "file": "sets/3a588a35.json",
+  "title": "金属イオンへのなりやすさ",
+  "count": 7,
   "types": {
-   "choice": 3,
+   "choice": 6,
    "multi": 0,
    "text": 1
   },
   "enc": true,
   "grade": 3,
-  "unit": "生命の連続性",
-  "field": "生物",
-  "uo": 11
+  "unit": "イオン",
+  "field": "化学",
+  "uo": 8,
+  "no": 16
  },
  {
-  "file": "sets/f1d2d440.json",
-  "title": "カエルの生殖",
-  "count": 8,
-  "types": {
-   "choice": 0,
-   "multi": 0,
-   "text": 8
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "生命の連続性",
-  "field": "生物",
-  "uo": 11
- },
- {
-  "file": "sets/19552206.json",
-  "title": "減数分裂・遺伝の基礎知識",
-  "count": 8,
-  "types": {
-   "choice": 1,
-   "multi": 0,
-   "text": 7
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "生命の連続性",
-  "field": "生物",
-  "uo": 11
- },
- {
-  "file": "sets/e390430d.json",
-  "title": "細胞分裂と染色体",
-  "count": 9,
+  "file": "sets/d5e1c10c.json",
+  "title": "いろいろな電池",
+  "count": 7,
   "types": {
    "choice": 3,
    "multi": 0,
-   "text": 6
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "生命の連続性",
-  "field": "生物",
-  "uo": 11
- },
- {
-  "file": "sets/370f8b07.json",
-  "title": "進化とは",
-  "count": 6,
-  "types": {
-   "choice": 1,
-   "multi": 1,
    "text": 4
   },
   "enc": true,
   "grade": 3,
-  "unit": "生命の連続性",
-  "field": "生物",
-  "uo": 11
- },
- {
-  "file": "sets/9cdb9a10.json",
-  "title": "進化の証拠",
-  "count": 9,
-  "types": {
-   "choice": 7,
-   "multi": 1,
-   "text": 1
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "生命の連続性",
-  "field": "生物",
-  "uo": 11
+  "unit": "イオン",
+  "field": "化学",
+  "uo": 8,
+  "no": 17
  },
  {
   "file": "sets/673d05b3.json",
@@ -1719,9 +1722,10 @@
   },
   "enc": true,
   "grade": 3,
-  "unit": "運動とエネルギー",
+  "unit": "エネルギー",
   "field": "物理",
-  "uo": 12
+  "uo": 9,
+  "no": 8
  },
  {
   "file": "sets/afe70f41.json",
@@ -1734,9 +1738,10 @@
   },
   "enc": true,
   "grade": 3,
-  "unit": "運動とエネルギー",
+  "unit": "エネルギー",
   "field": "物理",
-  "uo": 12
+  "uo": 9,
+  "no": 9
  },
  {
   "file": "sets/fbb272b9.json",
@@ -1749,9 +1754,10 @@
   },
   "enc": true,
   "grade": 3,
-  "unit": "運動とエネルギー",
+  "unit": "エネルギー",
   "field": "物理",
-  "uo": 12
+  "uo": 9,
+  "no": 10
  },
  {
   "file": "sets/b5698249.json",
@@ -1764,69 +1770,10 @@
   },
   "enc": true,
   "grade": 3,
-  "unit": "運動とエネルギー",
+  "unit": "エネルギー",
   "field": "物理",
-  "uo": 12
- },
- {
-  "file": "sets/9345be12.json",
-  "title": "四季の星座",
-  "count": 9,
-  "types": {
-   "choice": 8,
-   "multi": 0,
-   "text": 1
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "地球と宇宙",
-  "field": "地学",
-  "uo": 13
- },
- {
-  "file": "sets/057984d7.json",
-  "title": "天体の観測の基礎知識",
-  "count": 7,
-  "types": {
-   "choice": 4,
-   "multi": 0,
-   "text": 3
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "地球と宇宙",
-  "field": "地学",
-  "uo": 13
- },
- {
-  "file": "sets/32d6db10.json",
-  "title": "太陽",
-  "count": 20,
-  "types": {
-   "choice": 20,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "地球と宇宙",
-  "field": "地学",
-  "uo": 13
- },
- {
-  "file": "sets/20539d9f.json",
-  "title": "太陽の日周運動",
-  "count": 8,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 2
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "地球と宇宙",
-  "field": "地学",
-  "uo": 13
+  "uo": 9,
+  "no": 99
  },
  {
   "file": "sets/6bdb3105.json",
@@ -1839,84 +1786,10 @@
   },
   "enc": true,
   "grade": 3,
-  "unit": "地球と宇宙",
+  "unit": "天体",
   "field": "地学",
-  "uo": 13
- },
- {
-  "file": "sets/06c5654b.json",
-  "title": "宇宙の基礎２",
-  "count": 11,
-  "types": {
-   "choice": 11,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "地球と宇宙",
-  "field": "地学",
-  "uo": 13
- },
- {
-  "file": "sets/c84de86a.json",
-  "title": "日食と月食",
-  "count": 6,
-  "types": {
-   "choice": 4,
-   "multi": 0,
-   "text": 2
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "地球と宇宙",
-  "field": "地学",
-  "uo": 13
- },
- {
-  "file": "sets/f2e0c6c1.json",
-  "title": "星の年周運動",
-  "count": 5,
-  "types": {
-   "choice": 1,
-   "multi": 0,
-   "text": 4
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "地球と宇宙",
-  "field": "地学",
-  "uo": 13
- },
- {
-  "file": "sets/1800cf6d.json",
-  "title": "星の日周運動",
-  "count": 7,
-  "types": {
-   "choice": 2,
-   "multi": 1,
-   "text": 4
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "地球と宇宙",
-  "field": "地学",
-  "uo": 13
- },
- {
-  "file": "sets/c38b6aec.json",
-  "title": "月の満ち欠け",
-  "count": 10,
-  "types": {
-   "choice": 10,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "地球と宇宙",
-  "field": "地学",
-  "uo": 13
+  "uo": 10,
+  "no": 0
  },
  {
   "file": "sets/dd68365e.json",
@@ -1929,9 +1802,106 @@
   },
   "enc": true,
   "grade": 3,
-  "unit": "地球と宇宙",
+  "unit": "天体",
   "field": "地学",
-  "uo": 13
+  "uo": 10,
+  "no": 1
+ },
+ {
+  "file": "sets/057984d7.json",
+  "title": "天体の観測の基礎知識",
+  "count": 7,
+  "types": {
+   "choice": 4,
+   "multi": 0,
+   "text": 3
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "天体",
+  "field": "地学",
+  "uo": 10,
+  "no": 2
+ },
+ {
+  "file": "sets/20539d9f.json",
+  "title": "太陽の日周運動",
+  "count": 8,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 2
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "天体",
+  "field": "地学",
+  "uo": 10,
+  "no": 3
+ },
+ {
+  "file": "sets/1800cf6d.json",
+  "title": "星の日周運動",
+  "count": 7,
+  "types": {
+   "choice": 2,
+   "multi": 1,
+   "text": 4
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "天体",
+  "field": "地学",
+  "uo": 10,
+  "no": 4
+ },
+ {
+  "file": "sets/f2e0c6c1.json",
+  "title": "星の年周運動",
+  "count": 5,
+  "types": {
+   "choice": 1,
+   "multi": 0,
+   "text": 4
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "天体",
+  "field": "地学",
+  "uo": 10,
+  "no": 5
+ },
+ {
+  "file": "sets/9345be12.json",
+  "title": "四季の星座",
+  "count": 9,
+  "types": {
+   "choice": 8,
+   "multi": 0,
+   "text": 1
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "天体",
+  "field": "地学",
+  "uo": 10,
+  "no": 6
+ },
+ {
+  "file": "sets/c84de86a.json",
+  "title": "日食と月食",
+  "count": 6,
+  "types": {
+   "choice": 4,
+   "multi": 0,
+   "text": 2
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "天体",
+  "field": "地学",
+  "uo": 10,
+  "no": 7
  },
  {
   "file": "sets/f51acf8d.json",
@@ -1944,9 +1914,154 @@
   },
   "enc": true,
   "grade": 3,
-  "unit": "地球と宇宙",
+  "unit": "天体",
   "field": "地学",
-  "uo": 13
+  "uo": 10,
+  "no": 8
+ },
+ {
+  "file": "sets/32d6db10.json",
+  "title": "太陽",
+  "count": 20,
+  "types": {
+   "choice": 20,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "天体",
+  "field": "地学",
+  "uo": 10,
+  "no": 99
+ },
+ {
+  "file": "sets/06c5654b.json",
+  "title": "宇宙の基礎２",
+  "count": 11,
+  "types": {
+   "choice": 11,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "天体",
+  "field": "地学",
+  "uo": 10,
+  "no": 99
+ },
+ {
+  "file": "sets/c38b6aec.json",
+  "title": "月の満ち欠け",
+  "count": 10,
+  "types": {
+   "choice": 10,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "天体",
+  "field": "地学",
+  "uo": 10,
+  "no": 99
+ },
+ {
+  "file": "sets/56e38c4b.json",
+  "title": "たまねぎの根の成長",
+  "count": 4,
+  "types": {
+   "choice": 3,
+   "multi": 0,
+   "text": 1
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "遺伝",
+  "field": "生物",
+  "uo": 11,
+  "no": 0
+ },
+ {
+  "file": "sets/e390430d.json",
+  "title": "細胞分裂と染色体",
+  "count": 9,
+  "types": {
+   "choice": 3,
+   "multi": 0,
+   "text": 6
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "遺伝",
+  "field": "生物",
+  "uo": 11,
+  "no": 1
+ },
+ {
+  "file": "sets/f1d2d440.json",
+  "title": "カエルの生殖",
+  "count": 8,
+  "types": {
+   "choice": 0,
+   "multi": 0,
+   "text": 8
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "遺伝",
+  "field": "生物",
+  "uo": 11,
+  "no": 2
+ },
+ {
+  "file": "sets/9cdb9a10.json",
+  "title": "進化の証拠",
+  "count": 9,
+  "types": {
+   "choice": 7,
+   "multi": 1,
+   "text": 1
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "遺伝",
+  "field": "生物",
+  "uo": 11,
+  "no": 3
+ },
+ {
+  "file": "sets/370f8b07.json",
+  "title": "進化とは",
+  "count": 6,
+  "types": {
+   "choice": 1,
+   "multi": 1,
+   "text": 4
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "遺伝",
+  "field": "生物",
+  "uo": 11,
+  "no": 4
+ },
+ {
+  "file": "sets/19552206.json",
+  "title": "減数分裂・遺伝の基礎知識",
+  "count": 8,
+  "types": {
+   "choice": 1,
+   "multi": 0,
+   "text": 7
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "遺伝",
+  "field": "生物",
+  "uo": 11,
+  "no": 5
  },
  {
   "file": "sample-science.json",
@@ -1960,6 +2075,22 @@
   "grade": 0,
   "unit": "サンプル",
   "field": "",
-  "uo": 14
+  "uo": 90,
+  "no": 0
+ },
+ {
+  "file": "chu1-mono.json",
+  "title": "中1 身のまわりの物質",
+  "count": 20,
+  "types": {
+   "choice": 20,
+   "multi": 0,
+   "text": 0
+  },
+  "grade": 0,
+  "unit": "未分類",
+  "field": "",
+  "uo": 99,
+  "no": 0
  }
 ]
