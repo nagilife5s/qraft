@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>ボンバーマン モック</title>
-<link rel="stylesheet" href="theme.css?v=20261022190851">
+<link rel="stylesheet" href="theme.css?v=20261022191216">
 <style>
   #mockbar { position:fixed; bottom:.4em; left:50%; transform:translateX(-50%); z-index:50; display:flex; gap:.4em; flex-wrap:wrap; justify-content:center; background:rgba(0,0,0,.75); padding:.35em .6em; border-radius:999px; font-size:13px; max-width:96vw; }
   #mockbar button { font:inherit; font-weight:800; border:0; border-radius:999px; padding:.3em .9em; cursor:pointer; background:#fff; color:#222; }
@@ -14,13 +14,13 @@
   .bhud { display:flex; align-items:center; gap:.7em; flex-wrap:wrap; }
   .bhud .pill { font-weight:900; }
   .boards { flex:1; min-height:0; display:flex; align-items:center; justify-content:center; gap:1em; }
-  canvas { border-radius:.6em; box-shadow:var(--shadow); background:#d8b4e8; max-width:100%; }
+  canvas { max-width:100%; background:#e9d6f6; }
   .side { display:flex; flex-direction:column; gap:.4em; min-width:11em; }
   .row { display:flex; justify-content:space-between; gap:.6em; background:rgba(255,255,255,.9); color:var(--ink-dark); border-radius:.6em; padding:.25em .7em; font-weight:800; }
   .row.me { outline:.15em solid #ffd23f; }
   .grid7 { display:grid; grid-template-columns:repeat(4, 1fr); gap:.6em; width:100%; }
   .grid7 .cell { background:rgba(0,0,0,.35); border-radius:.6em; padding:.3em; color:#fff; font-size:.85em; font-weight:800; }
-  .grid7 canvas { width:100%; display:block; }
+  .grid7 .bframe { display:block; } .grid7 canvas { width:100%; display:block; }
   .pad { display:grid; grid-template-columns:repeat(3,3.2em); grid-template-rows:repeat(2,3.2em); gap:.3em; }
   .pad button, .bombbtn { font:inherit; font-size:1.3em; font-weight:900; border:0; border-radius:.6em; background:#fff; color:var(--ink-dark); box-shadow:var(--shadow); }
   .bombbtn { width:4.4em; height:4.4em; border-radius:50%; background:#ff5a5a; color:#fff; }
@@ -32,7 +32,7 @@
   <div class="deco"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
   <section class="screen on" id="v-stu" style="gap:.5em">
     <div class="bhud"><span class="pill" id="sT"></span><span class="pill" style="background:var(--pop1)" id="sS"></span><span class="hint" id="sHint">矢印キー（またはWASD）で動く ／ スペースで爆弾</span></div>
-    <div class="boards"><canvas id="cv"></canvas><div class="side"><div id="rank" style="display:flex;flex-direction:column;gap:.4em"></div>
+    <div class="boards"><div class="bframe"><canvas id="cv"></canvas></div><div class="side"><div id="rank" style="display:flex;flex-direction:column;gap:.4em"></div>
       <div class="pad" id="pad"><span></span><button data-d="1">▲</button><span></span><button data-d="3">◀</button><button data-d="2">▼</button><button data-d="4">▶</button></div>
       <button class="bombbtn" id="bb">💣</button></div></div>
   </section>
@@ -83,13 +83,13 @@ function tick() {
   });
 }
 var cv = $('cv'), ctx = cv.getContext('2d');
-function sizeCanvas() { var px = Math.min(innerWidth - 260, (innerHeight - 170) * W / H, 760); px = Math.max(260, Math.floor(px)); cv.width = px; cv.height = Math.floor(px / W * H); cv.style.width = px + 'px'; }
+function sizeCanvas() { var px = Math.min(innerWidth - 280, (innerHeight - 190) * W / H, 760); px = Math.max(260, Math.floor(px)); cv.width = px; cv.height = Math.floor(px / W * H); cv.style.width = px + 'px'; }
 function frame(now) {
   acc += (now - last) * speed; last = now;
   while (acc >= TICK_MS) { acc -= TICK_MS; tick(); }
   var g = games[0];
   if (view === 'stu') {
-    draw(ctx, g, cv.width, { me: me, emojis: EM });
+    draw(ctx, g, cv.width, { me: me, emojis: EM, names: NAMES });
     var left = Math.max(0, (RULE.length - g.t) / 10);
     $('sT').textContent = '残り ' + Math.ceil(left) + ' 秒'; $('sS').textContent = 'あなた ' + g.players[me].score + ' 点';
     var order = g.players.map(function (p, i) { return i; }).sort(function (a, b) { return g.players[b].score - g.players[a].score; });
@@ -105,7 +105,7 @@ function frame(now) {
 }
 function buildHost() {
   var box = $('g7'); box.textContent = '';
-  games.forEach(function (g, k) { var d = document.createElement('div'); d.className = 'cell'; d.innerHTML = 'グループ ' + (k + 1) + '　<span class="sc"></span>'; var c = document.createElement('canvas'); c.width = 260; c.height = Math.floor(260 / W * H); d.appendChild(c); box.appendChild(d); });
+  games.forEach(function (g, k) { var d = document.createElement('div'); d.className = 'cell'; d.innerHTML = 'グループ ' + (k + 1) + '　<span class="sc"></span>'; var fr = document.createElement('div'); fr.className = 'bframe mini'; var c = document.createElement('canvas'); c.width = 260; c.height = Math.floor(260 / W * H); fr.appendChild(c); d.appendChild(fr); box.appendChild(d); });
 }
 function show(v) { view = v; document.querySelectorAll('.screen').forEach(function (s) { s.classList.toggle('on', s.id === 'v-' + v); }); if (v === 'host') buildHost(); if (v === 'stu') sizeCanvas(); bar(); }
 function bar() {

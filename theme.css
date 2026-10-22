@@ -622,3 +622,8 @@ button.tile:disabled { cursor:default; }
 .avgrid.acc .avopt { font-size:1.3em; }
 .players .pill .avx { margin-right:.3em; font-size:1.2em; }
 .avhead .linkbtn { color:#fff; font-weight:800; text-decoration:underline; background:none; border:0; font:inherit; cursor:pointer; }
+
+/* ===== ボンバーマン盤面の枠（黄黒の注意ライン） ===== */
+.bframe { display:inline-block; padding:.45em; border-radius:1em; background:repeating-linear-gradient(135deg,#ffd23f 0 .9em,#2a1a40 .9em 1.8em); box-shadow:var(--shadow), 0 0 1.2em rgba(255,210,63,.35); line-height:0; }
+.bframe canvas { border-radius:.5em; box-shadow:inset 0 0 .6em rgba(0,0,0,.3); }
+.bframe.mini { padding:.25em; border-radius:.6em; }
