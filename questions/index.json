@@ -14,6 +14,12 @@
   "count": 8
  },
  {
+  "file": "sets/dfc9e7ef.json",
+  "title": "【イオン】イオン式を覚えよう【記述】",
+  "count": 12,
+  "enc": true
+ },
+ {
   "file": "sets/abca4ae5.json",
   "title": "【イオン】イオン式を覚えよう【選択】",
   "count": 12,
@@ -34,13 +40,25 @@
  {
   "file": "sets/fe0c8882.json",
   "title": "【イオン】電気を流す物質",
-  "count": 2,
+  "count": 5,
+  "enc": true
+ },
+ {
+  "file": "sets/5fd0a764.json",
+  "title": "【分類】植物の分類【一問一答】",
+  "count": 15,
   "enc": true
  },
  {
   "file": "sets/8bea6755.json",
   "title": "【分類】被子植物の花のつくり",
-  "count": 1,
+  "count": 11,
+  "enc": true
+ },
+ {
+  "file": "sets/4a59e866.json",
+  "title": "【化学】元素記号",
+  "count": 16,
   "enc": true
  },
  {
@@ -52,7 +70,13 @@
  {
   "file": "sets/49bf5051.json",
   "title": "【化学】原子の性質",
-  "count": 1,
+  "count": 5,
+  "enc": true
+ },
+ {
+  "file": "sets/db1632b8.json",
+  "title": "【用語チェック】物質のなり立ちと化学変化",
+  "count": 15,
   "enc": true
  },
  {
@@ -64,7 +88,7 @@
  {
   "file": "sets/d5e1c10c.json",
   "title": "いろいろな電池",
-  "count": 3,
+  "count": 7,
   "enc": true
  },
  {
@@ -76,43 +100,49 @@
  {
   "file": "sets/56e38c4b.json",
   "title": "たまねぎの根の成長",
-  "count": 3,
+  "count": 4,
   "enc": true
  },
  {
   "file": "sets/2f54f9b4.json",
   "title": "だ液の実験",
-  "count": 6,
+  "count": 7,
   "enc": true
  },
  {
   "file": "sets/4ee95149.json",
   "title": "イオンの基礎",
-  "count": 2,
+  "count": 12,
   "enc": true
  },
  {
   "file": "sets/781c5438.json",
   "title": "イオンの移動",
-  "count": 4,
+  "count": 9,
   "enc": true
  },
  {
   "file": "sets/522e1adf.json",
   "title": "オームの性質",
-  "count": 1,
+  "count": 7,
+  "enc": true
+ },
+ {
+  "file": "sets/f1d2d440.json",
+  "title": "カエルの生殖",
+  "count": 8,
   "enc": true
  },
  {
   "file": "sets/b3d90836.json",
   "title": "サクラとマツの比較",
-  "count": 2,
+  "count": 6,
   "enc": true
  },
  {
   "file": "sets/c32c576a.json",
   "title": "シダ植物",
-  "count": 5,
+  "count": 9,
   "enc": true
  },
  {
@@ -122,21 +152,39 @@
   "enc": true
  },
  {
+  "file": "sets/dca60f10.json",
+  "title": "セキツイ動物の分類のしかた",
+  "count": 7,
+  "enc": true
+ },
+ {
   "file": "sets/8aca394e.json",
   "title": "ゼニゴケの特徴",
-  "count": 5,
+  "count": 10,
   "enc": true
  },
  {
   "file": "sets/56b287d5.json",
   "title": "ダニエル電池",
-  "count": 7,
+  "count": 8,
+  "enc": true
+ },
+ {
+  "file": "sets/6152d91a.json",
+  "title": "バネののび",
+  "count": 6,
+  "enc": true
+ },
+ {
+  "file": "sets/bc27ae8d.json",
+  "title": "マグネシウム・銅と酸素の計算問題（むずい）",
+  "count": 2,
   "enc": true
  },
  {
   "file": "sets/633feb7f.json",
   "title": "マツの花のつくり",
-  "count": 3,
+  "count": 9,
   "enc": true
  },
  {
@@ -148,25 +196,25 @@
  {
   "file": "sets/8cf91cbb.json",
   "title": "乾湿計の使い方",
-  "count": 2,
+  "count": 3,
   "enc": true
  },
  {
   "file": "sets/673d05b3.json",
   "title": "仕事",
-  "count": 1,
+  "count": 4,
   "enc": true
  },
  {
   "file": "sets/afe70f41.json",
   "title": "仕事の原理",
-  "count": 3,
+  "count": 8,
   "enc": true
  },
  {
   "file": "sets/fbb272b9.json",
   "title": "仕事率",
-  "count": 1,
+  "count": 5,
   "enc": true
  },
  {
@@ -178,55 +226,55 @@
  {
   "file": "sets/92a1344d.json",
   "title": "光合成の基礎",
-  "count": 6,
+  "count": 13,
   "enc": true
  },
  {
   "file": "sets/71f459bc.json",
   "title": "光合成の実験",
-  "count": 2,
+  "count": 8,
   "enc": true
  },
  {
   "file": "sets/1902629c.json",
   "title": "光合成（BTB溶液の問題）",
-  "count": 4,
+  "count": 5,
   "enc": true
  },
  {
   "file": "sets/0ff777ed.json",
   "title": "凝結・露点・湿度",
-  "count": 3,
+  "count": 7,
   "enc": true
  },
  {
   "file": "sets/a0284cf8.json",
   "title": "凸レンズ",
-  "count": 8,
+  "count": 11,
   "enc": true
  },
  {
   "file": "sets/39d31380.json",
   "title": "前線のつくり",
-  "count": 6,
+  "count": 13,
   "enc": true
  },
  {
   "file": "sets/52178de3.json",
   "title": "前線の通過",
-  "count": 7,
+  "count": 9,
   "enc": true
  },
  {
   "file": "sets/5060b184.json",
   "title": "力",
-  "count": 5,
+  "count": 7,
   "enc": true
  },
  {
   "file": "sets/2e251098.json",
   "title": "力のつりあい",
-  "count": 6,
+  "count": 9,
   "enc": true
  },
  {
@@ -238,25 +286,25 @@
  {
   "file": "sets/7fad5588.json",
   "title": "化学変化と熱",
-  "count": 7,
+  "count": 10,
   "enc": true
  },
  {
   "file": "sets/9b0a3f2d.json",
   "title": "単細胞・多細胞生物",
-  "count": 4,
+  "count": 10,
   "enc": true
  },
  {
   "file": "sets/539441f4.json",
   "title": "双子葉類と単子葉類",
-  "count": 5,
+  "count": 10,
   "enc": true
  },
  {
   "file": "sets/e867956f.json",
   "title": "呼吸",
-  "count": 4,
+  "count": 10,
   "enc": true
  },
  {
@@ -268,19 +316,25 @@
  {
   "file": "sets/9345be12.json",
   "title": "四季の星座",
-  "count": 8,
+  "count": 9,
   "enc": true
  },
  {
   "file": "sets/dd8ada07.json",
   "title": "圧力",
-  "count": 3,
+  "count": 5,
+  "enc": true
+ },
+ {
+  "file": "sets/ff0f2291.json",
+  "title": "地震",
+  "count": 10,
   "enc": true
  },
  {
   "file": "sets/7521b2cb.json",
   "title": "地震のしくみ",
-  "count": 1,
+  "count": 13,
   "enc": true
  },
  {
@@ -292,19 +346,19 @@
  {
   "file": "sets/06147353.json",
   "title": "塩化銅水溶液の電気分解",
-  "count": 4,
+  "count": 6,
   "enc": true
  },
  {
   "file": "sets/a98a378c.json",
   "title": "塩酸の電気分解",
-  "count": 4,
+  "count": 7,
   "enc": true
  },
  {
   "file": "sets/057984d7.json",
   "title": "天体の観測の基礎知識",
-  "count": 4,
+  "count": 7,
   "enc": true
  },
  {
@@ -316,13 +370,19 @@
  {
   "file": "sets/20539d9f.json",
   "title": "太陽の日周運動",
-  "count": 6,
+  "count": 8,
   "enc": true
  },
  {
   "file": "sets/4e71cf29.json",
   "title": "季節風",
-  "count": 2,
+  "count": 3,
+  "enc": true
+ },
+ {
+  "file": "sets/6bdb3105.json",
+  "title": "宇宙の基礎",
+  "count": 12,
   "enc": true
  },
  {
@@ -334,19 +394,25 @@
  {
   "file": "sets/1b24f6bc.json",
   "title": "心臓",
-  "count": 4,
+  "count": 9,
   "enc": true
  },
  {
   "file": "sets/98bae84a.json",
   "title": "感覚器官",
-  "count": 2,
+  "count": 8,
   "enc": true
  },
  {
   "file": "sets/e51401ce.json",
   "title": "指示薬の性質",
-  "count": 18,
+  "count": 19,
+  "enc": true
+ },
+ {
+  "file": "sets/4c48566a.json",
+  "title": "排出",
+  "count": 7,
   "enc": true
  },
  {
@@ -358,25 +424,25 @@
  {
   "file": "sets/c84de86a.json",
   "title": "日食と月食",
-  "count": 4,
+  "count": 6,
   "enc": true
  },
  {
   "file": "sets/f2e0c6c1.json",
   "title": "星の年周運動",
-  "count": 1,
+  "count": 5,
   "enc": true
  },
  {
   "file": "sets/1800cf6d.json",
   "title": "星の日周運動",
-  "count": 3,
+  "count": 7,
   "enc": true
  },
  {
   "file": "sets/fd6dd8fe.json",
   "title": "時間の変化と発電",
-  "count": 3,
+  "count": 5,
   "enc": true
  },
  {
@@ -394,7 +460,7 @@
  {
   "file": "sets/c634923f.json",
   "title": "植物のからだとはたらき",
-  "count": 3,
+  "count": 9,
   "enc": true
  },
  {
@@ -406,7 +472,7 @@
  {
   "file": "sets/47392ae8.json",
   "title": "気圧と風",
-  "count": 15,
+  "count": 17,
   "enc": true
  },
  {
@@ -424,19 +490,19 @@
  {
   "file": "sets/0974336b.json",
   "title": "水の電気分解",
-  "count": 4,
+  "count": 6,
   "enc": true
  },
  {
   "file": "sets/12338840.json",
   "title": "海陸風",
-  "count": 5,
+  "count": 6,
   "enc": true
  },
  {
   "file": "sets/bafe44a7.json",
   "title": "消化",
-  "count": 5,
+  "count": 15,
   "enc": true
  },
  {
@@ -448,13 +514,13 @@
  {
   "file": "sets/19552206.json",
   "title": "減数分裂・遺伝の基礎知識",
-  "count": 1,
+  "count": 8,
   "enc": true
  },
  {
   "file": "sets/c74a0ba6.json",
   "title": "火山",
-  "count": 7,
+  "count": 14,
   "enc": true
  },
  {
@@ -466,19 +532,19 @@
  {
   "file": "sets/592a0f8b.json",
   "title": "火成岩",
-  "count": 2,
+  "count": 14,
   "enc": true
  },
  {
   "file": "sets/533f55f7.json",
   "title": "炭酸水素ナトリウムの加熱",
-  "count": 9,
+  "count": 14,
   "enc": true
  },
  {
   "file": "sets/90ef54ec.json",
   "title": "無セキツイ動物の特徴",
-  "count": 4,
+  "count": 12,
   "enc": true
  },
  {
@@ -490,13 +556,13 @@
  {
   "file": "sets/cc3c06e1.json",
   "title": "磁界",
-  "count": 7,
+  "count": 9,
   "enc": true
  },
  {
   "file": "sets/432ea9fc.json",
   "title": "神経",
-  "count": 3,
+  "count": 8,
   "enc": true
  },
  {
@@ -508,115 +574,115 @@
  {
   "file": "sets/26724b2e.json",
   "title": "等圧線",
-  "count": 6,
+  "count": 7,
   "enc": true
  },
  {
   "file": "sets/39f6b818.json",
   "title": "細胞のつくり",
-  "count": 2,
+  "count": 8,
   "enc": true
  },
  {
   "file": "sets/e390430d.json",
   "title": "細胞分裂と染色体",
-  "count": 3,
+  "count": 9,
   "enc": true
  },
  {
   "file": "sets/6a2b4e66.json",
   "title": "維管束",
-  "count": 7,
+  "count": 10,
   "enc": true
  },
  {
   "file": "sets/da080cb2.json",
   "title": "蒸留",
-  "count": 3,
+  "count": 4,
   "enc": true
  },
  {
   "file": "sets/87292c6d.json",
   "title": "血液",
-  "count": 5,
+  "count": 11,
   "enc": true
  },
  {
   "file": "sets/4ffa28fe.json",
   "title": "血管",
-  "count": 6,
+  "count": 12,
   "enc": true
  },
  {
   "file": "sets/e2b12a91.json",
   "title": "質量保存の法則",
-  "count": 4,
+  "count": 7,
   "enc": true
  },
  {
   "file": "sets/370f8b07.json",
   "title": "進化とは",
-  "count": 2,
+  "count": 6,
   "enc": true
  },
  {
   "file": "sets/9cdb9a10.json",
   "title": "進化の証拠",
-  "count": 8,
+  "count": 9,
   "enc": true
  },
  {
   "file": "sets/ebde90b8.json",
   "title": "還元",
-  "count": 5,
+  "count": 7,
   "enc": true
  },
  {
   "file": "sets/27b462aa.json",
   "title": "酸とアルカリを混ぜると",
-  "count": 2,
+  "count": 5,
   "enc": true
  },
  {
   "file": "sets/9d3ef90e.json",
   "title": "酸化",
-  "count": 8,
+  "count": 13,
   "enc": true
  },
  {
   "file": "sets/5ee2bd8c.json",
   "title": "酸化銀の加熱",
-  "count": 2,
+  "count": 7,
   "enc": true
  },
  {
   "file": "sets/2ce9143c.json",
   "title": "酸素とマグネシウムの計算問題",
-  "count": 2,
+  "count": 6,
   "enc": true
  },
  {
   "file": "sets/e13dda6c.json",
   "title": "酸素と銅の計算問題",
-  "count": 1,
+  "count": 5,
   "enc": true
  },
  {
   "file": "sets/3a588a35.json",
   "title": "金属イオンへのなりやすさ",
-  "count": 6,
+  "count": 7,
   "enc": true
  },
  {
   "file": "sets/f51acf8d.json",
   "title": "金星",
-  "count": 4,
+  "count": 6,
   "enc": true
  },
  {
   "file": "sets/0babce4b.json",
   "title": "鉄と硫黄の加熱",
-  "count": 2,
+  "count": 5,
   "enc": true
  },
  {
@@ -628,37 +694,37 @@
  {
   "file": "sets/bbb73d10.json",
   "title": "電気の基本",
-  "count": 1,
+  "count": 5,
   "enc": true
  },
  {
   "file": "sets/3bb72b99.json",
   "title": "電気抵抗",
-  "count": 2,
+  "count": 5,
   "enc": true
  },
  {
   "file": "sets/affd80fe.json",
   "title": "電気製品の消費電力",
-  "count": 2,
+  "count": 7,
   "enc": true
  },
  {
   "file": "sets/3d35cf69.json",
   "title": "電池とイオン",
-  "count": 6,
+  "count": 8,
   "enc": true
  },
  {
   "file": "sets/5bc7ea95.json",
   "title": "電流が磁界から受ける力",
-  "count": 6,
+  "count": 7,
   "enc": true
  },
  {
   "file": "sets/7bc6aac7.json",
   "title": "電流と電圧",
-  "count": 4,
+  "count": 12,
   "enc": true
  },
  {
@@ -676,7 +742,7 @@
  {
   "file": "sets/05ca1088.json",
   "title": "電流の正体",
-  "count": 2,
+  "count": 5,
   "enc": true
  },
  {
@@ -688,19 +754,25 @@
  {
   "file": "sets/c4f5ff37.json",
   "title": "静電気",
-  "count": 15,
+  "count": 16,
   "enc": true
  },
  {
   "file": "sets/3afa3618.json",
   "title": "音",
-  "count": 10,
+  "count": 16,
   "enc": true
  },
  {
   "file": "sets/6fc9ec01.json",
   "title": "顕微鏡の使い方",
-  "count": 3,
+  "count": 10,
+  "enc": true
+ },
+ {
+  "file": "sets/3642fe2b.json",
+  "title": "顕微鏡の部品の名前",
+  "count": 9,
   "enc": true
  },
  {
@@ -712,7 +784,7 @@
  {
   "file": "sets/04af1339.json",
   "title": "骨と筋肉",
-  "count": 1,
+  "count": 4,
   "enc": true
  }
 ]

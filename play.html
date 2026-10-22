@@ -6,7 +6,7 @@
 <title>Qraft</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261022135426">
+<link rel="stylesheet" href="theme.css?v=20261022135918">
 </head>
 <body>
 <div id="app">
@@ -43,6 +43,10 @@
   <div class="timebar" id="timebar"><i></i></div>
   <div class="stu-q" id="sq"><img id="sqimg" class="qimg hide" alt=""><span id="sqtext"></span></div>
   <div class="stu-tiles" id="stiles"></div>
+  <div id="textbox" class="hide">
+    <input type="text" id="textAns" maxlength="40" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="send" placeholder="ここに答えを入力">
+    <div class="tnote" id="tnote"></div>
+  </div>
   <div class="q-foot">
     <button class="btn hide" id="btnSubmit">送信</button>
     <div class="center" id="ansState" style="display:flex; font-weight:900; font-size:1.3em; min-height:1.6em"></div>
@@ -116,11 +120,11 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261022135426"></script>
+<script src="firebase-config.js?v=20261022135918"></script>
 <script type="module">
 import { signIn, db, ref, set, get, onValue, serverTimestamp, serverNow, CHOICE_STYLE,
          $, el, fmt, motionOn, showScreen, stopAnim, countUp, confetti, buildRank,
-         loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261022135426';
+         loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261022135918';
 
 mountStage();
 
@@ -245,9 +249,11 @@ function drawQuestion() {
   var im = $('sqimg');
   if (state.image) { im.src = state.image; im.classList.remove('hide'); } else { im.classList.add('hide'); }
   $('sq').classList.toggle('hasimg', !!state.image);
-  var box = $('stiles'); box.textContent = ''; box.className = 'stu-tiles n' + state.choices.length;
+  var isText = state.type === 'text', choices = state.choices || [];
+  var box = $('stiles'); box.textContent = ''; box.className = 'stu-tiles n' + choices.length;
+  box.classList.toggle('hide', isText); $('textbox').classList.toggle('hide', !isText);
   selMask = 0;
-  state.choices.forEach(function (c, idx) {
+  choices.forEach(function (c, idx) {
     var b = el('button', 'tile t' + idx);
     b.appendChild(el('span', 'sh', CHOICE_STYLE[idx].shape));
     if (c.image) { var im = el('img', 'ch-img'); im.src = c.image; im.alt = ''; b.appendChild(im); }
@@ -255,8 +261,14 @@ function drawQuestion() {
     b.onclick = function () { if (state.multi) toggle(idx, b); else answer(idx); };
     box.appendChild(b);
   });
-  var sb = $('btnSubmit'); sb.classList.toggle('hide', !state.multi); sb.disabled = true;
+  var sb = $('btnSubmit'); sb.classList.toggle('hide', !(state.multi || isText)); sb.disabled = true;
   $('ansState').textContent = state.multi ? 'あてはまるものを すべて選んで「送信」' : '';
+  if (isText) {
+    var inp = $('textAns'); inp.value = ''; inp.disabled = false;
+    inp.inputMode = state.numeric ? 'decimal' : 'text';
+    $('tnote').textContent = state.numeric ? '数字で答えてね' : '答えを打ち込んで、Enter か「送信」';
+    setTimeout(function () { inp.focus(); }, 350);
+  }
   var ring = $('timebar'); ring.classList.remove('hurry');
   answeredQ = answeredQ === state.i ? answeredQ : -1;    /* 画面を更新しても、回答済みの印は引き継ぐ */
   if (answeredQ === state.i) markPicked();
@@ -264,8 +276,9 @@ function drawQuestion() {
 
 function drawResult(variant, me, r) {
   if (variant === 'collect') { showScreen('s-collect'); return; }
-  var cs = [].concat(state.correct);
-  var q = cs.map(function (i) { var c = state.choices[i]; return CHOICE_STYLE[i].shape + ' ' + (c.t || '（画像）'); }).join('　');
+  var q;
+  if (state.type === 'text') { q = (state.accept || []).slice(0, 3).join(' ／ '); }
+  else { var cs = [].concat(state.correct); q = cs.map(function (i) { var c = state.choices[i]; return CHOICE_STYLE[i].shape + ' ' + (c.t || '（画像）'); }).join('　'); }
   var ansText = '正解は ' + q;
   if (variant === 'ok') {
     showScreen('s-ok'); confetti($('conf-ok'), 26);
@@ -312,6 +325,22 @@ function markPicked() {
   $('btnSubmit').classList.add('hide');
 }
 
+/* 入力式：打ち込んだ答えを送る（合っているかの判定は先生の画面で行うので、正解は生徒の端末に送られない） */
+async function submitText() {
+  var v = $('textAns').value.trim(); if (!v) return;
+  var q = state.i;
+  answeredQ = q; $('textAns').disabled = true; $('btnSubmit').classList.add('hide');
+  try {
+    await set(ref(db, 'rooms/' + pin + '/answers/' + q + '/' + uid), { s: v.slice(0, 60), t: serverTimestamp() });
+    $('ansState').textContent = '✋ 回答しました！ 「' + v.slice(0, 20) + '」';
+  } catch (e) {
+    answeredQ = -1; $('textAns').disabled = false; $('btnSubmit').classList.remove('hide');
+    $('ansState').textContent = 'すでに回答済みか、送れませんでした。';
+  }
+}
+$('textAns').addEventListener('input', function () { $('btnSubmit').disabled = !this.value.trim(); });
+$('textAns').addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.isComposing && this.value.trim()) { e.preventDefault(); $('btnSubmit').click(); } });
+
 /* 複数選択：押すたびに選択が付く・外れる。最後に「送信」 */
 function toggle(idx, b) {
   if (!state || answeredQ === state.i) return;
@@ -320,7 +349,9 @@ function toggle(idx, b) {
   $('btnSubmit').disabled = selMask === 0;
 }
 $('btnSubmit').onclick = async function () {
-  if (!state || state.phase !== 'question' || !state.multi || answeredQ === state.i || !selMask) return;
+  if (!state || state.phase !== 'question' || answeredQ === state.i) return;
+  if (state.type === 'text') { submitText(); return; }
+  if (!state.multi || !selMask) return;
   var q = state.i;
   answeredQ = q; markPicked();
   try {
@@ -348,7 +379,7 @@ function tick() {
       var mine = state.multi ? !!(selMask & (1 << i)) && answeredQ === state.i : i === pickedIdx;
       if (!mine) { b.disabled = true; b.classList.add('dim'); b.classList.remove('sel'); }
     });
-    $('btnSubmit').classList.add('hide');
+    $('btnSubmit').classList.add('hide'); $('textAns').disabled = true;
     if (answeredQ !== state.i) $('ansState').textContent = '時間切れです';
   }
 }

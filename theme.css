@@ -460,3 +460,33 @@ button.tile:disabled { cursor:default; }
 .dist.n5 .tile img.ch-img, .dist.n6 .tile img.ch-img { max-height:3em; }
 .dist { min-height:8em; }
 #s-reveal .qcard.small { font-size:1.35em; padding:.5em 1em; }
+
+/* ======================================================================
+   入力式（答えを打ち込む問題）
+   ====================================================================== */
+/* 先生：出題中は、選択肢のかわりに「入力してください」 */
+.grid4.textq { display:flex; align-items:center; justify-content:center; }
+.textprompt { text-align:center; font-weight:900; font-size:2.4em; line-height:1.4; background:rgba(0,0,0,.22); border-radius:1em; padding:.8em 1.6em; }
+.textprompt .sub { font-size:.55em; opacity:.85; margin-top:.3em; }
+/* 先生：正解発表 */
+.dist.textres { display:flex; flex-direction:column; justify-content:center; gap:1em; }
+.textres .okline { display:flex; flex-wrap:wrap; gap:.6em .9em; align-items:center; justify-content:center; background:#fff; color:var(--ink-dark); border-radius:1em; padding:.7em 1em; box-shadow:var(--shadow); }
+.textres .okline .lab { font-weight:900; color:#0b7a3f; background:#e4f7ea; border-radius:999px; padding:.1em .8em; }
+.textres .okline .ans { font-size:1.9em; font-weight:900; }
+.textres .okline .ans + .ans::before { content:"／"; font-weight:700; opacity:.35; margin-right:.5em; }
+.textres .bars2 { display:flex; flex-direction:column; gap:.45em; }
+.textres .brow { display:flex; align-items:center; gap:.7em; font-weight:900; }
+.textres .brow .bl { width:4.5em; text-align:right; }
+.textres .brow .bw { flex:1; height:1.5em; background:rgba(255,255,255,.62); border-radius:.6em; overflow:hidden; }
+.textres .brow .bw i { display:block; height:100%; width:0; border-radius:.6em; transition:width .9s cubic-bezier(.2,.9,.3,1) .3s; }
+.textres .brow.ok i { background:var(--ok); } .textres .brow.ng i { background:var(--ng); } .textres .brow.no i { background:#8d86c9; }
+.textres .brow .bn { width:2.5em; font-size:1.3em; font-variant-numeric:tabular-nums; }
+.textres .wrongs { display:flex; flex-wrap:wrap; gap:.5em; align-items:center; justify-content:center; }
+.textres .wrongs .lab { font-weight:800; opacity:.85; }
+.textres .wrongs .pill { background:rgba(255,255,255,.9); color:var(--ink-dark); }
+/* 生徒：入力欄 */
+#textbox { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.8em; flex:1; min-height:0; }
+#textbox input { width:min(26em, 92%); font:inherit; font-weight:900; font-size:2.2em; text-align:center; color:var(--ink-dark); background:#fff; border:0; border-radius:.5em; padding:.45em .6em; box-shadow:var(--shadow); outline:0; }
+#textbox input:focus { box-shadow:var(--shadow), 0 0 0 .14em var(--pop1); }
+#textbox input:disabled { opacity:.8; }
+#textbox .tnote { font-weight:800; opacity:.9; }

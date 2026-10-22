@@ -6,7 +6,7 @@
 <title>Qraft 先生用</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261022135426">
+<link rel="stylesheet" href="theme.css?v=20261022135918">
 </head>
 <body>
 <div id="app">
@@ -28,6 +28,7 @@
           <select id="limitSel"><option value="10">10 秒</option><option value="20" selected>20 秒</option><option value="30">30 秒</option><option value="45">45 秒</option><option value="60">60 秒</option></select></div>
       </div>
       <label class="chk"><input id="shuf" type="checkbox" checked> 選択肢の順番をシャッフルする</label>
+      <label class="chk"><input id="textTime" type="checkbox" checked> 入力式の問題は、制限時間を1.5倍にする</label>
       <label>背景</label><div class="bgrow"></div>
       <div style="text-align:center;margin-top:1.4em"><button class="btn" id="btnCreate">ルームを作る</button></div>
       <div id="setupErr" class="err hide"></div>
@@ -91,13 +92,13 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261022135426"></script>
+<script src="firebase-config.js?v=20261022135918"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script type="module">
 import { signIn, db, ref, set, get, update, remove, onValue, serverTimestamp, serverNow,
          calcScore, CHOICE_STYLE, RESULT_SEC, RANK_SEC, sleep, shuffle,
          $, el, fmt, motionOn, showScreen, later, stopAnim, countUp, confetti, qrSvg, buildRank,
-         loadBackgrounds, applyBg, buildBgPickers, savedBg, saveBg, mountStage, decryptSet, prepareQuestion, maskOf } from './lib.js?v=20261022135426';
+         loadBackgrounds, applyBg, buildBgPickers, savedBg, saveBg, mountStage, decryptSet, prepareQuestion, maskOf, isTextCorrect, normText } from './lib.js?v=20261022135918';
 
 mountStage();
 
@@ -183,6 +184,7 @@ $('btnCreate').onclick = async function () {
     limit = Number($('limitSel').value);
     var doShuffle = $('shuf').checked;
     game = qs.map(function (q) { return prepareQuestion(q, doShuffle); });
+    game.forEach(function (q) { q.limit = (q.type === 'text' && $('textTime').checked) ? Math.round(limit * 1.5) : limit; });   /* 入力には時間がかかる */
 
     /* 使われていない PIN を引く */
     for (var i = 0; i < 20; i++) {
@@ -302,14 +304,22 @@ function ansLabel() {
 async function askQuestion(i) {
   var q = game[i];
   stopAnim(); showScreen('s-q');
-  $('qno').textContent = '問題 ' + (i + 1) + ' / ' + game.length + (q.multi ? '・複数選択' : '');
+  $('qno').textContent = '問題 ' + (i + 1) + ' / ' + game.length + (q.type === 'text' ? '・入力式' : q.multi ? '・複数選択' : '');
   $('qtext').textContent = q.text;
   var img = $('qimg');
   if (q.image) { img.src = q.image; img.classList.remove('hide'); } else { img.classList.add('hide'); }
   $('qcard').classList.toggle('hasimg', !!q.image);
-  var tiles = $('tiles'); tiles.textContent = ''; tiles.className = 'grid4 n' + q.choices.length;
-  q.choices.forEach(function (c, idx) { tiles.appendChild(tileEl(c, idx)); });
-  var ring = $('ring'); ring.classList.remove('hurry'); ring.style.setProperty('--p', 100); ring.querySelector('b').textContent = limit;
+  var tiles = $('tiles'); tiles.textContent = '';
+  if (q.type === 'text') {
+    tiles.className = 'grid4 textq';
+    var tp = el('div', 'textprompt'); tp.appendChild(el('div', '', '✍️ 答えを入力してください'));
+    if (q.numeric) tp.appendChild(el('div', 'sub', '（数字で答えます）'));
+    tiles.appendChild(tp);
+  } else {
+    tiles.className = 'grid4 n' + q.choices.length;
+    q.choices.forEach(function (c, idx) { tiles.appendChild(tileEl(c, idx)); });
+  }
+  var ring = $('ring'); ring.classList.remove('hurry'); ring.style.setProperty('--p', 100); ring.querySelector('b').textContent = q.limit;
 
   answers = {};
   $('ansCount').textContent = ansLabel();
@@ -321,11 +331,11 @@ async function askQuestion(i) {
 
   await set(ref(db, 'rooms/' + pin + '/state'), stateOf({
     phase: 'question', i: i, n: game.length, text: q.text, image: q.image,
-    choices: q.choices, multi: q.multi, limit: limit
+    choices: q.choices, multi: q.multi, type: q.type || 'choice', numeric: !!q.numeric, limit: q.limit
   }));
   tStart = (await get(ref(db, 'rooms/' + pin + '/state/t'))).val();
 
-  var limitMs = limit * 1000;
+  var limitMs = q.limit * 1000;
   while (!ended) {
     await sleep(100);
     var el_ = serverNow() - tStart;
@@ -342,9 +352,9 @@ async function askQuestion(i) {
 }
 
 async function showResult(i) {
-  var q = game[i], limitMs = limit * 1000;
-  var counts = q.choices.map(function () { return 0; });
-  var answered = 0;
+  var q = game[i], limitMs = q.limit * 1000;
+  var counts = q.type === 'text' ? [0, 0] : q.choices.map(function () { return 0; });   /* 入力式は [正解の人数, 不正解の人数] */
+  var answered = 0, typed = [];
   var prevTotals = {};
   Object.keys(scores).forEach(function (id) { prevTotals[id] = scores[id].total; });
 
@@ -354,13 +364,22 @@ async function showResult(i) {
     var a = answers[id], pts = 0, ok = false, c = -1;
     if (a) {
       answered++;
-      var chosen = [];                                         /* 選んだ番号 */
-      if (a.m != null) { for (var b = 0; b < counts.length; b++) if (a.m & (1 << b)) chosen.push(b); c = a.m; }
-      else if (a.c != null) { chosen = [a.c]; c = a.c; }
-      chosen.forEach(function (b) { if (b >= 0 && b < counts.length) counts[b]++; });
       var el_ = a.t - tStart;
-      var right = q.multi ? (a.m === maskOf(q.correct)) : (a.c != null && q.correct.indexOf(a.c) >= 0);
-      if (right && el_ <= limitMs + 1500) { pts = calcScore(el_, limitMs); ok = true; }
+      if (q.type === 'text') {
+        /* 入力式：打ち込まれた文字を、正解の候補と比べる */
+        var typedText = String(a.s == null ? '' : a.s); c = 1;
+        var rightT = isTextCorrect(typedText, q.accept);
+        counts[rightT ? 0 : 1]++;
+        if (!rightT) typed.push(typedText);
+        if (rightT && el_ <= limitMs + 1500) { pts = calcScore(el_, limitMs); ok = true; }
+      } else {
+        var chosen = [];                                       /* 選んだ番号 */
+        if (a.m != null) { for (var b = 0; b < counts.length; b++) if (a.m & (1 << b)) chosen.push(b); c = a.m; }
+        else if (a.c != null) { chosen = [a.c]; c = a.c; }
+        chosen.forEach(function (b) { if (b >= 0 && b < counts.length) counts[b]++; });
+        var right = q.multi ? (a.m === maskOf(q.correct)) : (a.c != null && q.correct.indexOf(a.c) >= 0);
+        if (right && el_ <= limitMs + 1500) { pts = calcScore(el_, limitMs); ok = true; }
+      }
     }
     scores[id] = { nick: players[id].nick, total: prev + pts, last: pts, ok: ok, qi: i, c: c };
   });
@@ -371,7 +390,7 @@ async function showResult(i) {
   await set(ref(db, 'rooms/' + pin + '/scores'), scores);
   await set(ref(db, 'rooms/' + pin + '/state'), stateOf({
     phase: 'result', i: i, n: game.length, text: q.text, image: q.image,
-    choices: q.choices, multi: q.multi, correct: q.correct, counts: counts, answered: answered
+    choices: q.choices, multi: q.multi, correct: q.correct, type: q.type || 'choice', accept: q.accept || null, counts: counts, answered: answered
   }));
 
   /* 画面：棒グラフの下に選択肢を並べる */
@@ -379,6 +398,7 @@ async function showResult(i) {
   $('rqno').textContent = '問題 ' + (i + 1) + ' / ' + game.length;
   $('rans').textContent = '回答 ' + answered + ' / ' + activeIds().length + '人';
   $('rqtext').textContent = q.text;
+  if (q.type === 'text') { buildTextReveal(q, counts, answered, typed); return; }
   var max = Math.max.apply(null, counts.concat([1]));
   var dist = $('dist'); dist.textContent = ''; dist.className = 'dist n' + q.choices.length; dist.style.setProperty('--n', q.choices.length);
   q.choices.forEach(function (c, idx) {
@@ -390,6 +410,32 @@ async function showResult(i) {
     col.appendChild(bw); col.appendChild(t); dist.appendChild(col);
     countUp(num, counts[idx], 800, 1150, false);
   });
+}
+
+/* 入力式の正解発表：正解の候補・正解/不正解の人数・よくある間違い */
+function buildTextReveal(q, counts, answered, typed) {
+  var dist = $('dist'); dist.textContent = ''; dist.className = 'dist textres'; dist.style.removeProperty('--n');
+  var okl = el('div', 'okline'); okl.appendChild(el('span', 'lab', '✓ 正解'));
+  q.accept.forEach(function (a) { okl.appendChild(el('b', 'ans', a)); });
+  dist.appendChild(okl);
+  var total = Math.max(1, activeIds().length);
+  var bars = el('div', 'bars2');
+  [['正解', counts[0], 'ok'], ['不正解', counts[1], 'ng'], ['未回答', Math.max(0, activeIds().length - answered), 'no']].forEach(function (r) {
+    var row = el('div', 'brow ' + r[2]); row.appendChild(el('span', 'bl', r[0]));
+    var bw = el('div', 'bw'), bi = el('i'); bi.style.width = (r[1] / total * 100) + '%'; bw.appendChild(bi); row.appendChild(bw);
+    var n = el('b', 'bn', '0'); row.appendChild(n); countUp(n, r[1], 700, 800, false); bars.appendChild(row);
+  });
+  dist.appendChild(bars);
+  /* よくある間違い（同じ誤答が2人以上。先生の画面だけに出す） */
+  var tally = {};
+  typed.forEach(function (s) { var k = normText(s); if (!k) return; tally[k] = tally[k] || { t: s.trim().slice(0, 24), n: 0 }; tally[k].n++; });
+  var top = Object.keys(tally).map(function (k) { return tally[k]; }).filter(function (x) { return x.n >= 2; })
+    .sort(function (a, b) { return b.n - a.n; }).slice(0, 5);
+  if (top.length) {
+    var wr = el('div', 'wrongs'); wr.appendChild(el('span', 'lab', 'よくある間違い'));
+    top.forEach(function (x) { wr.appendChild(el('span', 'pill', x.t + '　×' + x.n)); });
+    dist.appendChild(wr);
+  }
 }
 
 /* 上位5人の、前後の得点と順位の動き */

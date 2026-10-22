@@ -334,6 +334,10 @@ export async function decryptSet(enc, password) {
  * 戻り値: {text, image, choices:[{t,image}], correct:[番号...], multi}
  */
 export function prepareQuestion(q, doShuffle) {
+  if (q.type === 'text') {
+    return { type: 'text', text: q.q, image: q.image || null, choices: [], correct: [], multi: false,
+             accept: q.accept.slice(), numeric: isNumericList(q.accept) };
+  }
   var choices = q.choices.map(function (c) { return typeof c === 'string' ? { t: c, image: null } : { t: c.t || '', image: c.image || null }; });
   var order = choices.map(function (_, i) { return i; });
   if (doShuffle && q.shuffle !== false) shuffle(order);
@@ -347,3 +351,38 @@ export function prepareQuestion(q, doShuffle) {
   };
 }
 export function maskOf(list) { return list.reduce(function (m, i) { return m | (1 << i); }, 0); }
+
+/* ====================================================================
+   入力式（答えを打ち込む問題）の判定
+   ・全角/半角・大文字/小文字・空白・「、。・」括弧を無視して比べる
+   ・カタカナとひらがなは同じものとして扱う
+   ・数値は、数として比べる（0.40 と 0.4 は同じ）。数値の答えには、2.7g のように単位がついていても正解にする
+   ・Kahootの「正解の候補（漢字とひらがななど）」は、そのまま accept の配列に入っている
+   ==================================================================== */
+export function normText(s) {
+  s = String(s == null ? '' : s).normalize('NFKC').toLowerCase().replace(/\u2212/g, '-');
+  s = s.replace(/[\s\u3000]+/g, '').replace(/[、。,，・･「」『』()\[\]【】'"“”‘’]/g, '');
+  s = s.replace(/\.+$/, '');
+  return s.replace(/[\u30a1-\u30f6]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) - 0x60); });   /* カタカナ → ひらがな */
+}
+var NUM = /^[+-]?\d+(\.\d+)?$/;
+function numOf(n) { return NUM.test(n) ? Number(n) : null; }
+export function isNumericList(accept) { return accept.length > 0 && accept.every(function (a) { return numOf(normText(a)) !== null; }); }
+
+export function isTextCorrect(input, accept) {
+  var x = normText(input);
+  if (!x) return false;
+  var xn = numOf(x);
+  for (var i = 0; i < accept.length; i++) {
+    var a = normText(accept[i]);
+    if (!a) continue;
+    if (x === a) return true;
+    var an = numOf(a);
+    if (an !== null) {
+      if (xn !== null && Math.abs(xn - an) <= 1e-9 * Math.max(1, Math.abs(an))) return true;
+      var m = /^([+-]?\d+(\.\d+)?)([a-z\u03bc\u00b0%\/^\u00b2\u00b3\u00b7\-\d\u2103\u03c9]{1,10})$/.exec(x);   /* 数値＋単位（英字・記号）: 2.7g, 27cm, 100℃ */
+      if (m && /^[^\d]/.test(m[3]) && Math.abs(Number(m[1]) - an) <= 1e-9 * Math.max(1, Math.abs(an))) return true;
+    }
+  }
+  return false;
+}
