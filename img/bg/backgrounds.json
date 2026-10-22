@@ -52,5 +52,14 @@
     "scrim": 0.12,
     "avg": "#334739",
     "safe": 11
+  },
+  {
+    "key": "arcade",
+    "name": "レトロゲーム",
+    "file": "img/bg/arcade.webp",
+    "thumb": "img/bg/thumb-arcade.webp",
+    "scrim": 0.12,
+    "avg": "#432b67",
+    "safe": 15
   }
 ]
