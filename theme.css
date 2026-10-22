@@ -698,3 +698,11 @@ button.tile:disabled { cursor:default; }
 .jc-head img { height:5.2em; width:auto; filter:drop-shadow(0 .2em .2em rgba(0,0,0,.4)); animation:hover 1.3s ease-in-out infinite alternate; }
 .jc-t { font-weight:900; font-size:1.9em; line-height:1.1; text-shadow:0 .08em .15em rgba(0,0,0,.4); letter-spacing:.04em; }
 .jc-s { font-weight:800; font-size:.9em; opacity:.92; margin-top:.2em; line-height:1.5; }
+
+/* クラシック：ランキング・表彰台にキャラ */
+.rk .row .bar2 span .rkav { font-size:1.5em; margin-right:.3em; vertical-align:middle; }
+.rk .row .bar2 span .rkav .avimg { height:1.3em; }
+.podium .pav { font-size:3.4em; line-height:1.15; display:flex; justify-content:center; margin-bottom:.1em; }
+.podium .p1 .pav { font-size:4.6em; }
+.podium .pav .avx { display:inline-block; }
+#meNick .avx { font-size:1.3em; margin-right:.2em; }

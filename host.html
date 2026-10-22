@@ -6,7 +6,7 @@
 <title>Qraft 先生用</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261022204005">
+<link rel="stylesheet" href="theme.css?v=20261022204032">
 </head>
 <body>
 <div id="app">
@@ -92,13 +92,13 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261022204005"></script>
+<script src="firebase-config.js?v=20261022204032"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script type="module">
 import { mountSetPicker, avatarEl, signIn, db, ref, set, get, update, remove, onValue, serverTimestamp, serverNow,
          calcScore, CHOICE_STYLE, RESULT_SEC, RANK_SEC, sleep, shuffle,
          $, el, fmt, motionOn, showScreen, later, stopAnim, countUp, confetti, qrSvg, buildRank,
-         loadBackgrounds, applyBg, buildBgPickers, savedBg, saveBg, mountStage, decryptSet, prepareQuestion, maskOf, isTextCorrect, normText } from './lib.js?v=20261022204005';
+         loadBackgrounds, applyBg, buildBgPickers, savedBg, saveBg, mountStage, decryptSet, prepareQuestion, maskOf, isTextCorrect, normText } from './lib.js?v=20261022204032';
 
 mountStage();
 
@@ -463,14 +463,14 @@ function computeRank(prevTotals) {
   var top = ord.slice(0, 5);
   var byPrev = top.slice().sort(function (a, b) { return prev[b] - prev[a] || ord.indexOf(a) - ord.indexOf(b); });
   return top.map(function (id, idx) {
-    return { nick: scores[id].nick, prev: prev[id], total: after[id], from: byPrev.indexOf(id), to: idx, mv: rb[id] - ra[id] };
+    return { u: id, av: players[id] && players[id].av, nick: scores[id].nick, prev: prev[id], total: after[id], from: byPrev.indexOf(id), to: idx, mv: rb[id] - ra[id] };
   });
 }
 
 async function showRanking(i) {
   await set(ref(db, 'rooms/' + pin + '/state'), stateOf({
     phase: 'ranking', i: i, n: game.length,
-    rows: rankRows.map(function (r) { return { nick: r.nick, prev: r.prev, total: r.total, from: r.from, to: r.to, mv: r.mv }; })
+    rows: rankRows.map(function (r) { return { u: r.u, av: r.av || '', nick: r.nick, prev: r.prev, total: r.total, from: r.from, to: r.to, mv: r.mv }; })
   }));
   stopAnim(); showScreen('s-rank');
   $('kprog').textContent = (i + 1) + ' / ' + game.length + '問 終了';
@@ -478,7 +478,7 @@ async function showRanking(i) {
 }
 
 function topList(n) {
-  return Object.keys(scores).map(function (id) { return { nick: scores[id].nick, total: scores[id].total }; })
+  return Object.keys(scores).map(function (id) { return { u: id, av: (players[id] && players[id].av) || '', nick: scores[id].nick, total: scores[id].total }; })
     .sort(function (a, b) { return b.total - a.total; }).slice(0, n);
 }
 
@@ -494,6 +494,7 @@ async function finish() {
     var r = top[pair[0]]; if (!r) return;
     var p = el('div', 'p ' + pair[1]);
     if (pair[0] === 0) p.appendChild(el('div', 'crown', '👑'));
+    var pav = el('div', 'pav'); pav.appendChild(avatarEl(r.av, r.u)); p.appendChild(pav);
     p.appendChild(el('b', '', r.nick)); p.appendChild(el('small', '', fmt(r.total) + '点'));
     p.appendChild(el('div', '', String(pair[0] + 1))); p.lastChild.style.cssText = 'font-size:' + (pair[0] === 0 ? '2.4em' : '2em') + ';margin-top:.3em';
     pod.appendChild(p);

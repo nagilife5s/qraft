@@ -149,7 +149,9 @@ export function buildRank(box, rows, meNick) {
   rows.forEach(function (r) {
     var row = el('div', 'row' + (r.nick === meNick ? ' me' : ''));
     row.innerHTML = '<span class="no"></span><div class="bar2"><i></i><span></span></div><span class="delta"></span><span class="pt"></span><span class="mv"></span>';
-    row.querySelector('.bar2 span').textContent = r.nick;
+    var nsp = row.querySelector('.bar2 span'); nsp.textContent = '';
+    if (r.u || r.av) { var ra = avatarEl(r.av, r.u); ra.classList.add('rkav'); nsp.appendChild(ra); }
+    nsp.appendChild(document.createTextNode(r.nick));
     r.el = row; box.appendChild(row);
   });
   function place(r, idx, pts, w) {
