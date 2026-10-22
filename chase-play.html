@@ -6,7 +6,7 @@
 <title>Qraft ジェットチェイス</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261022204845">
+<link rel="stylesheet" href="theme.css?v=20261022205055">
 <style>
   .brow { display:flex; gap:.4em; align-items:center; background:rgba(255,255,255,.92); color:var(--ink-dark); border-radius:.6em; padding:.15em .6em; font-weight:800; font-size:.95em; }
   .brow.me { outline:.15em solid #ffd23f; }
@@ -72,7 +72,7 @@
     </div>
   </div>
   <div id="bombBoxS" class="hide" style="display:flex; flex-direction:column; gap:.5em; flex:1; min-height:0; align-items:center; position:relative">
-    <div class="banner hide" id="bIntro" style="position:absolute; z-index:5; top:18%; left:6%; right:6%;">💣 ボンバーマン！<br><small style="font-size:.6em">小さいロボット🤖を、爆弾でたおせ！ 矢印キー／WASDで動く・スペースで爆弾。爆発に巻き込まれると減点（5秒で復活）</small></div>
+    <div class="banner hide" id="bIntro" style="position:absolute; z-index:5; top:18%; left:6%; right:6%;">💣 ブラストタイム！<br><small style="font-size:.6em">小さいロボット🤖を、爆弾でたおせ！ 矢印キー／WASDで動く・スペースで爆弾。爆発に巻き込まれると減点（5秒で復活）</small></div>
     <div class="bframe"><canvas id="bcv"></canvas></div>
     <div style="display:flex; gap:.8em; align-items:center; justify-content:center; flex-wrap:wrap; width:100%">
       <div id="brank" style="display:flex; flex-wrap:wrap; gap:.3em; justify-content:center"></div>
@@ -103,12 +103,12 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261022204845"></script>
+<script src="firebase-config.js?v=20261022205055"></script>
 <script type="module">
-import { newView, applyData, draw as bdraw, RULE as BRULE, W as BW, H as BH } from './bomb.js?v=20261022204845';
+import { newView, applyData, draw as bdraw, RULE as BRULE, W as BW, H as BH } from './bomb.js?v=20261022205055';
 import { parseAv, mountAvatarPicker, avatarEl, signIn, db, ref, set, get, onValue, serverNow, CHOICE_STYLE, shuffle,
          ROBOT, robotFrac, mountScene, prepareQuestion, maskOf, isTextCorrect,
-         $, el, showScreen, confetti, loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261022204845';
+         $, el, showScreen, confetti, loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261022205055';
 
 mountStage();
 
@@ -236,7 +236,7 @@ function tick() {
   }
 }
 
-/* ---- ボンバーマン */
+/* ---- ブラストタイム */
 function enterBomb() {
   $('sceneBox').classList.add('hide'); $('quizBox').classList.add('hide'); $('bombBoxS').classList.remove('hide');
   $('bpad').classList.toggle('hide', !('ontouchstart' in window));

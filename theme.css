@@ -732,3 +732,10 @@ button.tile:disabled { cursor:default; }
 .players .pill.extra .avx, .screen.on .players .pill .avx { animation:hopIn .85s cubic-bezier(.3,1.6,.5,1) both; }
 @keyframes hopIn { 0% { transform:translateY(-3.2em) scale(.3); opacity:0; } 55% { transform:translateY(.3em) scale(1.15); opacity:1; } 78% { transform:translateY(-.45em); } 100% { transform:none; opacity:1; } }
 @media (prefers-reduced-motion: reduce) { .res .resav .avx, #waitAv .avx, .players .pill .avx { animation:none !important; } }
+
+/* チェックマーク：文字ではなく罫線で描き、枠の中央にそろえる */
+.pcard .pck { position:relative; }
+.pcard.on .pck::after { content:""; position:absolute; left:50%; top:46%; width:.3em; height:.58em; border:solid #fff; border-width:0 .17em .17em 0; transform:translate(-50%,-55%) rotate(45deg); }
+.pcard.on .pck { display:block; }
+.backlink { display:inline-flex; align-items:center; gap:.3em; font-weight:900; font-size:.95em; text-decoration:none; color:var(--ink-dark); background:#f0ebff; border-radius:999px; padding:.3em .9em; margin-bottom:.4em; }
+.backlink:hover { background:#e4dcff; }
