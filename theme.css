@@ -520,3 +520,5 @@ button.tile:disabled { cursor:default; }
 .chip2 { background:#e9e2ff; border-radius:999px; padding:.1em .35em .1em .8em; display:inline-flex; gap:.35em; align-items:center; font-size:.85em; }
 .chip2 button { border:0; background:rgba(0,0,0,.12); border-radius:50%; width:1.4em; height:1.4em; cursor:pointer; font-weight:900; line-height:1; color:var(--ink-dark); }
 .linkbtn { background:none; border:0; color:#b3261e; font:inherit; font-weight:800; cursor:pointer; text-decoration:underline; margin-left:auto; }
+.setup label.setrow { display:flex; margin:0; }
+.setup label.setrow .nm { font-weight:800; }
