@@ -653,3 +653,11 @@ button.tile:disabled { cursor:default; }
 .scene .rbot.near img { animation-duration:.45s; }
 @keyframes hover { from { transform:translateY(-4%) rotate(-1.5deg); } to { transform:translateY(4%) rotate(1.5deg); } }
 @media (prefers-reduced-motion: reduce) { .scene .rbot img { animation:none; } }
+
+/* 正解した子が、前へダッシュ（飛び出して戻る）。後ろにスピード線 */
+.scene .ch.dash { animation:dashfwd .9s cubic-bezier(.2,.8,.3,1); }
+@keyframes dashfwd { 0% { transform:translate(-50%,-50%); } 22% { transform:translate(calc(-50% + var(--cs) * 2.4),-50%); } 100% { transform:translate(-50%,-50%); } }
+.scene .ch.dash::before { content:""; position:absolute; right:78%; top:22%; width:calc(var(--cs) * 1.7); height:calc(var(--cs) * .6); pointer-events:none; background:repeating-linear-gradient(0deg, rgba(255,255,255,.9) 0 .1em, transparent .1em .26em); animation:dashlines .9s ease-out both; }
+@keyframes dashlines { 0% { opacity:0; transform:translateX(0) scaleX(.4); } 18% { opacity:1; transform:translateX(0) scaleX(1); } 100% { opacity:0; transform:translateX(-1.4em) scaleX(.6); } }
+.scene .ch.dash .av { animation:none; }
+@media (prefers-reduced-motion: reduce) { .scene .ch.dash { animation:none; } .scene .ch.dash::before { display:none; } }

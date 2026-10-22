@@ -6,7 +6,7 @@
 <title>Qraft ロボットラン</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261022195636">
+<link rel="stylesheet" href="theme.css?v=20261022200113">
 <style>
   .fb { text-align:center; font-weight:900; font-size:1.3em; min-height:1.6em; }
   .fb.ok { color:#8bf0b0; } .fb.ng { color:#ffd23f; }
@@ -91,11 +91,11 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261022195636"></script>
+<script src="firebase-config.js?v=20261022200113"></script>
 <script type="module">
 import { mountAvatarPicker, avatarEl, signIn, db, ref, set, get, onValue, serverNow, CHOICE_STYLE, shuffle,
          ROBOT, robotFrac, mountScene, prepareQuestion, maskOf, isTextCorrect,
-         $, el, showScreen, confetti, loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261022195636';
+         $, el, showScreen, confetti, loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261022200113';
 
 mountStage();
 
@@ -198,7 +198,8 @@ function tick() {
     var left = Math.max(0, st.Tl - sec);
     $('hTime').textContent = Math.floor(left / 60) + ':' + String(Math.floor(left % 60)).padStart(2, '0');
     $('hFill').style.width = p * 100 + '%';
-    scene.draw({ phase: 'quiz', frac: robotFrac(Math.max(0, sec), p), me: uid });
+    var ks = {}; ids.forEach(function (id) { ks[id] = (runs[id] && runs[id].k) || 0; });
+    scene.draw({ phase: 'quiz', frac: robotFrac(Math.max(0, sec), p), me: uid, ks: ks });
   } else if (st.phase === 'zone' || st.phase === 'zoneres') {
     var zone = st.phase === 'zone';
     if (lastPhase !== st.phase) { lastPhase = st.phase; $('quizBox').classList.add('hide'); $('zoneBox').classList.remove('hide'); if (zone) { myZ = null; buildZones(); } }

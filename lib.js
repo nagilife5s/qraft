@@ -481,7 +481,8 @@ export function mountScene(box, mini) {
   sc.appendChild(el('div', 'danger'));
   var zl = el('div', 'zones'); sc.appendChild(zl);
   box.appendChild(sc);
-  var chars = {}, api = {};
+  var chars = {}, api = {}, prevK = {};
+  function dash(c) { c.classList.remove('dash'); void c.offsetWidth; c.classList.add('dash'); setTimeout(function () { c.classList.remove('dash'); }, 950); }
   api.setPlayers = function (list) {
     var keep = {}; list.forEach(function (p) { keep[p.uid] = 1; });
     Object.keys(chars).forEach(function (u) { if (!keep[u]) { chars[u].remove(); delete chars[u]; } });
@@ -525,8 +526,10 @@ export function mountScene(box, mini) {
         var k = cnt[z] = (cnt[z] || 0) + 1, per = Math.max(2, Math.ceil(Math.sqrt(ctx.caps[z] * 1.6)));
         x = 6 + z * (88 / Z) + (88 / Z - 2) * (((k - 1) % per) + .5) / per; y = ft + 14 + Math.floor((k - 1) / per) * 8;
       } else if (zone) { x = 14 + (h % 70); y = fb - 4; }
-      else { x = 24 + rx * 70; y = y0 + ry * (y1 - y0); }
+      else { var xl = 46 + Math.min(1, ctx.frac || 0) * 32; x = xl + rx * (95 - xl); y = y0 + ry * (y1 - y0); }
       c.style.left = x + '%'; c.style.top = y + '%'; c.style.zIndex = Math.round(y);
+      var kk = ctx.ks ? ctx.ks[u] : null;
+      if (kk != null) { if (prevK[u] != null && kk > prevK[u] && !zone) dash(c); prevK[u] = kk; }
       c.classList.toggle('me', u === ctx.me);
       c.classList.toggle('out', !!(ctx.caught && ctx.caught.indexOf(u) >= 0));
       c.classList.toggle('run', !zone);
