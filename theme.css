@@ -739,3 +739,8 @@ button.tile:disabled { cursor:default; }
 .pcard.on .pck { display:block; }
 .backlink { display:inline-flex; align-items:center; gap:.3em; font-weight:900; font-size:.95em; text-decoration:none; color:var(--ink-dark); background:#f0ebff; border-radius:999px; padding:.3em .9em; margin-bottom:.4em; }
 .backlink:hover { background:#e4dcff; }
+
+/* 参加画面：キャラの選択を開くと縦に長くなるので、スクロールできるように */
+#s-join { overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch; }
+#s-join > .center { justify-content:safe center; flex:1 0 auto; }
+#s-join .avpanel { max-height:none; }

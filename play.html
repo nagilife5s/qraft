@@ -6,7 +6,7 @@
 <title>Qraft</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261022205527">
+<link rel="stylesheet" href="theme.css?v=20261022205840">
 </head>
 <body>
 <div id="app">
@@ -114,21 +114,21 @@
       <div style="font-weight:900; font-size:1.3em"><span id="endpts">0</span> 点</div>
     </div>
     <div class="mut" style="font-size:1.1em" id="endtop"></div>
-    <a class="btn sub" href="index.html" style="text-decoration:none; margin-top:.8em">最初の画面にもどる</a>
+    <a class="btn" href="play.html" style="text-decoration:none; margin-top:.8em">つぎのゲームに参加する</a><a class="linkbtn" href="index.html" style="color:#fff; font-weight:800; margin-top:.5em">最初の画面にもどる</a>
   </div>
 </section>
 
 <!-- 退出・部屋が閉じた -->
-<section class="screen" id="s-kicked"><div class="center" style="flex:1; display:flex; flex-direction:column; gap:.7em"><div style="font-weight:900; font-size:2.2em">この部屋から退出になりました</div><a class="btn sub" href="index.html" style="text-decoration:none; margin-top:.8em">最初の画面にもどる</a></div></section>
-<section class="screen" id="s-closed"><div class="center" style="flex:1; display:flex; flex-direction:column; gap:.7em"><div style="font-weight:900; font-size:2.4em">ゲームは終了しました</div><div class="mut">ありがとうございました！</div><a class="btn sub" href="index.html" style="text-decoration:none; margin-top:.8em">最初の画面にもどる</a></div></section>
+<section class="screen" id="s-kicked"><div class="center" style="flex:1; display:flex; flex-direction:column; gap:.7em"><div style="font-weight:900; font-size:2.2em">この部屋から退出になりました</div><a class="btn" href="play.html" style="text-decoration:none; margin-top:.8em">つぎのゲームに参加する</a><a class="linkbtn" href="index.html" style="color:#fff; font-weight:800; margin-top:.5em">最初の画面にもどる</a></div></section>
+<section class="screen" id="s-closed"><div class="center" style="flex:1; display:flex; flex-direction:column; gap:.7em"><div style="font-weight:900; font-size:2.4em">ゲームは終了しました</div><div class="mut">ありがとうございました！</div><a class="btn" href="play.html" style="text-decoration:none; margin-top:.8em">つぎのゲームに参加する</a><a class="linkbtn" href="index.html" style="color:#fff; font-weight:800; margin-top:.5em">最初の画面にもどる</a></div></section>
 
 </div>
 
-<script src="firebase-config.js?v=20261022205527"></script>
+<script src="firebase-config.js?v=20261022205840"></script>
 <script type="module">
 import { mountAvatarPicker, avatarEl, signIn, db, ref, set, get, onValue, serverTimestamp, serverNow, CHOICE_STYLE,
          $, el, fmt, motionOn, showScreen, stopAnim, countUp, confetti, buildRank,
-         loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261022205527';
+         loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261022205840';
 
 mountStage();
 
@@ -225,7 +225,7 @@ function myRank() {
 /* ---------------------------------------------------------------- 描画（画面が変わるときだけ作り直す） */
 function render() {
   if (kicked) { if (lastKey !== 'kicked') { lastKey = 'kicked'; stopAnim(); showScreen('s-kicked'); } return; }
-  if (closed) { if (lastKey !== 'closed') { lastKey = 'closed'; stopAnim(); showScreen('s-closed'); } return; }
+  if (closed) { if (lastKey !== 'closed') { lastKey = 'closed'; stopAnim(); showScreen('s-closed'); setTimeout(function () { location.href = 'play.html'; }, 3500); } return; }
   if (!state) return;
   var r = myRank();
 

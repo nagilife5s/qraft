@@ -6,7 +6,7 @@
 <title>Qraft ジェットチェイス</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261022205527">
+<link rel="stylesheet" href="theme.css?v=20261022205840">
 <style>
   .brow { display:flex; gap:.4em; align-items:center; background:rgba(255,255,255,.92); color:var(--ink-dark); border-radius:.6em; padding:.15em .6em; font-weight:800; font-size:.95em; }
   .brow.me { outline:.15em solid #ffd23f; }
@@ -98,17 +98,17 @@
   </div>
 </section>
 
-<section class="screen" id="s-kicked"><div class="center" style="flex:1; display:flex; flex-direction:column; gap:.7em"><div style="font-weight:900; font-size:2.2em">この部屋から退出になりました</div><a class="btn sub" href="index.html" style="text-decoration:none; margin-top:.8em">最初の画面にもどる</a></div></section>
-<section class="screen" id="s-closed"><div class="center" style="flex:1; display:flex; flex-direction:column; gap:.7em"><div style="font-weight:900; font-size:2.4em">ゲームは終了しました</div><div class="mut">ありがとうございました！</div><a class="btn sub" href="index.html" style="text-decoration:none; margin-top:.8em">最初の画面にもどる</a></div></section>
+<section class="screen" id="s-kicked"><div class="center" style="flex:1; display:flex; flex-direction:column; gap:.7em"><div style="font-weight:900; font-size:2.2em">この部屋から退出になりました</div><a class="btn" href="play.html" style="text-decoration:none; margin-top:.8em">つぎのゲームに参加する</a><a class="linkbtn" href="index.html" style="color:#fff; font-weight:800; margin-top:.5em">最初の画面にもどる</a></div></section>
+<section class="screen" id="s-closed"><div class="center" style="flex:1; display:flex; flex-direction:column; gap:.7em"><div style="font-weight:900; font-size:2.4em">ゲームは終了しました</div><div class="mut">ありがとうございました！</div><a class="btn" href="play.html" style="text-decoration:none; margin-top:.8em">つぎのゲームに参加する</a><a class="linkbtn" href="index.html" style="color:#fff; font-weight:800; margin-top:.5em">最初の画面にもどる</a></div></section>
 
 </div>
 
-<script src="firebase-config.js?v=20261022205527"></script>
+<script src="firebase-config.js?v=20261022205840"></script>
 <script type="module">
-import { newView, applyData, draw as bdraw, RULE as BRULE, W as BW, H as BH } from './bomb.js?v=20261022205527';
+import { newView, applyData, draw as bdraw, RULE as BRULE, W as BW, H as BH } from './bomb.js?v=20261022205840';
 import { parseAv, mountAvatarPicker, avatarEl, signIn, db, ref, set, get, onValue, serverNow, CHOICE_STYLE, shuffle,
          ROBOT, robotFrac, mountScene, prepareQuestion, maskOf, isTextCorrect,
-         $, el, showScreen, confetti, loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261022205527';
+         $, el, showScreen, confetti, loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261022205840';
 
 mountStage();
 
@@ -178,7 +178,7 @@ function start() {
 
 function render() {
   if (kicked) { showScreen('s-kicked'); return; }
-  if (closed) { if (!finished) showScreen('s-closed'); return; }
+  if (closed) { if (!finished) { showScreen('s-closed'); setTimeout(function () { location.href = 'play.html'; }, 3500); } return; }
   if (!state) return;
   if (state.mode !== 'chase') { location.replace('play.html?pin=' + pin + (/[?&]sess=1/.test(location.search) ? '&sess=1' : '')); return; }
   if (state.phase === 'lobby') { if (!started) showScreen('s-wait'); }

@@ -431,7 +431,7 @@ export function mountAvatarPicker(box, uid) {
   }
   ANIMALS.forEach(function (e, i) { var b = el('button', 'avopt'); b.type = 'button'; b.appendChild(avatarEl(i + '.0', uid)); b.onclick = function () { cur.c = i; draw(); }; cg.appendChild(b); });
   ACCS.forEach(function (a, i) { var b = el('button', 'avopt'); b.type = 'button'; b.title = a.n; if (i) { var ii = el('img', 'accimg'); ii.src = 'img/robot/acc-' + ACC_IMG[i] + '.webp'; ii.alt = a.e; b.appendChild(ii); } else b.textContent = '✕'; b.onclick = function () { cur.a = i; draw(); }; ag.appendChild(b); });
-  lab.onclick = function () { panel.classList.toggle('hide'); lab.textContent = panel.classList.contains('hide') ? 'キャラをかえる' : 'とじる'; };
+  lab.onclick = function () { panel.classList.toggle('hide'); lab.textContent = panel.classList.contains('hide') ? 'キャラをかえる' : 'とじる'; if (!panel.classList.contains('hide')) setTimeout(function () { panel.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }, 50); };
   draw();
   return { get: str };
 }
