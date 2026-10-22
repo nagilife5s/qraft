@@ -664,3 +664,37 @@ button.tile:disabled { cursor:default; }
 
 /* 流れる道：反転でつないだループ画像を横にくり返す（位置は lib.js が毎フレーム動かす） */
 .scene { background:#6a35a8 url("img/robot/corridor-loop.webp") 0 100% / auto 100% repeat-x; }
+
+/* ===== 問題セットの選択（mountSetPicker） ===== */
+.pkr { display:flex; flex-direction:column; gap:.6em; margin-top:.3em; }
+.pseg { display:grid; grid-template-columns:repeat(4, 1fr); gap:.4em; }
+.pseg-b { font:inherit; border:0; cursor:pointer; background:#f0ebff; color:var(--ink-dark); border-radius:.9em; padding:.5em .3em; display:flex; flex-direction:column; align-items:center; line-height:1.15; transition:transform .12s, background .12s; border:.15em solid transparent; }
+.pseg-b b { font-size:1.15em; font-weight:900; } .pseg-b small { font-size:.75em; opacity:.65; font-weight:800; }
+.pseg-b:hover { background:#e4dcff; }
+.pseg-b.on { background:linear-gradient(#6a35e8,#4320b0); color:#fff; transform:translateY(-.1em); box-shadow:0 .25em 0 rgba(30,10,90,.35); }
+.pkq { font:inherit; font-weight:800; font-size:1.05em; border:.15em solid #d6cdf7; border-radius:.8em; padding:.55em .9em; background:#fff; color:var(--ink-dark); width:100%; }
+.pkq:focus { outline:0; border-color:#6a35e8; box-shadow:0 0 0 .18em rgba(106,53,232,.25); }
+.purow { display:flex; flex-wrap:wrap; gap:.35em; }
+.pchip { font:inherit; font-weight:800; font-size:.9em; border:.12em solid transparent; border-radius:999px; padding:.28em .85em; cursor:pointer; background:#f2effd; color:var(--ink-dark); display:inline-flex; align-items:center; gap:.4em; }
+.pchip i { width:.65em; height:.65em; border-radius:50%; background:var(--fc, #888); }
+.pchip:hover { background:#e6defc; } .pchip.on { background:var(--fc, #4320b0); color:#fff; } .pchip.on i { background:#fff; }
+.pchip:first-child.on { background:#4320b0; }
+.plist { max-height:19em; overflow:auto; border-radius:.9em; background:#faf9ff; border:.15em solid #e2dbfa; padding:0 .35em .35em; scroll-behavior:smooth; }
+.pgh { position:sticky; top:0; z-index:2; display:flex; align-items:center; gap:.6em; margin:.45em -.35em .3em; padding:.4em .8em; background:var(--fc); color:#fff; font-weight:900; box-shadow:0 .12em .3em rgba(0,0,0,.18); }
+.pgt { font-size:1em; } .pgc { font-size:.8em; opacity:.85; } .pgall { margin-left:auto; font:inherit; font-size:.8em; font-weight:900; border:0; cursor:pointer; background:rgba(255,255,255,.9); color:var(--ink-dark); border-radius:999px; padding:.2em .8em; }
+.pcard { display:flex; align-items:center; gap:.6em; margin:.25em 0; padding:.5em .7em; border-radius:.8em; background:#fff; border:.15em solid #ece7fb; border-left:.45em solid var(--fc, #888); cursor:pointer; transition:background .1s, transform .1s; }
+.pcard:hover { background:#f6f2ff; transform:translateX(.1em); }
+.pcard.on { background:#e8e0ff; border-color:var(--fc, #6a35e8); }
+.pcard input { position:absolute; opacity:0; pointer-events:none; }
+.pcard .pck { flex:0 0 auto; width:1.4em; height:1.4em; border-radius:.4em; border:.15em solid #b9aee0; background:#fff; display:grid; place-items:center; font-size:.95em; }
+.pcard.on .pck { background:var(--fc, #6a35e8); border-color:var(--fc, #6a35e8); } .pcard.on .pck::after { content:"✓"; color:#fff; font-weight:900; }
+.pcard .ptt { font-weight:800; flex:1; min-width:0; }
+.pcard .pmeta { display:flex; align-items:center; gap:.35em; flex:0 0 auto; font-size:.85em; } .pcard .pmeta b { font-weight:900; }
+.pkr .empty { padding:1.2em; text-align:center; opacity:.6; font-weight:800; }
+@media (max-width: 560px) { .pcard { flex-wrap:wrap; } .pcard .pmeta { width:100%; padding-left:2em; } }
+
+/* ジェットチェイスの準備画面の見出し */
+.jc-head { display:flex; align-items:center; gap:.9em; background:linear-gradient(120deg,#3a1d7a,#7a46b5 60%,#ff7a59); color:#fff; border-radius:1em; padding:.5em 1em .5em .6em; margin-bottom:.4em; box-shadow:0 .25em 0 rgba(30,10,90,.3); }
+.jc-head img { height:5.2em; width:auto; filter:drop-shadow(0 .2em .2em rgba(0,0,0,.4)); animation:hover 1.3s ease-in-out infinite alternate; }
+.jc-t { font-weight:900; font-size:1.9em; line-height:1.1; text-shadow:0 .08em .15em rgba(0,0,0,.4); letter-spacing:.04em; }
+.jc-s { font-weight:800; font-size:.9em; opacity:.92; margin-top:.2em; line-height:1.5; }

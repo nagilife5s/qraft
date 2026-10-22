@@ -551,3 +551,77 @@ export function mountScene(box, mini) {
   };
   return api;
 }
+
+/* ====================================================================
+   問題セットの選択（先生の準備画面・クラシックとジェットチェイスで共通）
+   ・学年（大きなボタン）→ 題名で検索 → 単元ごとにまとまった一覧（見出しは分野の色）
+   ・見出しの「ぜんぶ選ぶ」で、その単元をまとめて選べる。選んだものは、学年・単元を替えても残る
+   cfg: {sets, key(s) -> 識別子, picked(選んだものの入れ物。同じオブジェクトを使い続ける), onChange()}
+   ==================================================================== */
+var FIELD_COL = { '物理': '#1368ce', '化学': '#e67e22', '生物': '#1fa95b', '地学': '#8e44ad' };
+export function mountSetPicker(box, cfg) {
+  var sets = cfg.sets, key = cfg.key, picked = cfg.picked, gradeSel = 0, unitSel = '', GL = ['すべて', '1年', '2年', '3年'];
+  box.textContent = ''; box.classList.add('pkr');
+  var seg = el('div', 'pseg'), q = el('input', 'pkq'), urow = el('div', 'purow'), list = el('div', 'plist');
+  q.type = 'text'; q.placeholder = '🔍 題名でさがす（例：イオン、細胞、力）'; q.autocomplete = 'off';
+  box.appendChild(seg); box.appendChild(q); box.appendChild(urow); box.appendChild(list);
+  q.oninput = function () { renderList(); };
+
+  function renderHead() {
+    seg.textContent = '';
+    [0, 1, 2, 3].forEach(function (g) {
+      var n = sets.filter(function (s) { return !g || s.grade === g; }).length;
+      var b = el('button', 'pseg-b' + (g === gradeSel ? ' on' : '')); b.type = 'button';
+      b.appendChild(el('b', '', GL[g])); b.appendChild(el('small', '', n + 'セット'));
+      b.onclick = function () { gradeSel = g; unitSel = ''; renderHead(); renderList(); };
+      seg.appendChild(b);
+    });
+    urow.textContent = ''; urow.classList.toggle('hide', !gradeSel);
+    if (!gradeSel) return;
+    var seen = {}, units = [];
+    sets.filter(function (s) { return s.grade === gradeSel; }).forEach(function (s) {
+      if (!seen[s.unit]) { seen[s.unit] = { unit: s.unit, uo: s.uo, f: s.field, n: 0 }; units.push(seen[s.unit]); }
+      seen[s.unit].n++;
+    });
+    units.sort(function (a, b) { return a.uo - b.uo; });
+    var all = el('button', 'pchip' + (unitSel === '' ? ' on' : ''), 'ぜんぶ'); all.type = 'button'; all.onclick = function () { unitSel = ''; renderHead(); renderList(); }; urow.appendChild(all);
+    units.forEach(function (u) {
+      var c = el('button', 'pchip' + (unitSel === u.unit ? ' on' : '')); c.type = 'button'; c.style.setProperty('--fc', FIELD_COL[u.f] || '#888');
+      c.appendChild(el('i')); c.appendChild(document.createTextNode(u.unit + ' ' + u.n));
+      c.onclick = function () { unitSel = u.unit; renderHead(); renderList(); }; urow.appendChild(c);
+    });
+  }
+
+  function renderList() {
+    var f = q.value.trim(), groups = {}, order = [];
+    sets.filter(function (s) { return (!gradeSel || s.grade === gradeSel) && (!unitSel || s.unit === unitSel) && (!f || s.title.indexOf(f) >= 0); })
+      .forEach(function (s) { var gk = s.grade + '|' + s.unit; if (!groups[gk]) { groups[gk] = { s: s, items: [] }; order.push(gk); } groups[gk].items.push(s); });
+    order.sort(function (a, b) { return (groups[a].s.grade || 9) - (groups[b].s.grade || 9) || groups[a].s.uo - groups[b].s.uo; });
+    list.textContent = '';
+    order.forEach(function (gk) {
+      var g = groups[gk], col = FIELD_COL[g.s.field] || '#888', head = el('div', 'pgh'); head.style.setProperty('--fc', col);
+      head.appendChild(el('span', 'pgt', (g.s.grade ? g.s.grade + '年 ・ ' : '') + g.s.unit));
+      head.appendChild(el('span', 'pgc', g.items.length + 'セット'));
+      var allOn = g.items.every(function (s) { return picked[key(s)]; });
+      var ab = el('button', 'pgall', allOn ? 'ぜんぶはずす' : 'ぜんぶ選ぶ'); ab.type = 'button';
+      ab.onclick = function () { g.items.forEach(function (s) { if (allOn) delete picked[key(s)]; else picked[key(s)] = true; }); renderList(); cfg.onChange(); };
+      head.appendChild(ab); list.appendChild(head);
+      g.items.forEach(function (s) {
+        var row = el('label', 'pcard' + (picked[key(s)] ? ' on' : '')); row.style.setProperty('--fc', col);
+        var cb = el('input'); cb.type = 'checkbox'; cb.checked = !!picked[key(s)];
+        cb.onchange = function () { if (cb.checked) picked[key(s)] = true; else delete picked[key(s)]; row.classList.toggle('on', cb.checked); cfg.onChange(); };
+        row.appendChild(cb); row.appendChild(el('span', 'pck'));
+        row.appendChild(el('span', 'ptt', s.title));
+        var meta = el('span', 'pmeta'); meta.appendChild(el('b', '', s.count + '問'));
+        var t = s.types || {};
+        if (t.choice) meta.appendChild(el('span', 'bdg', '選択 ' + t.choice));
+        if (t.multi) meta.appendChild(el('span', 'bdg m', '複数 ' + t.multi));
+        if (t.text) meta.appendChild(el('span', 'bdg t', '入力 ' + t.text));
+        row.appendChild(meta); list.appendChild(row);
+      });
+    });
+    if (!order.length) list.appendChild(el('div', 'empty', '該当するセットがありません'));
+  }
+  renderHead(); renderList();
+  return { render: function () { renderHead(); renderList(); } };
+}

@@ -6,7 +6,7 @@
 <title>Qraft 先生用</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261022203538">
+<link rel="stylesheet" href="theme.css?v=20261022204005">
 </head>
 <body>
 <div id="app">
@@ -17,10 +17,7 @@
     <img class="logo-img" src="img/logo-wordmark.webp" alt="Qraft" style="height:5em">
     <div class="card setup">
       <label style="margin-top:0">問題セット（学年・単元で絞り込み、複数えらべます）</label>
-      <div class="pk-row" id="gradeRow"></div>
-      <div class="pk-row small" id="unitRow"></div>
-      <input type="text" id="setFilter" placeholder="題名でさがす（例：イオン、細胞、力）" autocomplete="off">
-      <div class="setlist" id="setList"></div>
+      <div id="picker"></div>
       <div class="selbar hide" id="selBar"><span id="selInfo"></span><span id="selChips"></span><button type="button" class="linkbtn" id="selClear">選びなおす</button></div>
       <div id="pwRow" class="hide"><label for="pw">問題のパスワード</label>
         <input type="password" id="pw" autocomplete="off" placeholder="先生だけが知っているパスワード">
@@ -95,13 +92,13 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261022203538"></script>
+<script src="firebase-config.js?v=20261022204005"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script type="module">
-import { avatarEl, signIn, db, ref, set, get, update, remove, onValue, serverTimestamp, serverNow,
+import { mountSetPicker, avatarEl, signIn, db, ref, set, get, update, remove, onValue, serverTimestamp, serverNow,
          calcScore, CHOICE_STYLE, RESULT_SEC, RANK_SEC, sleep, shuffle,
          $, el, fmt, motionOn, showScreen, later, stopAnim, countUp, confetti, qrSvg, buildRank,
-         loadBackgrounds, applyBg, buildBgPickers, savedBg, saveBg, mountStage, decryptSet, prepareQuestion, maskOf, isTextCorrect, normText } from './lib.js?v=20261022203538';
+         loadBackgrounds, applyBg, buildBgPickers, savedBg, saveBg, mountStage, decryptSet, prepareQuestion, maskOf, isTextCorrect, normText } from './lib.js?v=20261022204005';
 
 mountStage();
 
@@ -144,69 +141,16 @@ function stateOf(extra) { return Object.assign({ bg: curBg, t: serverTimestamp()
     SETS = await (await fetch('questions/index.json', { cache: 'no-cache' })).json();   /* 一覧は、いつも最新を取る */
     try { $('pw').value = localStorage.getItem('qraft.pw') || ''; } catch (e) {}
     try { JSON.parse(localStorage.getItem('qraft.picked') || '[]').forEach(function (f) { if (SETS.some(function (x) { return x.file === f; })) picked[f] = true; }); } catch (e) {}   /* 前回の選択を引き継ぐ */
-    $('setFilter').oninput = renderList;
-    $('selClear').onclick = function () { picked = {}; renderList(); };
+    $('selClear').onclick = function () { Object.keys(picked).forEach(function (k) { delete picked[k]; }); picker.render(); updateSel(); };
     $('count').oninput = function () { countTouched = true; updateSel(); };
-    renderPicker();
+    picker = mountSetPicker($('picker'), { sets: SETS, key: function (s) { return s.file; }, picked: picked, onChange: updateSel }); updateSel();
   } catch (e) { setupErr(e.message); $('btnCreate').disabled = true; }
   showScreen('s-setup');
 })();
 
-var SETS = [], picked = {}, gradeSel = 0, unitSel = '', countTouched = false;
-var GL = { 0: 'すべて', 1: '1年', 2: '2年', 3: '3年' };
+var SETS = [], picked = {}, picker = null, countTouched = false;
 
 function entryOf(file) { return SETS.filter(function (s) { return s.file === file; })[0]; }
-function pill(text, on, onclick, field) {
-  var b = el('button', 'pk' + (on ? ' on' : ''), text); b.type = 'button'; if (field) b.dataset.f = field; b.onclick = onclick; return b;
-}
-
-/* 学年と単元のボタン */
-function renderPicker() {
-  var gr = $('gradeRow'); gr.textContent = '';
-  [0, 1, 2, 3].forEach(function (g) {
-    var n = SETS.filter(function (s) { return !g || s.grade === g; }).length;
-    gr.appendChild(pill(GL[g] + '（' + n + '）', g === gradeSel, function () { gradeSel = g; unitSel = ''; renderPicker(); }));
-  });
-  var ur = $('unitRow'); ur.textContent = '';
-  var seen = {}, units = [];
-  SETS.filter(function (s) { return !gradeSel || s.grade === gradeSel; }).forEach(function (s) {
-    if (!seen[s.unit]) { seen[s.unit] = { unit: s.unit, uo: s.uo, g: s.grade, f: s.field, n: 0 }; units.push(seen[s.unit]); }
-    seen[s.unit].n++;
-  });
-  units.sort(function (a, b) { return a.uo - b.uo; });
-  ur.appendChild(pill('すべての単元', unitSel === '', function () { unitSel = ''; renderPicker(); }));
-  units.forEach(function (u) {
-    ur.appendChild(pill((gradeSel || !u.g ? '' : u.g + '年・') + u.unit + '（' + u.n + '）', unitSel === u.unit, function () { unitSel = u.unit; renderPicker(); }, u.f));
-  });
-  renderList();
-}
-
-/* セットの一覧（チェックで選ぶ。学年・単元を替えても、選んだものは残る） */
-function renderList() {
-  var f = $('setFilter').value.trim();
-  var list = SETS.filter(function (s) {
-    return (!gradeSel || s.grade === gradeSel) && (!unitSel || s.unit === unitSel) && (!f || s.title.indexOf(f) >= 0);
-  });
-  var box = $('setList'); box.textContent = '';
-  list.forEach(function (s) {
-    var row = el('label', 'setrow' + (picked[s.file] ? ' on' : ''));
-    var cb = el('input'); cb.type = 'checkbox'; cb.checked = !!picked[s.file];
-    cb.onchange = function () { if (cb.checked) picked[s.file] = true; else delete picked[s.file]; row.classList.toggle('on', cb.checked); updateSel(); };
-    row.appendChild(cb);
-    var nm = el('div', 'nm'); nm.appendChild(el('span', '', s.title));
-    if (!unitSel && s.unit) nm.appendChild(el('span', 'tag', (s.grade ? s.grade + '年・' : '') + s.unit));
-    row.appendChild(nm);
-    var meta = el('div', 'meta'); meta.appendChild(el('b', '', s.count + '問'));
-    var t = s.types || {};
-    if (t.choice) meta.appendChild(el('span', 'bdg', '選択 ' + t.choice));
-    if (t.multi) meta.appendChild(el('span', 'bdg m', '複数 ' + t.multi));
-    if (t.text) meta.appendChild(el('span', 'bdg t', '入力 ' + t.text));
-    row.appendChild(meta); box.appendChild(row);
-  });
-  if (!list.length) box.appendChild(el('div', 'empty', '該当するセットがありません'));
-  updateSel();
-}
-
 /* 選んだセットのまとめ（合計問題数・出題数の初期値・パスワード欄） */
 function updateSel() {
   var files = Object.keys(picked).filter(entryOf);
@@ -217,7 +161,7 @@ function updateSel() {
   files.slice(0, 6).forEach(function (f) {
     var c = el('span', 'chip2'); c.appendChild(el('span', '', entryOf(f).title));
     var x = el('button', '', '×'); x.type = 'button'; x.title = 'この選択をはずす';
-    x.onclick = function () { delete picked[f]; renderList(); };
+    x.onclick = function () { delete picked[f]; picker.render(); updateSel(); };
     c.appendChild(x); chips.appendChild(c);
   });
   if (files.length > 6) chips.appendChild(el('span', 'chip2', 'ほか ' + (files.length - 6) + 'つ'));
