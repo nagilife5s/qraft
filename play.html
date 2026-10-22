@@ -6,7 +6,7 @@
 <title>Qraft</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261022204221">
+<link rel="stylesheet" href="theme.css?v=20261022204718">
 </head>
 <body>
 <div id="app">
@@ -32,6 +32,7 @@
 <section class="screen" id="s-wait">
   <div class="center" style="flex:1; display:flex; flex-direction:column; gap:.7em">
     <img class="logo-img" src="img/logo-wordmark.webp" alt="Qraft" style="height:7.6em">
+    <div id="waitAv" class="resav"></div>
     <div style="font-weight:900; font-size:2.6em">参加できました！</div>
     <div class="pill" id="meNick" style="font-size:1.6em"></div>
     <div class="mut" style="font-size:1.3em; margin-top:.4em">先生が始めるのを待っています</div>
@@ -59,7 +60,7 @@
 <section class="screen res ok" id="s-ok">
   <div class="confetti" id="conf-ok"></div>
   <div class="inner">
-    <div class="icon">✓</div><h2>正解！</h2>
+    <div class="resav" id="okav"></div><div class="icon">✓</div><h2>正解！</h2>
     <div class="plus">+<span id="okpts">0</span> 点</div>
     <div class="ans" id="okans"></div>
     <div class="rank">いま <b id="okrank"></b> 位 / <span id="okn"></span>人</div>
@@ -70,7 +71,7 @@
 <!-- 結果：不正解 -->
 <section class="screen res ng" id="s-ng">
   <div class="inner">
-    <div class="icon">✕</div><h2>ざんねん…</h2>
+    <div class="resav" id="ngav"></div><div class="icon">✕</div><h2>ざんねん…</h2>
     <div class="ans" id="ngans"></div>
     <div class="rank">いま <b id="ngrank"></b> 位 / <span id="ngn"></span>人</div>
     <div class="hint">合計 <span id="ngtotal">0</span> 点　次はとり返そう！</div>
@@ -80,7 +81,7 @@
 <!-- 結果：時間切れ -->
 <section class="screen res late" id="s-late">
   <div class="inner">
-    <div class="icon">⏱</div><h2>時間切れ！</h2>
+    <div class="resav" id="lateav"></div><div class="icon">⏱</div><h2>時間切れ！</h2>
     <div class="ans" id="lateans"></div>
     <div class="rank">いま <b id="laterank"></b> 位 / <span id="laten"></span>人</div>
     <div class="hint">合計 <span id="latetotal">0</span> 点　次は早めに押そう！</div>
@@ -122,11 +123,11 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261022204221"></script>
+<script src="firebase-config.js?v=20261022204718"></script>
 <script type="module">
 import { mountAvatarPicker, avatarEl, signIn, db, ref, set, get, onValue, serverTimestamp, serverNow, CHOICE_STYLE,
          $, el, fmt, motionOn, showScreen, stopAnim, countUp, confetti, buildRank,
-         loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261022204221';
+         loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261022204718';
 
 mountStage();
 
@@ -186,6 +187,7 @@ async function join(p, n, silent) {
 }
 
 function start() {
+  $('waitAv').textContent = ''; $('waitAv').appendChild(avatarEl(avPick.get(), uid));
   $('meNick').textContent = ''; $('meNick').appendChild(avatarEl(avPick.get(), uid)); $('meNick').appendChild(document.createTextNode(' ' + nick));
   onValue(ref(db, 'rooms/' + pin + '/state'), function (s) {
     state = s.val();
@@ -283,6 +285,7 @@ function drawQuestion() {
 
 function drawResult(variant, me, r) {
   if (variant === 'collect') { showScreen('s-collect'); return; }
+  var rv = $(variant + 'av'); if (rv) { rv.textContent = ''; rv.appendChild(avatarEl(avPick.get(), uid)); }
   var q;
   if (state.type === 'text') { q = (state.accept || []).slice(0, 3).join(' ／ '); }
   else { var cs = [].concat(state.correct); q = cs.map(function (i) { var c = state.choices[i]; return CHOICE_STYLE[i].shape + ' ' + (c.t || '（画像）'); }).join('　'); }

@@ -706,3 +706,29 @@ button.tile:disabled { cursor:default; }
 .podium .p1 .pav { font-size:4.6em; }
 .podium .pav .avx { display:inline-block; }
 #meNick .avx { font-size:1.3em; margin-right:.2em; }
+
+/* ===== 問題セット選択：行を小さく、縦を長く（label の block 指定に負けないよう flex を指定し直す） ===== */
+.setup label.pcard { display:flex; align-items:center; gap:.5em; margin:.18em 0; padding:.28em .6em .28em .55em; border-width:.12em; border-left-width:.4em; font-weight:800; }
+.pcard .pck { width:1.15em; height:1.15em; border-radius:.3em; font-size:.9em; }
+.pcard .ptt { font-size:.98em; line-height:1.3; }
+.pcard .pmeta { gap:.3em; font-size:.8em; white-space:nowrap; }
+.pcard .pmeta .bdg { padding:.05em .5em; }
+.plist { max-height:min(34em, 58vh); }
+.pgh { margin-top:.3em; padding:.3em .8em; }
+@container pk (max-width: 430px) { .pcard { flex-wrap:wrap; } .pcard .pmeta { width:100%; padding-left:1.8em; } }
+.pkr { container:pk / inline-size; }
+
+/* ===== 結果画面のキャラ・待機画面のキャラ・ロビーの登場 ===== */
+.resav { font-size:5.2em; line-height:1.15; display:flex; justify-content:center; margin-bottom:.05em; }
+.resav .avx .avimg { height:1.25em; }
+.res.ok .resav .avx { animation:cheer .75s ease-in-out infinite; }
+.res.ng .resav .avx { animation:sadsway 1.8s ease-in-out infinite; filter:saturate(.55); }
+.res.late .resav .avx { animation:sadsway 2.4s ease-in-out infinite; filter:saturate(.45) brightness(.9); }
+@keyframes cheer { 0%,100% { transform:translateY(0) rotate(-4deg); } 50% { transform:translateY(-.28em) rotate(5deg); } }
+@keyframes sadsway { 0%,100% { transform:rotate(-3deg) translateY(.02em); } 50% { transform:rotate(3deg) translateY(.08em); } }
+#waitAv { font-size:5em; } #waitAv .avx { animation:cheer 1.1s ease-in-out infinite; }
+.players .pill { display:inline-flex; align-items:center; }
+.players .pill .avx { font-size:1.9em; margin-right:.35em; }
+.players .pill.extra .avx, .screen.on .players .pill .avx { animation:hopIn .85s cubic-bezier(.3,1.6,.5,1) both; }
+@keyframes hopIn { 0% { transform:translateY(-3.2em) scale(.3); opacity:0; } 55% { transform:translateY(.3em) scale(1.15); opacity:1; } 78% { transform:translateY(-.45em); } 100% { transform:none; opacity:1; } }
+@media (prefers-reduced-motion: reduce) { .res .resav .avx, #waitAv .avx, .players .pill .avx { animation:none !important; } }
