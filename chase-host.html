@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Qraft ジェットチェイス（先生）</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
-<link rel="stylesheet" href="theme.css?v=20261022205840">
+<link rel="stylesheet" href="theme.css?v=20261023113438">
 </head>
 <body>
 <div id="app">
@@ -45,7 +45,7 @@
 </section>
 
 <!-- ③ ゲーム中 -->
-<section class="screen" id="s-run" style="gap:.5em">
+<section class="screen" id="s-run" style="gap:.4em; padding:.5em .6em">
   <div class="rhud">
     <span class="pill" id="hLevel"></span>
     <div class="rbar"><span class="ri">🤖</span><i id="hFill"></i><span class="fl">🏁</span></div>
@@ -70,15 +70,15 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261022205840"></script>
+<script src="firebase-config.js?v=20261023113438"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script type="module">
-import { mountSetPicker } from './lib.js?v=20261022205840';
-import { newGame, step, draw as bdraw, serialize, RULE as BRULE, W as BW, H as BH } from './bomb.js?v=20261022205840';
+import { mountSetPicker } from './lib.js?v=20261023113438';
+import { newGame, step, draw as bdraw, serialize, RULE as BRULE, W as BW, H as BH } from './bomb.js?v=20261023113438';
 import { shuffle, signIn, db, ref, set, get, update, remove, onValue, serverNow,
          avatarEl, ROBOT, robotTarget, robotFrac, mountScene, parseAv,
          $, el, showScreen, confetti, qrSvg,
-         loadBackgrounds, applyBg, buildBgPickers, mountStage } from './lib.js?v=20261022205840';
+         loadBackgrounds, applyBg, buildBgPickers, mountStage } from './lib.js?v=20261023113438';
 
 mountStage();
 
