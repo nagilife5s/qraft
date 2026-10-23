@@ -6,13 +6,13 @@
 <title>Qraft 家庭練習</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261023114823">
+<link rel="stylesheet" href="theme.css?v=20261023120533">
 <style>
   .hm { width:min(72em,100%); height:100%; margin:0 auto; display:flex; flex-direction:column; gap:.8em; min-height:0; }
   .hm .row { display:flex; flex-wrap:wrap; gap:.5em; align-items:center; }
   .hm select.field { font-size:1.2em; width:auto; }
-  .hm .list { overflow:auto; display:grid; grid-template-columns:repeat(auto-fill, minmax(20em, 1fr)); align-content:start; gap:.4em; flex:1 1 0; min-height:6em; }
-  .hm .item { display:flex; align-items:center; gap:.7em; background:#fff; color:var(--ink-dark); border:0; border-radius:.8em; padding:.6em .9em; font:inherit; font-weight:800; text-align:left; cursor:pointer; box-shadow:var(--shadow); }
+  .hm .list { overflow:auto; display:grid; grid-template-columns:repeat(auto-fill, minmax(20em, 1fr)); align-content:start; gap:.7em .8em; padding:.1em .2em .5em; flex:1 1 0; min-height:6em; }
+  .hm .item { display:flex; align-items:center; gap:.7em; background:#fff; color:var(--ink-dark); border:0; border-radius:.8em; padding:.6em .9em; font:inherit; font-weight:800; text-align:left; cursor:pointer; box-shadow:0 .2em 0 rgba(0,0,0,.22); }
   .hm .item small { margin-left:auto; opacity:.7; white-space:nowrap; }
   .hm .item .tag { font-size:.75em; background:#eee; border-radius:999px; padding:.1em .6em; }
   .fb { text-align:center; font-weight:900; font-size:1.5em; min-height:2.4em; }
@@ -25,6 +25,10 @@
   .stu-tiles .tile.right-ans { outline:.2em solid #8bf0b0; }
   .stu-tiles .tile.wrong-pick { outline:.2em solid #ff5a5a; opacity:.6; }
   .scr { overflow:auto; }
+  #s-pick, #s-id { padding-top:1.6em; padding-bottom:1.6em; }
+  #s-id .joincol { width:min(32em,100%); gap:.7em; }
+  #s-id .pk { font-size:1.15em; padding:.3em 1em; }
+  #s-id .pk.on, .hm .pk.on { background:#ffd23f; color:#2a1a40; }
 </style>
 </head>
 <body>
@@ -32,8 +36,8 @@
 
 <!-- 本人確認 -->
 <section class="screen" id="s-id">
-  <div class="center" style="flex:1; display:flex; flex-direction:column; gap:1em">
-    <img class="logo-img" src="img/logo-wordmark.webp" alt="Qraft" style="height:6.4em">
+  <div class="center" style="flex:1; display:flex; flex-direction:column; gap:.7em">
+    <img class="logo-img" src="img/logo-wordmark.webp" alt="Qraft" style="height:4.4em">
     <div style="font-weight:900; font-size:1.8em">おうちで 練習</div>
     <div class="joincol">
       <div class="flabel">学年</div>
@@ -102,10 +106,10 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261023114823"></script>
+<script src="firebase-config.js?v=20261023120533"></script>
 <script type="module">
 import { signIn, db, ref, set, get, serverTimestamp, CHOICE_STYLE, shuffle, prepareQuestion, maskOf, isTextCorrect,
-         $, el, motionOn, showScreen, confetti, loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261023114823';
+         $, el, motionOn, showScreen, confetti, loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261023120533';
 import { push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 mountStage();

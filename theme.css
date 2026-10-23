@@ -751,3 +751,24 @@ button.tile:disabled { cursor:default; }
   .scene .rbot img { animation:hover 1.2s ease-in-out infinite alternate !important; }
   .scene .rbot.near img { animation-duration:.45s !important; }
 }
+
+/* ロボットの大きさ：場面の高さに合わせる（以前は文字サイズ基準で、先生の大画面だと顔が巨大になった） */
+.scene .rbot img { height:52cqh; max-width:none; }
+.scene.mini .rbot img { height:60cqh; }
+
+/* ===== レイアウト点検（2026-10-23）===== */
+/* 中央寄せの列にある「最初の画面にもどる」が右へ寄っていた（.linkbtn の margin-left:auto のため） */
+.center > a.linkbtn { margin-left:auto; margin-right:auto; }
+/* 入力画面は、背が足りないときにスクロールできるように（上が切れないよう safe center） */
+.center { justify-content:safe center; }
+#s-join, #s-id { overflow-y:auto; }
+/* 正解・不正解の画面：16:9 だと「いま◯位」が下にはみ出ていた */
+.res .inner { gap:.4em; padding:1.2em 2em; }
+.res .icon { font-size:2.7em; }
+.resav { font-size:4em; }
+/* 進み具合バーの絵文字が上下で少し切れていた */
+.rbar .ri, .rbar .fl { line-height:1; }
+/* 参加・本人確認の画面：Chromebook（1366x768）で、ボタンまで1画面に収める */
+#s-join, #s-id { padding-top:1.4em; padding-bottom:1.4em; }
+#s-join .field, #s-id .field { font-size:1.35em; padding:.5em .9em; }
+#s-join .joincol { gap:.75em; }

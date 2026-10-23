@@ -6,7 +6,7 @@
 <title>Qraft ジェットチェイス</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261023114823">
+<link rel="stylesheet" href="theme.css?v=20261023120533">
 <style>
   .brow { display:flex; gap:.4em; align-items:center; background:rgba(255,255,255,.92); color:var(--ink-dark); border-radius:.6em; padding:.15em .6em; font-weight:800; font-size:.95em; }
   .brow.me { outline:.15em solid #ffd23f; }
@@ -14,6 +14,8 @@
   .pad button, .bombbtn { font:inherit; font-size:1.2em; font-weight:900; border:0; border-radius:.6em; background:#fff; color:var(--ink-dark); box-shadow:var(--shadow); touch-action:none; }
   .bombbtn { width:3.8em; height:3.8em; border-radius:50%; background:#ff5a5a; color:#fff; }
   .fb { text-align:center; font-weight:900; font-size:1.3em; min-height:1.6em; }
+  /* 生徒の画面には、追いかけてくる場面は出さない（問題の選択肢を大きく見せるため） */
+  #sceneBox { display:none !important; }
   .fb.ok { color:#8bf0b0; } .fb.ng { color:#ffd23f; }
 </style>
 </head>
@@ -23,8 +25,8 @@
 
 <!-- 参加 -->
 <section class="screen" id="s-join">
-  <div class="center" style="flex:1; display:flex; flex-direction:column; gap:1.2em">
-    <img class="logo-img" src="img/logo-wordmark.webp" alt="Qraft" style="height:7.6em">
+  <div class="center" style="flex:1; display:flex; flex-direction:column; gap:.8em">
+    <img class="logo-img" src="img/logo-wordmark.webp" alt="Qraft" style="height:4.2em">
     <div class="joincol">
       <div class="flabel">PIN（先生の画面の6けた）</div>
       <input class="field" id="pin" inputmode="numeric" autocomplete="off" maxlength="6" placeholder="123456">
@@ -95,6 +97,7 @@
       <div style="font-size:3.6em; font-weight:900; color:var(--bg2); line-height:1.1"><span id="endk">0</span><small style="font-size:.4em"> 問（<span id="enda">0</span>問中）</small></div>
       <div class="mut" style="color:#5b5478; font-weight:800; margin-top:.3em">クラス全体 <span id="endAll">0</span> 問</div>
     </div>
+    <a class="btn" href="play.html" style="text-decoration:none; margin-top:.8em">つぎのゲームに参加する</a><a class="linkbtn" href="index.html" style="color:#fff; font-weight:800; margin-top:.5em">最初の画面にもどる</a>
   </div>
 </section>
 
@@ -103,12 +106,12 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261023114823"></script>
+<script src="firebase-config.js?v=20261023120533"></script>
 <script type="module">
-import { newView, applyData, draw as bdraw, RULE as BRULE, W as BW, H as BH } from './bomb.js?v=20261023114823';
+import { newView, applyData, draw as bdraw, RULE as BRULE, W as BW, H as BH } from './bomb.js?v=20261023120533';
 import { parseAv, mountAvatarPicker, avatarEl, signIn, db, ref, set, get, onValue, serverNow, CHOICE_STYLE, shuffle,
          ROBOT, robotFrac, mountScene, prepareQuestion, maskOf, isTextCorrect,
-         $, el, showScreen, confetti, loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261023114823';
+         $, el, showScreen, confetti, loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261023120533';
 
 mountStage();
 
