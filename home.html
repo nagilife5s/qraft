@@ -6,12 +6,12 @@
 <title>Qraft 家庭練習</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261023113438">
+<link rel="stylesheet" href="theme.css?v=20261023114823">
 <style>
-  .hm { width:min(46em,100%); margin:0 auto; display:flex; flex-direction:column; gap:.8em; min-height:0; }
+  .hm { width:min(72em,100%); height:100%; margin:0 auto; display:flex; flex-direction:column; gap:.8em; min-height:0; }
   .hm .row { display:flex; flex-wrap:wrap; gap:.5em; align-items:center; }
   .hm select.field { font-size:1.2em; width:auto; }
-  .hm .list { overflow:auto; display:flex; flex-direction:column; gap:.4em; min-height:0; max-height:46vh; }
+  .hm .list { overflow:auto; display:grid; grid-template-columns:repeat(auto-fill, minmax(20em, 1fr)); align-content:start; gap:.4em; flex:1 1 0; min-height:6em; }
   .hm .item { display:flex; align-items:center; gap:.7em; background:#fff; color:var(--ink-dark); border:0; border-radius:.8em; padding:.6em .9em; font:inherit; font-weight:800; text-align:left; cursor:pointer; box-shadow:var(--shadow); }
   .hm .item small { margin-left:auto; opacity:.7; white-space:nowrap; }
   .hm .item .tag { font-size:.75em; background:#eee; border-radius:999px; padding:.1em .6em; }
@@ -102,10 +102,10 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261023113438"></script>
+<script src="firebase-config.js?v=20261023114823"></script>
 <script type="module">
 import { signIn, db, ref, set, get, serverTimestamp, CHOICE_STYLE, shuffle, prepareQuestion, maskOf, isTextCorrect,
-         $, el, motionOn, showScreen, confetti, loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261023113438';
+         $, el, motionOn, showScreen, confetti, loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261023114823';
 import { push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 mountStage();

@@ -6,7 +6,7 @@
 <title>Qraft ジェットチェイス</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261023113438">
+<link rel="stylesheet" href="theme.css?v=20261023114823">
 <style>
   .brow { display:flex; gap:.4em; align-items:center; background:rgba(255,255,255,.92); color:var(--ink-dark); border-radius:.6em; padding:.15em .6em; font-weight:800; font-size:.95em; }
   .brow.me { outline:.15em solid #ffd23f; }
@@ -103,12 +103,12 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261023113438"></script>
+<script src="firebase-config.js?v=20261023114823"></script>
 <script type="module">
-import { newView, applyData, draw as bdraw, RULE as BRULE, W as BW, H as BH } from './bomb.js?v=20261023113438';
+import { newView, applyData, draw as bdraw, RULE as BRULE, W as BW, H as BH } from './bomb.js?v=20261023114823';
 import { parseAv, mountAvatarPicker, avatarEl, signIn, db, ref, set, get, onValue, serverNow, CHOICE_STYLE, shuffle,
          ROBOT, robotFrac, mountScene, prepareQuestion, maskOf, isTextCorrect,
-         $, el, showScreen, confetti, loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261023113438';
+         $, el, showScreen, confetti, loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261023114823';
 
 mountStage();
 
@@ -254,7 +254,7 @@ function joinBoard() {
   bUnsub = onValue(ref(db, 'rooms/' + pin + '/bd/' + myG), function (s) { if (s.val()) applyData(bView, s.val()); });
 }
 function sizeBoard() {
-  var px = Math.max(240, Math.min(window.innerWidth - 40, (window.innerHeight - 250) * BW / BH, 660)), cv = $('bcv');
+  var px = Math.max(240, Math.min(window.innerWidth - 40, (window.innerHeight - 170) * BW / BH, 900)), cv = $('bcv');
   cv.width = Math.floor(px); cv.height = Math.floor(px / BW * BH); cv.style.width = cv.width + 'px'; cv.style.height = cv.height + 'px';
 }
 addEventListener('resize', function () { if (!$('bombBoxS').classList.contains('hide')) sizeBoard(); });

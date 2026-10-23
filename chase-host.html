@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Qraft ジェットチェイス（先生）</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
-<link rel="stylesheet" href="theme.css?v=20261023113438">
+<link rel="stylesheet" href="theme.css?v=20261023114823">
 </head>
 <body>
 <div id="app">
@@ -70,15 +70,15 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261023113438"></script>
+<script src="firebase-config.js?v=20261023114823"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script type="module">
-import { mountSetPicker } from './lib.js?v=20261023113438';
-import { newGame, step, draw as bdraw, serialize, RULE as BRULE, W as BW, H as BH } from './bomb.js?v=20261023113438';
+import { mountSetPicker } from './lib.js?v=20261023114823';
+import { newGame, step, draw as bdraw, serialize, RULE as BRULE, W as BW, H as BH } from './bomb.js?v=20261023114823';
 import { shuffle, signIn, db, ref, set, get, update, remove, onValue, serverNow,
          avatarEl, ROBOT, robotTarget, robotFrac, mountScene, parseAv,
          $, el, showScreen, confetti, qrSvg,
-         loadBackgrounds, applyBg, buildBgPickers, mountStage } from './lib.js?v=20261023113438';
+         loadBackgrounds, applyBg, buildBgPickers, mountStage } from './lib.js?v=20261023114823';
 
 mountStage();
 
@@ -238,7 +238,7 @@ function buildBombBoxes() {
   /* 画面に全グループが収まる大きさを計算する（グループ数が少ないと大きく、多いと小さく） */
   var n = bgames.length, cols = n <= 1 ? 1 : n <= 2 ? 2 : n <= 6 ? 3 : 4, rows = Math.ceil(n / cols);
   var availH = Math.max(200, box.clientHeight || (window.innerHeight - 140)), availW = box.clientWidth || (window.innerWidth - 30);
-  var cellW = Math.floor(Math.min((availW - (cols - 1) * 10) / cols, (availH / rows - 64) * BW / BH, 720));
+  var cellW = Math.floor(Math.min((availW - (cols - 1) * 10) / cols, (availH / rows - 50) * BW / BH, 1600));
   var grid = el('div', 'grid7'); grid.style.cssText = 'display:grid; gap:.6em; grid-template-columns:repeat(' + cols + ', ' + cellW + 'px); justify-content:center; width:100%;';
   bcanv = []; bcoreEls = [];
   bgames.forEach(function (bg, gi) {
