@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Qraft ジェットチェイス（先生）</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
-<link rel="stylesheet" href="theme.css?v=20261023120533">
+<link rel="stylesheet" href="theme.css?v=20261026064543">
 </head>
 <body>
 <div id="app">
@@ -38,6 +38,7 @@
   <div class="cnt-line">
     <b>👥 <span id="pcount">0</span>人が参加中</b>
     <div style="display:flex;gap:.8em;align-items:center">
+      <button class="snd"></button>
       <button class="btn" id="btnStart" disabled>スタート！</button>
     </div>
   </div>
@@ -54,7 +55,7 @@
   </div>
   <div id="sceneBox" style="flex:1; display:flex; min-height:0"></div>
   <div id="bombBox" class="hide" style="flex:1; min-height:0; overflow:auto"></div>
-  <div class="chase-top"><span class="banner hide" id="hBanner"></span><span class="pill" id="hStat" style="margin-left:auto"></span><button class="btn ghost" id="btnEnd">ゲームを終える</button></div>
+  <div class="chase-top"><span class="banner hide" id="hBanner"></span><span class="pill" id="hStat" style="margin-left:auto"></span><button class="snd"></button><button class="btn ghost" id="btnEnd">ゲームを終える</button></div>
 </section>
 
 <!-- ④ 終了 -->
@@ -66,26 +67,29 @@
     <div class="card" style="min-width:20em"><div class="mut" style="color:#5b5478;font-weight:800">クラス全体の正解数</div><div style="font-size:4em; font-weight:900; color:var(--bg2); line-height:1.1"><span id="endK">0</span><small style="font-size:.4em"> 問</small></div><div style="font-weight:800" id="endSub"></div></div>
     <button class="btn sub" id="btnClose" style="margin-top:1em">ルームを閉じる</button>
   </div>
+  <button class="snd fixed"></button>
 </section>
 
 </div>
 
-<script src="firebase-config.js?v=20261023120533"></script>
+<script src="firebase-config.js?v=20261026064543"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script type="module">
-import { mountSetPicker } from './lib.js?v=20261023120533';
-import { newGame, step, draw as bdraw, serialize, RULE as BRULE, W as BW, H as BH } from './bomb.js?v=20261023120533';
+import { mountSetPicker } from './lib.js?v=20261026064543';
+import { newGame, step, draw as bdraw, serialize, RULE as BRULE, W as BW, H as BH } from './bomb.js?v=20261026064543';
 import { shuffle, signIn, db, ref, set, get, update, remove, onValue, serverNow,
          avatarEl, ROBOT, robotTarget, robotFrac, mountScene, parseAv,
          $, el, showScreen, confetti, qrSvg,
-         loadBackgrounds, applyBg, buildBgPickers, mountStage } from './lib.js?v=20261023120533';
+         loadBackgrounds, applyBg, buildBgPickers, mountStage } from './lib.js?v=20261026064543';
+import { bgm, bgmRate, sfx, preload, wireSoundButtons } from './sound.js?v=20261026064543';
 
 mountStage();
+wireSoundButtons();
 
 var uid = null, pin = null, BGS = [], curBg = 'space';
 var SETS = [], picked = {}, picker = null;
 var binMap = {}, bgames = [], lastB = {}, bombTimer = null, bombRaf = null, bTotal = {}, bLevel = {};
-var players = {}, runs = {}, S = null, started = false, ended = false, tickId = null, scene = null, bannerUntil = 0;
+var lastK = 0, players = {}, runs = {}, S = null, started = false, ended = false, tickId = null, scene = null, bannerUntil = 0;
 var GL = { 0: 'すべて', 1: '1年', 2: '2年', 3: '3年' };
 
 /* ------------------------------------------------------------ 準備 */
@@ -138,6 +142,7 @@ $('btnCreate').onclick = async function () {
     var svg = qrSvg(base + 'chase-play.html?pin=' + pin);
     if (svg) $('qr').innerHTML = svg; else $('qrcard').classList.add('hide');
     showScreen('s-lobby');
+    preload(['lobby', 'chase', 'blast', 'podium']); bgm('lobby');
   } catch (e) {
     setupErr('ルームを作れませんでした: ' + e.message);
     $('btnCreate').disabled = false;
@@ -155,7 +160,7 @@ function renderLobby() {
     if (chipEls[id]) { chipEls[id].children[1].textContent = players[id].nick; return; }
     var c = el('span', 'pill extra'); c.appendChild(avatarEl(players[id].av, id)); c.appendChild(el('span', '', players[id].nick));
     var b = el('button', 'chip-x', '退出'); b.onclick = function () { var u = {}; u['kicked/' + id] = true; u['players/' + id] = null; u['run/' + id] = null; update(ref(db, 'rooms/' + pin), u); };
-    c.appendChild(b); box.appendChild(c); chipEls[id] = c;
+    c.appendChild(b); box.appendChild(c); chipEls[id] = c; sfx('join');
   });
   Object.keys(chipEls).forEach(function (id) { if (!players[id]) { chipEls[id].remove(); delete chipEls[id]; } });
 }
@@ -174,6 +179,7 @@ $('btnStart').onclick = async function () {
   S.N = Object.keys(players).length; S.lives = ROBOT.lives; S.total = 0;
   await save(Object.assign({ N: S.N, lives: S.lives }, levelStart(1)));
   scene = mountScene($('sceneBox'), false); showScreen('s-run');
+  sfx('go'); bgm('chase');
   tickId = setInterval(tick, 250);
 };
 
@@ -189,6 +195,9 @@ function tick() {
   if (bannerUntil < Date.now()) $('hBanner').classList.add('hide');
 
   if (S.phase === 'quiz') {
+    bgm('chase'); bgmRate(1 + 0.12 * Math.max(0, Math.min(1, (frac - 0.5) / 0.5)));   /* ロボットが近いほど、曲を速く */
+    if (K > lastK) sfx('step');                                                        /* だれかが正解した */
+    lastK = K;
     var left = Math.max(0, S.Tl - sec);
     $('hTime').textContent = Math.floor(left / 60) + ':' + String(Math.floor(left % 60)).padStart(2, '0');
     $('hFill').style.width = p * 100 + '%';
@@ -198,11 +207,11 @@ function tick() {
     if (sec < 3) { if (bannerUntil < Date.now()) banner('レベル ' + S.level + ' スタート！ 問題に答えて ロボットから にげろ！', false, 3); return; }
     if (p >= 1) {
       banner('クリア！ ブラストタイムへ！', false, 3);
-      startBomb();
+      sfx('levelup'); startBomb();
     } else if (frac >= 1 || sec >= S.Tl) {
       var lives = S.lives - 1;
       if (lives <= 0) return finish('lose', lives);
-      banner('ロボットにつかまった！ ライフ −1　もう一度！', true, 4);
+      banner('ロボットにつかまった！ ライフ −1　もう一度！', true, 4); sfx('caught');
       save(Object.assign({ lives: lives, fail: (S.fail || 0) + 1 }, levelStart(S.level)));
     }
   } else if (S.phase === 'bombres') {
@@ -227,7 +236,7 @@ function startBomb() {
   Promise.all([set(ref(db, 'rooms/' + pin + '/bgrp'), bgrp), set(ref(db, 'rooms/' + pin + '/bd'), bd)]).then(function () {
     save({ phase: 'bomb', bstart: start });
   });
-  S.phase = 'bomb'; S.bstart = start;                                    /* この間に quiz 判定が再び走らないように、手元はすぐ切り替える */
+  S.phase = 'bomb'; S.bstart = start; bgmRate(1); bgm('blast');                                    /* この間に quiz 判定が再び走らないように、手元はすぐ切り替える */
   showBomb(true); buildBombBoxes();
   clearInterval(bombTimer); bombTimer = setInterval(bombTick, 100);
   cancelAnimationFrame(bombRaf); (function loop() { bombDraw(); bombRaf = requestAnimationFrame(loop); })();
@@ -266,6 +275,7 @@ function bombTick() {
   bgames.forEach(function (bg, gi) {
     var inputs = bg.members.map(function (u) { var r = binMap[u] || {}, bb = (r.b || 0) > (lastB[u] || 0); lastB[u] = r.b || 0; return { d: r.d || 0, b: bb }; });
     step(bg.g, inputs); upd[gi] = serialize(bg.g); if (!bg.g.over) allOver = false;
+    bg.g.ev.forEach(function (e) { if (e.k === 'boom' || e.k === 'kill') sfx(e.k); });
     bcoreEls[gi].textContent = bg.members.map(function (u, i) { return (players[u] ? players[u].nick : '?') + ' ' + bg.g.players[i].score; }).join(' / ');
   });
   update(ref(db, 'rooms/' + pin + '/bd'), upd).catch(function () {});
@@ -279,7 +289,7 @@ function endBomb() {
   bgames.forEach(function (bg) { bg.members.forEach(function (u, i) { var sc = bg.g.players[i].score; bLevel[u] = sc; bTotal[u] = (bTotal[u] || 0) + sc; rows.push({ n: players[u] ? players[u].nick : '?', s: sc }); }); });
   rows.sort(function (a, b) { return b.s - a.s; });
   update(ref(db, 'rooms/' + pin + '/bscore'), bTotal).catch(function () {});
-  save({ phase: 'bombres', brstart: serverNow() });
+  save({ phase: 'bombres', brstart: serverNow() }); sfx('fanfare');
   banner('このレベルのMVP：' + rows.slice(0, 3).map(function (r, i) { return (i + 1) + '位 ' + r.n + '（' + r.s + '点）'; }).join('　'), false, 6);
 }
 
@@ -295,9 +305,10 @@ async function finish(result, lives) {
   $('endK').textContent = K;
   $('endSub').textContent = (S.level && !win ? 'レベル ' + S.level + ' で ゲームオーバー' : '') + (win ? '残りライフ ' + lives + ' / ' + ROBOT.lives : '') + (topB.length ? '　ブラストタイム上位：' + topB.map(function (r, i) { return (i + 1) + '位 ' + r.n + '（' + r.s + '点）'; }).join('　') : '');
   showScreen('s-end'); if (win) confetti($('conf'), 46);
+  bgmRate(1); if (win) { bgm('podium'); sfx('fanfare'); } else { bgm(null); sfx('lose'); }
 }
 $('btnEnd').onclick = function () { if (confirm('ゲームを終えますか？')) finish('lose', 0); };
-$('btnClose').onclick = async function () { await remove(ref(db, 'rooms/' + pin)); location.reload(); };
+$('btnClose').onclick = async function () { bgm(null); await remove(ref(db, 'rooms/' + pin)); location.reload(); };
 </script>
 </body>
 </html>

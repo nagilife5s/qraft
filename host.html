@@ -6,7 +6,7 @@
 <title>Qraft 先生用</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261023120533">
+<link rel="stylesheet" href="theme.css?v=20261026064543">
 </head>
 <body>
 <div id="app">
@@ -48,6 +48,7 @@
   <div class="cnt-line">
     <b>👥 <span id="pcount">0</span>人が参加中</b>
     <div style="display:flex;gap:.8em;align-items:center">
+      <button class="snd"></button>
       <div class="bgpick"><button type="button" class="fab">🎨 背景</button><div class="sw"></div></div>
       <button class="btn" id="btnStart" disabled>ゲームを始める</button>
     </div>
@@ -89,17 +90,19 @@
     <div class="mut" style="font-size:.95em">閉じると、生徒の画面にも終了が表示されます</div>
   </div>
   <div class="bgpick fixed"><button type="button" class="fab">🎨 背景</button><div class="sw"></div></div>
+  <button class="snd fixed"></button>
 </section>
 
 </div>
 
-<script src="firebase-config.js?v=20261023120533"></script>
+<script src="firebase-config.js?v=20261026064543"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script type="module">
 import { mountSetPicker, avatarEl, signIn, db, ref, set, get, update, remove, onValue, serverTimestamp, serverNow,
          calcScore, CHOICE_STYLE, RESULT_SEC, RANK_SEC, sleep, shuffle,
          $, el, fmt, motionOn, showScreen, later, stopAnim, countUp, confetti, qrSvg, buildRank,
-         loadBackgrounds, applyBg, buildBgPickers, savedBg, saveBg, mountStage, decryptSet, prepareQuestion, maskOf, isTextCorrect, normText } from './lib.js?v=20261023120533';
+         loadBackgrounds, applyBg, buildBgPickers, savedBg, saveBg, mountStage, decryptSet, prepareQuestion, maskOf, isTextCorrect, normText } from './lib.js?v=20261026064543';
+import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261026064543';
 
 mountStage();
 
@@ -117,8 +120,9 @@ var BGS = [], curBg = savedBg();
 /* 先生の操作バー（一時停止・次へ・終了・背景）を、必要な画面に差し込む */
 var HOSTBAR = '<button class="btn ghost hb-pause">一時停止</button><button class="btn ghost hb-next">次へ</button><button class="btn ghost hb-end">終了</button>' +
   '<span class="pausebadge hide hb-badge">⏸ 一時停止中</span><span style="flex:1"></span>' +
-  '<div class="bgpick"><button type="button" class="fab">🎨 背景</button><div class="sw"></div></div>';
+  '<button class="snd"></button><div class="bgpick"><button type="button" class="fab">🎨 背景</button><div class="sw"></div></div>';
 document.querySelectorAll('.hostbar').forEach(function (b) { b.innerHTML = HOSTBAR; });
+wireSoundButtons();
 
 /* ---------------------------------------------------------------- 背景（先生だけが選べる） */
 function pickBg(k) {
@@ -223,6 +227,7 @@ $('btnCreate').onclick = async function () {
     var svg = qrSvg(base + 'play.html?pin=' + pin);
     if (svg) $('qr').innerHTML = svg; else $('qrcard').classList.add('hide');   /* QRのライブラリが読めなかったら、QRだけ隠す */
     showScreen('s-lobby');
+    preload(['lobby', 'quiz', 'podium']); bgm('lobby');
   } catch (e) {
     setupErr('ルームを作れませんでした: ' + e.message);
     $('btnCreate').disabled = false; $('btnCreate').textContent = 'ルームを作る';
@@ -249,6 +254,7 @@ function renderLobby() {
     var b = el('button', 'chip-x', '退出'); b.title = 'この参加者を退出させる';
     b.onclick = function () { kick(id); };
     c.appendChild(b); box.appendChild(c); chipEls[id] = c;
+    if (!firstRender) sfx('join');
   });
   Object.keys(chipEls).forEach(function (id) { if (!players[id]) { chipEls[id].remove(); delete chipEls[id]; } });
   firstRender = false;
@@ -263,6 +269,7 @@ async function kick(id) {
 $('btnStart').onclick = function () {
   started = true;
   window.addEventListener('beforeunload', function (e) { if (!ended) { e.preventDefault(); e.returnValue = ''; } });
+  sfx('go');
   runGame();
 };
 
@@ -318,7 +325,7 @@ function ansLabel() {
 
 async function askQuestion(i) {
   var q = game[i];
-  stopAnim(); showScreen('s-q');
+  stopAnim(); showScreen('s-q'); bgm('quiz');
   $('qno').textContent = '問題 ' + (i + 1) + ' / ' + game.length + (q.type === 'text' ? '・入力式' : q.multi ? '・複数選択' : '');
   $('qtext').textContent = q.text;
   var img = $('qimg');
@@ -350,13 +357,15 @@ async function askQuestion(i) {
   }));
   tStart = (await get(ref(db, 'rooms/' + pin + '/state/t'))).val();
 
-  var limitMs = q.limit * 1000;
+  var limitMs = q.limit * 1000, lastSec = -1;
   while (!ended) {
     await sleep(100);
     var el_ = serverNow() - tStart;
-    var left = Math.max(0, limitMs - el_);
+    var left = Math.max(0, limitMs - el_), secLeft = Math.ceil(left / 1000);
     ring.style.setProperty('--p', left / limitMs * 100);
-    ring.querySelector('b').textContent = Math.ceil(left / 1000);
+    ring.querySelector('b').textContent = secLeft;
+    if (secLeft !== lastSec && secLeft <= 5 && secLeft > 0) sfx('tick');     /* 残り5秒からカウントダウンの音 */
+    lastSec = secLeft;
     ring.classList.toggle('hurry', left <= 5000 && left > 0);
     if (el_ >= limitMs) break;
     if (skip) { skip = false; break; }
@@ -409,7 +418,7 @@ async function showResult(i) {
   }));
 
   /* 画面：棒グラフの下に選択肢を並べる */
-  stopAnim(); showScreen('s-reveal');
+  stopAnim(); showScreen('s-reveal'); bgm(null); sfx('reveal');
   $('rqno').textContent = '問題 ' + (i + 1) + ' / ' + game.length;
   $('rans').textContent = '回答 ' + answered + ' / ' + activeIds().length + '人';
   $('rqtext').textContent = q.text;
@@ -473,7 +482,7 @@ async function showRanking(i) {
     phase: 'ranking', i: i, n: game.length,
     rows: rankRows.map(function (r) { return { u: r.u, av: r.av || '', nick: r.nick, prev: r.prev, total: r.total, from: r.from, to: r.to, mv: r.mv }; })
   }));
-  stopAnim(); showScreen('s-rank');
+  stopAnim(); showScreen('s-rank'); bgm('lobby'); sfx('rank');
   $('kprog').textContent = (i + 1) + ' / ' + game.length + '問 終了';
   buildRank($('rk'), rankRows.map(function (r) { return Object.assign({}, r); }), '');
 }
@@ -488,7 +497,7 @@ async function finish() {
   if (unsubAnswers) { unsubAnswers(); unsubAnswers = null; }
   var top = topList(5);
   await set(ref(db, 'rooms/' + pin + '/state'), stateOf({ phase: 'end', n: game.length, top: top }));
-  stopAnim(); showScreen('s-end');
+  stopAnim(); showScreen('s-end'); bgm('podium'); sfx('fanfare');
   confetti($('conf'), 46);
   var pod = $('podium'); pod.textContent = '';
   [[1, 'p2'], [0, 'p1'], [2, 'p3']].forEach(function (pair) {
@@ -504,6 +513,7 @@ async function finish() {
 }
 
 $('btnClose').onclick = async function () {
+  bgm(null);
   await remove(ref(db, 'rooms/' + pin));
   location.reload();
 };

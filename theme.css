@@ -772,3 +772,8 @@ button.tile:disabled { cursor:default; }
 #s-join, #s-id { padding-top:1.4em; padding-bottom:1.4em; }
 #s-join .field, #s-id .field { font-size:1.35em; padding:.5em .9em; }
 #s-join .joincol { gap:.75em; }
+
+/* 🔊ボタン（sound.js が中身と動作を入れる） */
+.snd { font:inherit; font-weight:900; font-size:1.05em; background:rgba(18,10,48,.58); backdrop-filter:blur(4px); color:#fff; border:0; border-radius:999px; padding:.5em 1.1em; cursor:pointer; white-space:nowrap; }
+.snd:hover { background:rgba(18,10,48,.78); }
+.snd.fixed { position:absolute; left:1.8em; bottom:1.4em; z-index:6; }

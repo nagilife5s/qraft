@@ -6,7 +6,7 @@
 <title>Qraft 家庭練習</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261023120533">
+<link rel="stylesheet" href="theme.css?v=20261026064543">
 <style>
   .hm { width:min(72em,100%); height:100%; margin:0 auto; display:flex; flex-direction:column; gap:.8em; min-height:0; }
   .hm .row { display:flex; flex-wrap:wrap; gap:.5em; align-items:center; }
@@ -55,7 +55,7 @@
 <!-- セット選び -->
 <section class="screen" id="s-pick">
   <div class="hm">
-    <div class="stu-top"><span class="pill" id="who"></span><button class="btn ghost" id="btnWho">本人確認をやり直す</button></div>
+    <div class="stu-top"><span class="pill" id="who"></span><span style="display:flex;gap:.5em;align-items:center"><button class="snd"></button><button class="btn ghost" id="btnWho">本人確認をやり直す</button></span></div>
     <div style="font-weight:900; font-size:1.6em">練習するセットを えらぼう</div>
     <div class="row" id="gradeRow"></div>
     <div class="row" id="unitRow"></div>
@@ -71,7 +71,7 @@
 
 <!-- 出題 -->
 <section class="screen" id="s-q">
-  <div class="stu-top"><span class="pill" id="qno"></span><span class="pill" id="qset" style="background:var(--pop1)"></span></div>
+  <div class="stu-top"><span class="pill" id="qno"></span><span style="display:flex;gap:.5em;align-items:center"><span class="pill" id="qset" style="background:var(--pop1)"></span><button class="snd"></button></span></div>
   <div class="stu-q" id="sq"><img id="sqimg" class="qimg hide" alt=""><span id="sqtext"></span></div>
   <div class="stu-tiles" id="stiles"></div>
   <div id="textbox" class="hide">
@@ -106,13 +106,15 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261023120533"></script>
+<script src="firebase-config.js?v=20261026064543"></script>
 <script type="module">
 import { signIn, db, ref, set, get, serverTimestamp, CHOICE_STYLE, shuffle, prepareQuestion, maskOf, isTextCorrect,
-         $, el, motionOn, showScreen, confetti, loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261023120533';
+         $, el, motionOn, showScreen, confetti, loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261026064543';
 import { push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261026064543';
 
 mountStage();
+wireSoundButtons();
 
 var me = null;                    /* {g, c, n} */
 var SETS = [], gradeSel = 0, unitSel = '';
@@ -159,6 +161,7 @@ function openPick() {
   $('who').textContent = me.g + '年' + me.c + '組 ' + me.n + '番';
   gradeSel = me.g; unitSel = '';
   renderPicker(); showScreen('s-pick'); renderHist();
+  bgm(null); preload(['home']);
 }
 $('setFilter').addEventListener('input', renderList);
 
@@ -259,7 +262,7 @@ function showQ() {
     $('tnote').textContent = p.numeric ? '数字で答えてね' : '答えを打ち込んで、Enter か「答える」';
     setTimeout(function () { inp.focus(); }, 300);
   }
-  showScreen('s-q');
+  showScreen('s-q'); bgm('home');
 }
 
 $('textAns').addEventListener('input', function () { $('btnSubmit').disabled = !this.value.trim(); });
@@ -284,9 +287,9 @@ function judge(mask, text) {
   });
   var fb = $('fb');
   if (ok) {
-    run.ok++; fb.className = 'fb ok'; fb.textContent = '✓ せいかい！';
+    run.ok++; fb.className = 'fb ok'; fb.textContent = '✓ せいかい！'; sfx('ok');
   } else {
-    run.wrong.push(run.list[run.pos]); fb.className = 'fb ng';
+    run.wrong.push(run.list[run.pos]); fb.className = 'fb ng'; sfx('ng');
     fb.textContent = '✕ ざんねん… ' + (p.type === 'text' ? '正解は 「' + p.accept.slice(0, 3).join(' ／ ') + '」' : '');
   }
   $('btnSubmit').classList.add('hide');
@@ -302,6 +305,7 @@ async function finish() {
   $('endmsg').textContent = pct === 100 ? '🎉 ぜんぶ正解！' : pct >= 80 ? 'すばらしい！' : pct >= 50 ? 'もうすこし！' : 'まちがえたところを やりなおそう';
   $('btnRetry').classList.toggle('hide', !run.wrong.length);
   showScreen('s-end'); if (pct >= 80) confetti($('conf-end'), 40);
+  bgm(null); sfx(pct >= 80 ? 'fanfare' : 'levelup');
   if (!run.retry) {                         /* ベストは、通常の練習だけで更新 */
     var best = store.get('qraft.home.best') || {}; if (!best[run.id] || best[run.id] < pct) best[run.id] = pct; store.set('qraft.home.best', best);
   }
