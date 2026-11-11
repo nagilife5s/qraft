@@ -6,7 +6,7 @@
 <title>Qraft ジェットチェイス</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261111142241">
+<link rel="stylesheet" href="theme.css?v=20261111142859">
 <style>
   .brow { display:flex; gap:.4em; align-items:center; background:rgba(255,255,255,.92); color:var(--ink-dark); border-radius:.6em; padding:.15em .6em; font-weight:800; font-size:.95em; }
   .brow.me { outline:.15em solid #ffd23f; }
@@ -107,12 +107,12 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261111142241"></script>
+<script src="firebase-config.js?v=20261111142859"></script>
 <script type="module">
-import { newView, applyData, draw as bdraw, RULE as BRULE, W as BW, H as BH } from './bomb.js?v=20261111142241';
+import { newView, applyData, draw as bdraw, RULE as BRULE, W as BW, H as BH } from './bomb.js?v=20261111142859';
 import { parseAv, mountAvatarPicker, avatarEl, signIn, db, ref, set, get, onValue, serverNow, CHOICE_STYLE, shuffle,
          ROBOT, robotFrac, mountScene, prepareQuestion, maskOf, isTextCorrect,
-         $, el, showScreen, confetti, loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261111142241';
+         $, el, showScreen, confetti, loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261111142859';
 
 mountStage();
 
@@ -367,7 +367,7 @@ function endGame() {
   try { localStorage.removeItem('qraft.player'); } catch (e) {}
   var win = state.result === 'clear';
   $('endEm').textContent = win ? '🎉' : '🤖';
-  $('endTitle').textContent = win ? '全レベルクリア！ にげきった！' : 'ロボットにつかまってしまった…';
+  $('endTitle').textContent = win ? '全レベルクリア！ にげきった！' : 'ロボットに つかまってしまった…';
   $('endk').textContent = k; $('enda').textContent = a; $('endAll').textContent = state.total != null ? state.total : sumK();
   showScreen('s-end'); if (win) confetti($('conf-end'), 40);
 }

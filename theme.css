@@ -814,3 +814,11 @@ button.tile:disabled { cursor:default; }
 #qset { max-width:10em; overflow:hidden; text-overflow:ellipsis; }
 @media (max-width: 560px) { .stu-top .btn.ghost, .stu-top .btn.quit { font-size:.95em; padding:.4em .9em; } #qset { max-width:7em; } }
 @media (max-width: 560px) { #s-q #qset { display:none; } }   /* スマホは単元名の札を出さない（上のバーが1段に収まるように） */
+/* 問題文・結果の見出し：最後の1〜2文字だけ次の行に残らないように */
+.stu-q, .qcard, .title2, .banner, #endTitle { text-wrap:balance; }
+#endTitle { word-break:keep-all; overflow-wrap:anywhere; }   /* 空白のところで折り返す（「つか／まって」にしない） */
+@media (max-width: 560px) {
+  /* ブラストタイム：スマホは余白があるので、方向ボタンと爆弾ボタンを大きく */
+  .pad { grid-template-columns:repeat(3,3.6em) !important; grid-template-rows:repeat(2,3.6em) !important; }
+  .bombbtn { width:5em !important; height:5em !important; font-size:1.4em; }
+}

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Qraft ジェットチェイス（先生）</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
-<link rel="stylesheet" href="theme.css?v=20261111142241">
+<link rel="stylesheet" href="theme.css?v=20261111142859">
 </head>
 <body>
 <div id="app">
@@ -73,16 +73,16 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261111142241"></script>
+<script src="firebase-config.js?v=20261111142859"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script type="module">
-import { mountSetPicker } from './lib.js?v=20261111142241';
-import { newGame, step, draw as bdraw, serialize, RULE as BRULE, W as BW, H as BH } from './bomb.js?v=20261111142241';
+import { mountSetPicker } from './lib.js?v=20261111142859';
+import { newGame, step, draw as bdraw, serialize, RULE as BRULE, W as BW, H as BH } from './bomb.js?v=20261111142859';
 import { shuffle, signIn, db, ref, set, get, update, remove, onValue, serverNow,
          avatarEl, ROBOT, robotTarget, robotFrac, mountScene, parseAv,
          $, el, showScreen, confetti, qrSvg,
-         loadBackgrounds, applyBg, buildBgPickers, mountStage } from './lib.js?v=20261111142241';
-import { bgm, bgmRate, sfx, preload, wireSoundButtons } from './sound.js?v=20261111142241b';
+         loadBackgrounds, applyBg, buildBgPickers, mountStage } from './lib.js?v=20261111142859';
+import { bgm, bgmRate, sfx, preload, wireSoundButtons } from './sound.js?v=20261111142859b';
 
 mountStage();
 wireSoundButtons();
@@ -102,7 +102,7 @@ var GL = { 0: 'すべて', 1: '1年', 2: '2年', 3: '3年' };
     SETS = await (await fetch('home/index.json', { cache: 'no-cache' })).json();
     try { JSON.parse(localStorage.getItem('qraft.chase.picked') || '[]').forEach(function (f) { if (SETS.some(function (x) { return x.id === f; })) picked[f] = true; }); } catch (e) {}
     $('selClear').onclick = function () { Object.keys(picked).forEach(function (k) { delete picked[k]; }); picker.render(); updateSel(); };
-    $('goalNote').textContent = 'レベル1〜3。各レベル ' + (ROBOT.Tl / 60) + ' 分の中で、クラス全員の正解数の合計が「目標」に届けばクリア（目標は人数に合わせて自動で決まります）。追いつかれるとライフが1つ減って、そのレベルをやり直し。クリアすると「安全地帯」ミニゲーム。ライフは ' + ROBOT.lives + ' つです。';
+    $('goalNote').textContent = 'レベル1〜3。各レベル ' + (ROBOT.Tl / 60) + ' 分の中で、クラス全員の正解数の合計が「目標」に届けばクリア（目標は人数に合わせて自動で決まります）。追いつかれるとライフが1つ減って、そのレベルをやり直し。クリアすると、ブラストタイム（爆弾ミニゲーム）。ライフは ' + ROBOT.lives + ' つです。';
     picker = mountSetPicker($('picker'), { sets: SETS, key: function (s) { return s.id; }, picked: picked, onChange: updateSel }); updateSel();
   } catch (e) { setupErr(e.message); $('btnCreate').disabled = true; }
   showScreen('s-setup');
@@ -137,7 +137,7 @@ $('btnCreate').onclick = async function () {
     var u = $('joinUrl'); u.textContent = '';
     u.appendChild(document.createTextNode(cut < 0 ? host : host.slice(0, cut)));
     u.appendChild(document.createElement('wbr'));
-    u.appendChild(document.createTextNode(cut < 0 ? 'chase-play.html' : host.slice(cut) + 'chase-play.html'));
+    u.appendChild(document.createTextNode(cut < 0 ? 'chase‑play.html' : host.slice(cut) + 'chase‑play.html'));   /* ‑＝改行しないハイフン（chase- の後ろで折り返さないように） */
     $('pin').textContent = pin.slice(0, 3) + ' ' + pin.slice(3);
     $('setTitle').textContent = 'ジェットチェイス・3レベル';
     var svg = qrSvg(base + 'chase-play.html?pin=' + pin);
