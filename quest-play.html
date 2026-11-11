@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="ja" data-bg="lab">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Qraft クエスト</title>
+<link rel="icon" type="image/png" href="img/favicon-32.png">
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+<link rel="stylesheet" href="theme.css?v=20261111150018">
+<link rel="stylesheet" href="quest.css?v=20261111150018">
+<style>
+  #s-battle .arena { min-height:12em; }
+  .cmd .choices button.sel { outline:.25em solid #fff; }
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- 参加 -->
+<section class="screen center q-bg-town" id="s-join" style="gap:1em">
+  <a class="toplink" href="index.html">← トップへ</a>
+  <div class="q-title">⚔️ クエスト</div>
+  <div class="card" style="display:flex;flex-direction:column;gap:.8em;align-items:center">
+    <div class="flabel">参加コード（先生の画面の6けた）</div>
+    <input class="field" id="pin" inputmode="numeric" autocomplete="off" maxlength="6" placeholder="123456">
+    <button class="btn" id="btnPin">つぎへ</button>
+    <div id="numBox" class="hide" style="display:flex;flex-direction:column;gap:.6em;align-items:center">
+      <b id="clsLabel"></b><b>出席番号</b><div class="numgrid" id="nums"></div>
+    </div>
+    <div id="joinErr" class="err hide"></div>
+  </div>
+</section>
+
+<!-- キャラ作成（初回だけ） -->
+<section class="screen center q-bg-town" id="s-make" style="gap:1em;overflow:auto">
+  <div class="q-title">職業をえらぼう</div>
+  <div class="jobcards" id="jobcards"></div>
+  <div class="row" style="flex-wrap:wrap;justify-content:center"><b>見た目</b><div class="seg" id="typeSeg"><button type="button" data-v="a" class="on">タイプA<small>（短い髪）</small></button><button type="button" data-v="b">タイプB<small>（長い髪）</small></button></div></div>
+  <div class="row"><b>キャラの名前</b><input class="namebox" id="cname" maxlength="8" placeholder="8文字まで"></div>
+  <div class="mut" style="font-size:.85em">画面には本名ではなく、この名前が出ます。職業と名前は、あとから変えられません。</div>
+  <button class="btn" id="btnMake">この職業にする</button>
+  <div id="makeErr" class="err hide"></div>
+</section>
+
+<!-- 確認・待機 -->
+<section class="screen center q-bg-lab" id="s-wait" style="gap:.8em">
+  <img class="hero stat-hero" id="wHero" alt="">
+  <div class="q-title" id="wName"></div>
+  <div class="q-sub" id="wInfo"></div>
+  <div class="panel story" id="wStory" style="font-size:1em"></div>
+  <div class="pill" id="wTeam" style="font-size:1.2em">先生の「出発！」を待っています</div>
+  <div class="dots"><span></span><span></span><span></span></div>
+</section>
+
+<!-- 戦闘 -->
+<section class="screen" id="s-battle">
+  <div class="bt-bg"></div>
+  <div class="bt-top">
+    <span class="pill" id="clock"></span>
+    <span class="pill" style="background:rgba(18,10,48,.7);color:#fff" id="placeName"></span>
+    <div class="grow"></div>
+    <div class="panel me-stat">
+      <div class="row" style="gap:.4em"><span class="lbl">HP</span><div class="bar hp grow"><i id="myhp"></i><b id="myhpT"></b></div></div>
+      <div class="row" style="gap:.4em"><span class="lbl">MP</span><div class="bar mp grow"><i id="mymp"></i><b id="mympT"></b></div></div>
+    </div>
+  </div>
+  <div class="arena">
+    <div class="floor"></div>
+    <div class="party" id="party"></div>
+    <div class="enemy" id="enemy">
+      <div class="etag"><span id="ename"></span><div class="bar hp"><i id="ehp"></i></div></div>
+      <img id="eimg" alt="">
+      <div class="eshadow"></div>
+    </div>
+  </div>
+  <div class="q-sub" id="tlog" style="text-align:center;min-height:1.4em"></div>
+  <div class="cmd" id="cmd"></div>
+</section>
+
+<!-- 結果 -->
+<section class="screen center q-bg-lab" id="s-result" style="gap:1em">
+  <div class="confetti" id="conf"></div>
+  <div class="q-title" id="rTitle">冒険おわり！</div>
+  <div class="story panel hide" id="rStory"></div>
+  <div class="reward" id="rCards"></div>
+  <div class="lvup hide" id="rLv"></div>
+  <div class="q-sub" id="rNote"></div>
+  <a class="linkbtn" href="index.html" style="color:#fff;font-weight:800">最初の画面にもどる</a>
+</section>
+
+<section class="screen center q-bg-lab" id="s-msg"><div class="q-title" id="msgT"></div><a class="btn" href="quest-play.html" style="text-decoration:none">参加画面へ</a></section>
+
+</div>
+
+<script src="firebase-config.js?v=20261111150018"></script>
+<script type="module">
+import { signIn, db, ref, set, get, onValue, serverNow, $, el, showScreen, confetti } from './lib.js?v=20261111150018';
+import { fiscalYear, JOBS, JOB_KEYS, MP_MAX, heroImg, ENEMIES, BOSS, storyEnter, expToNext } from './quest.js?v=20261111150018';
+
+var uid = null, pin = null, state = null, sid = '', ch = null, look = 'a', job = 'mage';
+var qs = null, tv = null, bv = null, myTeam = -1, started = false, done = false, sel = 0, lastN = 0, timer = null;
+
+(async function boot() {
+  showScreen('s-join');
+  try { uid = (await signIn()).uid; } catch (e) { err('joinErr', e.message); return; }
+  var qp = new URLSearchParams(location.search).get('pin'), saved = null;
+  try { saved = JSON.parse(localStorage.getItem('qraft.quest') || 'null'); } catch (e) {}
+  if (qp) $('pin').value = qp; else if (saved) $('pin').value = saved.pin;
+  if (saved && (!qp || qp === saved.pin)) { if (await openRoom(saved.pin, true)) pickNum(saved.n, true); }
+  else if (qp) openRoom(qp, false);
+})();
+function err(id, m) { $(id).textContent = m; $(id).classList.toggle('hide', !m); }
+
+$('btnPin').onclick = function () { openRoom($('pin').value.trim(), false); };
+async function openRoom(p, silent) {
+  err('joinErr', '');
+  if (!/^\d{6}$/.test(p)) { if (!silent) err('joinErr', '参加コードは6けたの数字です'); return false; }
+  var st = (await get(ref(db, 'rooms/' + p + '/state'))).val();
+  if (!st || st.mode !== 'quest' || st.phase === 'end') {
+    try { localStorage.removeItem('qraft.quest'); } catch (e) {}
+    if (!silent) err('joinErr', st && st.mode !== 'quest' ? 'これはクエストの部屋ではありません（ほかのモードは「参加する」から）' : 'その参加コードの部屋が見つかりません');
+    return false;
+  }
+  if ((await get(ref(db, 'rooms/' + p + '/kicked/' + uid))).exists()) { $('msgT').textContent = 'この部屋から退出になりました'; showScreen('s-msg'); return false; }
+  pin = p; state = st;
+  $('clsLabel').textContent = st.g + '年' + st.c + '組';
+  var box = $('nums'); box.textContent = '';
+  for (var i = 1; i <= 40; i++) (function (n) { var b = el('button', '', String(n)); b.type = 'button'; b.onclick = function () { pickNum(n, false); }; box.appendChild(b); })(i);
+  $('numBox').classList.remove('hide'); $('btnPin').classList.add('hide'); $('pin').disabled = true;
+  return true;
+}
+
+async function pickNum(n, silent) {
+  sid = state.g + '-' + state.c + '-' + n;
+  document.querySelectorAll('#nums button').forEach(function (b) { b.classList.toggle('on', Number(b.textContent) === n); });
+  try {
+    ch = (await get(ref(db, 'quest/' + state.y + '/chars/' + sid))).val();
+    try { localStorage.setItem('qraft.quest', JSON.stringify({ pin: pin, n: n })); } catch (e) {}
+    if (ch) {
+      if (!silent && !confirm(ch.n + '（' + JOBS[ch.j].name + ' Lv.' + ch.lv + '）で参加します。自分のキャラですか？')) return;
+      joinRoom();
+    } else makeScreen();
+  } catch (e) { err('joinErr', '読みこめませんでした: ' + e.message); }
+}
+
+/* ------------------------------------------------------------ キャラ作成 */
+function makeScreen() {
+  var box = $('jobcards'); box.textContent = '';
+  JOB_KEYS.forEach(function (k) {
+    var c = el('div', 'jobcard' + (k === job ? ' on' : '')); c.dataset.job = k;
+    var im = el('img', 'hero'); im.src = heroImg(k, look); c.appendChild(im);
+    c.appendChild(el('h3', '', JOBS[k].name)); c.appendChild(el('p', '', JOBS[k].desc));
+    c.onclick = function () { job = k; document.querySelectorAll('.jobcard').forEach(function (x) { x.classList.toggle('on', x.dataset.job === k); }); };
+    box.appendChild(c);
+  });
+  showScreen('s-make');
+}
+$('typeSeg').onclick = function (e) {
+  var b = e.target.closest('button'); if (!b) return; look = b.dataset.v;
+  this.querySelectorAll('button').forEach(function (x) { x.classList.toggle('on', x === b); });
+  document.querySelectorAll('.jobcard img').forEach(function (im) { im.src = heroImg(im.parentNode.dataset.job, look); });
+};
+$('btnMake').onclick = async function () {
+  var nm = $('cname').value.trim();
+  if (!nm) { err('makeErr', 'キャラの名前を入れてください'); return; }
+  $('btnMake').disabled = true;
+  ch = { n: nm, j: job, lk: look, lv: 1, exp: 0, gold: 0, sp: 0, u: { '.sv': 'timestamp' } };
+  try { await set(ref(db, 'quest/' + state.y + '/chars/' + sid), ch); joinRoom(); }
+  catch (e) { err('makeErr', 'キャラを作れませんでした（ほかの人が先に作ったかもしれません）'); $('btnMake').disabled = false; }
+};
+
+/* ------------------------------------------------------------ 参加・待機 */
+async function joinRoom() {
+  try { await set(ref(db, 'rooms/' + pin + '/players/' + uid), { nick: ch.n, sid: sid, j: ch.j, lk: ch.lk || 'a', lv: ch.lv }); }
+  catch (e) { err('joinErr', '参加できませんでした: ' + e.message); showScreen('s-join'); return; }
+  $('wHero').src = heroImg(ch.j, ch.lk); $('wName').textContent = ch.n;
+  $('wInfo').textContent = JOBS[ch.j].name + ' Lv.' + ch.lv + '　💰 ' + (ch.gold || 0) + '　つぎのレベルまで ' + (expToNext(ch.lv) - (ch.exp || 0));
+  $('wStory').textContent = storyEnter(state.area);
+  showScreen('s-wait');
+  onValue(ref(db, 'rooms/' + pin + '/state'), function (s) { state = s.val(); render(); });
+  onValue(ref(db, 'rooms/' + pin + '/qs/' + uid), function (s) { qs = s.val(); drawCmd(); });
+  onValue(ref(db, 'rooms/' + pin + '/bv'), function (s) { bv = s.val(); drawArena(); });
+  onValue(ref(db, 'rooms/' + pin + '/kicked/' + uid), function (s) { if (s.val()) { $('msgT').textContent = 'この部屋から退出になりました'; showScreen('s-msg'); } });
+}
+function render() {
+  if (!state) { if (!done) { $('msgT').textContent = 'ゲームは終了しました'; showScreen('s-msg'); } return; }
+  if (state.phase === 'battle' && state.tm && state.tm[uid] != null && !started) startBattle();
+  if (state.phase === 'end' && !done) showResult();
+}
+function startBattle() {
+  started = true; myTeam = state.tm[uid];
+  onValue(ref(db, 'rooms/' + pin + '/tv/' + myTeam), function (s) { tv = s.val(); drawArena(); });
+  $('placeName').textContent = state.area.name + '・' + (myTeam + 1) + '班';
+  showScreen('s-battle');
+  timer = setInterval(function () {
+    var left = Math.max(0, (state.ends - serverNow()) / 1000);
+    $('clock').textContent = left > state.Tl ? '出発まで ' + Math.ceil(left - state.Tl) : '⏱ ' + Math.floor(left / 60) + ':' + String(Math.floor(left % 60)).padStart(2, '0');
+  }, 250);
+  drawCmd();
+}
+
+/* ------------------------------------------------------------ 戦闘の画面 */
+var lastHp = null, lastLog = '';
+function drawArena() {
+  if (!started || !tv) return;
+  var me = tv.m && tv.m[uid];
+  var party = $('party'); party.textContent = '';
+  Object.keys(tv.m || {}).sort(function (a, b) { return (a === uid) - (b === uid); }).forEach(function (u) {
+    var m = tv.m[u], d = el('div', 'mate' + (u === uid ? ' me' : '') + (m.ko ? ' ko' : ''));
+    if (u === uid) d.appendChild(el('span', 'you', 'あなた'));
+    var im = el('img', 'hero'); im.src = heroImg(m.j, m.lk); d.appendChild(im);
+    d.appendChild(el('span', '', m.nm + (m.bf ? ' 📣' : '')));
+    var bar = el('div', 'bar hp'); var i = el('i'); i.style.width = (m.hp / m.mhp * 100) + '%'; bar.appendChild(i); d.appendChild(bar);
+    party.appendChild(d);
+  });
+  if (me) {
+    $('myhp').style.width = (me.hp / me.mhp * 100) + '%'; $('myhpT').textContent = me.hp + '/' + me.mhp;
+    $('mymp').style.width = (me.mp / MP_MAX * 100) + '%'; $('mympT').textContent = me.mp + '/' + MP_MAX;
+  }
+  var isBoss = state.battle === 'boss', e = isBoss ? (bv && { img: BOSS.img, n: BOSS.n, hp: bv.hp, max: bv.max }) : (tv.e && { img: ENEMIES[tv.e.k].img, n: ENEMIES[tv.e.k].n, hp: tv.e.hp, max: tv.e.max });
+  if (e) {
+    if ($('eimg').getAttribute('src') !== e.img) $('eimg').src = e.img;
+    $('ename').textContent = e.n; $('ehp').style.width = (e.hp / e.max * 100) + '%';
+    if (lastHp != null && e.hp < lastHp) { var en = $('enemy'); en.classList.remove('hit'); void en.offsetWidth; en.classList.add('hit'); }
+    lastHp = e.hp;
+  }
+  if (tv.log && tv.log !== lastLog) { lastLog = tv.log; $('tlog').textContent = tv.log; }
+}
+
+function drawCmd() {
+  if (!started || done) return;
+  var box = $('cmd');
+  if (!qs) { box.innerHTML = '<div class="banner">もうすぐ戦闘がはじまる…</div>'; return; }
+  var me = tv && tv.m && tv.m[uid];
+  if (qs.r && qs.r.n === qs.n) return drawResult(box, me);
+  if (qs.n === lastN && box.dataset.n === String(qs.n)) return;
+  lastN = qs.n; box.dataset.n = qs.n; sel = 0;
+  box.textContent = '';
+  var qb = el('div', 'qbox'); qb.appendChild(el('span', 'qnum', (qs.ko ? '💫 気絶中…正解すると復活して、仲間を応援できる　' : '') + '第' + qs.n + '問' + (qs.mu ? '（あてはまるものを すべて）' : '')));
+  qb.appendChild(document.createTextNode(qs.t));
+  if (qs.img) { var im = el('img', 'qimg'); im.src = qs.img; im.style.maxHeight = '8em'; qb.appendChild(im); }
+  box.appendChild(qb);
+  var chs = el('div', 'choices');
+  (qs.ch || []).forEach(function (c, i) {
+    var b = el('button'); b.type = 'button';
+    if (c.image) { var ci = el('img'); ci.src = c.image; ci.style.maxHeight = '3em'; b.appendChild(ci); }
+    b.appendChild(document.createTextNode(c.t || ''));
+    b.onclick = function () {
+      if (qs.mu) { sel ^= (1 << i); b.classList.toggle('sel', !!(sel & (1 << i))); sub.disabled = !sel; }
+      else answer({ c: i });
+    };
+    chs.appendChild(b);
+  });
+  box.appendChild(chs);
+  var sub = el('button', 'btn hide', '答える'); sub.disabled = true;
+  if (qs.mu) { sub.classList.remove('hide'); sub.onclick = function () { if (sel) answer({ m: sel }); }; box.appendChild(sub); }
+}
+function answer(a) {
+  document.querySelectorAll('#cmd button').forEach(function (b) { b.disabled = true; });
+  a.t = { '.sv': 'timestamp' };
+  set(ref(db, 'rooms/' + pin + '/answers/' + qs.n + '/' + uid), a).catch(function () {});
+  var w = el('div', 'banner', '判定中…'); $('cmd').appendChild(w);
+}
+function drawResult(box, me) {
+  var r = qs.r, key = 'r' + r.n + (r.act ? 'a' : '');
+  if (box.dataset.n === key) return; box.dataset.n = key;
+  /* 正解の選択肢に印をつける */
+  document.querySelectorAll('#cmd .choices button').forEach(function (b, i) { if (r.cor & (1 << i)) b.classList.add('right'); else b.classList.add('dim'); });
+  var old = box.querySelector('.banner'); if (old) old.remove();
+  if (!r.ok) { box.appendChild(el('div', 'banner ng', '✕ ざんねん… 敵の攻撃！ ' + r.dmg + 'のダメージ')); return; }
+  if (r.rev) { box.appendChild(el('div', 'banner ok', '✓ せいかい！ 復活して、仲間を応援した！ 📣')); return; }
+  box.textContent = '';
+  box.appendChild(el('div', 'banner ok', '✓ せいかい！ 技をえらぼう'));
+  var acts = el('div', 'actions'), mp = me ? me.mp : 0, st = me ? me.st : 0;
+  JOBS[ch.j].acts.forEach(function (a, i) {
+    var b = el('button', 'act' + (a.ult ? ' ult' : '')); b.type = 'button';
+    b.appendChild(el('b', '', a.n));
+    b.appendChild(el('small', '', a.heal ? (a.revive ? '班全員を復活・全回復' : '班のHPを回復') : '攻撃 ×' + a.a));
+    b.appendChild(el('span', 'mp', a.mp ? 'MP ' + a.mp + (a.streak ? '・' + a.streak + '連続正解' : '') : 'MP 0'));
+    b.disabled = mp < a.mp || (a.streak && st < a.streak);
+    b.onclick = function () {
+      acts.querySelectorAll('button').forEach(function (x) { x.disabled = true; });
+      set(ref(db, 'rooms/' + pin + '/act/' + uid), { n: r.n, a: i }).catch(function () {});
+    };
+    acts.appendChild(b);
+  });
+  box.appendChild(acts);
+}
+
+/* ------------------------------------------------------------ 結果 */
+async function showResult() {
+  done = true; clearInterval(timer);
+  try { localStorage.removeItem('qraft.quest'); } catch (e) {}
+  var r = (await get(ref(db, 'rooms/' + pin + '/res/' + uid))).val();
+  if (state.down) { $('rTitle').textContent = BOSS.n + ' を たおした！'; $('rStory').textContent = state.story; $('rStory').classList.remove('hide'); confetti($('conf'), 40); }
+  var box = $('rCards'); box.textContent = '';
+  if (r) {
+    [['けいけんち', '+' + r.exp], ['ゴールド', '+' + r.gold], ['正解', r.ok + '/' + r.ans]].forEach(function (x) { var c = el('div', 'card'); c.appendChild(el('span', 'mut', x[0])); c.appendChild(el('b', '', x[1])); box.appendChild(c); });
+    if (r.up) { $('rLv').textContent = 'LEVEL UP! Lv.' + r.lv; $('rLv').classList.remove('hide'); }
+    $('rNote').textContent = (r.ttl ? '称号「' + r.ttl + '」を手に入れた！　' : '') + (r.up ? 'スキルポイント +' + r.up : '');
+  } else $('rNote').textContent = '結果を読みこめませんでした';
+  showScreen('s-result');
+}
+</script>
+</body>
+</html>

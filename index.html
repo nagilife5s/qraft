@@ -6,7 +6,7 @@
 <title>Qraft</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261111142859">
+<link rel="stylesheet" href="theme.css?v=20261111150018">
 <style>
   .menu { width:min(44em, 94%); display:grid; grid-template-columns:repeat(auto-fit, minmax(11.5em, 1fr)); gap:1em; margin-top:1.2em; }
   .mcard { display:flex; flex-direction:column; align-items:center; gap:.4em; text-decoration:none; color:var(--ink-dark); background:#fff; border:0; font:inherit; cursor:pointer; border-radius:1.2em; padding:1em .8em .9em; box-shadow:var(--shadow); transition:transform .15s, box-shadow .15s; }
@@ -56,13 +56,14 @@
     <div class="menu">
       <a class="mcard open" href="host.html"><div class="ic"><img src="img/logo-mark.webp" alt=""></div><span class="txt"><b>クラシック</b><small>早押しで得点を競う</small></span></a>
       <a class="mcard mecha" href="chase-host.html"><div class="ic"><img src="img/robot/boss.webp" alt=""></div><span class="txt"><b>ジェットチェイス</b><small>みんなで協力して逃げ切れ</small></span></a>
+      <a class="mcard quest" href="quest-host.html"><div class="ic"><img src="img/quest/hero-warrior-a.webp" alt=""></div><span class="txt"><b>クエスト</b><small>正解で戦うRPG（班で冒険）</small></span></a>
     </div>
     <button class="btn sub back" id="goBack" type="button">もどる</button>
   </section>
 </div>
 <script type="module">
   /* トップ画面のBGM（開いている間だけループ。ほかの画面へ行くと止まり、戻ると最初から） */
-  import { bgm, preload, wireSoundButtons } from './sound.js?v=20261111142859b';
+  import { bgm, preload, wireSoundButtons } from './sound.js?v=20261111150018b';
   wireSoundButtons(); preload(['top']); bgm('top');
   addEventListener('pagehide', function () { bgm(null); });
   addEventListener('pageshow', function (e) { if (e.persisted) bgm('top'); });   /* 「戻る」でキャッシュから復帰したとき */
