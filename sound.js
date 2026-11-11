@@ -1,7 +1,7 @@
 /* ====================================================================
    Qraft の音（BGM と効果音）
    ・BGM は bgm/<名前>.mp3 を、ループで鳴らす。ファイルが無ければ鳴らさない（置けば、そのまま鳴る）
-     名前：lobby（待機）・quiz（クラシックの出題中）・podium（結果発表）・chase（ジェットチェイス）・blast（ブラストタイム）・home（おうちで練習）
+     名前：top（トップ画面）・lobby（待機）・quiz（クラシックの出題中）・podium（結果発表）・chase（ジェットチェイス）・blast（ブラストタイム）・home（おうちで練習）
    ・効果音は Web Audio で、その場で合成する（ファイル不要）
    ・ブラウザは、最初にクリックかキーを押すまで音を出せない。最初の操作で、自動で鳴らせる状態にする
    ・🔊ボタン（class="snd"）で消音。設定は端末に記憶する
@@ -10,6 +10,9 @@ var ctx = null, master = null, bgmBus = null, sfxBus = null;
 var on = true; try { on = localStorage.getItem('qraft.sound') !== 'off'; } catch (e) {}
 var bufs = {}, cur = null, want = null, rate = 1, last = {};
 var VOL = { bgm: 0.45, sfx: 0.7 };
+/* つなぎ目に間が空かないよう、ループする範囲を曲ごとに指定する（秒）
+   mp3 は頭に無音（priming）と末尾に詰め物が入る。ブラウザが取り除かなかったときは、その分をよけてループする */
+var LOOP = { top: { len: 63.9, prime: 576 / 44100 } };
 
 function ac() {
   if (ctx) return ctx;
@@ -44,9 +47,14 @@ export function bgm(name) {
     if (!b || want !== name || cur) return;
     var s = c.createBufferSource(), g = c.createGain();
     s.buffer = b; s.loop = true; s.playbackRate.value = rate;
+    var lp = LOOP[name];
+    if (lp && b.duration > lp.len) {
+      var st = (b.duration - lp.len > 0.03) ? lp.prime : 0;      /* 無音が残っている → 頭をよける */
+      s.loopStart = st; s.loopEnd = Math.min(b.duration, st + lp.len);
+    }
     s.connect(g); g.connect(bgmBus);
     g.gain.setValueAtTime(0, c.currentTime); g.gain.linearRampToValueAtTime(1, c.currentTime + 0.6);
-    s.start(); cur = { name: name, s: s, g: g };
+    s.start(0, s.loopStart || 0); cur = { name: name, s: s, g: g };
   });
 }
 function fadeOut(t, sec) {

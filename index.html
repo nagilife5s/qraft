@@ -26,6 +26,7 @@
 </head>
 <body>
 <div id="app" class="bg">
+  <button class="snd fixed"></button>
   <div class="deco"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
 
   <section class="screen on center" id="v-main" style="gap:.2em">
@@ -47,7 +48,12 @@
     <button class="btn sub back" id="goBack" type="button">もどる</button>
   </section>
 </div>
-<script>
+<script type="module">
+  /* トップ画面のBGM（開いている間だけループ。ほかの画面へ行くと止まり、戻ると最初から） */
+  import { bgm, preload, wireSoundButtons } from './sound.js?v=20261111';
+  wireSoundButtons(); preload(['top']); bgm('top');
+  addEventListener('pagehide', function () { bgm(null); });
+  addEventListener('pageshow', function (e) { if (e.persisted) bgm('top'); });   /* 「戻る」でキャッシュから復帰したとき */
   function show(id) { document.querySelectorAll('.screen').forEach(function (s) { s.classList.toggle('on', s.id === id); }); }
   document.getElementById('goOpen').onclick = function () { show('v-modes'); };
   document.getElementById('goBack').onclick = function () { show('v-main'); };
