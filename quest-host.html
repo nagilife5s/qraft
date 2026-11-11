@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Qraft クエスト（先生）</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
-<link rel="stylesheet" href="theme.css?v=20261112084243">
-<link rel="stylesheet" href="quest.css?v=20261112084243">
+<link rel="stylesheet" href="theme.css?v=20261112085505">
+<link rel="stylesheet" href="quest.css?v=20261112085505">
 </head>
 <body>
 <div id="app">
@@ -76,15 +76,15 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261112084243"></script>
+<script src="firebase-config.js?v=20261112085505"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script type="module">
 import { signIn, db, ref, set, get, update, remove, onValue, serverNow, shuffle, mountSetPicker,
-         decryptSet, prepareQuestion, maskOf, $, el, showScreen, confetti, qrSvg, sleep } from './lib.js?v=20261112084243';
+         decryptSet, prepareQuestion, maskOf, $, el, showScreen, confetti, qrSvg, sleep } from './lib.js?v=20261112085505';
 import { onChildAdded, onChildChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 import { fiscalYear, JOBS, MP_MAX, heroImg, lvMult, CHEER, addExp, ENEMIES, BOSS, areaOf, enemyFor,
-         zakoHp, enemyHit, bossHp, REWARD, TOWN, TOWN_DEFAULT, storyClear, statsOf, canUse, skMult, ITEMS } from './quest.js?v=20261112084243';
-import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261112084243b';
+         zakoHp, enemyHit, bossHp, REWARD, TOWN, TOWN_DEFAULT, storyClear, statsOf, canUse, skMult, ITEMS } from './quest.js?v=20261112085505';
+import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261112085505b';
 
 wireSoundButtons();
 
