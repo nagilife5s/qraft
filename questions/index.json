@@ -2020,8 +2020,8 @@
   "title": "進化の証拠",
   "count": 9,
   "types": {
-   "choice": 7,
-   "multi": 1,
+   "choice": 8,
+   "multi": 0,
    "text": 1
   },
   "enc": true,
