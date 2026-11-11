@@ -6,7 +6,7 @@
 <title>Qraft ジェットチェイス</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261112071550">
+<link rel="stylesheet" href="theme.css?v=20261112080115">
 <style>
   .brow { display:flex; gap:.4em; align-items:center; background:rgba(255,255,255,.92); color:var(--ink-dark); border-radius:.6em; padding:.15em .6em; font-weight:800; font-size:.95em; }
   .brow.me { outline:.15em solid #ffd23f; }
@@ -107,12 +107,12 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261112071550"></script>
+<script src="firebase-config.js?v=20261112080115"></script>
 <script type="module">
-import { newView, applyData, draw as bdraw, RULE as BRULE, W as BW, H as BH } from './bomb.js?v=20261112071550';
+import { newView, applyData, draw as bdraw, RULE as BRULE, W as BW, H as BH } from './bomb.js?v=20261112080115';
 import { parseAv, mountAvatarPicker, avatarEl, signIn, db, ref, set, get, onValue, serverNow, CHOICE_STYLE, shuffle,
          ROBOT, robotFrac, mountScene, prepareQuestion, maskOf, isTextCorrect,
-         $, el, showScreen, confetti, loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261112071550';
+         $, el, showScreen, confetti, loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261112080115';
 
 mountStage();
 
@@ -306,7 +306,7 @@ function nextQuestion() {
   var qi = queue.pop(), q = prepareQuestion(pool[qi], true); q.qi = qi;
   run = q; locked = false; selMask = 0;
   $('sqtext').textContent = q.text;
-  var im = $('sqimg'); if (q.image) { im.src = q.image; im.classList.remove('hide'); } else im.classList.add('hide');
+  var im = $('sqimg'); if (q.image) { im.src = q.image; im.alt = q.imageAlt || ''; im.classList.remove('hide'); } else im.classList.add('hide');
   $('sq').classList.toggle('hasimg', !!q.image);
   var isText = q.type === 'text', box = $('stiles');
   box.textContent = ''; box.className = 'stu-tiles n' + q.choices.length; box.classList.toggle('hide', isText);
@@ -314,7 +314,7 @@ function nextQuestion() {
   q.choices.forEach(function (c, idx) {
     var b = el('button', 'tile t' + idx);
     b.appendChild(el('span', 'sh', CHOICE_STYLE[idx].shape));
-    if (c.image) { var i2 = el('img', 'ch-img'); i2.src = c.image; i2.alt = ''; b.appendChild(i2); }
+    if (c.image) { var i2 = el('img', 'ch-img'); i2.src = c.image; i2.alt = c.alt || ''; b.appendChild(i2); }
     if (c.t) b.appendChild(el('span', 'tx', c.t));
     b.onclick = function () {
       if (locked) return;

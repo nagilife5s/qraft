@@ -6,7 +6,7 @@
 <title>Qraft</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261112071550">
+<link rel="stylesheet" href="theme.css?v=20261112080115">
 </head>
 <body>
 <div id="app">
@@ -125,11 +125,11 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261112071550"></script>
+<script src="firebase-config.js?v=20261112080115"></script>
 <script type="module">
 import { mountAvatarPicker, avatarEl, signIn, db, ref, set, get, onValue, serverTimestamp, serverNow, CHOICE_STYLE,
          $, el, fmt, motionOn, showScreen, stopAnim, countUp, confetti, buildRank,
-         loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261112071550';
+         loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261112080115';
 
 mountStage();
 
@@ -267,7 +267,7 @@ function drawQuestion() {
   $('sqno').textContent = '問題 ' + (state.i + 1) + ' / ' + state.n;
   $('sqtext').textContent = state.text;
   var im = $('sqimg');
-  if (state.image) { im.src = state.image; im.classList.remove('hide'); } else { im.classList.add('hide'); }
+  if (state.image) { im.src = state.image; im.alt = state.imageAlt || ''; im.classList.remove('hide'); } else { im.classList.add('hide'); }
   $('sq').classList.toggle('hasimg', !!state.image);
   var isText = state.type === 'text', choices = state.choices || [];
   var box = $('stiles'); box.textContent = ''; box.className = 'stu-tiles n' + choices.length;
@@ -276,7 +276,7 @@ function drawQuestion() {
   choices.forEach(function (c, idx) {
     var b = el('button', 'tile t' + idx);
     b.appendChild(el('span', 'sh', CHOICE_STYLE[idx].shape));
-    if (c.image) { var im = el('img', 'ch-img'); im.src = c.image; im.alt = ''; b.appendChild(im); }
+    if (c.image) { var im = el('img', 'ch-img'); im.src = c.image; im.alt = c.alt || ''; b.appendChild(im); }
     if (c.t) b.appendChild(el('span', 'tx', c.t));
     b.onclick = function () { if (state.multi) toggle(idx, b); else answer(idx); };
     box.appendChild(b);

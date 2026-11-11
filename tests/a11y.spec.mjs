@@ -55,6 +55,7 @@ test('家庭練習：問題に答えたあとの画面（正解・不正解の�
   const tiles = page.locator('#stiles .tile');
   await tiles.first().waitFor();
   await check(page, '家庭練習の問題');
+  if (await page.locator('#sqimg').isVisible()) expect((await page.locator('#sqimg').getAttribute('alt')) || '', '問題の図に説明文（alt）').not.toBe('');
   const n = await tiles.count();
   // 正解でない選択肢を1つ選ぶ（正解の位置はデータから分からないので、最初に試して正解なら次の問題で）
   await tiles.nth(n - 1).click();

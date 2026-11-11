@@ -20,6 +20,7 @@ const imgOk = (p) => typeof p === 'string' && /^img\//.test(p) && fs.existsSync(
 export function checkQuestion(q, where) {
   if (!q || typeof q.q !== 'string' || !q.q.trim()) return E(where, '問題文がない');
   if (q.image && !imgOk(q.image)) E(where, '問題の画像が見つからない: ' + q.image);
+  if ('imageAlt' in q && (typeof q.imageAlt !== 'string' || !q.imageAlt.trim() || q.imageAlt.length > 100 || !q.image)) E(where, '画像の説明文（imageAlt）が空か長すぎるか、画像がない');
   if ('ex' in q && (typeof q.ex !== 'string' || !q.ex.trim() || q.ex.length > 200)) E(where, '解説（ex）が空か、200字をこえている');
   if (q.type === 'text') {
     if (!Array.isArray(q.accept) || !q.accept.length || q.accept.some((a) => typeof a !== 'string' || !a.trim())) E(where, '入力式の答え（accept）が空');
@@ -30,6 +31,7 @@ export function checkQuestion(q, where) {
   ch.forEach((c, i) => {
     if (!ctext(c).trim() && !cimg(c)) E(where, '選択肢' + (i + 1) + 'が空');
     if (cimg(c) && !imgOk(cimg(c))) E(where, '選択肢' + (i + 1) + 'の画像が見つからない: ' + cimg(c));
+    if (typeof c !== 'string' && 'alt' in c && (typeof c.alt !== 'string' || !c.alt.trim() || c.alt.length > 100)) E(where, '選択肢' + (i + 1) + 'の画像の説明文が空か長すぎる');
   });
   const hasA = 'answer' in q, hasM = 'answers' in q;
   if (hasA === hasM) return E(where, 'answer と answers のどちらか一方だけが必要');

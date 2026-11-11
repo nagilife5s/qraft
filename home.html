@@ -6,7 +6,7 @@
 <title>Qraft 家庭練習</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261112071550">
+<link rel="stylesheet" href="theme.css?v=20261112080115">
 <style>
   .hm { width:min(72em,100%); height:100%; margin:0 auto; display:flex; flex-direction:column; gap:.8em; min-height:0; }
   .hm .row { display:flex; flex-wrap:wrap; gap:.5em; align-items:center; }
@@ -115,13 +115,13 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261112071550"></script>
+<script src="firebase-config.js?v=20261112080115"></script>
 <script type="module">
-import { ensureOwner, fiscalYear } from './quest.js?v=20261112071550';
+import { ensureOwner, fiscalYear } from './quest.js?v=20261112080115';
 import { signIn, db, ref, set, get, serverTimestamp, CHOICE_STYLE, shuffle, prepareQuestion, maskOf, isTextCorrect,
-         $, el, motionOn, showScreen, confetti, loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261112071550';
+         $, el, motionOn, showScreen, confetti, loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261112080115';
 import { push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261112071550b';
+import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261112080115b';
 
 mountStage();
 wireSoundButtons();
@@ -259,7 +259,7 @@ function showQ() {
   $('qno').textContent = '問題 ' + (run.pos + 1) + ' / ' + run.list.length;
   $('qset').textContent = run.title.length > 18 ? run.title.slice(0, 18) + '…' : run.title;
   $('sqtext').textContent = p.text;
-  var im = $('sqimg'); if (p.image) { im.src = p.image; im.classList.remove('hide'); } else im.classList.add('hide');
+  var im = $('sqimg'); if (p.image) { im.src = p.image; im.alt = p.imageAlt || ''; im.classList.remove('hide'); } else im.classList.add('hide');
   $('sq').classList.toggle('hasimg', !!p.image);
   var isText = p.type === 'text';
   var box = $('stiles'); box.textContent = ''; box.className = 'stu-tiles n' + p.choices.length; box.classList.toggle('hide', isText);
@@ -267,7 +267,7 @@ function showQ() {
   p.choices.forEach(function (c, idx) {
     var b = el('button', 'tile t' + idx);
     b.appendChild(el('span', 'sh', CHOICE_STYLE[idx].shape));
-    if (c.image) { var i2 = el('img', 'ch-img'); i2.src = c.image; i2.alt = ''; b.appendChild(i2); }
+    if (c.image) { var i2 = el('img', 'ch-img'); i2.src = c.image; i2.alt = c.alt || ''; b.appendChild(i2); }
     if (c.t) b.appendChild(el('span', 'tx', c.t));
     b.onclick = function () {
       if (locked) return;

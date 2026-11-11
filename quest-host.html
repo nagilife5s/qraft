@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Qraft クエスト（先生）</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
-<link rel="stylesheet" href="theme.css?v=20261112071550">
-<link rel="stylesheet" href="quest.css?v=20261112071550">
+<link rel="stylesheet" href="theme.css?v=20261112080115">
+<link rel="stylesheet" href="quest.css?v=20261112080115">
 </head>
 <body>
 <div id="app">
@@ -76,15 +76,15 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261112071550"></script>
+<script src="firebase-config.js?v=20261112080115"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script type="module">
 import { signIn, db, ref, set, get, update, remove, onValue, serverNow, shuffle, mountSetPicker,
-         decryptSet, prepareQuestion, maskOf, $, el, showScreen, confetti, qrSvg, sleep } from './lib.js?v=20261112071550';
+         decryptSet, prepareQuestion, maskOf, $, el, showScreen, confetti, qrSvg, sleep } from './lib.js?v=20261112080115';
 import { onChildAdded, onChildChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 import { fiscalYear, JOBS, MP_MAX, heroImg, lvMult, CHEER, addExp, ENEMIES, BOSS, areaOf, enemyFor,
-         zakoHp, enemyHit, bossHp, REWARD, TOWN, TOWN_DEFAULT, storyClear, statsOf, canUse, skMult, ITEMS } from './quest.js?v=20261112071550';
-import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261112071550b';
+         zakoHp, enemyHit, bossHp, REWARD, TOWN, TOWN_DEFAULT, storyClear, statsOf, canUse, skMult, ITEMS } from './quest.js?v=20261112080115';
+import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261112080115b';
 
 wireSoundButtons();
 
@@ -282,7 +282,7 @@ function sendQ(u) {
   if (!g.queue.length) g.queue = shuffle(POOL.map(function (_, i) { return i; }));
   var qi = g.queue.pop(), q = prepareQuestion(POOL[qi], true); q.qi = qi; q.tag = POOL[qi].tag || '';
   g.n++; g.cur = q; g.wait = 'ans';
-  set(ref(db, 'rooms/' + pin + '/qs/' + u), { n: g.n, t: q.text, img: q.image || '', ch: q.choices, mu: q.multi ? 1 : 0, ko: g.ko ? 1 : 0 });
+  set(ref(db, 'rooms/' + pin + '/qs/' + u), { n: g.n, t: q.text, img: q.image || '', imgAlt: q.imageAlt || '', ch: q.choices, mu: q.multi ? 1 : 0, ko: g.ko ? 1 : 0 });
 }
 function onAnsBucket(snap) {
   var n = Number(snap.key), v = snap.val() || {};

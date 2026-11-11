@@ -6,7 +6,7 @@
 <title>Qraft 先生用</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261112071550">
+<link rel="stylesheet" href="theme.css?v=20261112080115">
 </head>
 <body>
 <div id="app">
@@ -96,14 +96,14 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261112071550"></script>
+<script src="firebase-config.js?v=20261112080115"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script type="module">
 import { mountSetPicker, avatarEl, signIn, db, ref, set, get, update, remove, onValue, serverTimestamp, serverNow,
          calcScore, CHOICE_STYLE, RESULT_SEC, RANK_SEC, sleep, shuffle,
          $, el, fmt, motionOn, showScreen, later, stopAnim, countUp, confetti, qrSvg, buildRank,
-         loadBackgrounds, applyBg, buildBgPickers, savedBg, saveBg, mountStage, decryptSet, prepareQuestion, maskOf, isTextCorrect, normText } from './lib.js?v=20261112071550';
-import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261112071550b';
+         loadBackgrounds, applyBg, buildBgPickers, savedBg, saveBg, mountStage, decryptSet, prepareQuestion, maskOf, isTextCorrect, normText } from './lib.js?v=20261112080115';
+import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261112080115b';
 
 mountStage();
 
@@ -313,7 +313,7 @@ async function hold(ms) {
 function tileEl(c, idx) {
   var d = el('div', 'tile t' + idx);
   d.appendChild(el('span', 'sh', CHOICE_STYLE[idx].shape));
-  if (c.image) { var im = el('img', 'ch-img'); im.src = c.image; im.alt = ''; d.appendChild(im); }
+  if (c.image) { var im = el('img', 'ch-img'); im.src = c.image; im.alt = c.alt || ''; d.appendChild(im); }
   if (c.t) d.appendChild(el('span', 'tx', c.t));
   return d;
 }
@@ -330,7 +330,7 @@ async function askQuestion(i) {
   $('qno').textContent = '問題 ' + (i + 1) + ' / ' + game.length + (q.type === 'text' ? '・入力式' : q.multi ? '・複数選択' : '');
   $('qtext').textContent = q.text;
   var img = $('qimg');
-  if (q.image) { img.src = q.image; img.classList.remove('hide'); } else { img.classList.add('hide'); }
+  if (q.image) { img.src = q.image; img.alt = q.imageAlt || ''; img.classList.remove('hide'); } else { img.classList.add('hide'); }
   $('qcard').classList.toggle('hasimg', !!q.image);
   var tiles = $('tiles'); tiles.textContent = '';
   if (q.type === 'text') {
@@ -353,7 +353,7 @@ async function askQuestion(i) {
   });
 
   await set(ref(db, 'rooms/' + pin + '/state'), stateOf({
-    phase: 'question', i: i, n: game.length, text: q.text, image: q.image,
+    phase: 'question', i: i, n: game.length, text: q.text, image: q.image, imageAlt: q.imageAlt || '',
     choices: q.choices, multi: q.multi, type: q.type || 'choice', numeric: !!q.numeric, limit: q.limit
   }));
   tStart = (await get(ref(db, 'rooms/' + pin + '/state/t'))).val();
@@ -414,7 +414,7 @@ async function showResult(i) {
 
   await set(ref(db, 'rooms/' + pin + '/scores'), scores);
   await set(ref(db, 'rooms/' + pin + '/state'), stateOf({
-    phase: 'result', i: i, n: game.length, text: q.text, image: q.image,
+    phase: 'result', i: i, n: game.length, text: q.text, image: q.image, imageAlt: q.imageAlt || '',
     choices: q.choices, multi: q.multi, correct: q.correct, type: q.type || 'choice', accept: q.accept || null, counts: counts, answered: answered
   }));
 

@@ -6,8 +6,8 @@
 <title>Qraft クエスト（ひとりで冒険）</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261112071550">
-<link rel="stylesheet" href="quest.css?v=20261112071550">
+<link rel="stylesheet" href="theme.css?v=20261112080115">
+<link rel="stylesheet" href="quest.css?v=20261112080115">
 <style>
   .hud-btns { display:flex; gap:.4em; }
   .hud-btns .btn { font-size:.85em; padding:.35em .9em; }
@@ -129,12 +129,12 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261112071550"></script>
+<script src="firebase-config.js?v=20261112080115"></script>
 <script type="module">
-import { signIn, db, ref, set, get, $, el, showScreen, shuffle, prepareQuestion, maskOf, isTextCorrect } from './lib.js?v=20261112071550';
+import { signIn, db, ref, set, get, $, el, showScreen, shuffle, prepareQuestion, maskOf, isTextCorrect } from './lib.js?v=20261112080115';
 import { fiscalYear, JOBS, JOB_KEYS, MP_MAX, heroImg, addExp, expToNext, ENEMIES, TOWN, TOWN_DEFAULT, enemyHit,
          SK_MAX, SK_UNLOCK, SK_FREE, skOf, canUse, skMult, WEAPONS, ARMORS, weaponName, armorName, ITEMS, ITEM_KEYS, FACS, RESPEC_COST, ensureOwner, normChar,
-         statsOf, soloMult, soloReward, soloEnemyHp, BOSS } from './quest.js?v=20261112071550';
+         statsOf, soloMult, soloReward, soloEnemyHp, BOSS } from './quest.js?v=20261112080115';
 
 var Y = fiscalYear(), me = { g: 0, c: 0, n: 0 }, sid = '', ch = null, CLS = {}, SETS = [], AREAS = [], look = 'a', job = 'mage';
 var curArea = null, HP = 0, MP = 0;
@@ -606,7 +606,7 @@ function askQ() {
   var box = $('cmd'); box.textContent = '';
   var qb = el('div', 'qbox'); qb.appendChild(el('span', 'qnum', B.e.n + 'の問題' + (q.multi ? '（あてはまるものを すべて）' : '')));
   qb.appendChild(document.createTextNode(q.text));
-  if (q.image) { var im = el('img', 'qimg'); im.src = q.image; im.style.maxHeight = '8em'; qb.appendChild(im); }
+  if (q.image) { var im = el('img', 'qimg'); im.src = q.image; im.alt = q.imageAlt || ''; im.style.maxHeight = '8em'; qb.appendChild(im); }
   box.appendChild(qb);
   if (q.type === 'text') {
     var inp = el('input', 'tin'); inp.type = 'text'; inp.placeholder = q.numeric ? '数字で答えてね' : 'ここに答えを入力'; inp.autocomplete = 'off';
@@ -617,7 +617,7 @@ function askQ() {
     var chs = el('div', 'choices'), sel = 0;
     q.choices.forEach(function (c, i) {
       var b = el('button'); b.type = 'button';
-      if (c.image) { var ci = el('img'); ci.src = c.image; ci.style.maxHeight = '3em'; b.appendChild(ci); }
+      if (c.image) { var ci = el('img'); ci.src = c.image; ci.alt = c.alt || ''; ci.style.maxHeight = '3em'; b.appendChild(ci); }
       b.appendChild(document.createTextNode(c.t || ''));
       b.onclick = function () { if (q.multi) { sel ^= (1 << i); b.classList.toggle('sel', !!(sel & (1 << i))); b.setAttribute('aria-pressed', sel & (1 << i) ? 'true' : 'false'); sub.disabled = !sel; } else judge(maskOf([i]), null); };
       chs.appendChild(b);
