@@ -6,7 +6,7 @@
 <title>Qraft 家庭練習</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261111181613">
+<link rel="stylesheet" href="theme.css?v=20261111185449">
 <style>
   .hm { width:min(72em,100%); height:100%; margin:0 auto; display:flex; flex-direction:column; gap:.8em; min-height:0; }
   .hm .row { display:flex; flex-wrap:wrap; gap:.5em; align-items:center; }
@@ -111,12 +111,13 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261111181613"></script>
+<script src="firebase-config.js?v=20261111185449"></script>
 <script type="module">
+import { ensureOwner, fiscalYear } from './quest.js?v=20261111185449';
 import { signIn, db, ref, set, get, serverTimestamp, CHOICE_STYLE, shuffle, prepareQuestion, maskOf, isTextCorrect,
-         $, el, motionOn, showScreen, confetti, loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261111181613';
+         $, el, motionOn, showScreen, confetti, loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261111185449';
 import { push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261111181613b';
+import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261111185449b';
 
 mountStage();
 wireSoundButtons();
@@ -149,17 +150,26 @@ function pill(text, on, onclick, field) { var b = el('button', 'pk' + (on ? ' on
   $('btnId').onclick = function () {
     if (!g || !c) { alert('学年とクラスを選んでください'); return; }
     me = { g: g, c: c, n: Number(N.value) }; store.set('qraft.home.me', me);
-    openPick();
+    enter();
   };
   $('btnWho').onclick = function () { showScreen('s-id'); };
   try {
     SETS = await (await fetch('home/index.json', { cache: 'no-cache' })).json();
   } catch (e) { alert('問題の一覧を読めませんでした。ページを更新してください。'); }
   signIn().catch(function () {});            /* 先に匿名ログインしておく（結果の送信に使う） */
-  if (saved && new URLSearchParams(location.search).get('go') !== '0' && saved.auto) { me = saved; openPick(); }
+  if (saved && new URLSearchParams(location.search).get('go') !== '0' && saved.auto) { me = saved; enter(); }
 })();
 
 function sid() { return me.g + '-' + me.c + '-' + me.n; }
+/*
+ * 記録を先生に送れるのは、その番号の持ち主の端末だけ（クエストと同じ合言葉。2026-11-11 レビュー指摘3）。
+ * まだ持ち主でなければ合言葉を聞く。やめたら番号選びにもどる。
+ */
+async function enter() {
+  var u = null; try { u = await signIn(); } catch (e) {}
+  if (u && !(await ensureOwner({ db: db, ref: ref, get: get, set: set }, fiscalYear(), sid(), u.uid, me.g + '年' + me.c + '組' + me.n + '番'))) { showScreen('s-id'); return; }
+  openPick();
+}
 
 /* ------------------------------------------------------------ セット選び */
 function openPick() {
@@ -321,8 +331,8 @@ async function finish() {
   $('saveState').textContent = '記録を送っています…';
   try {
     var u = await signIn();
-    await set(push(ref(db, 'practice/' + sid())), { f: run.id, n: n, k: k, w: run.wrong.map(function (i) { return i + 1; }).join(',').slice(0, 300), r: run.retry ? 1 : 0, t: serverTimestamp() });
-    $('saveState').textContent = '✓ 記録を先生に送りました';
+    await set(push(ref(db, 'practice/' + sid())), { f: run.id, n: n, k: k, w: run.wrong.map(function (i) { return i + 1; }).join(',').slice(0, 300), r: run.retry ? 1 : 0, t: serverTimestamp(), y: String(fiscalYear()) });
+    $('saveState').textContent = '✓ 記録を先生に送りました（成績には直接使わない、練習の参考記録です）';
   } catch (e) {
     $('saveState').textContent = '記録を送れませんでした（通信を確認してください）。';
   }

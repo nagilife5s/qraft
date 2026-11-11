@@ -36,13 +36,15 @@
     <button id="btnCsv">CSVを保存</button>
     <button id="btnReload">読み込み直す</button>
   </div>
+  <div class="note" style="margin:.4em 0">⚠️ この記録は<b>成績には直接使わない参考記録</b>です。正解数は生徒の端末が数えた値で、本人が自分の点を盛ることは防げません。
+    2026年11月11日から、記録を送れるのは合言葉を入れた本人の端末だけになりました。それより前の記録には「本人確認なし」と付けています（ほかの人が番号を名乗って送った可能性があります）。</div>
   <div id="meta"></div>
   <h2>生徒ごと（行を押すと、練習の一覧）</h2>
   <div style="overflow:auto"><table id="tbl"></table></div>
   <h2>セットごと（よく練習されているセット・正答率の低いセット）</h2>
   <div style="overflow:auto"><table id="tblSet"></table></div>
-  <h2>クエストの合言葉</h2>
-  <div class="note">クエストのキャラは、出席番号ごとの合言葉を入れた端末だけが使えます（初回と、端末を変えたときに入力）。<br>
+  <h2>合言葉（クエスト・家庭練習）</h2>
+  <div class="note">クエストのキャラと家庭練習の記録は、出席番号ごとの合言葉を入れた端末だけが使えます（初回と、端末を変えたときに入力。クエストと家庭練習で共通）。<br>
     組を選んで「合言葉を作る」を押すと、まだ合言葉がない番号に作ります。作ったら印刷して、生徒に1人ずつ配ってください。
     <div class="row">年度 <b id="qy"></b>　学年 <select id="kg"><option>1</option><option>2</option><option>3</option></select>
       組 <select id="kc"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option></select>
@@ -92,7 +94,7 @@ async function load() {
     var p = stu.key.split('-');
     stu.forEach(function (a) {
       var v = a.val();
-      rows.push({ g: +p[0], c: +p[1], n: +p[2], sid: stu.key, f: v.f, nq: v.n, k: v.k, w: v.w || '', r: v.r ? 1 : 0, t: v.t });
+      rows.push({ g: +p[0], c: +p[1], n: +p[2], sid: stu.key, f: v.f, nq: v.n, k: v.k, w: v.w || '', r: v.r ? 1 : 0, t: v.t, ok: v.y ? 1 : 0 });
     });
   });
   render();
@@ -120,7 +122,7 @@ function render() {
     h += '<tr class="sum" data-id="' + id + '"><td>' + id.replace(/(\d)-(\d+)-(\d+)/, '$1年$2組 $3番') + '</td><td>' + a.length + '</td><td>' + n + '</td><td' + (p < 60 ? ' class="low"' : '') + '>' + p + '% <span class="bar" style="width:' + p * .6 + 'px"></span></td><td>' + when(a[0].t) + '</td></tr>';
     if (open[id]) {
       h += '<tr class="det"><td colspan="5">' + a.map(function (r) {
-        return when(r.t) + '　' + esc(titles[r.f] || r.f) + '　' + r.k + '/' + r.nq + (r.r ? '（やりなおし）' : '') + (r.w ? '　×問 ' + esc(r.w) : '');
+        return when(r.t) + '　' + esc(titles[r.f] || r.f) + '　' + r.k + '/' + r.nq + (r.r ? '（やりなおし）' : '') + (r.w ? '　×問 ' + esc(r.w) : '') + (r.ok ? '' : '　<span style="color:#8a6d00">［本人確認なし］</span>');
       }).join('<br>') + '</td></tr>';
     }
   });
@@ -139,10 +141,10 @@ function render() {
 ['fg', 'fc', 'fd'].forEach(function (id) { $(id).onchange = render; });
 $('btnReload').onclick = load;
 $('btnCsv').onclick = function () {
-  var l = ['日時,学年,クラス,番号,セットID,セット,問題数,正解数,まちがえた問題番号,やりなおし'];
+  var l = ['日時,学年,クラス,番号,セットID,セット,問題数,正解数,まちがえた問題番号,やりなおし,本人確認'];
   filtered().sort(function (a, b) { return a.t - b.t; }).forEach(function (r) {
     var d = new Date(r.t), ds = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0') + ' ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
-    l.push([ds, r.g, r.c, r.n, r.f, '"' + (titles[r.f] || '').replace(/"/g, '""') + '"', r.nq, r.k, '"' + r.w + '"', r.r].join(','));
+    l.push([ds, r.g, r.c, r.n, r.f, '"' + (titles[r.f] || '').replace(/"/g, '""') + '"', r.nq, r.k, '"' + r.w + '"', r.r, r.ok ? 'あり' : 'なし'].join(','));
   });
   var a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob(['﻿' + l.join('\n')], { type: 'text/csv' }));
