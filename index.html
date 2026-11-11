@@ -6,7 +6,7 @@
 <title>Qraft</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261026064543">
+<link rel="stylesheet" href="theme.css?v=20261111135642">
 <style>
   .menu { width:min(44em, 94%); display:grid; grid-template-columns:repeat(auto-fit, minmax(11.5em, 1fr)); gap:1em; margin-top:1.2em; }
   .mcard { display:flex; flex-direction:column; align-items:center; gap:.4em; text-decoration:none; color:var(--ink-dark); background:#fff; border:0; font:inherit; cursor:pointer; border-radius:1.2em; padding:1em .8em .9em; box-shadow:var(--shadow); transition:transform .15s, box-shadow .15s; }
@@ -22,6 +22,9 @@
   .back { margin-top:1.4em; }
   .mtitle { font-weight:900; font-size:1.7em; margin-top:.8em; }
   @media (prefers-reduced-motion: no-preference) { .screen.on .mcard { animation:popIn .5s cubic-bezier(.2,1.5,.4,1) both; } .screen.on .mcard:nth-child(2) { animation-delay:.08s; } .screen.on .mcard:nth-child(3) { animation-delay:.16s; } }
+  /* トップ画面とおうちで練習の背景（背景原本/home-screen.png） */
+  #app.bg { background:url(img/bg/home-screen.webp) center/cover no-repeat, var(--bgimg); }
+  #app.bg > .deco { display:none; }
 </style>
 </head>
 <body>
@@ -50,7 +53,7 @@
 </div>
 <script type="module">
   /* トップ画面のBGM（開いている間だけループ。ほかの画面へ行くと止まり、戻ると最初から） */
-  import { bgm, preload, wireSoundButtons } from './sound.js?v=20261111b';
+  import { bgm, preload, wireSoundButtons } from './sound.js?v=20261111135642b';
   wireSoundButtons(); preload(['top']); bgm('top');
   addEventListener('pagehide', function () { bgm(null); });
   addEventListener('pageshow', function (e) { if (e.persisted) bgm('top'); });   /* 「戻る」でキャッシュから復帰したとき */

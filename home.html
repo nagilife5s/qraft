@@ -6,7 +6,7 @@
 <title>Qraft 家庭練習</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261026064543">
+<link rel="stylesheet" href="theme.css?v=20261111135642">
 <style>
   .hm { width:min(72em,100%); height:100%; margin:0 auto; display:flex; flex-direction:column; gap:.8em; min-height:0; }
   .hm .row { display:flex; flex-wrap:wrap; gap:.5em; align-items:center; }
@@ -29,6 +29,9 @@
   #s-id .joincol { width:min(32em,100%); gap:.7em; }
   #s-id .pk { font-size:1.15em; padding:.3em 1em; }
   #s-id .pk.on, .hm .pk.on { background:#ffd23f; color:#2a1a40; }
+  /* トップ画面とおうちで練習の背景（背景原本/home-screen.png） */
+  #app.bg { background:url(img/bg/home-screen.webp) center/cover no-repeat, var(--bgimg); }
+  #app.bg > .deco { display:none; }
 </style>
 </head>
 <body>
@@ -106,12 +109,12 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261026064543"></script>
+<script src="firebase-config.js?v=20261111135642"></script>
 <script type="module">
 import { signIn, db, ref, set, get, serverTimestamp, CHOICE_STYLE, shuffle, prepareQuestion, maskOf, isTextCorrect,
-         $, el, motionOn, showScreen, confetti, loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261026064543';
+         $, el, motionOn, showScreen, confetti, loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261111135642';
 import { push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261111b';
+import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261111135642b';
 
 mountStage();
 wireSoundButtons();
@@ -129,7 +132,7 @@ function pill(text, on, onclick, field) { var b = el('button', 'pk' + (on ? ' on
 /* ------------------------------------------------------------ 起動 */
 (async function boot() {
   var bgs = await loadBackgrounds(); applyBg('pop', bgs, true);
-  showScreen('s-id');
+  showScreen('s-id'); bgm('home');                /* 本人確認の画面から、おうちで練習の曲を流す */
   var N = $('idN'); for (var i = 1; i <= 40; i++) N.appendChild(new Option(i + ' 番', i));
   var saved = store.get('qraft.home.me');
   var g = saved ? saved.g : 0, c = saved ? saved.c : 0;
@@ -161,7 +164,7 @@ function openPick() {
   $('who').textContent = me.g + '年' + me.c + '組 ' + me.n + '番';
   gradeSel = me.g; unitSel = '';
   renderPicker(); showScreen('s-pick'); renderHist();
-  bgm(null); preload(['home']);
+  bgm('home');                                     /* 問題選びでも同じ曲を続ける（出題に入っても途切れない） */
 }
 $('setFilter').addEventListener('input', renderList);
 
