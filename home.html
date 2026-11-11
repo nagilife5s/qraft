@@ -6,7 +6,7 @@
 <title>Qraft 家庭練習</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261111194256">
+<link rel="stylesheet" href="theme.css?v=20261111201446">
 <style>
   .hm { width:min(72em,100%); height:100%; margin:0 auto; display:flex; flex-direction:column; gap:.8em; min-height:0; }
   .hm .row { display:flex; flex-wrap:wrap; gap:.5em; align-items:center; }
@@ -17,6 +17,9 @@
   .hm .item .tag { font-size:.75em; background:#eee; border-radius:999px; padding:.1em .6em; }
   .fb { text-align:center; font-weight:900; font-size:1.5em; min-height:2.4em; }
   .fb.ok { color:#8bf0b0; } .fb.ng { color:#ffd23f; }
+  /* 解説（先生が確認したものだけ。間違えたときは大きめ、正解したときは控えめに） */
+  .ex { background:rgba(255,255,255,.95); color:var(--ink-dark); border-radius:.8em; padding:.6em 1em; font-weight:700; line-height:1.6; text-align:left; max-width:40em; margin:0 auto; }
+  .ex b { margin-right:.3em; } .ex.small { font-size:.85em; opacity:.92; }
   .wrongline { background:rgba(255,255,255,.95); color:var(--ink-dark); border-radius:.7em; padding:.5em .9em; font-weight:800; text-align:left; margin-top:.3em; }
   .hist { font-size:.95em; }
   .hist table { border-collapse:collapse; width:100%; background:#fff; color:var(--ink-dark); border-radius:.6em; overflow:hidden; }
@@ -86,6 +89,7 @@
   <div class="q-foot">
     <button class="btn hide" id="btnSubmit">答える</button>
     <div class="fb" id="fb"></div>
+    <div class="ex hide" id="ex" role="status"></div>
     <button class="btn hide" id="btnNext">次へ</button>
   </div>
 </section>
@@ -111,13 +115,13 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261111194256"></script>
+<script src="firebase-config.js?v=20261111201446"></script>
 <script type="module">
-import { ensureOwner, fiscalYear } from './quest.js?v=20261111194256';
+import { ensureOwner, fiscalYear } from './quest.js?v=20261111201446';
 import { signIn, db, ref, set, get, serverTimestamp, CHOICE_STYLE, shuffle, prepareQuestion, maskOf, isTextCorrect,
-         $, el, motionOn, showScreen, confetti, loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261111194256';
+         $, el, motionOn, showScreen, confetti, loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261111201446';
 import { push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261111194256b';
+import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261111201446b';
 
 mountStage();
 wireSoundButtons();
@@ -251,6 +255,7 @@ function showQ() {
   var qi = run.list[run.pos], src = cur.questions[qi];
   var p = prepareQuestion(src, true);
   run.p = p; run.src = src; selMask = 0; locked = false;
+  $('ex').classList.add('hide');
   $('qno').textContent = '問題 ' + (run.pos + 1) + ' / ' + run.list.length;
   $('qset').textContent = run.title.length > 18 ? run.title.slice(0, 18) + '…' : run.title;
   $('sqtext').textContent = p.text;
@@ -309,6 +314,9 @@ function judge(mask, text) {
     run.wrong.push(run.list[run.pos]); fb.className = 'fb ng'; sfx('ng');
     fb.textContent = '✕ ざんねん… ' + (p.type === 'text' ? '正解は 「' + p.accept.slice(0, 3).join(' ／ ') + '」' : '');
   }
+  var ex = $('ex');   /* 解説（先生が確認したもの）。間違えたときは「なぜ？」、正解のときは小さく「ポイント」 */
+  if (run.src.ex) { ex.textContent = ''; var t = document.createElement('b'); t.textContent = ok ? '💡 ポイント' : '💡 なぜ？'; ex.appendChild(t); ex.appendChild(document.createTextNode(run.src.ex)); ex.className = 'ex' + (ok ? ' small' : ''); }
+  else ex.classList.add('hide');
   $('btnSubmit').classList.add('hide');
   var nb = $('btnNext'); nb.textContent = run.pos + 1 >= run.list.length ? '結果を見る' : '次へ'; nb.classList.remove('hide'); nb.focus();
 }

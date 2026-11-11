@@ -17,6 +17,9 @@ const cases = [
   ['問題文なし', { q: '', choices: ['a', 'b'], answer: 0 }, 1],
   ['入力式の答えが空', { q: '問', type: 'text', accept: [] }, 1],
   ['画像が無い', { ...ok4, image: 'img/q/none.webp' }, 1],
+  ['解説つき', { ...ok4, ex: '理由の文。' }, 0],
+  ['解説が空', { ...ok4, ex: ' ' }, 1],
+  ['解説が長すぎる', { ...ok4, ex: 'あ'.repeat(201) }, 1],
 ];
 for (const [name, q, n] of cases) {
   test(name, () => {

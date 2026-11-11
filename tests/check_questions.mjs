@@ -20,6 +20,7 @@ const imgOk = (p) => typeof p === 'string' && /^img\//.test(p) && fs.existsSync(
 export function checkQuestion(q, where) {
   if (!q || typeof q.q !== 'string' || !q.q.trim()) return E(where, '問題文がない');
   if (q.image && !imgOk(q.image)) E(where, '問題の画像が見つからない: ' + q.image);
+  if ('ex' in q && (typeof q.ex !== 'string' || !q.ex.trim() || q.ex.length > 200)) E(where, '解説（ex）が空か、200字をこえている');
   if (q.type === 'text') {
     if (!Array.isArray(q.accept) || !q.accept.length || q.accept.some((a) => typeof a !== 'string' || !a.trim())) E(where, '入力式の答え（accept）が空');
     return;
