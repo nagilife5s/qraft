@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Qraft クエスト（先生）</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
-<link rel="stylesheet" href="theme.css?v=20261111174442">
-<link rel="stylesheet" href="quest.css?v=20261111174442">
+<link rel="stylesheet" href="theme.css?v=20261111181613">
+<link rel="stylesheet" href="quest.css?v=20261111181613">
 </head>
 <body>
 <div id="app">
@@ -76,15 +76,15 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261111174442"></script>
+<script src="firebase-config.js?v=20261111181613"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script type="module">
 import { signIn, db, ref, set, get, update, remove, onValue, serverNow, shuffle, mountSetPicker,
-         decryptSet, prepareQuestion, maskOf, $, el, showScreen, confetti, qrSvg, sleep } from './lib.js?v=20261111174442';
+         decryptSet, prepareQuestion, maskOf, $, el, showScreen, confetti, qrSvg, sleep } from './lib.js?v=20261111181613';
 import { onChildAdded, onChildChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 import { fiscalYear, JOBS, MP_MAX, heroImg, lvMult, CHEER, addExp, ENEMIES, BOSS, areaOf, enemyFor,
-         zakoHp, enemyHit, bossHp, REWARD, TOWN, TOWN_DEFAULT, storyClear, statsOf, canUse, skMult, ITEMS } from './quest.js?v=20261111174442';
-import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261111174442b';
+         zakoHp, enemyHit, bossHp, REWARD, TOWN, TOWN_DEFAULT, storyClear, statsOf, canUse, skMult, ITEMS } from './quest.js?v=20261111181613';
+import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261111181613b';
 
 wireSoundButtons();
 
@@ -185,7 +185,13 @@ function renderLobby() {
 /* ------------------------------------------------------------ 班とキャラの状態（先生の画面だけが持つ） */
 var CH = {}, busy = false;
 /* キャラ（スキル・装備・持ち物）を読む。先生の端末は admins なので読める */
-async function loadChar(u) { if (!CH[u]) CH[u] = (await get(ref(db, qpath('chars/' + players[u].sid)))).val() || { j: players[u].j, lv: players[u].lv || 1 }; return CH[u]; }
+/* 生徒が名乗った番号が、本当にその端末のものか（合言葉で持ち主になっているか）。ちがえば報酬を書かない */
+var OWN = {};
+async function owns(u, sid) { var k = sid + '/' + u; if (OWN[k] == null) { try { OWN[k] = (await get(ref(db, qpath('owners/' + k)))).exists(); } catch (e) { OWN[k] = false; } } return OWN[k]; }
+async function loadChar(u) {
+  if (!CH[u]) CH[u] = ((await owns(u, players[u].sid)) && (await get(ref(db, qpath('chars/' + players[u].sid)))).val()) || { j: players[u].j, lv: players[u].lv || 1 };
+  return CH[u];
+}
 function addPlayer(u, team) {
   var p = players[u], ch = CH[u] || { j: p.j, lv: p.lv || 1 }, job = JOBS[ch.j] ? ch.j : 'warrior', st = statsOf(ch, true);
   G[u] = { team: team, job: job, ch: ch, atk: st.atk, def: st.def, lv: ch.lv || 1, sid: p.sid, nick: p.nick, lk: p.lk, hp: st.mhp, mhp: st.mhp, mp: 0, streak: 0, ko: false, buff: false,
@@ -399,9 +405,10 @@ async function finish() {
   await update(ref(db, 'rooms/' + pin + '/state'), { phase: 'saving' });
   var down = !!(boss && boss.down), clsPath = qpath('classes/' + S.g + '-' + S.c), up = {}, res = {};
   var who = Object.assign({}, AR.who || {});
-  if (boss) Object.keys(G).forEach(function (u) { if (G[u]) who[G[u].sid] = true; });
+  var ok = {}; for (var u0 of Object.keys(G)) ok[u0] = !!G[u0] && await owns(u0, G[u0].sid);
+  if (boss) Object.keys(G).forEach(function (u) { if (ok[u]) who[G[u].sid] = true; });
   for (var u of Object.keys(G)) {
-    var g = G[u]; if (!g) continue;
+    var g = G[u]; if (!g || !ok[u]) continue;
     var cp = qpath('chars/' + g.sid), ch = (await get(ref(db, cp))).val();
     if (!ch) continue;
     if (g.used && ch.inv && ch.inv[g.used] > 0) { ch.inv[g.used]--; }

@@ -6,8 +6,8 @@
 <title>Qraft クエスト</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261111174442">
-<link rel="stylesheet" href="quest.css?v=20261111174442">
+<link rel="stylesheet" href="theme.css?v=20261111181613">
+<link rel="stylesheet" href="quest.css?v=20261111181613">
 <style>
   #s-battle .arena { min-height:12em; }
   .cmd .choices button.sel { outline:.25em solid #fff; }
@@ -107,10 +107,10 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261111174442"></script>
+<script src="firebase-config.js?v=20261111181613"></script>
 <script type="module">
-import { signIn, db, ref, set, get, onValue, serverNow, $, el, showScreen, confetti } from './lib.js?v=20261111174442';
-import { fiscalYear, JOBS, JOB_KEYS, MP_MAX, heroImg, ENEMIES, BOSS, storyEnter, expToNext, canUse, ITEMS } from './quest.js?v=20261111174442';
+import { signIn, db, ref, set, get, onValue, serverNow, $, el, showScreen, confetti } from './lib.js?v=20261111181613';
+import { fiscalYear, JOBS, JOB_KEYS, MP_MAX, heroImg, ENEMIES, BOSS, storyEnter, expToNext, canUse, ITEMS, ensureOwner } from './quest.js?v=20261111181613';
 
 var uid = null, pin = null, state = null, sid = '', ch = null, look = 'a', job = 'mage';
 var players = {}, myItem = '', myReady = false, prepShown = false;
@@ -149,11 +149,11 @@ async function openRoom(p, silent) {
 async function pickNum(n, silent) {
   sid = state.g + '-' + state.c + '-' + n;
   document.querySelectorAll('#nums button').forEach(function (b) { b.classList.toggle('on', Number(b.textContent) === n); });
+  if (!(await ensureOwner({ db: db, ref: ref, get: get, set: set }, state.y, sid, uid, state.g + '年' + state.c + '組' + n + '番'))) return;
   try {
     ch = (await get(ref(db, 'quest/' + state.y + '/chars/' + sid))).val();
     try { localStorage.setItem('qraft.quest', JSON.stringify({ pin: pin, n: n })); } catch (e) {}
     if (ch) {
-      if (!silent && !confirm(ch.n + '（' + JOBS[ch.j].name + ' Lv.' + ch.lv + '）で参加します。自分のキャラですか？')) return;
       joinRoom();
     } else makeScreen();
   } catch (e) { err('joinErr', '読みこめませんでした: ' + e.message); }

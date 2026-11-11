@@ -126,6 +126,49 @@ export var FACS = [
 ];
 export var RESPEC_COST = 100;
 
+/* ====================================================================
+   合言葉（2026-11-11 レビュー指摘2）
+   ・先生が記録画面（records.html）で、出席番号ごとに合言葉を作って配る（quest/<年度>/keys/<学年-組-番号>）
+   ・生徒は初回と端末を変えたときだけ入力する。合うと quest/<年度>/owners/<学年-組-番号>/<端末のuid> が書ける
+   ・キャラを読み書きできるのは、持ち主の端末と先生だけ（firebase-rules.json）
+   ==================================================================== */
+var CODE_ABC = 'abcdefghjkmnpqrstuvwxyz23456789';   /* まぎらわしい i l o 0 1 は使わない */
+export function makeCode() { var a = new Uint32Array(6); crypto.getRandomValues(a); return Array.prototype.map.call(a, function (x) { return CODE_ABC[x % CODE_ABC.length]; }).join(''); }
+export function normCode(s) { return String(s || '').normalize('NFKC').toLowerCase().replace(/[^a-z0-9]/g, ''); }
+/*
+ * この端末が sid の持ち主か確かめる。まだなら合言葉を聞く。持ち主なら true、やめたら false。
+ * fb = { db, ref, get, set }
+ */
+export async function ensureOwner(fb, y, sid, uid, label) {
+  var p = 'quest/' + y + '/owners/' + sid + '/' + uid;
+  try { if ((await fb.get(fb.ref(fb.db, p))).exists()) return true; } catch (e) {}
+  return new Promise(function (resolve) {
+    var bg = document.createElement('div');
+    bg.style.cssText = 'position:fixed;inset:0;z-index:999;background:rgba(10,8,30,.72);display:flex;align-items:center;justify-content:center;padding:16px';
+    bg.innerHTML = '<form style="background:#fff;color:#241c4a;border-radius:16px;padding:1.4em 1.5em;width:22em;max-width:100%;display:flex;flex-direction:column;gap:.7em;font-size:1.05em">' +
+      '<b style="font-size:1.15em">合言葉を入れてください</b>' +
+      '<div style="font-size:.9em;line-height:1.6"></div>' +
+      '<input autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="12" style="font:inherit;font-size:1.4em;letter-spacing:.15em;padding:.4em .6em;border:2px solid #bdb5de;border-radius:10px;text-align:center" aria-label="合言葉">' +
+      '<div role="alert" style="color:#b3261e;font-size:.9em;min-height:1.3em"></div>' +
+      '<div style="display:flex;gap:.6em;justify-content:flex-end"><button type="button" style="font:inherit;padding:.5em 1em;border-radius:10px;border:1px solid #bdb5de;background:#fff">もどる</button>' +
+      '<button type="submit" style="font:inherit;padding:.5em 1.2em;border-radius:10px;border:0;background:#5b3fd6;color:#fff;font-weight:700">OK</button></div></form>';
+    var f = bg.firstChild, msg = f.children[1], inp = f.children[2], er = f.children[3], btns = f.children[4].children;
+    msg.textContent = (label || sid) + ' のキャラを使うには、先生からもらった合言葉（6文字）が必要です。この端末で1回入れれば、次からは聞かれません。';
+    function close(v) { bg.remove(); resolve(v); }
+    btns[0].onclick = function () { close(false); };
+    f.onsubmit = async function (e) {
+      e.preventDefault(); var c = normCode(inp.value); er.textContent = '';
+      if (c.length < 4) { er.textContent = '合言葉を入れてください'; return; }
+      btns[1].disabled = true;
+      try { await fb.set(fb.ref(fb.db, p), { c: c, t: { '.sv': 'timestamp' } }); close(true); }
+      catch (x) { er.textContent = '合言葉がちがいます。番号と合言葉を確かめてください。'; btns[1].disabled = false; inp.select(); }
+    };
+    document.body.appendChild(bg); inp.focus();
+  });
+}
+/* スキルを3つとも数で書く（ルールが「残りのポイント＋振ったポイント＝レベル」を確かめるため） */
+export function normChar(c) { var s = skOf(c); c.sk = { 0: s[0], 1: s[1], 2: s[2] }; return c; }
+
 /* 能力値。team=true のときはレベルでHPを増やさない（チームモードはレベル差をおさえる） */
 export function statsOf(ch, team) {
   var j = JOBS[ch.j] || JOBS.warrior, eq = ch.eq || {}, w = WEAPONS.filter(function (x) { return x.id === eq.w; })[0], a = ARMORS.filter(function (x) { return x.id === eq.a; })[0];

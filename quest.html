@@ -6,8 +6,8 @@
 <title>Qraft クエスト（ひとりで冒険）</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261111174442">
-<link rel="stylesheet" href="quest.css?v=20261111174442">
+<link rel="stylesheet" href="theme.css?v=20261111181613">
+<link rel="stylesheet" href="quest.css?v=20261111181613">
 <style>
   .hud-btns { display:flex; gap:.4em; }
   .hud-btns .btn { font-size:.85em; padding:.35em .9em; }
@@ -129,15 +129,16 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261111174442"></script>
+<script src="firebase-config.js?v=20261111181613"></script>
 <script type="module">
-import { signIn, db, ref, set, get, $, el, showScreen, shuffle, prepareQuestion, maskOf, isTextCorrect } from './lib.js?v=20261111174442';
+import { signIn, db, ref, set, get, $, el, showScreen, shuffle, prepareQuestion, maskOf, isTextCorrect } from './lib.js?v=20261111181613';
 import { fiscalYear, JOBS, JOB_KEYS, MP_MAX, heroImg, addExp, expToNext, ENEMIES, TOWN, TOWN_DEFAULT, enemyHit,
-         SK_MAX, SK_UNLOCK, SK_FREE, skOf, canUse, skMult, WEAPONS, ARMORS, weaponName, armorName, ITEMS, ITEM_KEYS, FACS, RESPEC_COST,
-         statsOf, soloMult, soloReward, soloEnemyHp, BOSS } from './quest.js?v=20261111174442';
+         SK_MAX, SK_UNLOCK, SK_FREE, skOf, canUse, skMult, WEAPONS, ARMORS, weaponName, armorName, ITEMS, ITEM_KEYS, FACS, RESPEC_COST, ensureOwner, normChar,
+         statsOf, soloMult, soloReward, soloEnemyHp, BOSS } from './quest.js?v=20261111181613';
 
 var Y = fiscalYear(), me = { g: 0, c: 0, n: 0 }, sid = '', ch = null, CLS = {}, SETS = [], AREAS = [], look = 'a', job = 'mage';
 var curArea = null, HP = 0, MP = 0;
+var UID = null, lastWrite = 0;
 function err(id, m) { $(id).textContent = m; $(id).classList.toggle('hide', !m); }
 function stage() { return CLS.stage || 0; }
 function town() { return CLS.town || TOWN_DEFAULT; }
@@ -151,7 +152,7 @@ segPick('segG', 'g'); segPick('segC', 'c'); segPick('nums', 'n');
 
 (async function boot() {
   showScreen('s-login');
-  try { await signIn(); } catch (e) { err('loginErr', e.message); return; }
+  try { UID = (await signIn()).uid; } catch (e) { err('loginErr', e.message); return; }
   try { SETS = await (await fetch('home/index.json', { cache: 'no-cache' })).json(); } catch (e) { err('loginErr', '問題の一覧を読めませんでした'); }
   try { var s = JSON.parse(localStorage.getItem('qraft.quest.me') || 'null'); if (s) { me = s; ['segG:g', 'segC:c', 'nums:n'].forEach(function (k) { var p = k.split(':'); $(p[0]).querySelectorAll('button').forEach(function (b) { b.classList.toggle('on', Number(b.dataset.v) === me[p[1]]); }); }); } } catch (e) {}
 })();
@@ -159,6 +160,7 @@ async function login() {
   err('loginErr', '');
   if (!me.g || !me.c) { err('loginErr', '学年と組を選んでください'); return; }
   sid = me.g + '-' + me.c + '-' + me.n;
+  if (!(await ensureOwner({ db: db, ref: ref, get: get, set: set }, Y, sid, UID, me.g + '年' + me.c + '組' + me.n + '番'))) return;
   try {
     ch = (await get(ref(db, 'quest/' + Y + '/chars/' + sid))).val();
     CLS = (await get(ref(db, 'quest/' + Y + '/classes/' + me.g + '-' + me.c))).val() || {};
@@ -166,7 +168,7 @@ async function login() {
   try { localStorage.setItem('qraft.quest.me', JSON.stringify(me)); } catch (e) {}
   buildAreas();
   if (!ch) return makeScreen();
-  if (!confirm(ch.n + '（' + JOBS[ch.j].name + ' Lv.' + ch.lv + '）で冒険します。自分のキャラですか？')) return;
+  lastWrite = Date.now();   /* 前の書き込みから20秒あける決まりがあるので、読みこんだ時点から数える */
   enterTown();
 }
 
@@ -191,15 +193,24 @@ $('btnMake').onclick = async function () {
   var nm = $('cname').value.trim(); if (!nm) { err('makeErr', 'キャラの名前を入れてください'); return; }
   $('btnMake').disabled = true;
   var c = { n: nm, j: job, lk: look, lv: 1, exp: 0, gold: 0, sp: 0, sk: { 0: 0, 1: 1, 2: 0 }, u: { '.sv': 'timestamp' } };
-  try { await set(ref(db, 'quest/' + Y + '/chars/' + sid), c); ch = c; enterTown(); }
+  try { await set(ref(db, 'quest/' + Y + '/chars/' + sid), c); ch = c; lastWrite = Date.now(); enterTown(); }
   catch (e) { err('makeErr', 'キャラを作れませんでした（ほかの人が先に作ったかもしれません）'); $('btnMake').disabled = false; }
 };
 
-/* キャラを保存する（ルールで、1回に増やせるのは 経験値300・ゴールド200 まで） */
-async function saveChar() {
-  var c = Object.assign({}, ch); c.u = { '.sv': 'timestamp' };
-  try { await set(ref(db, 'quest/' + Y + '/chars/' + sid), c); return true; }
-  catch (e) { alert('保存できませんでした。通信を確かめて、もう一度ためしてください。'); return false; }
+/*
+ * キャラを保存する。ルールの決まり（firebase-rules.json）
+ *   ・戦闘の報酬（gain=true）は、1回に経験値300・ゴールド200まで。前の書き込みから20秒以上あける
+ *   ・買い物は、値段の分だけゴールドが減っていること。レベル・経験値は変えない
+ * 報酬は、20秒たっていなければ待ってから保存し、だめなら少し待って2回までやり直す。
+ */
+async function saveChar(gain) {
+  var c = normChar(Object.assign({}, ch)); c.u = { '.sv': 'timestamp' };
+  for (var i = 0; i < 3; i++) {
+    if (gain) { var w = lastWrite + 21000 - Date.now(); if (w > 0) await new Promise(function (r) { setTimeout(r, w); }); }
+    try { await set(ref(db, 'quest/' + Y + '/chars/' + sid), c); lastWrite = Date.now(); ch.sk = c.sk; return true; }
+    catch (e) { if (!gain) break; lastWrite = Date.now(); }
+  }
+  alert('保存できませんでした。通信を確かめて、もう一度ためしてください。'); return false;
 }
 
 /* ------------------------------------------------------------ エリア（単元）。学年の単元を順に並べる */
@@ -666,8 +677,10 @@ async function win() {
   $('enemy').classList.add('down');
   var rw = soloReward(B.max, curArea.st === 'clear'), lv0 = ch.lv;
   ch.gold = (ch.gold || 0) + rw.gold; var up = addExp(ch, rw.exp);
-  var saved = await saveChar();
   var box = $('cmd'); box.textContent = '';
+  box.appendChild(el('div', 'banner ok', B.e.n + 'を たおした！　記録しています…'));   /* 前の記録から20秒たつまで待つことがある */
+  var saved = await saveChar(true);
+  box.textContent = '';
   box.appendChild(el('div', 'banner ok', B.e.n + 'を たおした！　けいけんち +' + rw.exp + '　💰 +' + rw.gold + (up ? '　LEVEL UP! Lv.' + lv0 + '→' + ch.lv + '（スキルポイント +' + up + '）' : '') + (saved ? '' : '（保存できませんでした）')));
   if (up) HP = statsOf(ch).mhp;
   var nx = el('button', 'btn', 'フィールドにもどる'); nx.style.alignSelf = 'center';

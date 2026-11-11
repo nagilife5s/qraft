@@ -41,6 +41,14 @@
   <div style="overflow:auto"><table id="tbl"></table></div>
   <h2>セットごと（よく練習されているセット・正答率の低いセット）</h2>
   <div style="overflow:auto"><table id="tblSet"></table></div>
+  <h2>クエストの合言葉</h2>
+  <div class="note">クエストのキャラは、出席番号ごとの合言葉を入れた端末だけが使えます（初回と、端末を変えたときに入力）。<br>
+    組を選んで「合言葉を作る」を押すと、まだ合言葉がない番号に作ります。作ったら印刷して、生徒に1人ずつ配ってください。
+    <div class="row">年度 <b id="qy"></b>　学年 <select id="kg"><option>1</option><option>2</option><option>3</option></select>
+      組 <select id="kc"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option></select>
+      番号 1〜<input id="kn" type="number" min="1" max="40" value="40" style="width:4.5em">
+      <button id="btnKeys">一覧を見る</button> <button class="main" id="btnMakeKeys">合言葉を作る</button> <button id="btnPrintKeys">印刷用に開く</button> <span id="keyMsg"></span></div>
+    <div style="overflow:auto"><table id="tblKeys"></table></div></div>
   <h2>先生の端末を増やす</h2>
   <div class="note">この端末のID: <code id="myUid"></code><br>
     別の端末で開いたときに出るIDを、ここに入れて追加します。<br>
@@ -50,7 +58,8 @@
 
 <script src="firebase-config.js"></script>
 <script type="module">
-import { signIn, db, ref, set, get } from './lib.js';
+import { signIn, db, ref, set, get, remove } from './lib.js';
+import { fiscalYear, makeCode } from './quest.js';
 var $ = function (id) { return document.getElementById(id); };
 var uid = null, rows = [], titles = {}, open = {};
 
@@ -138,6 +147,57 @@ $('btnCsv').onclick = function () {
   var a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob(['﻿' + l.join('\n')], { type: 'text/csv' }));
   a.download = 'qraft-practice.csv'; a.click();
+};
+/* ------------------------------------------------------------ クエストの合言葉（quest/<年度>/keys/<学年-組-番号>） */
+var QY = fiscalYear(), KEYS = {}, OWNERS = {};
+$('qy').textContent = QY;
+function kcls() { return $('kg').value + '-' + $('kc').value; }
+function knum() { return Math.max(1, Math.min(40, +$('kn').value || 40)); }
+async function loadKeys() {
+  KEYS = {}; OWNERS = {}; $('keyMsg').textContent = '読み込み中…';
+  var c = kcls(), n = knum(), jobs = [];
+  for (var i = 1; i <= n; i++) (function (sid) {
+    jobs.push(Promise.all([get(ref(db, 'quest/' + QY + '/keys/' + sid)), get(ref(db, 'quest/' + QY + '/owners/' + sid))]).then(function (r) {
+      if (r[0].exists()) KEYS[sid] = r[0].val(); OWNERS[sid] = r[1].exists() ? Object.keys(r[1].val()).length : 0;
+    }));
+  })(c + '-' + i);
+  try { await Promise.all(jobs); $('keyMsg').textContent = ''; } catch (e) { $('keyMsg').textContent = '読みこめませんでした：' + e.message; }
+  drawKeys();
+}
+function drawKeys() {
+  var c = kcls(), n = knum(), h = '<tr><th>番号</th><th>合言葉</th><th>使っている端末</th><th></th></tr>';
+  for (var i = 1; i <= n; i++) {
+    var sid = c + '-' + i;
+    h += '<tr><td>' + i + '番</td><td><code style="font-size:1.1em;letter-spacing:.1em">' + (KEYS[sid] || '－') + '</code></td><td>' + (OWNERS[sid] || 0) + '台</td><td>' +
+      (KEYS[sid] ? '<button data-re="' + sid + '">作り直す</button>' : '') + '</td></tr>';
+  }
+  $('tblKeys').innerHTML = h;
+  document.querySelectorAll('[data-re]').forEach(function (b) {
+    b.onclick = async function () {
+      var sid = b.dataset.re;
+      if (!confirm(sid.replace(/(\d)-(\d+)-(\d+)/, '$1年$2組 $3番') + 'の合言葉を作り直します。今この番号を使っている端末は、新しい合言葉を入れ直すまでキャラを開けなくなります（キャラのデータは消えません）。')) return;
+      try { var k = makeCode(); await set(ref(db, 'quest/' + QY + '/keys/' + sid), k); await remove(ref(db, 'quest/' + QY + '/owners/' + sid)); KEYS[sid] = k; OWNERS[sid] = 0; drawKeys(); }
+      catch (e) { alert('作り直せませんでした：' + e.message); }
+    };
+  });
+}
+$('btnKeys').onclick = loadKeys;
+$('btnMakeKeys').onclick = async function () {
+  await loadKeys();
+  var c = kcls(), n = knum(), made = 0;
+  try {
+    for (var i = 1; i <= n; i++) { var sid = c + '-' + i; if (KEYS[sid]) continue; var k = makeCode(); await set(ref(db, 'quest/' + QY + '/keys/' + sid), k); KEYS[sid] = k; made++; }
+    $('keyMsg').textContent = made ? made + '人分の合言葉を作りました' : 'すべての番号に合言葉があります';
+  } catch (e) { $('keyMsg').textContent = '作れませんでした：' + e.message; }
+  drawKeys();
+};
+$('btnPrintKeys').onclick = function () {
+  var c = kcls().split('-'), n = knum(), cards = '';
+  for (var i = 1; i <= n; i++) { var k = KEYS[kcls() + '-' + i]; if (k) cards += '<div class="card"><small>Qraft クエスト</small><b>' + c[0] + '年' + c[1] + '組 ' + i + '番</b>合言葉<code>' + k + '</code><small>人に見せないでね</small></div>'; }
+  if (!cards) { alert('先に「一覧を見る」か「合言葉を作る」を押してください'); return; }
+  var w = window.open('', '_blank');
+  w.document.write('<!DOCTYPE html><html lang="ja"><meta charset="utf-8"><title>クエストの合言葉 ' + c[0] + '年' + c[1] + '組</title><style>body{font-family:sans-serif;margin:8mm}main{display:grid;grid-template-columns:repeat(4,1fr)}.card{border:1px dashed #999;padding:4mm;display:flex;flex-direction:column;gap:1mm;break-inside:avoid}.card b{font-size:13pt}.card code{font-size:18pt;letter-spacing:2pt;font-weight:700}small{color:#666;font-size:8pt}</style><main>' + cards + '</main><script>print()<\/script></html>');
+  w.document.close();
 };
 $('btnAdd').onclick = async function () {
   var u = $('addUid').value.trim(); if (!u) return;
