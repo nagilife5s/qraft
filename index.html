@@ -50,7 +50,7 @@
 </div>
 <script type="module">
   /* トップ画面のBGM（開いている間だけループ。ほかの画面へ行くと止まり、戻ると最初から） */
-  import { bgm, preload, wireSoundButtons } from './sound.js?v=20261111';
+  import { bgm, preload, wireSoundButtons } from './sound.js?v=20261111b';
   wireSoundButtons(); preload(['top']); bgm('top');
   addEventListener('pagehide', function () { bgm(null); });
   addEventListener('pageshow', function (e) { if (e.persisted) bgm('top'); });   /* 「戻る」でキャッシュから復帰したとき */

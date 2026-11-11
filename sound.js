@@ -12,7 +12,16 @@ var bufs = {}, cur = null, want = null, rate = 1, last = {};
 var VOL = { bgm: 0.45, sfx: 0.7 };
 /* つなぎ目に間が空かないよう、ループする範囲を曲ごとに指定する（秒）
    mp3 は頭に無音（priming）と末尾に詰め物が入る。ブラウザが取り除かなかったときは、その分をよけてループする */
-var LOOP = { top: { len: 63.9, prime: 576 / 44100 } };
+var P = 576 / 44100;
+var LOOP = {
+  top:    { len: 63.9,             prime: P },
+  lobby:  { len: 2849280 / 44100,  prime: P },
+  quiz:   { len: 2791424 / 44100,  prime: P },
+  podium: { len: 2854912 / 44100,  prime: P },
+  chase:  { len: 2798976 / 44100,  prime: P },
+  blast:  { len: 2823680 / 44100,  prime: P },
+  home:   { len: 2752512 / 44100,  prime: P }
+};
 
 function ac() {
   if (ctx) return ctx;
