@@ -11,6 +11,7 @@
     "test:smoke": "firebase emulators:exec --only database,auth --project qraft-e4345 \"playwright test\""
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.10.2",
     "@firebase/rules-unit-testing": "6.0.0",
     "@playwright/test": "1.65.0",
     "firebase": "13.2.0",

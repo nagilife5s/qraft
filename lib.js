@@ -89,7 +89,7 @@ export function shuffle(a) {
    画面まわりの小道具
    ==================================================================== */
 export function $(id) { return document.getElementById(id); }
-export function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+export function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; if (cls && /(^| )banner( |$)/.test(cls)) e.setAttribute('role', 'status'); return e; }   /* banner＝結果の知らせ。読み上げソフトに伝える */
 export function fmt(n) { return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
 
 /* OS の「視差効果を減らす」設定の人には、動きを出さない */
@@ -98,6 +98,14 @@ export const motionOn = !(window.matchMedia && matchMedia('(prefers-reduced-moti
 /* 画面を切り替える（.screen のうち、指定した1つだけ表示。表示のたびにCSSの動きが最初から再生される） */
 export function showScreen(id) {
   document.querySelectorAll('.screen').forEach(function (s) { s.classList.toggle('on', s.id === id); });
+  /* 結果の画面（正解・不正解・時間切れ）に切りかわったら、見出しと答えを読み上げソフトに伝える */
+  var sc = document.getElementById(id);
+  if (sc && sc.classList.contains('res')) {
+    var live = document.getElementById('sr-live');
+    if (!live) { live = document.createElement('div'); live.id = 'sr-live'; live.className = 'sr-only'; live.setAttribute('aria-live', 'assertive'); document.body.appendChild(live); }
+    var h = sc.querySelector('h2'), a = sc.querySelector('.ans');
+    live.textContent = (h ? h.textContent : '') + ' ' + (a ? a.textContent : '');
+  }
 }
 
 /* 時間差のアニメーションの管理（画面が替わるときにまとめて止める） */

@@ -822,3 +822,15 @@ button.tile:disabled { cursor:default; }
   .pad { grid-template-columns:repeat(3,3.6em) !important; grid-template-rows:repeat(2,3.6em) !important; }
   .bombbtn { width:5em !important; height:5em !important; font-size:1.4em; }
 }
+
+/* ---------------- アクセシビリティ（2026-11-12 レビュー指摘6） ---------------- */
+/* キーボードで選んでいる場所は、どの背景の上でも見えるよう白と紺の二重の枠にする */
+:focus-visible { outline:.2em solid #fff; outline-offset:.15em; box-shadow:0 0 0 .38em #241c4a; }
+input.field:focus-visible, #textbox input:focus-visible, .pkq:focus-visible { outline:.2em solid #5b3fd6; outline-offset:.1em; }
+/* 答えたあとの選択肢：色の枠だけでなく、記号と文字でも示す */
+.stu-tiles .tile.right-ans::after, .stu-tiles .tile.wrong-pick::after { position:absolute; right:.5em; top:.35em; border-radius:999px; padding:.05em .6em; font-size:.5em; font-weight:900; }
+.stu-tiles .tile.right-ans::after { content:"✓ 正解"; background:#fff; color:#0b7a3f; }
+.stu-tiles .tile.wrong-pick::after { content:"✕ あなたの答え"; background:#fff; color:#b3261e; }
+.stu-tiles .tile.wrong-pick { opacity:.85; }
+/* 読み上げ用（画面には出さない） */
+.sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }

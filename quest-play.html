@@ -6,8 +6,8 @@
 <title>Qraft クエスト</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261112063057">
-<link rel="stylesheet" href="quest.css?v=20261112063057">
+<link rel="stylesheet" href="theme.css?v=20261112071550">
+<link rel="stylesheet" href="quest.css?v=20261112071550">
 <style>
   #s-battle .arena { min-height:12em; }
   .cmd .choices button.sel { outline:.25em solid #fff; }
@@ -107,10 +107,10 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261112063057"></script>
+<script src="firebase-config.js?v=20261112071550"></script>
 <script type="module">
-import { signIn, db, ref, set, get, onValue, serverNow, $, el, showScreen, confetti } from './lib.js?v=20261112063057';
-import { fiscalYear, JOBS, JOB_KEYS, MP_MAX, heroImg, ENEMIES, BOSS, storyEnter, expToNext, canUse, ITEMS, ensureOwner } from './quest.js?v=20261112063057';
+import { signIn, db, ref, set, get, onValue, serverNow, $, el, showScreen, confetti } from './lib.js?v=20261112071550';
+import { fiscalYear, JOBS, JOB_KEYS, MP_MAX, heroImg, ENEMIES, BOSS, storyEnter, expToNext, canUse, ITEMS, ensureOwner } from './quest.js?v=20261112071550';
 
 var uid = null, pin = null, state = null, sid = '', ch = null, look = 'a', job = 'mage';
 var players = {}, myItem = '', myReady = false, prepShown = false;
@@ -166,7 +166,9 @@ function makeScreen() {
     var c = el('div', 'jobcard' + (k === job ? ' on' : '')); c.dataset.job = k;
     var im = el('img', 'hero'); im.src = heroImg(k, look); c.appendChild(im);
     c.appendChild(el('h3', '', JOBS[k].name)); c.appendChild(el('p', '', JOBS[k].desc));
-    c.onclick = function () { job = k; document.querySelectorAll('.jobcard').forEach(function (x) { x.classList.toggle('on', x.dataset.job === k); }); };
+    c.onclick = function () { job = k; document.querySelectorAll('.jobcard').forEach(function (x) { x.classList.toggle('on', x.dataset.job === k); x.setAttribute('aria-pressed', x.dataset.job === k ? 'true' : 'false'); }); };
+    c.tabIndex = 0; c.setAttribute('role', 'button'); c.setAttribute('aria-pressed', k === job ? 'true' : 'false');   /* キーボードでも選べる */
+    c.onkeydown = function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); c.onclick(); } };
     box.appendChild(c);
   });
   showScreen('s-make');
@@ -298,7 +300,7 @@ function drawCmd() {
     if (c.image) { var ci = el('img'); ci.src = c.image; ci.style.maxHeight = '3em'; b.appendChild(ci); }
     b.appendChild(document.createTextNode(c.t || ''));
     b.onclick = function () {
-      if (qs.mu) { sel ^= (1 << i); b.classList.toggle('sel', !!(sel & (1 << i))); sub.disabled = !sel; }
+      if (qs.mu) { sel ^= (1 << i); b.classList.toggle('sel', !!(sel & (1 << i))); b.setAttribute('aria-pressed', sel & (1 << i) ? 'true' : 'false'); sub.disabled = !sel; }
       else answer({ c: i });
     };
     chs.appendChild(b);
@@ -307,7 +309,9 @@ function drawCmd() {
   var sub = el('button', 'btn hide', '答える'); sub.disabled = true;
   if (qs.mu) { sub.classList.remove('hide'); sub.onclick = function () { if (sel) answer({ m: sel }); }; box.appendChild(sub); }
 }
+var myPick = 0;
 function answer(a) {
+  myPick = a.c != null ? (1 << a.c) : (a.m || 0);
   document.querySelectorAll('#cmd button').forEach(function (b) { b.disabled = true; });
   a.t = { '.sv': 'timestamp' };
   set(ref(db, 'rooms/' + pin + '/answers/' + qs.n + '/' + uid), a).catch(function () {});
@@ -317,7 +321,7 @@ function drawResult(box, me) {
   var r = qs.r, key = 'r' + r.n + (r.act ? 'a' : '');
   if (box.dataset.n === key) return; box.dataset.n = key;
   /* 正解の選択肢に印をつける */
-  document.querySelectorAll('#cmd .choices button').forEach(function (b, i) { if (r.cor & (1 << i)) b.classList.add('right'); else b.classList.add('dim'); });
+  document.querySelectorAll('#cmd .choices button').forEach(function (b, i) { b.classList.remove('sel'); if (r.cor & (1 << i)) b.classList.add('right', 'ans-ok'); else { b.classList.add('dim'); if (myPick & (1 << i)) b.classList.add('ans-ng'); } });
   var old = box.querySelector('.banner'); if (old) old.remove();
   if (!r.ok) { box.appendChild(el('div', 'banner ng', '✕ ざんねん… 敵の攻撃！ ' + r.dmg + 'のダメージ')); return; }
   if (r.rev) { box.appendChild(el('div', 'banner ok', '✓ せいかい！ 復活して、仲間を応援した！ 📣')); return; }

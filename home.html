@@ -6,7 +6,7 @@
 <title>Qraft 家庭練習</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261112063057">
+<link rel="stylesheet" href="theme.css?v=20261112071550">
 <style>
   .hm { width:min(72em,100%); height:100%; margin:0 auto; display:flex; flex-direction:column; gap:.8em; min-height:0; }
   .hm .row { display:flex; flex-wrap:wrap; gap:.5em; align-items:center; }
@@ -52,7 +52,7 @@
       <div class="flabel">クラス</div>
       <div class="row" id="idC"></div>
       <div class="flabel">出席番号</div>
-      <select class="field" id="idN"></select>
+      <select class="field" id="idN" aria-label="出席番号"></select>
       <button class="btn" id="btnId" style="margin-top:.4em">はじめる</button>
       <div class="mut" style="font-size:.9em">練習の結果は、先生が見られます（名前は出ません。学年・クラス・番号だけ）。</div>
     </div>
@@ -88,7 +88,7 @@
   </div>
   <div class="q-foot">
     <button class="btn hide" id="btnSubmit">答える</button>
-    <div class="fb" id="fb"></div>
+    <div class="fb" id="fb" role="status" aria-live="polite"></div>
     <div class="ex hide" id="ex" role="status"></div>
     <button class="btn hide" id="btnNext">次へ</button>
   </div>
@@ -115,13 +115,13 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261112063057"></script>
+<script src="firebase-config.js?v=20261112071550"></script>
 <script type="module">
-import { ensureOwner, fiscalYear } from './quest.js?v=20261112063057';
+import { ensureOwner, fiscalYear } from './quest.js?v=20261112071550';
 import { signIn, db, ref, set, get, serverTimestamp, CHOICE_STYLE, shuffle, prepareQuestion, maskOf, isTextCorrect,
-         $, el, motionOn, showScreen, confetti, loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261112063057';
+         $, el, motionOn, showScreen, confetti, loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261112071550';
 import { push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261112063057b';
+import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261112071550b';
 
 mountStage();
 wireSoundButtons();

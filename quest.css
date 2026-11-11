@@ -401,3 +401,15 @@
 .skill .ds { font-size:.8em; opacity:.75; }
 .tag { font-size:.7em; font-weight:900; padding:.1em .5em; border-radius:999px; background:#ede7ff; color:#5a2bd6; margin-left:.3em; vertical-align:.15em; }
 
+
+/* ---------------- アクセシビリティ（2026-11-12） ---------------- */
+:focus-visible { outline:.2em solid #fff; outline-offset:.15em; box-shadow:0 0 0 .38em #241c4a; }
+/* 「すべて選ぶ」問題で選んだ選択肢（チームモードの生徒画面では、これまで見た目が変わらなかった） */
+.choices button.sel { outline:.22em solid #ffd23f; outline-offset:-.22em; }
+.choices button.sel::before { content:"✓ "; }
+/* 答えたあとの選択肢：記号と文字でも示す */
+.choices button { position:relative; }
+.choices button.ans-ok::after, .choices button.ans-ng::after { position:absolute; right:.4em; top:-.6em; border-radius:999px; padding:.05em .6em; font-size:.7em; font-weight:900; background:#fff; }
+.choices button.ans-ok::after { content:"✓ 正解"; color:#0b7a3f; }
+.choices button.ans-ng::after { content:"✕ あなたの答え"; color:#b3261e; }
+.jobcard:focus-visible { outline:.25em solid #fff; }

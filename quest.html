@@ -6,8 +6,8 @@
 <title>Qraft クエスト（ひとりで冒険）</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261112063057">
-<link rel="stylesheet" href="quest.css?v=20261112063057">
+<link rel="stylesheet" href="theme.css?v=20261112071550">
+<link rel="stylesheet" href="quest.css?v=20261112071550">
 <style>
   .hud-btns { display:flex; gap:.4em; }
   .hud-btns .btn { font-size:.85em; padding:.35em .9em; }
@@ -129,12 +129,12 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261112063057"></script>
+<script src="firebase-config.js?v=20261112071550"></script>
 <script type="module">
-import { signIn, db, ref, set, get, $, el, showScreen, shuffle, prepareQuestion, maskOf, isTextCorrect } from './lib.js?v=20261112063057';
+import { signIn, db, ref, set, get, $, el, showScreen, shuffle, prepareQuestion, maskOf, isTextCorrect } from './lib.js?v=20261112071550';
 import { fiscalYear, JOBS, JOB_KEYS, MP_MAX, heroImg, addExp, expToNext, ENEMIES, TOWN, TOWN_DEFAULT, enemyHit,
          SK_MAX, SK_UNLOCK, SK_FREE, skOf, canUse, skMult, WEAPONS, ARMORS, weaponName, armorName, ITEMS, ITEM_KEYS, FACS, RESPEC_COST, ensureOwner, normChar,
-         statsOf, soloMult, soloReward, soloEnemyHp, BOSS } from './quest.js?v=20261112063057';
+         statsOf, soloMult, soloReward, soloEnemyHp, BOSS } from './quest.js?v=20261112071550';
 
 var Y = fiscalYear(), me = { g: 0, c: 0, n: 0 }, sid = '', ch = null, CLS = {}, SETS = [], AREAS = [], look = 'a', job = 'mage';
 var curArea = null, HP = 0, MP = 0;
@@ -179,7 +179,9 @@ function makeScreen() {
     var c = el('div', 'jobcard' + (k === job ? ' on' : '')); c.dataset.job = k;
     var im = el('img', 'hero'); im.src = heroImg(k, look); c.appendChild(im);
     c.appendChild(el('h3', '', JOBS[k].name)); c.appendChild(el('p', '', JOBS[k].desc));
-    c.onclick = function () { job = k; document.querySelectorAll('.jobcard').forEach(function (x) { x.classList.toggle('on', x.dataset.job === k); }); };
+    c.onclick = function () { job = k; document.querySelectorAll('.jobcard').forEach(function (x) { x.classList.toggle('on', x.dataset.job === k); x.setAttribute('aria-pressed', x.dataset.job === k ? 'true' : 'false'); }); };
+    c.tabIndex = 0; c.setAttribute('role', 'button'); c.setAttribute('aria-pressed', k === job ? 'true' : 'false');   /* キーボードでも選べる */
+    c.onkeydown = function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); c.onclick(); } };
     box.appendChild(c);
   });
   showScreen('s-make');
@@ -617,7 +619,7 @@ function askQ() {
       var b = el('button'); b.type = 'button';
       if (c.image) { var ci = el('img'); ci.src = c.image; ci.style.maxHeight = '3em'; b.appendChild(ci); }
       b.appendChild(document.createTextNode(c.t || ''));
-      b.onclick = function () { if (q.multi) { sel ^= (1 << i); b.classList.toggle('right', !!(sel & (1 << i))); sub.disabled = !sel; } else judge(maskOf([i]), null); };
+      b.onclick = function () { if (q.multi) { sel ^= (1 << i); b.classList.toggle('sel', !!(sel & (1 << i))); b.setAttribute('aria-pressed', sel & (1 << i) ? 'true' : 'false'); sub.disabled = !sel; } else judge(maskOf([i]), null); };
       chs.appendChild(b);
     });
     box.appendChild(chs);
@@ -629,7 +631,7 @@ function askQ() {
 function judge(mask, text) {
   var q = B.q, ok = q.type === 'text' ? isTextCorrect(text, q.accept) : mask === maskOf(q.correct), box = $('cmd');
   box.querySelectorAll('button, input').forEach(function (b) { b.disabled = true; });
-  box.querySelectorAll('.choices button').forEach(function (b, i) { b.classList.remove('right'); b.classList.add(q.correct.indexOf(i) >= 0 ? 'right' : 'dim'); });
+  box.querySelectorAll('.choices button').forEach(function (b, i) { var c = q.correct.indexOf(i) >= 0, mine = mask != null && !!(mask & (1 << i)); b.classList.remove('sel'); b.classList.add(c ? 'right' : 'dim'); if (c) b.classList.add('ans-ok'); else if (mine) b.classList.add('ans-ng'); });
   if (ok) {
     B.streak++; MP = Math.min(MP_MAX, MP + 1); drawMe();
     setTimeout(function () {
