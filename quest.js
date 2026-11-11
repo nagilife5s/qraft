@@ -185,3 +185,29 @@ export function soloMult(lv) { return 1 + 0.05 * (Math.max(1, lv) - 1); }
 /* ひとりで冒険の報酬（1回の書き込みは 経験値300・ゴールド200 まで。ルールでも弾く） */
 export function soloReward(enemyMax, review) { var r = review ? 0.5 : 1; return { exp: Math.min(300, Math.round(enemyMax * 0.8 * r)), gold: Math.min(200, Math.round(10 * r)) }; }
 export function soloEnemyHp(areaIndex) { return 30 + 8 * areaIndex; }
+
+/* ====================================================================
+   はじめての戦闘の案内（端末ごとに一度だけ。2026-11-12）
+   mode: 'solo'（ひとりで冒険）／'team'（チームモード）。閉じると resolve
+   ==================================================================== */
+export function battleGuide(mode) {
+  var key = 'qraft.quest.guide.' + mode;
+  try { if (localStorage.getItem(key)) return Promise.resolve(); } catch (e) { return Promise.resolve(); }
+  var steps = [
+    ['❓', '問題に答える', '正解すると MP が 1 たまります。まちがえると、敵の攻撃を受けます。'],
+    ['✨', '技をえらぶ', '正解したら技をえらびます。MP を使う技ほど強力です。' + (mode === 'team' ? '僧侶の回復や、仲間を起こすのも大事な活躍です。' : '')],
+    ['⭐', '経験値がもらえる', mode === 'team' ? '経験値は、正解した数と活躍（ダメージ・回復）で決まります。職業による差はほとんどありません。' : '敵をたおすと経験値とゴールド。レベルが上がるとスキルポイントがもらえます。']
+  ];
+  return new Promise(function (resolve) {
+    var bg = document.createElement('div');
+    bg.setAttribute('role', 'dialog'); bg.setAttribute('aria-modal', 'true'); bg.setAttribute('aria-label', 'たたかい方');
+    bg.style.cssText = 'position:fixed;inset:0;z-index:999;background:rgba(10,8,30,.75);display:flex;align-items:center;justify-content:center;padding:16px';
+    var box = '<div style="background:#fff;color:#241c4a;border-radius:16px;padding:1.3em 1.4em;width:26em;max-width:100%;display:flex;flex-direction:column;gap:.7em;font-size:1.05em"><b style="font-size:1.2em">⚔️ たたかい方</b>';
+    steps.forEach(function (s, i) { box += '<div style="display:flex;gap:.6em;align-items:flex-start"><span style="font-size:1.6em;line-height:1">' + s[0] + '</span><div><b>' + (i + 1) + '. ' + s[1] + '</b><div style="font-size:.9em;line-height:1.6">' + s[2] + '</div></div></div>'; });
+    box += '<button type="button" style="font:inherit;font-weight:900;padding:.55em 1.2em;border-radius:999px;border:0;background:#5b3fd6;color:#fff;align-self:center">わかった！</button></div>';
+    bg.innerHTML = box;
+    var b = bg.querySelector('button');
+    b.onclick = function () { try { localStorage.setItem(key, '1'); } catch (e) {} bg.remove(); resolve(); };
+    document.body.appendChild(bg); b.focus();
+  });
+}

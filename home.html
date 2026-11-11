@@ -6,7 +6,7 @@
 <title>Qraft 家庭練習</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261112080115">
+<link rel="stylesheet" href="theme.css?v=20261112084243">
 <style>
   .hm { width:min(72em,100%); height:100%; margin:0 auto; display:flex; flex-direction:column; gap:.8em; min-height:0; }
   .hm .row { display:flex; flex-wrap:wrap; gap:.5em; align-items:center; }
@@ -73,7 +73,7 @@
       <span style="font-weight:800">問題数</span>
       <select class="field" id="cnt"><option value="10">10問</option><option value="20">20問</option><option value="0">ぜんぶ</option></select>
     </div>
-    <div class="hist hide" id="histBox"><div style="font-weight:900; margin-bottom:.3em">このたんまつの さいきんの記録</div><div id="hist"></div></div>
+    <div class="hist hide" id="histBox"><div style="font-weight:900; margin-bottom:.1em">このたんまつの さいきんの記録</div><div style="font-size:.8em; opacity:.8; margin-bottom:.3em">この端末だけに残る記録です。先生に送る記録とは別で、端末を変えると見えません。</div><div id="hist"></div></div>
   </div>
 </section>
 
@@ -115,13 +115,13 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261112080115"></script>
+<script src="firebase-config.js?v=20261112084243"></script>
 <script type="module">
-import { ensureOwner, fiscalYear } from './quest.js?v=20261112080115';
+import { ensureOwner, fiscalYear } from './quest.js?v=20261112084243';
 import { signIn, db, ref, set, get, serverTimestamp, CHOICE_STYLE, shuffle, prepareQuestion, maskOf, isTextCorrect,
-         $, el, motionOn, showScreen, confetti, loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261112080115';
+         $, el, motionOn, showScreen, confetti, loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261112084243';
 import { push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261112080115b';
+import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261112084243b';
 
 mountStage();
 wireSoundButtons();
@@ -230,7 +230,7 @@ function renderHist() {
   h.forEach(function (x) {
     var d = new Date(x.at), r = el('tr');
     r.appendChild(el('td', '', (d.getMonth() + 1) + '/' + d.getDate() + ' ' + d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0')));
-    r.appendChild(el('td', '', x.title)); r.appendChild(el('td', '', x.k + ' / ' + x.n)); t.appendChild(r);
+    r.appendChild(el('td', '', x.title)); r.appendChild(el('td', '', x.k + ' / ' + x.n + (x.sent === false ? '（先生に届いていません）' : ''))); t.appendChild(r);
   });
   $('hist').textContent = ''; $('hist').appendChild(t);
 }
@@ -335,14 +335,16 @@ async function finish() {
     var best = store.get('qraft.home.best') || {}; if (!best[run.id] || best[run.id] < pct) best[run.id] = pct; store.set('qraft.home.best', best);
   }
   var h = store.get('qraft.home.hist') || [];
-  h.unshift({ sid: sid(), id: run.id, title: run.title, k: k, n: n, at: Date.now() }); store.set('qraft.home.hist', h.slice(0, 50));
+  var mine = { sid: sid(), id: run.id, title: run.title, k: k, n: n, at: Date.now(), sent: false };   /* sent：先生に記録が届いたか */
+  h.unshift(mine); store.set('qraft.home.hist', h.slice(0, 50));
   $('saveState').textContent = '記録を送っています…';
   try {
     var u = await signIn();
     await set(push(ref(db, 'practice/' + sid())), { f: run.id, n: n, k: k, w: run.wrong.map(function (i) { return i + 1; }).join(',').slice(0, 300), r: run.retry ? 1 : 0, t: serverTimestamp(), y: String(fiscalYear()) });
     $('saveState').textContent = '✓ 記録を先生に送りました（成績には直接使わない、練習の参考記録です）';
+    var h2 = store.get('qraft.home.hist') || []; h2.forEach(function (x) { if (x.at === mine.at && x.sid === mine.sid) x.sent = true; }); store.set('qraft.home.hist', h2);
   } catch (e) {
-    $('saveState').textContent = '記録を送れませんでした（通信を確認してください）。';
+    $('saveState').textContent = '記録を先生に送れませんでした（通信を確認してください）。この回は、この端末の記録にだけ残ります。';
   }
 }
 $('btnRetry').onclick = function () { begin(shuffle(run.wrong.slice()), true); };

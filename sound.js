@@ -4,10 +4,17 @@
      名前：top（トップ画面）・lobby（待機）・quiz（クラシックの出題中）・podium（結果発表）・chase（ジェットチェイス）・blast（ブラストタイム）・home（おうちで練習）
    ・効果音は Web Audio で、その場で合成する（ファイル不要）
    ・ブラウザは、最初にクリックかキーを押すまで音を出せない。最初の操作で、自動で鳴らせる状態にする
-   ・🔊ボタン（class="snd"）で消音。設定は端末に記憶する
+   ・🔊ボタン（class="snd"）を押すと、BGM と効果音を別々に切りかえ・音量を変えるメニューが開く。設定は端末に記憶する（2026-11-12）
    ==================================================================== */
 var ctx = null, master = null, bgmBus = null, sfxBus = null;
-var on = true; try { on = localStorage.getItem('qraft.sound') !== 'off'; } catch (e) {}
+/* bgmOn・sfxOn：BGMと効果音を別々に。vol：全体の音量（0〜1）。前の「音なし」（qraft.sound=off）は両方オフとして引き継ぐ */
+var bgmOn = true, sfxOn = true, vol = 1;
+try {
+  var old = localStorage.getItem('qraft.sound') === 'off';
+  bgmOn = (localStorage.getItem('qraft.sound.bgm') || (old ? 'off' : 'on')) !== 'off';
+  sfxOn = (localStorage.getItem('qraft.sound.sfx') || (old ? 'off' : 'on')) !== 'off';
+  var v = parseFloat(localStorage.getItem('qraft.sound.vol')); if (v >= 0 && v <= 1) vol = v;
+} catch (e) {}
 var bufs = {}, cur = null, want = null, rate = 1, last = {};
 var VOL = { bgm: 0.45, sfx: 0.7 };
 /* つなぎ目に間が空かないよう、ループする範囲を曲ごとに指定する（秒）
@@ -27,9 +34,9 @@ function ac() {
   if (ctx) return ctx;
   var C = window.AudioContext || window.webkitAudioContext; if (!C) return null;
   ctx = new C();
-  master = ctx.createGain(); master.gain.value = on ? 1 : 0; master.connect(ctx.destination);
-  bgmBus = ctx.createGain(); bgmBus.gain.value = VOL.bgm; bgmBus.connect(master);
-  sfxBus = ctx.createGain(); sfxBus.gain.value = VOL.sfx; sfxBus.connect(master);
+  master = ctx.createGain(); master.gain.value = vol; master.connect(ctx.destination);
+  bgmBus = ctx.createGain(); bgmBus.gain.value = bgmOn ? VOL.bgm : 0; bgmBus.connect(master);
+  sfxBus = ctx.createGain(); sfxBus.gain.value = sfxOn ? VOL.sfx : 0; sfxBus.connect(master);
   return ctx;
 }
 function unlock() { var c = ac(); if (c && c.state === 'suspended') c.resume(); }
@@ -112,22 +119,64 @@ var SFX = {
 };
 /* 同じ音を短い間に何度も鳴らさない（40人が一度に正解しても、うるさくならないように） */
 export function sfx(name) {
-  var c = ac(); if (!c || !on || c.state !== 'running' || !SFX[name]) return;
+  var c = ac(); if (!c || !sfxOn || c.state !== 'running' || !SFX[name]) return;
   var t = c.currentTime; if (last[name] && t - last[name] < 0.08) return; last[name] = t;
   SFX[name](t + 0.01);
 }
 
 /* ---- 🔊ボタン */
-export function soundOn() { return on; }
-export function setSound(v) {
-  on = !!v; try { localStorage.setItem('qraft.sound', on ? 'on' : 'off'); } catch (e) {}
-  if (master) master.gain.setTargetAtTime(on ? 1 : 0, ctx.currentTime, 0.05);
-  paint();
+export function soundOn() { return bgmOn || sfxOn; }
+function save() { try { localStorage.setItem('qraft.sound.bgm', bgmOn ? 'on' : 'off'); localStorage.setItem('qraft.sound.sfx', sfxOn ? 'on' : 'off'); localStorage.setItem('qraft.sound.vol', String(vol)); localStorage.removeItem('qraft.sound'); } catch (e) {} }
+function apply() {
+  if (!ctx) return;
+  var t = ctx.currentTime;
+  master.gain.setTargetAtTime(vol, t, 0.05);
+  bgmBus.gain.setTargetAtTime(bgmOn ? VOL.bgm : 0, t, 0.05);
+  sfxBus.gain.setTargetAtTime(sfxOn ? VOL.sfx : 0, t, 0.05);
 }
+/* 両方まとめて（前の🔊ボタンと同じ） */
+export function setSound(v) { bgmOn = sfxOn = !!v; save(); apply(); paint(); }
+export function setBgm(v) { bgmOn = !!v; save(); apply(); paint(); }
+export function setSfx(v) { sfxOn = !!v; save(); apply(); paint(); }
+export function setVolume(v) { vol = Math.max(0, Math.min(1, v)); save(); apply(); paint(); }
 function paint() {
-  document.querySelectorAll('.snd').forEach(function (b) { b.textContent = on ? '🔊 音' : '🔇 音なし'; b.title = on ? '音を消す' : '音を出す'; b.setAttribute('aria-label', b.title); });
+  var all = bgmOn && sfxOn && vol > 0, none = (!bgmOn && !sfxOn) || vol === 0;
+  document.querySelectorAll('.snd').forEach(function (b) {
+    b.textContent = none ? '🔇 音なし' : all ? '🔊 音' : '🔉 音';
+    b.title = '音の設定（BGM・効果音・音量）'; b.setAttribute('aria-label', '音の設定'); b.setAttribute('aria-haspopup', 'dialog');
+  });
+  var m = document.getElementById('sndMenu');
+  if (m) { m.querySelector('[data-k=bgm]').checked = bgmOn; m.querySelector('[data-k=sfx]').checked = sfxOn; m.querySelector('[data-k=vol]').value = Math.round(vol * 100); }
+}
+/* 🔊ボタンを押すと開く小さなメニュー（キーボードでも操作できる。Esc か外を押すと閉じる） */
+function openMenu(btn) {
+  var m = document.getElementById('sndMenu');
+  if (m) { closeMenu(); return; }
+  m = document.createElement('div'); m.id = 'sndMenu'; m.setAttribute('role', 'dialog'); m.setAttribute('aria-label', '音の設定');
+  m.style.cssText = 'position:fixed;z-index:1000;background:#fff;color:#241c4a;border-radius:14px;padding:.8em 1em;box-shadow:0 .4em 1.2em rgba(0,0,0,.35);display:flex;flex-direction:column;gap:.55em;font:700 15px/1.4 var(--font, sans-serif);min-width:13em';
+  m.innerHTML = '<label style="display:flex;gap:.5em;align-items:center;cursor:pointer"><input type="checkbox" data-k="bgm"> BGM（音楽）</label>' +
+    '<label style="display:flex;gap:.5em;align-items:center;cursor:pointer"><input type="checkbox" data-k="sfx"> 効果音</label>' +
+    '<label style="display:flex;flex-direction:column;gap:.2em">音量<input type="range" data-k="vol" min="0" max="100" step="5" aria-label="音量"></label>';
+  document.body.appendChild(m);
+  var r = btn.getBoundingClientRect(), w = m.offsetWidth, h = m.offsetHeight;
+  m.style.left = Math.max(8, Math.min(innerWidth - w - 8, r.left)) + 'px';
+  m.style.top = (r.bottom + h + 8 < innerHeight ? r.bottom + 6 : Math.max(8, r.top - h - 6)) + 'px';
+  m.querySelector('[data-k=bgm]').onchange = function () { ac(); setBgm(this.checked); };
+  m.querySelector('[data-k=sfx]').onchange = function () { ac(); setSfx(this.checked); if (this.checked) sfx('ok'); };
+  m.querySelector('[data-k=vol]').oninput = function () { ac(); setVolume(this.value / 100); };
+  m.dataset.btn = '1'; menuBtn = btn; btn.setAttribute('aria-expanded', 'true');
+  paint(); m.querySelector('[data-k=bgm]').focus();
+  setTimeout(function () { document.addEventListener('pointerdown', outside, true); document.addEventListener('keydown', esc, true); });
+}
+var menuBtn = null;
+function outside(e) { var m = document.getElementById('sndMenu'); if (m && !m.contains(e.target) && e.target !== menuBtn) closeMenu(); }
+function esc(e) { if (e.key === 'Escape') { closeMenu(); if (menuBtn) menuBtn.focus(); } }
+function closeMenu() {
+  var m = document.getElementById('sndMenu'); if (m) m.remove();
+  document.removeEventListener('pointerdown', outside, true); document.removeEventListener('keydown', esc, true);
+  if (menuBtn) menuBtn.setAttribute('aria-expanded', 'false');
 }
 export function wireSoundButtons() {
-  document.querySelectorAll('.snd').forEach(function (b) { if (b.dataset.w) return; b.dataset.w = '1'; b.type = 'button'; b.onclick = function () { setSound(!on); }; });
+  document.querySelectorAll('.snd').forEach(function (b) { if (b.dataset.w) return; b.dataset.w = '1'; b.type = 'button'; b.setAttribute('aria-expanded', 'false'); b.onclick = function () { openMenu(b); }; });
   paint();
 }
