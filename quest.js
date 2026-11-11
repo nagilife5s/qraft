@@ -79,8 +79,14 @@ export function bossHp(n, avgLv, tlSec) {
   return Math.max(200, Math.round(n * perHead * 2.5 / 10) * 10);
 }
 
-/* 報酬 */
-export var REWARD = { killGold: 15, killExpRate: 0.5, bossExp: 200, bossGold: 120 };
+/*
+ * 報酬（チームモード。2026-11-11 レビュー指摘5で、職業の差が出にくい形に変更）
+ *   経験値 = 正解1問 expPerOk ＋ 活躍ポイント × contribRate ＋ 撃破ボーナス
+ *   活躍ポイント = 与えたダメージ ＋ 回復したHP（実際に減っていた分）× healRate ＋ 起こした仲間 × reviveBonus
+ *   撃破ボーナスとゴールドは、その敵と戦っている間に1問でも正解した班員全員に同じだけ
+ *   試算（正解20問）：戦士310・魔法使い320・僧侶（攻撃）274・僧侶（回復）281〜303。前は僧侶（回復）103・戦士279
+ */
+export var REWARD = { killGold: 15, killExpRate: 0.5, bossExp: 200, bossGold: 120, expPerOk: 12, contribRate: 0.25, healRate: 0.5, reviveBonus: 15 };
 
 /* 町の段階（ボスを倒すたびに1つ上がる） */
 export var TOWN = [

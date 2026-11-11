@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Qraft クエスト（先生）</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
-<link rel="stylesheet" href="theme.css?v=20261111190919">
-<link rel="stylesheet" href="quest.css?v=20261111190919">
+<link rel="stylesheet" href="theme.css?v=20261111192602">
+<link rel="stylesheet" href="quest.css?v=20261111192602">
 </head>
 <body>
 <div id="app">
@@ -76,15 +76,15 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261111190919"></script>
+<script src="firebase-config.js?v=20261111192602"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script type="module">
 import { signIn, db, ref, set, get, update, remove, onValue, serverNow, shuffle, mountSetPicker,
-         decryptSet, prepareQuestion, maskOf, $, el, showScreen, confetti, qrSvg, sleep } from './lib.js?v=20261111190919';
+         decryptSet, prepareQuestion, maskOf, $, el, showScreen, confetti, qrSvg, sleep } from './lib.js?v=20261111192602';
 import { onChildAdded, onChildChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 import { fiscalYear, JOBS, MP_MAX, heroImg, lvMult, CHEER, addExp, ENEMIES, BOSS, areaOf, enemyFor,
-         zakoHp, enemyHit, bossHp, REWARD, TOWN, TOWN_DEFAULT, storyClear, statsOf, canUse, skMult, ITEMS } from './quest.js?v=20261111190919';
-import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261111190919b';
+         zakoHp, enemyHit, bossHp, REWARD, TOWN, TOWN_DEFAULT, storyClear, statsOf, canUse, skMult, ITEMS } from './quest.js?v=20261111192602';
+import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261111192602b';
 
 wireSoundButtons();
 
@@ -195,7 +195,7 @@ async function loadChar(u) {
 function addPlayer(u, team) {
   var p = players[u], ch = CH[u] || { j: p.j, lv: p.lv || 1 }, job = JOBS[ch.j] ? ch.j : 'warrior', st = statsOf(ch, true);
   G[u] = { team: team, job: job, ch: ch, atk: st.atk, def: st.def, lv: ch.lv || 1, sid: p.sid, nick: p.nick, lk: p.lk, hp: st.mhp, mhp: st.mhp, mp: 0, streak: 0, ko: false, buff: false,
-           item: '', used: '', n: 0, cur: null, wait: '', queue: [], dmg: 0, kills: 0, killExp: 0, gold: 0, ok: 0, ans: 0 };
+           item: '', used: '', n: 0, cur: null, wait: '', queue: [], dmg: 0, contrib: 0, kills: 0, killExp: 0, gold: 0, ok: 0, ans: 0 };
   T[team].mem.push(u);
 }
 /* 準備のあとから来た子：人数の少ない班に入れる */
@@ -295,6 +295,7 @@ function grade(u, a) {
   var res = { n: g.n, ok: ok ? 1 : 0, cor: cor };
   if (ok) {
     g.ok++; t.ok++; g.streak++; g.mp = Math.min(MP_MAX, g.mp + 1);
+    t.hitters[u] = 1;                 /* この敵と戦っている間に正解した子は、撃破ボーナスをもらえる */
     if (g.ko) {                       /* 気絶中の正解：復活して、仲間を応援 */
       g.ko = false; g.hp = Math.ceil(g.mhp / 2); res.rev = 1;
       t.mem.forEach(function (m) { if (m !== u && G[m]) G[m].buff = true; });
@@ -334,7 +335,9 @@ function applyAct(u, ai) {
   var dmg = Math.round(g.atk * act.a * sm * lvMult(g.lv) * (g.buff ? CHEER : 1) * (0.9 + Math.random() * 0.2));
   g.buff = false;
   var msg = g.nick + ' の' + act.n + '！';
-  if (act.heal) t.mem.forEach(function (m) { var x = G[m]; if (!x) return; if (act.revive && x.ko) { x.ko = false; } if (!x.ko) x.hp = Math.min(x.mhp, x.hp + Math.ceil(x.mhp * act.heal * sm)); });
+  var healed = 0, rev = 0;   /* 回復は、実際に減っていた分だけ数える */
+  if (act.heal) t.mem.forEach(function (m) { var x = G[m]; if (!x) return; if (act.revive && x.ko) { x.ko = false; rev++; } if (!x.ko) { var b = x.hp; x.hp = Math.min(x.mhp, x.hp + Math.ceil(x.mhp * act.heal * sm)); healed += x.hp - b; } });
+  g.contrib += dmg + REWARD.healRate * healed + REWARD.reviveBonus * rev;
   if (act.heal) msg += act.revive ? ' 班全員が元気になった！' : ' 班のHPが回復！';
   if (dmg > 0) {
     g.dmg += dmg; msg += ' ' + dmg + 'のダメージ';
@@ -412,13 +415,14 @@ async function finish() {
     var cp = qpath('chars/' + g.sid), ch = (await get(ref(db, cp))).val();
     if (!ch) continue;
     if (g.used && ch.inv && ch.inv[g.used] > 0) { ch.inv[g.used]--; }
-    var exp = g.dmg + g.killExp, gold = g.gold;
+    var br = { ok: REWARD.expPerOk * g.ok, act: Math.round(REWARD.contribRate * g.contrib), kill: g.killExp, boss: down ? REWARD.bossExp : 0 };
+    var exp = br.ok + br.act + br.kill, gold = g.gold;
     if (down) { exp += REWARD.bossExp; gold += REWARD.bossGold; }
     var lv0 = ch.lv; ch.gold = (ch.gold || 0) + gold; var ups = addExp(ch, exp);
     if (down) { ch.ttl = ch.ttl || {}; ch.ttl[AREA.id] = BOSS.title; }
     ch.u = { '.sv': 'timestamp' };
     up[cp] = ch;
-    res[u] = { exp: exp, gold: gold, lv: ch.lv, lv0: lv0, up: ups, ok: g.ok, ans: g.ans, kills: g.kills, ttl: down ? BOSS.title : '' };
+    res[u] = { exp: exp, gold: gold, lv: ch.lv, lv0: lv0, up: ups, ok: g.ok, ans: g.ans, kills: g.kills, ttl: down ? BOSS.title : '', br: br };
   }
   /* 前の回に参加して、今回いなかった子にも、ボス撃破の報酬を入れる */
   if (down) {

@@ -6,8 +6,8 @@
 <title>Qraft クエスト</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261111190919">
-<link rel="stylesheet" href="quest.css?v=20261111190919">
+<link rel="stylesheet" href="theme.css?v=20261111192602">
+<link rel="stylesheet" href="quest.css?v=20261111192602">
 <style>
   #s-battle .arena { min-height:12em; }
   .cmd .choices button.sel { outline:.25em solid #fff; }
@@ -107,10 +107,10 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261111190919"></script>
+<script src="firebase-config.js?v=20261111192602"></script>
 <script type="module">
-import { signIn, db, ref, set, get, onValue, serverNow, $, el, showScreen, confetti } from './lib.js?v=20261111190919';
-import { fiscalYear, JOBS, JOB_KEYS, MP_MAX, heroImg, ENEMIES, BOSS, storyEnter, expToNext, canUse, ITEMS, ensureOwner } from './quest.js?v=20261111190919';
+import { signIn, db, ref, set, get, onValue, serverNow, $, el, showScreen, confetti } from './lib.js?v=20261111192602';
+import { fiscalYear, JOBS, JOB_KEYS, MP_MAX, heroImg, ENEMIES, BOSS, storyEnter, expToNext, canUse, ITEMS, ensureOwner } from './quest.js?v=20261111192602';
 
 var uid = null, pin = null, state = null, sid = '', ch = null, look = 'a', job = 'mage';
 var players = {}, myItem = '', myReady = false, prepShown = false;
@@ -352,7 +352,8 @@ async function showResult() {
   if (r) {
     [['けいけんち', '+' + r.exp], ['ゴールド', '+' + r.gold], ['正解', r.ok + '/' + r.ans]].forEach(function (x) { var c = el('div', 'card'); c.appendChild(el('span', 'mut', x[0])); c.appendChild(el('b', '', x[1])); box.appendChild(c); });
     if (r.up) { $('rLv').textContent = 'LEVEL UP! Lv.' + r.lv; $('rLv').classList.remove('hide'); }
-    $('rNote').textContent = (r.ttl ? '称号「' + r.ttl + '」を手に入れた！　' : '') + (r.up ? 'スキルポイント +' + r.up : '');
+    $('rNote').textContent = (r.br ? 'けいけんちの内訳：正解 ' + r.br.ok + ' ＋ 活躍 ' + r.br.act + ' ＋ 撃破 ' + r.br.kill + (r.br.boss ? ' ＋ ボス ' + r.br.boss : '') + '（回復・復活も活躍に入る）　' : '') +
+      (r.ttl ? '称号「' + r.ttl + '」を手に入れた！　' : '') + (r.up ? 'スキルポイント +' + r.up : '');
   } else $('rNote').textContent = '結果を読みこめませんでした';
   showScreen('s-result');
 }
