@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="ja" data-bg="lab">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Qraft クエスト（ひとりで冒険）</title>
+<link rel="icon" type="image/png" href="img/favicon-32.png">
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+<link rel="stylesheet" href="theme.css?v=20261111153512">
+<link rel="stylesheet" href="quest.css?v=20261111153512">
+<style>
+  .hud-btns { display:flex; gap:.4em; }
+  .hud-btns .btn { font-size:.85em; padding:.35em .9em; }
+  .eq-row { display:flex; justify-content:space-between; gap:1em; font-weight:800; font-size:.9em; }
+  .inv { display:flex; gap:.5em; flex-wrap:wrap; justify-content:center; }
+  .inv span { background:rgba(255,255,255,.15); border-radius:999px; padding:.15em .7em; font-weight:800; font-size:.85em; }
+  .shop-items button:disabled { opacity:.45; cursor:default; }
+  .itembar { display:flex; gap:.4em; justify-content:center; flex-wrap:wrap; }
+  .itembar button { font:inherit; font-weight:800; font-size:.85em; border:0; border-radius:999px; padding:.25em .8em; background:#fff; color:var(--ink-dark); cursor:pointer; }
+  .itembar button:disabled { opacity:.4; cursor:default; }
+  #s-battle .bt-bg { background-image:url(img/bg/lab.webp); }
+  .tin { font:inherit; font-size:1.1em; font-weight:800; padding:.5em .8em; border-radius:.6em; border:0; width:100%; }
+  .wm-side { max-height:calc(100% - 1.6em); overflow:auto; }
+  .titles { display:flex; flex-direction:column; gap:.3em; }
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ログイン -->
+<section class="screen center q-bg-town" id="s-login" style="gap:1em">
+  <a class="toplink" href="index.html">← トップへ</a>
+  <div class="q-title">⚔️ クエスト ・ ひとりで冒険</div>
+  <div class="card" style="display:flex;flex-direction:column;gap:.8em;align-items:center">
+    <div class="row"><b>学年</b><div class="seg" id="segG"><button type="button" data-v="1">1年</button><button type="button" data-v="2">2年</button><button type="button" data-v="3">3年</button></div></div>
+    <div class="row"><b>組</b><div class="seg" id="segC"></div></div>
+    <b>出席番号</b><div class="numgrid" id="nums"></div>
+    <div id="loginErr" class="err hide"></div>
+  </div>
+</section>
+
+<!-- キャラ作成 -->
+<section class="screen center q-bg-town" id="s-make" style="gap:1em;overflow:auto">
+  <div class="q-title">職業をえらぼう</div>
+  <div class="jobcards" id="jobcards"></div>
+  <div class="row" style="flex-wrap:wrap;justify-content:center"><b>見た目</b><div class="seg" id="typeSeg"><button type="button" data-v="a" class="on">タイプA<small>（短い髪）</small></button><button type="button" data-v="b">タイプB<small>（長い髪）</small></button></div></div>
+  <div class="row"><b>キャラの名前</b><input class="namebox" id="cname" maxlength="8" placeholder="8文字まで"></div>
+  <div class="mut" style="font-size:.85em">画面には本名ではなく、この名前が出ます。職業と名前は、あとから変えられません。</div>
+  <button class="btn" id="btnMake">この職業にする</button>
+  <div id="makeErr" class="err hide"></div>
+</section>
+
+<!-- フィールド（町・エリア） -->
+<section class="screen" id="s-town">
+  <div class="fd-hud">
+    <div class="panel fd-place">
+      <div class="q-sub" id="fdSub"></div>
+      <b id="fdName"></b>
+      <div class="row" id="fdStage" style="gap:.4em;margin-top:.2em"><span class="q-sub" style="font-size:.8em">発展</span><div class="stage" id="stage"></div><span class="q-sub" id="stageName" style="font-size:.8em"></span></div>
+      <div id="fdTimer" class="fd-timer hide"></div>
+    </div>
+    <div class="grow"></div>
+    <div class="panel row" style="padding:.5em .9em">
+      <img class="hero sm" id="hudHero" alt="">
+      <div><b id="hudName"></b> <span class="mut" id="hudLv"></span>
+        <div class="row" style="gap:.4em;margin-top:.2em"><span class="lbl">HP</span><div class="bar hp" style="width:7em"><i id="hudHp"></i><b id="hudHpT"></b></div></div></div>
+      <span class="pill" id="hudGold"></span>
+    </div>
+    <div class="hud-btns"><button class="btn ghost" id="goWorld">地図</button><button class="btn ghost" id="goStat">ステータス</button></div>
+  </div>
+  <div class="fd-wrap"><div class="fd-map" id="map"></div></div>
+  <div class="fd-help" id="fdHelp">矢印キー（WASD）か、行きたい場所をクリックで移動。</div>
+  <div class="fd-msg hide" id="fdMsg"></div>
+  <div class="fd-flash" id="fdFlash"></div>
+</section>
+
+<!-- 冒険の地図 -->
+<section class="screen" id="s-world" style="padding:1.2em 1.6em;gap:.8em;background:#1a1238">
+  <div class="row">
+    <div class="grow"><div class="q-sub" id="wmSub"></div><div class="q-title">冒険の地図</div></div>
+    <div class="panel" style="width:22em;padding:.6em 1em"><div class="wm-year" id="wmYear"></div></div>
+    <button class="btn ghost" id="wmBack">フィールドへ</button>
+  </div>
+  <div class="wm-body">
+    <div class="wm-box"><div class="wm-map" id="wmMap"></div></div>
+    <div class="wm-side hide" id="wmSide"></div>
+    <div class="wm-legend"><span><i style="background:var(--ok)"></i>クリア</span><span><i style="background:var(--q-gold)"></i>いま挑戦中</span><span><i style="background:#9a96aa"></i>霧（未開放）</span><span class="mut">場所を押すと説明が出る</span></div>
+  </div>
+</section>
+
+<!-- ステータス・スキル -->
+<section class="screen q-bg-town" id="s-stat" style="gap:1em">
+  <div class="row"><div class="q-title grow">ステータス・スキル</div><span class="pill" id="spLeft"></span><button class="btn ghost" id="statBack">もどる</button></div>
+  <div class="row" style="align-items:stretch;flex:1;min-height:0;flex-wrap:wrap">
+    <div class="panel" style="width:17em;display:flex;flex-direction:column;gap:.7em;align-items:center">
+      <img class="hero stat-hero" id="stHero" alt="">
+      <div style="text-align:center"><b style="font-size:1.4em" id="stName"></b><br><span class="mut" id="stJob"></span></div>
+      <div class="stat-grid" id="stGrid"></div>
+      <div class="bar xp" style="width:100%"><i id="stXp"></i><b id="stXpT"></b></div>
+      <div style="width:100%" id="stEq"></div>
+      <div class="inv" id="stInv"></div>
+    </div>
+    <div class="skills grow" id="skills" style="align-content:start;min-width:18em"></div>
+  </div>
+</section>
+
+<!-- 戦闘 -->
+<section class="screen" id="s-battle">
+  <div class="bt-bg"></div>
+  <div class="bt-top">
+    <span class="pill" id="bArea" style="background:rgba(18,10,48,.7);color:#fff"></span>
+    <div class="grow"></div>
+    <div class="panel me-stat">
+      <div class="row" style="gap:.4em"><span class="lbl">HP</span><div class="bar hp grow"><i id="myhp"></i><b id="myhpT"></b></div></div>
+      <div class="row" style="gap:.4em"><span class="lbl">MP</span><div class="bar mp grow"><i id="mymp"></i><b id="mympT"></b></div></div>
+    </div>
+  </div>
+  <div class="arena">
+    <div class="floor"></div>
+    <div class="party" id="party"></div>
+    <div class="enemy" id="enemy">
+      <div class="etag"><span id="ename"></span><div class="bar hp"><i id="ehp"></i></div></div>
+      <img id="eimg" alt="">
+      <div class="eshadow"></div>
+    </div>
+  </div>
+  <div class="cmd" id="cmd"></div>
+</section>
+
+</div>
+
+<script src="firebase-config.js?v=20261111153512"></script>
+<script type="module">
+import { signIn, db, ref, set, get, $, el, showScreen, shuffle, prepareQuestion, maskOf, isTextCorrect } from './lib.js?v=20261111153512';
+import { fiscalYear, JOBS, JOB_KEYS, MP_MAX, heroImg, addExp, expToNext, ENEMIES, TOWN, TOWN_DEFAULT, enemyHit,
+         SK_MAX, SK_UNLOCK, SK_FREE, skOf, canUse, skMult, WEAPONS, ARMORS, weaponName, armorName, ITEMS, ITEM_KEYS, FACS, RESPEC_COST,
+         statsOf, soloMult, soloReward, soloEnemyHp, BOSS } from './quest.js?v=20261111153512';
+
+var Y = fiscalYear(), me = { g: 0, c: 0, n: 0 }, sid = '', ch = null, CLS = {}, SETS = [], AREAS = [], look = 'a', job = 'mage';
+var curArea = null, HP = 0, MP = 0;
+function err(id, m) { $(id).textContent = m; $(id).classList.toggle('hide', !m); }
+function stage() { return CLS.stage || 0; }
+function town() { return CLS.town || TOWN_DEFAULT; }
+function inv(k) { return (ch.inv && ch.inv[k]) || 0; }
+
+/* ------------------------------------------------------------ ログイン（家庭学習と同じ：学年・組・出席番号） */
+for (var c = 1; c <= 9; c++) { var b0 = el('button', '', c + '組'); b0.type = 'button'; b0.dataset.v = c; $('segC').appendChild(b0); }
+for (var n = 1; n <= 40; n++) { var b1 = el('button', '', String(n)); b1.type = 'button'; b1.dataset.v = n; $('nums').appendChild(b1); }
+function segPick(id, key) { $(id).onclick = function (e) { var b = e.target.closest('button'); if (!b) return; me[key] = Number(b.dataset.v); this.querySelectorAll('button').forEach(function (x) { x.classList.toggle('on', x === b); }); if (key === 'n') login(); }; }
+segPick('segG', 'g'); segPick('segC', 'c'); segPick('nums', 'n');
+
+(async function boot() {
+  showScreen('s-login');
+  try { await signIn(); } catch (e) { err('loginErr', e.message); return; }
+  try { SETS = await (await fetch('home/index.json', { cache: 'no-cache' })).json(); } catch (e) { err('loginErr', '問題の一覧を読めませんでした'); }
+  try { var s = JSON.parse(localStorage.getItem('qraft.quest.me') || 'null'); if (s) { me = s; ['segG:g', 'segC:c', 'nums:n'].forEach(function (k) { var p = k.split(':'); $(p[0]).querySelectorAll('button').forEach(function (b) { b.classList.toggle('on', Number(b.dataset.v) === me[p[1]]); }); }); } } catch (e) {}
+})();
+async function login() {
+  err('loginErr', '');
+  if (!me.g || !me.c) { err('loginErr', '学年と組を選んでください'); return; }
+  sid = me.g + '-' + me.c + '-' + me.n;
+  try {
+    ch = (await get(ref(db, 'quest/' + Y + '/chars/' + sid))).val();
+    CLS = (await get(ref(db, 'quest/' + Y + '/classes/' + me.g + '-' + me.c))).val() || {};
+  } catch (e) { err('loginErr', '読みこめませんでした: ' + e.message); return; }
+  try { localStorage.setItem('qraft.quest.me', JSON.stringify(me)); } catch (e) {}
+  buildAreas();
+  if (!ch) return makeScreen();
+  if (!confirm(ch.n + '（' + JOBS[ch.j].name + ' Lv.' + ch.lv + '）で冒険します。自分のキャラですか？')) return;
+  enterTown();
+}
+
+/* ------------------------------------------------------------ キャラ作成 */
+function makeScreen() {
+  var box = $('jobcards'); box.textContent = '';
+  JOB_KEYS.forEach(function (k) {
+    var c = el('div', 'jobcard' + (k === job ? ' on' : '')); c.dataset.job = k;
+    var im = el('img', 'hero'); im.src = heroImg(k, look); c.appendChild(im);
+    c.appendChild(el('h3', '', JOBS[k].name)); c.appendChild(el('p', '', JOBS[k].desc));
+    c.onclick = function () { job = k; document.querySelectorAll('.jobcard').forEach(function (x) { x.classList.toggle('on', x.dataset.job === k); }); };
+    box.appendChild(c);
+  });
+  showScreen('s-make');
+}
+$('typeSeg').onclick = function (e) {
+  var b = e.target.closest('button'); if (!b) return; look = b.dataset.v;
+  this.querySelectorAll('button').forEach(function (x) { x.classList.toggle('on', x === b); });
+  document.querySelectorAll('.jobcard img').forEach(function (im) { im.src = heroImg(im.parentNode.dataset.job, look); });
+};
+$('btnMake').onclick = async function () {
+  var nm = $('cname').value.trim(); if (!nm) { err('makeErr', 'キャラの名前を入れてください'); return; }
+  $('btnMake').disabled = true;
+  var c = { n: nm, j: job, lk: look, lv: 1, exp: 0, gold: 0, sp: 0, sk: { 0: 0, 1: 1, 2: 0 }, u: { '.sv': 'timestamp' } };
+  try { await set(ref(db, 'quest/' + Y + '/chars/' + sid), c); ch = c; enterTown(); }
+  catch (e) { err('makeErr', 'キャラを作れませんでした（ほかの人が先に作ったかもしれません）'); $('btnMake').disabled = false; }
+};
+
+/* キャラを保存する（ルールで、1回に増やせるのは 経験値300・ゴールド200 まで） */
+async function saveChar() {
+  var c = Object.assign({}, ch); c.u = { '.sv': 'timestamp' };
+  try { await set(ref(db, 'quest/' + Y + '/chars/' + sid), c); return true; }
+  catch (e) { alert('保存できませんでした。通信を確かめて、もう一度ためしてください。'); return false; }
+}
+
+/* ------------------------------------------------------------ エリア（単元）。学年の単元を順に並べる */
+var WM_POS = [[30, 44], [52, 60], [58, 27], [81, 63], [40, 22], [70, 45], [24, 62], [64, 80]];
+function buildAreas() {
+  var seen = {}, list = [];
+  SETS.filter(function (s) { return s.grade === me.g; }).forEach(function (s) {
+    if (!seen[s.unit]) { seen[s.unit] = { id: me.g + '-' + s.unit, unit: s.unit, uo: s.uo, sets: [] }; list.push(seen[s.unit]); }
+    seen[s.unit].sets.push(s);
+  });
+  list.sort(function (a, b) { return a.uo - b.uo; });
+  var names = { '1-分類': 'ささやきの森', '1-物質': 'まどろみの錬金工房', '1-音・光・力': 'ひびきの洞窟', '1-大地': 'ゆらぎの火山' };
+  var foundNow = false;
+  AREAS = list.slice(0, WM_POS.length).map(function (a, i) {
+    var ar = (CLS.areas && CLS.areas[a.id]) || {};
+    var st = ar.done ? 'clear' : (!foundNow ? 'now' : 'lock');
+    if (st === 'now') foundNow = true;
+    return Object.assign(a, { i: i, name: names[a.id] || a.unit + 'の封印の地', st: st, ar: ar, x: WM_POS[i][0], y: WM_POS[i][1] });
+  });
+}
+
+/* ------------------------------------------------------------ フィールド（quest-mock.html の歩き方をそのまま使う） */
+var STEP = 280;
+function rng(seed) { return function () { return (seed = (seed * 16807) % 2147483647) / 2147483647; }; }
+function grid(w, h, c) { return Array.from({ length: h }, function () { return Array(w).fill(c); }); }
+function fill(g, x0, y0, x1, y1, c) { for (var y = y0; y <= y1; y++) for (var x = x0; x <= x1; x++) if (g[y] && g[y][x] !== undefined) g[y][x] = c; }
+var NPCS = [
+  { x: 10, y: 14, img: 'npc-child', nm: '村の子ども', say: '魔物は、封印された知識が姿を変えたものなんだって。正解すると、知識が元にもどるんだよ！' },
+  { x: 21, y: 16, img: 'npc-scholar', nm: '物知りじいさん', say: 'まちがえた問題こそ宝じゃ。同じ問題がまた出てきたら、こんどは必ず倒せるぞ。' },
+  { x: 8, y: 10, img: 'npc-shop', nm: '道具屋のおかみ', say: 'エリアに行くなら回復のしずくを持っていきな。帰還の羽があれば、すぐ町にもどれるよ。' },
+  { x: 31, y: 10, img: 'npc-merchant', nm: '旅の商人', say: 'この門の先がエリアさ。地図で行き先を選んでから門を通るといい。霧の奥のボスは、授業でみんなと倒すんだ。' }
+];
+function buildTown() {
+  var W = 36, H = 24, g = grid(W, H, '.');
+  fill(g, 0, 0, W - 1, 1, 'T'); fill(g, 0, H - 2, W - 1, H - 1, 'T'); fill(g, 0, 0, 1, H - 1, 'T'); fill(g, W - 2, 0, W - 1, H - 1, 'T');
+  fill(g, 28, 2, 29, H - 3, '~'); fill(g, 2, 11, W - 3, 12, '='); fill(g, 28, 11, 29, 12, 'H'); fill(g, W - 2, 11, W - 1, 12, 'G');
+  fill(g, 12, 8, 21, 15, 'P'); fill(g, 16, 7, 17, 7, '=');
+  fill(g, 6, 9, 6, 10, '='); fill(g, 25, 8, 25, 10, '='); fill(g, 6, 13, 6, 14, '='); fill(g, 25, 13, 25, 14, '=');
+  fill(g, 3, 19, 12, 19, 'F'); fill(g, 22, 19, 26, 19, 'F');
+  var blds = [{ x: 13, y: 2, w: 8, h: 5, f: 5 }, { x: 4, y: 6, w: 4, h: 3, f: 1 }, { x: 23, y: 4, w: 4, h: 4, f: 2 }, { x: 4, y: 15, w: 4, h: 3, f: 3 }, { x: 23, y: 15, w: 5, h: 3, f: 4 }];
+  blds.forEach(function (b) { fill(g, b.x, b.y, b.x + b.w - 1, b.y + b.h - 1, 'B'); });
+  fill(g, 16, 11, 17, 12, 'O');
+  var r = rng(7);
+  for (var y = 2; y < H - 2; y++) for (var x = 2; x < W - 2; x++) {
+    if (g[y][x] !== '.') continue;
+    var near = [[0, 1], [1, 0], [0, -1], [-1, 0]].some(function (d) { var v = g[y + d[1]] && g[y + d[1]][x + d[0]]; return !'.,'.includes(v == null ? 'T' : v); });
+    var v = r();
+    if (!near && v < .07) g[y][x] = 'T'; else if (v < .17) g[y][x] = ','; else if (!near && v < .19) g[y][x] = 'r';
+  }
+  [[3, 10], [9, 10], [15, 10], [22, 10], [26, 10], [3, 13], [11, 13], [22, 13], [27, 13]].forEach(function (p) { g[p[1]][p[0]] = 'L'; });
+  [[12, 8], [21, 8], [12, 15], [21, 15]].forEach(function (p) { g[p[1]][p[0]] = 'V'; });
+  [[8, 7], [8, 8], [3, 17], [27, 6]].forEach(function (p) { g[p[1]][p[0]] = 'R'; }); [[8, 16], [22, 6]].forEach(function (p) { g[p[1]][p[0]] = 'C'; });
+  g[10][32] = 'S';
+  [[2, 4], [2, 8], [33, 4], [33, 18], [20, 20], [10, 21]].forEach(function (p) { if (g[p[1]][p[0]] === '.' || g[p[1]][p[0]] === ',') g[p[1]][p[0]] = 'U'; });
+  NPCS.forEach(function (n) { g[n.y][n.x] = 'N'; });
+  return { g: g, blds: blds, fountain: [16, 11], start: [4, 11] };
+}
+function buildArea() {
+  var W = 42, H = 26, g = grid(W, H, '#');
+  function room(x0, y0, x1, y1) { fill(g, x0, y0, x1, y1, 'k'); }
+  room(1, 9, 9, 16); room(10, 11, 14, 14); room(15, 4, 27, 21); room(4, 2, 12, 6); room(8, 7, 9, 8); room(4, 19, 12, 23); room(8, 17, 9, 18); room(28, 11, 31, 14);
+  fill(g, 32, 6, 40, 19, 'f'); fill(g, 0, 12, 0, 13, '<'); fill(g, 1, 12, 31, 13, 'c');
+  for (var x = 16; x <= 26; x += 2) g[4][x] = 's';
+  for (x = 5; x <= 11; x += 2) { g[2][x] = 's'; g[19][x] = 's'; }
+  [[18, 7], [19, 7], [23, 7], [24, 7], [18, 17], [19, 17], [23, 17], [24, 17], [6, 4], [10, 22]].forEach(function (p) { g[p[1]][p[0]] = 't'; });
+  [[16, 20], [26, 20], [16, 5], [26, 5], [2, 10], [2, 15], [12, 3], [12, 23]].forEach(function (p) { g[p[1]][p[0]] = 'x'; });
+  [[21, 9], [21, 16]].forEach(function (p) { g[p[1]][p[0]] = 'q'; });
+  [[15, 4], [27, 4], [4, 2], [12, 19]].forEach(function (p) { g[p[1]][p[0]] = 'y'; });
+  [[27, 8], [27, 17], [1, 9], [1, 16]].forEach(function (p) { g[p[1]][p[0]] = 'p'; });
+  [[4, 6], [11, 6], [4, 23], [5, 23]].forEach(function (p) { g[p[1]][p[0]] = 'z'; });
+  return { g: g, blds: [], start: [1, 12] };
+}
+var TILE_CLS = { T: 't-tree', '.': 't-grass', ',': 't-flower', '=': 't-path', P: 't-plaza', '~': 't-water', H: 't-bridge', F: 't-fence', r: 't-rock', G: 't-gate', B: 't-grass', O: 't-plaza',
+  k: 't-floor', '#': 't-wall', c: 't-carpet', s: 't-shelf', t: 't-table', x: 't-crystal', f: 't-fog', '<': 't-exitw' };
+var BLOCK = new Set(['T', '~', 'F', 'r', 'B', 'O', '#', 's', 't', 'x', 'U', 'L', 'R', 'C', 'S', 'V', 'q', 'y', 'p', 'z', 'N']);
+var PROPS = { T: ['prop-tree', 1.5, 't-grass'], r: ['prop-rock', 1, 't-grass'], U: ['prop-bush', 1.05, 't-grass'], L: ['prop-lamp', 1.6, 't-path'], R: ['prop-barrel', 1, 't-grass'], C: ['prop-crates', 1.15, 't-grass'], S: ['prop-sign', 1.25, 't-grass'], V: ['prop-flowers', .95, 't-plaza'],
+  s: ['prop-shelf', 1.4, 't-floor'], t: ['prop-labtable', 1.15, 't-floor'], x: ['prop-crystal', 1.2, 't-floor'], q: ['prop-cauldron', 1.15, 't-floor'], y: ['prop-bookshelf', 1.8, 't-floor'], p: ['prop-pipes', 1.2, 't-floor'], z: ['prop-sacks', 1.1, 't-floor'] };
+var BIMG = { 1: 'bld-item', 2: 'bld-church', 3: 'bld-weapon', 4: 'bld-library', 5: 'bld-castle' };
+var MAPS = { town: buildTown(), area: buildArea() };
+var FD = { key: 'town', pos: [4, 11], trail: [], mobs: [], path: [], hold: null, ts: 40, timers: [], busy: false };
+var ZAKO = Object.keys(ENEMIES);
+
+function cell(x, y) { var r = MAPS[FD.key].g[y]; return r ? r[x] : undefined; }
+function blocked(x, y) { var c = cell(x, y); return c === undefined || BLOCK.has(c); }
+function enterTown(pos) {
+  HP = statsOf(ch).mhp; MP = 0;   /* 町にもどると全回復 */
+  showScreen('s-town'); setTimeout(function () { openField('town', pos); });
+}
+function openField(key, start) {
+  FD.timers.forEach(clearInterval); FD.timers = [];
+  FD.key = key; FD.pos = start || MAPS[key].start; FD.trail = [FD.pos]; FD.path = []; FD.busy = false; FD.hold = null;
+  $('fdName').textContent = key === 'town' ? town() : curArea.name;
+  $('fdSub').textContent = key === 'town' ? me.g + '年' + me.c + '組の町' : 'エリア ・ ' + curArea.unit + (curArea.st === 'clear' ? '（復習・経験値は半分）' : '');
+  $('fdStage').classList.toggle('hide', key !== 'town'); $('fdTimer').classList.toggle('hide', key === 'town');
+  $('stage').innerHTML = TOWN.map(function (_, i) { return '<i class="' + (i <= stage() ? 'on' : '') + '"></i>'; }).join('');
+  $('stageName').textContent = TOWN[stage()].n;
+  $('fdMsg').classList.add('hide');
+  if (key === 'area') {
+    if (!FD.mobs.length) FD.mobs = [[18, 10], [23, 15], [8, 4], [20, 19], [25, 9], [8, 21], [6, 14]].map(function (p, i) { return { id: ZAKO[(i + curArea.i) % ZAKO.length], x: p[0], y: p[1] }; });
+    FD.timers.push(setInterval(wander, 1100));
+    $('fdTimer').textContent = 'のこりの魔物 ' + FD.mobs.length + '体';
+  }
+  FD.timers.push(setInterval(tickWalk, STEP));
+  drawHud(); drawMap();
+}
+function drawHud() {
+  var s = statsOf(ch);
+  $('hudHero').src = heroImg(ch.j, ch.lk); $('hudName').textContent = ch.n; $('hudLv').textContent = 'Lv.' + ch.lv;
+  $('hudHp').style.width = (HP / s.mhp * 100) + '%'; $('hudHpT').textContent = HP + '/' + s.mhp; $('hudGold').textContent = '💰 ' + (ch.gold || 0);
+}
+function drawMap() {
+  var m = MAPS[FD.key], W = m.g[0].length, H = m.g.length, wrap = document.querySelector('.fd-wrap').getBoundingClientRect();
+  var ts = FD.ts = Math.max(24, Math.floor(Math.min(wrap.width / 17, wrap.height / 10.5)));
+  var map = $('map'); map.style.width = W * ts + 'px'; map.style.height = H * ts + 'px'; map.style.fontSize = ts * .5 + 'px'; map.style.setProperty('--step', STEP + 'ms');
+  function box(x, y, w, h) { return 'left:' + x * ts + 'px;top:' + y * ts + 'px;width:' + (w || 1) * ts + 'px;height:' + (h || 1) * ts + 'px'; }
+  var h = '', props = '';
+  m.g.forEach(function (r, y) { r.forEach(function (c, x) {
+    var pr = PROPS[c], cls = (pr ? pr[2] : c === 'N' ? 't-grass' : TILE_CLS[c]) + ((x + y) % 2 ? ' alt' : '');
+    if (c === '#' && (cell(x, y + 1) === '#' || cell(x, y + 1) === undefined)) cls += ' top';
+    if (c === 'c' && cell(x, y - 1) === 'c' && cell(x, y + 1) === 'c') cls += ' v';
+    h += '<div class="tile ' + cls + '" style="' + box(x, y) + '"></div>';
+    if (pr) { var s = pr[1]; props += '<img class="prop" src="img/quest/' + pr[0] + '.webp" style="left:' + (x + .5 - s / 2) * ts + 'px;top:' + (y + 1 - s) * ts + 'px;width:' + s * ts + 'px;height:' + s * ts + 'px;z-index:' + (y * 10 + 4) + '">'; }
+  }); });
+  h += props;
+  m.blds.forEach(function (b) {
+    var f = FACS[b.f], lock = f.st > stage(), bw = b.w + .6, bh = b.h + 1.6;
+    h += '<img class="bimg' + (lock ? ' locked' : '') + '" src="img/quest/' + BIMG[b.f] + '.webp" style="left:' + (b.x - .3) * ts + 'px;top:' + (b.y + b.h - bh) * ts + 'px;width:' + bw * ts + 'px;height:' + bh * ts + 'px;z-index:' + ((b.y + b.h - 1) * 10 + 4) + '">';
+    h += '<span class="bsign' + (lock ? ' locked' : '') + '" style="left:' + (b.x + b.w / 2) * ts + 'px;top:' + (b.y + b.h - bh + .3) * ts + 'px;z-index:400">' + (lock ? '？？？' : f.nm) + '</span>';
+  });
+  if (m.fountain) h += '<img class="prop" src="img/quest/bld-fountain.webp" style="left:' + (m.fountain[0] - .4) * ts + 'px;top:' + (m.fountain[1] - .5) * ts + 'px;width:' + 2.8 * ts + 'px;height:' + 2.6 * ts + 'px;z-index:' + ((m.fountain[1] + 1) * 10 + 4) + '">';
+  if (FD.key === 'town') NPCS.forEach(function (n) { h += '<div class="npc" style="' + box(n.x, n.y) + ';z-index:' + (n.y * 10 + 5) + '"><img src="img/quest/' + n.img + '.webp" alt=""></div>'; });
+  if (FD.key === 'area') h += '<div class="mob boss" style="' + box(35, 11, 3, 3) + ';z-index:135"><img src="' + BOSS.img + '" style="transform:scaleX(-1)"></div>';
+  h += '<div id="mobs">' + FD.mobs.map(function (mo, i) { return '<div class="mob" data-i="' + i + '" style="' + box(mo.x, mo.y) + ';z-index:' + (mo.y * 10 + 5) + '"><img src="' + ENEMIES[mo.id].img + '"></div>'; }).join('') + '</div>';
+  h += '<div id="units"><div class="unit leader" style="' + box(FD.pos[0], FD.pos[1]) + ';z-index:' + (FD.pos[1] * 10 + 9) + '"><span class="nm">' + ch.n + '</span><img class="hero" src="' + heroImg(ch.j, ch.lk) + '" alt=""></div></div>';
+  map.innerHTML = h;
+  camera(true);
+}
+function camera(instant) {
+  var m = MAPS[FD.key], ts = FD.ts, wrap = document.querySelector('.fd-wrap').getBoundingClientRect(), map = $('map');
+  var W = m.g[0].length * ts, H = m.g.length * ts;
+  var cx = Math.min(0, Math.max(wrap.width - W, wrap.width / 2 - (FD.pos[0] + .5) * ts)), cy = Math.min(0, Math.max(wrap.height - H, wrap.height / 2 - (FD.pos[1] + .5) * ts));
+  if (instant) { map.style.transition = 'none'; requestAnimationFrame(function () { requestAnimationFrame(function () { map.style.transition = ''; }); }); }
+  map.style.transform = 'translate(' + (W < wrap.width ? (wrap.width - W) / 2 : cx) + 'px, ' + (H < wrap.height ? (wrap.height - H) / 2 : cy) + 'px)';
+}
+function placeUnit(walking) {
+  var u = document.querySelector('#units .unit'); if (!u) return;
+  var x = FD.pos[0], y = FD.pos[1], px = Number(u.dataset.x != null ? u.dataset.x : x);
+  if (x < px) u.classList.add('left'); else if (x > px) u.classList.remove('left');
+  u.dataset.x = x; u.style.left = x * FD.ts + 'px'; u.style.top = y * FD.ts + 'px'; u.style.zIndex = y * 10 + 9; u.classList.toggle('walk', walking);
+}
+function wander() {
+  FD.mobs.forEach(function (m, i) {
+    if (Math.random() < .45) return;
+    var d = [[1, 0], [-1, 0], [0, 1], [0, -1]][Math.floor(Math.random() * 4)], nx = m.x + d[0], ny = m.y + d[1];
+    if (!blocked(nx, ny) && 'kc'.includes(cell(nx, ny)) && !FD.mobs.some(function (o) { return o !== m && o.x === nx && o.y === ny; })) {
+      m.x = nx; m.y = ny;
+      var e = document.querySelector('#mobs .mob[data-i="' + i + '"]'); if (e) { e.style.left = nx * FD.ts + 'px'; e.style.top = ny * FD.ts + 'px'; e.style.zIndex = ny * 10 + 5; }
+    }
+  });
+  checkTouch();
+}
+function move(dx, dy) {
+  if (FD.busy || Date.now() - (FD.last || 0) < STEP - 40) return false;
+  var nx = FD.pos[0] + dx, ny = FD.pos[1] + dy, c = cell(nx, ny);
+  if (c === 'f') { FD.path = []; say('<h3>霧が濃くて進めない…</h3>ボスは、授業のチームモードで、クラスのみんなと倒す。'); return false; }
+  if (c === 'B') { FD.path = []; enter(MAPS.town.blds.filter(function (b) { return nx >= b.x && nx < b.x + b.w && ny >= b.y && ny < b.y + b.h; })[0]); return false; }
+  if (c === 'N') { FD.path = []; var np = NPCS.filter(function (q) { return q.x === nx && q.y === ny; })[0]; say('<div class="who"><img src="img/quest/' + np.img + '.webp" alt=""><div><h3>' + np.nm + '</h3>' + np.say + '</div></div>'); return false; }
+  if (c === 'O') { FD.path = []; say('<h3>⛲ 広場の噴水</h3>' + town() + 'の真ん中。ボスを倒すたびに、町に知識がもどってくる。'); return false; }
+  if (blocked(nx, ny)) return false;
+  FD.last = Date.now(); FD.pos = [nx, ny];
+  $('fdMsg').classList.add('hide'); placeUnit(true); camera();
+  if (c === 'G') { FD.busy = true; setTimeout(gateOut, STEP); }
+  else if (c === '<') { FD.busy = true; setTimeout(function () { enterTown([32, 11]); }, STEP); }
+  else setTimeout(checkTouch, STEP * .6);
+  return true;
+}
+function tickWalk() {
+  if (!$('s-town').classList.contains('on')) return;
+  var moved = false;
+  if (FD.hold) moved = move(FD.hold[0], FD.hold[1]);
+  else if (FD.path.length) { var p = FD.path.shift(); moved = move(p[0] - FD.pos[0], p[1] - FD.pos[1]); }
+  if (!moved) placeUnit(false);
+}
+function checkTouch() {
+  if (FD.key !== 'area' || FD.busy) return;
+  var m = FD.mobs.filter(function (q) { return Math.abs(q.x - FD.pos[0]) + Math.abs(q.y - FD.pos[1]) <= 1; })[0];   /* となりのマスに来たら戦闘（逃げられにくくする） */
+  if (!m) return;
+  FD.busy = true; FD.path = []; FD.hold = null;
+  var fl = $('fdFlash'); fl.classList.remove('on'); void fl.offsetWidth; fl.classList.add('on');
+  setTimeout(function () { startBattle(m); }, 900);
+}
+function say(h) { var m = $('fdMsg'); m.innerHTML = h; m.classList.remove('hide'); }
+function route(tx, ty) {
+  var W = MAPS[FD.key].g[0].length, prev = new Map(), k = function (x, y) { return y * W + x; }, q = [FD.pos];
+  prev.set(k(FD.pos[0], FD.pos[1]), null);
+  while (q.length) {
+    var p = q.shift(); if (p[0] === tx && p[1] === ty) break;
+    [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(function (d) {
+      var nx = p[0] + d[0], ny = p[1] + d[1];
+      if (prev.has(k(nx, ny)) || cell(nx, ny) === undefined || cell(nx, ny) === 'f') return;
+      if (blocked(nx, ny) && !(nx === tx && ny === ty)) return;
+      prev.set(k(nx, ny), p); q.push([nx, ny]);
+    });
+  }
+  var path = [], cur = prev.has(k(tx, ty)) ? [tx, ty] : null;
+  while (cur && !(cur[0] === FD.pos[0] && cur[1] === FD.pos[1])) { path.unshift(cur); cur = prev.get(k(cur[0], cur[1])); }
+  FD.path = path;
+}
+document.querySelector('.fd-wrap').addEventListener('click', function (e) {
+  if (e.target.closest('.fd-msg')) return;
+  var r = $('map').getBoundingClientRect(); route(Math.floor((e.clientX - r.left) / FD.ts), Math.floor((e.clientY - r.top) / FD.ts));
+});
+var KEYS = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0], w: [0, -1], s: [0, 1], a: [-1, 0], d: [1, 0] };
+document.addEventListener('keydown', function (e) {
+  if (!$('s-town').classList.contains('on') || !KEYS[e.key] || e.target.tagName === 'INPUT') return;
+  e.preventDefault(); FD.path = [];
+  if (!FD.hold) { FD.hold = KEYS[e.key]; tickWalk(); }
+  FD.hold = KEYS[e.key];
+});
+document.addEventListener('keyup', function (e) { if (KEYS[e.key] && FD.hold === KEYS[e.key]) FD.hold = null; });
+window.addEventListener('resize', function () { if ($('s-town').classList.contains('on')) drawMap(); });
+
+/* 門を出る：行き先は地図で選んだエリア（選んでいなければ、いま挑戦中のエリア） */
+function gateOut() {
+  var a = curArea || AREAS.filter(function (x) { return x.st === 'now'; })[0];
+  if (!a) { FD.busy = false; FD.pos = [31, 11]; drawMap(); say('<h3>行けるエリアがない</h3>この学年の問題セットが見つかりません。'); return; }
+  goArea(a);
+}
+function goArea(a) { curArea = a; FD.mobs = []; showScreen('s-town'); setTimeout(function () { openField('area'); }); }
+
+/* ------------------------------------------------------------ お店 */
+function enter(b) {
+  if (!b) return;
+  var f = FACS[b.f];
+  if (f.st > stage()) return say('<h3>🏚️ まだ建っていない</h3>授業でボスを倒して知識を取り戻すと、ここに' + f.nm + 'が建つ。');
+  shop(b.f);
+}
+function shop(fi) {
+  var f = FACS[fi], m = $('fdMsg'); m.textContent = '';
+  m.appendChild(el('h3', '', f.ic + ' ' + f.nm));
+  m.appendChild(el('div', 'mut', '「いらっしゃい！」　所持金 💰 ' + (ch.gold || 0)));
+  var list = el('div', 'shop-items');
+  function row(ic, name, desc, price, owned, onBuy) {
+    var b = el('button'); b.type = 'button';
+    b.appendChild(el('b', '', ic)); var sp = el('span', '', name); sp.appendChild(el('br')); sp.appendChild(el('small', '', desc)); b.appendChild(sp);
+    b.appendChild(el('b', '', owned || ('💰 ' + price)));
+    b.disabled = !!owned || (price > (ch.gold || 0));
+    b.onclick = async function () { if (b.disabled) return; await onBuy(); shop(fi); drawHud(); };
+    list.appendChild(b);
+  }
+  if (fi === 1) ITEM_KEYS.forEach(function (k) {
+    var it = ITEMS[k];
+    row(it.ic, it.n + '（持っている：' + inv(k) + '）', it.d, it.p, inv(k) >= 9 ? 'これ以上持てない' : '', async function () { ch.gold -= it.p; ch.inv = Object.assign({}, ch.inv || {}); ch.inv[k] = inv(k) + 1; await saveChar(); });
+  });
+  if (fi === 2) {
+    var used = skOf(ch).reduce(function (a, b) { return a + b; }, 0) - SK_FREE.reduce(function (a, b) { return a + b; }, 0);
+    row('✝️', 'スキルの振り直し', 'ふったスキルポイント ' + used + ' を全部もどす', RESPEC_COST, used <= 0 ? 'もどすポイントがない' : '', async function () { ch.gold -= RESPEC_COST; ch.sp = (ch.sp || 0) + used; ch.sk = { 0: SK_FREE[0], 1: SK_FREE[1], 2: SK_FREE[2] }; await saveChar(); });
+    row('🪞', '見た目を変える', 'タイプ' + (ch.lk === 'b' ? 'A（短い髪）' : 'B（長い髪）') + 'にする（無料）', 0, '', async function () { ch.lk = ch.lk === 'b' ? 'a' : 'b'; await saveChar(); drawMap(); });
+  }
+  if (fi === 3) {
+    var eq = ch.eq || {};
+    WEAPONS.forEach(function (w) { row('🗡️', weaponName(ch.j, w.id), '攻撃 +' + w.atk, w.p, eq.w === w.id ? '装備中' : '', async function () { ch.gold -= w.p; ch.eq = Object.assign({}, ch.eq || {}, { w: w.id }); await saveChar(); }); });
+    ARMORS.forEach(function (a) { row('🛡️', a.n, '防御 +' + a.def + '・HP +' + a.hp, a.p, eq.a === a.id ? '装備中' : '', async function () { ch.gold -= a.p; ch.eq = Object.assign({}, ch.eq || {}, { a: a.id }); await saveChar(); HP = statsOf(ch).mhp; }); });
+    m.appendChild(el('div', 'mut', '買うと、いま付けている物と付け替えます（前の物は店が引き取ります）。'));
+  }
+  if (fi === 4) {
+    m.appendChild(el('div', '', '取りもどした知識の書が並んでいる。'));
+    AREAS.filter(function (a) { return a.st === 'clear'; }).forEach(function (a) { m.appendChild(el('div', 'mut', '📖 ' + a.name + '（' + a.unit + '）')); });
+    m.appendChild(el('div', 'mut', 'クリアしたエリアには、地図から復習しに行ける（経験値は半分）。'));
+  }
+  if (fi === 5) {
+    var t = Object.keys(ch.ttl || {}).map(function (k) { return ch.ttl[k]; });
+    m.appendChild(el('div', '', t.length ? '王さま：「そなたの称号じゃ」' : '王さま：「まだ称号はないようじゃな。ボスを倒すと手に入るぞ」'));
+    var tl = el('div', 'titles'); t.forEach(function (x) { tl.appendChild(el('span', 'pill', '🏅 ' + x)); }); m.appendChild(tl);
+  }
+  if (list.children.length) m.appendChild(list);
+  var out = el('button', 'btn sub', '店を出る'); out.style.fontSize = '1em'; out.onclick = function () { m.classList.add('hide'); }; m.appendChild(out);
+  m.classList.remove('hide');
+}
+
+/* ------------------------------------------------------------ 冒険の地図 */
+var wmSel = null;
+$('goWorld').onclick = function () { drawWorld(); showScreen('s-world'); };
+$('wmBack').onclick = function () { showScreen('s-town'); setTimeout(drawMap); };
+function drawWorld() {
+  $('wmSub').textContent = me.g + '年' + me.c + '組 ・ ' + me.g + '年 理科の冒険';
+  var clear = AREAS.filter(function (a) { return a.st === 'clear'; }).length;
+  $('wmYear').innerHTML = '1年間の冒険<i><b style="width:' + (AREAS.length ? clear / AREAS.length * 100 : 0) + '%"></b></i>エリア ' + clear + '/' + AREAS.length + ' クリア';
+  var now = AREAS.filter(function (a) { return a.st === 'now'; })[0], h = '';
+  AREAS.forEach(function (a) { if (a.st === 'lock') h += '<div class="wm-fog" style="left:' + a.x + '%;top:' + (a.y - 4) + '%"></div>'; });
+  h += '<button class="wm-node town' + (wmSel === 'town' ? ' sel' : '') + '" data-wm="town" style="left:13.5%;top:76%"><i class="wpin"></i><b>' + town() + '</b><small style="background:#6a35e8">発展 ' + TOWN[stage()].n + '</small></button>';
+  AREAS.forEach(function (a) {
+    h += '<button class="wm-node ' + a.st + (a.id === wmSel ? ' sel' : '') + '" data-wm="' + a.id + '" style="left:' + a.x + '%;top:' + a.y + '%"><i class="wpin"></i><b>' + (a.st === 'lock' ? '？？？' : a.name) + '</b><small>' + (a.st === 'clear' ? 'クリア' : a.st === 'now' ? 'いま挑戦中' : '霧に包まれている') + '</small></button>';
+  });
+  h += '<button class="wm-node lock" data-wm="castle" style="left:88%;top:30%"><i class="wpin"></i><b>忘却の城</b><small>学年末に開く</small></button>';
+  var flag = curArea || now; if (flag) h += '<div class="wm-flag" style="left:' + (flag.x - 5.5) + '%;top:' + (flag.y + 1) + '%"><img class="hero" src="' + heroImg(ch.j, ch.lk) + '" alt=""></div>';
+  $('wmMap').innerHTML = h;
+  var side = $('wmSide'), a = AREAS.filter(function (x) { return x.id === wmSel; })[0];
+  side.classList.toggle('hide', !wmSel); if (!wmSel) return;
+  var p = el('div', 'panel'), head = el('div', 'row'), x = el('button', 'btn ghost', '✕'); x.style.cssText = 'font-size:.8em;padding:.2em .7em';
+  x.onclick = function () { wmSel = null; drawWorld(); };
+  function rowx(k, v) { var r = el('div', 'wm-row'); r.appendChild(el('span', '', k)); r.appendChild(el('span', '', v)); p.appendChild(r); }
+  if (wmSel === 'town') {
+    head.appendChild(el('h3', 'grow', town())); head.appendChild(x); p.appendChild(head);
+    p.appendChild(el('div', 'mut', me.g + '年' + me.c + '組の町。ボスを倒すたびに発展する。'));
+    rowx('発展', TOWN[stage()].n + '（' + stage() + '/5）');
+    rowx('建っている施設', FACS.filter(function (f) { return f.st <= stage(); }).map(function (f) { return f.nm; }).join('・'));
+    var go = el('button', 'btn', '町へ行く'); go.onclick = function () { enterTown(); }; p.appendChild(go);
+  } else if (wmSel === 'castle') {
+    head.appendChild(el('h3', 'grow', '忘却の城')); head.appendChild(x); p.appendChild(head);
+    p.appendChild(el('div', 'mut', '学年末に、オブリオンが待つ城。1年間の全単元から出題される。'));
+  } else if (a) {
+    head.appendChild(el('h3', 'grow', a.st === 'lock' ? '？？？' : a.name)); head.appendChild(x); p.appendChild(head);
+    if (a.st === 'lock') { p.appendChild(el('div', 'mut', '前のエリアのボスを倒すと、霧が晴れて入れるようになる。')); }
+    else {
+      rowx('単元', a.unit); rowx('問題セット', a.sets.length + 'セット');
+      var zk = el('div', 'wm-zako'); [0, 1, 2, 3, 4, 5].forEach(function (k) { var im = el('img'); im.src = ENEMIES[ZAKO[(k + a.i) % ZAKO.length]].img; zk.appendChild(im); }); p.appendChild(zk);
+      if (a.ar.max) { var bar = el('div', 'bar boss'); var bi = el('i'); bi.style.width = (a.ar.hp / a.ar.max * 100) + '%'; bar.appendChild(bi); bar.appendChild(el('b', '', 'ボスのこりHP ' + Math.round(a.ar.hp / a.ar.max * 100) + '%')); p.appendChild(bar); }
+      p.appendChild(el('div', 'mut', a.st === 'clear' ? 'クリアしたエリア。復習しに行ける（経験値は半分）。' : 'ボスは授業のチームモードで、先生の合図で戦う。'));
+      var g2 = el('button', a.st === 'clear' ? 'btn sub' : 'btn', a.st === 'clear' ? '復習しに行く' : 'このエリアへ'); g2.onclick = function () { goArea(a); }; p.appendChild(g2);
+    }
+  }
+  side.textContent = ''; side.appendChild(p);
+}
+$('wmMap').addEventListener('click', function (e) { var n = e.target.closest('[data-wm]'); if (n) { wmSel = n.dataset.wm; drawWorld(); } });
+
+/* ------------------------------------------------------------ ステータス・スキル */
+$('goStat').onclick = function () { drawStat(); showScreen('s-stat'); };
+$('statBack').onclick = function () { showScreen('s-town'); setTimeout(drawMap); };
+function drawStat() {
+  var s = statsOf(ch), sk = skOf(ch), eq = ch.eq || {};
+  $('stHero').src = heroImg(ch.j, ch.lk); $('stName').textContent = ch.n; $('stJob').textContent = JOBS[ch.j].name + ' Lv.' + ch.lv;
+  $('stGrid').innerHTML = '<span>HP</span><span>' + s.mhp + '</span><span>MP</span><span>' + MP_MAX + '</span><span>攻撃</span><span>' + s.atk + '</span><span>防御</span><span>' + s.def + '</span><span>💰</span><span>' + (ch.gold || 0) + '</span>';
+  var nx = expToNext(ch.lv); $('stXp').style.width = ((ch.exp || 0) / nx * 100) + '%'; $('stXpT').textContent = 'つぎのレベルまで ' + (nx - (ch.exp || 0));
+  $('stEq').innerHTML = '<div class="eq-row"><span>武器</span><span>' + weaponName(ch.j, eq.w) + '</span></div><div class="eq-row"><span>防具</span><span>' + armorName(eq.a) + '</span></div>';
+  $('stInv').innerHTML = ITEM_KEYS.map(function (k) { return '<span>' + ITEMS[k].ic + ' ' + ITEMS[k].n + ' ×' + inv(k) + '</span>'; }).join('');
+  $('spLeft').textContent = 'スキルポイント ' + (ch.sp || 0);
+  var box = $('skills'); box.textContent = '';
+  JOBS[ch.j].acts.forEach(function (a, i) {
+    var d = el('div', 'skill' + (a.ult ? ' ult' : '')), g = el('div', 'grow');
+    var nm = el('div', 'nm', a.n); if (i) nm.appendChild(el('span', 'tag', a.ult ? '大技' : '技')); g.appendChild(nm);
+    var desc = a.heal ? (a.revive ? '班全員を復活・全回復' : '班のHPを回復') + '・回復量 +' + (sk[i] * 10) + '%' : '攻撃 ×' + a.a + '・威力 +' + (sk[i] * 10) + '%';
+    desc += a.mp ? '　MP ' + a.mp : ''; if (a.streak) desc += '・' + a.streak + '連続正解で使える';
+    if (!canUse(ch, i)) desc += '　🔒 ' + SK_UNLOCK[i] + 'ポイントで使えるようになる';
+    g.appendChild(el('div', 'ds', desc));
+    var pips = el('div', 'pips'); for (var k = 0; k < SK_MAX; k++) pips.appendChild(el('i', k < sk[i] ? 'on' : ''));
+    g.appendChild(pips); d.appendChild(g);
+    var b = el('button', '', '＋'); b.type = 'button'; b.disabled = !(ch.sp > 0) || sk[i] >= SK_MAX;
+    b.onclick = async function () { b.disabled = true; var s2 = skOf(ch); s2[i]++; ch.sk = { 0: s2[0], 1: s2[1], 2: s2[2] }; ch.sp--; await saveChar(); drawStat(); };
+    d.appendChild(b); box.appendChild(d);
+  });
+}
+
+/* ------------------------------------------------------------ 戦闘（ひとりで冒険。正解は手元で判定する：家庭学習と同じ公開セットを使う） */
+var B = null, POOLS = {};
+async function poolOf(a) {
+  if (POOLS[a.id]) return POOLS[a.id];
+  var pool = [];
+  for (var i = 0; i < a.sets.length; i++) { try { pool = pool.concat((await (await fetch('home/' + a.sets[i].id + '.json')).json()).questions); } catch (e) {} }
+  POOLS[a.id] = { q: pool, queue: [] }; return POOLS[a.id];
+}
+async function startBattle(mob) {
+  var P = await poolOf(curArea);
+  if (!P.q.length) { FD.busy = false; say('<h3>問題が読めない</h3>通信を確かめて、もう一度ためしてください。'); return; }
+  var max = soloEnemyHp(curArea.i);
+  B = { mob: mob, e: ENEMIES[mob.id], hp: max, max: max, streak: 0, P: P };
+  $('bArea').textContent = curArea.name; $('eimg').src = B.e.img; $('ename').textContent = B.e.n; $('enemy').className = 'enemy';
+  $('party').innerHTML = '<div class="mate me"><span class="you">あなた</span><img class="hero" src="' + heroImg(ch.j, ch.lk) + '" alt="">' + ch.n + '</div>';
+  showScreen('s-battle'); drawMe(); askQ();
+}
+function drawMe() {
+  var s = statsOf(ch);
+  $('myhp').style.width = (HP / s.mhp * 100) + '%'; $('myhpT').textContent = HP + '/' + s.mhp;
+  $('mymp').style.width = (MP / MP_MAX * 100) + '%'; $('mympT').textContent = MP + '/' + MP_MAX;
+  $('ehp').style.width = (B.hp / B.max * 100) + '%';
+}
+function itemBar(box) {
+  var bar = el('div', 'itembar');
+  ['potion', 'ether'].forEach(function (k) {
+    var b = el('button', '', ITEMS[k].ic + ' ' + ITEMS[k].n + ' ×' + inv(k)); b.type = 'button';
+    b.disabled = !inv(k) || (k === 'potion' && HP >= statsOf(ch).mhp) || (k === 'ether' && MP >= MP_MAX);
+    b.onclick = async function () { ch.inv = Object.assign({}, ch.inv); ch.inv[k]--; if (k === 'potion') HP = Math.min(statsOf(ch).mhp, HP + 20); else MP = Math.min(MP_MAX, MP + 3); drawMe(); bar.replaceWith(itemBar(box)); await saveChar(); };
+    bar.appendChild(b);
+  });
+  if (inv('wing')) { var w = el('button', '', '🪶 帰還の羽 ×' + inv('wing')); w.type = 'button'; w.onclick = async function () { ch.inv = Object.assign({}, ch.inv); ch.inv.wing--; await saveChar(); enterTown(); }; bar.appendChild(w); }
+  return bar;
+}
+function askQ() {
+  var P = B.P; if (!P.queue.length) P.queue = shuffle(P.q.map(function (_, i) { return i; }));
+  var qi = P.queue.pop(), q = prepareQuestion(P.q[qi], true); q.qi = qi; B.q = q;
+  var box = $('cmd'); box.textContent = '';
+  var qb = el('div', 'qbox'); qb.appendChild(el('span', 'qnum', B.e.n + 'の問題' + (q.multi ? '（あてはまるものを すべて）' : '')));
+  qb.appendChild(document.createTextNode(q.text));
+  if (q.image) { var im = el('img', 'qimg'); im.src = q.image; im.style.maxHeight = '8em'; qb.appendChild(im); }
+  box.appendChild(qb);
+  if (q.type === 'text') {
+    var inp = el('input', 'tin'); inp.type = 'text'; inp.placeholder = q.numeric ? '数字で答えてね' : 'ここに答えを入力'; inp.autocomplete = 'off';
+    var sb = el('button', 'btn', '答える'); sb.onclick = function () { if (inp.value.trim()) judge(null, inp.value.trim()); };
+    inp.onkeydown = function (e) { if (e.key === 'Enter' && !e.isComposing) sb.click(); };
+    box.appendChild(inp); box.appendChild(sb); setTimeout(function () { inp.focus(); }, 100);
+  } else {
+    var chs = el('div', 'choices'), sel = 0;
+    q.choices.forEach(function (c, i) {
+      var b = el('button'); b.type = 'button';
+      if (c.image) { var ci = el('img'); ci.src = c.image; ci.style.maxHeight = '3em'; b.appendChild(ci); }
+      b.appendChild(document.createTextNode(c.t || ''));
+      b.onclick = function () { if (q.multi) { sel ^= (1 << i); b.classList.toggle('right', !!(sel & (1 << i))); sub.disabled = !sel; } else judge(maskOf([i]), null); };
+      chs.appendChild(b);
+    });
+    box.appendChild(chs);
+    var sub = el('button', 'btn', '答える'); sub.disabled = true; sub.onclick = function () { if (sel) judge(sel, null); };
+    if (q.multi) box.appendChild(sub);
+  }
+  box.appendChild(itemBar(box));
+}
+function judge(mask, text) {
+  var q = B.q, ok = q.type === 'text' ? isTextCorrect(text, q.accept) : mask === maskOf(q.correct), box = $('cmd');
+  box.querySelectorAll('button, input').forEach(function (b) { b.disabled = true; });
+  box.querySelectorAll('.choices button').forEach(function (b, i) { b.classList.remove('right'); b.classList.add(q.correct.indexOf(i) >= 0 ? 'right' : 'dim'); });
+  if (ok) {
+    B.streak++; MP = Math.min(MP_MAX, MP + 1); drawMe();
+    setTimeout(function () {
+      box.textContent = ''; box.appendChild(el('div', 'banner ok', '✓ せいかい！ 技をえらぼう'));
+      var acts = el('div', 'actions');
+      JOBS[ch.j].acts.forEach(function (a, i) {
+        var b = el('button', 'act' + (a.ult ? ' ult' : '')); b.type = 'button';
+        b.appendChild(el('b', '', a.n));
+        b.appendChild(el('small', '', !canUse(ch, i) ? '🔒 スキルで解放' : a.heal ? 'HPを回復' : '攻撃 ×' + a.a));
+        b.appendChild(el('span', 'mp', a.mp ? 'MP ' + a.mp + (a.streak ? '・' + a.streak + '連続' : '') : 'MP 0'));
+        b.disabled = !canUse(ch, i) || MP < a.mp || (a.streak && B.streak < a.streak);
+        b.onclick = function () { act(i); };
+        acts.appendChild(b);
+      });
+      box.appendChild(acts);
+    }, 500);
+  } else {
+    B.streak = 0;
+    var d = Math.max(3, enemyHit(ch.j, false) - (statsOf(ch).def - JOBS[ch.j].def)); HP = Math.max(0, HP - d);
+    var pos = Math.min(B.P.queue.length, 3 + Math.floor(Math.random() * 4)); B.P.queue.splice(B.P.queue.length - pos, 0, q.qi);
+    setTimeout(function () {
+      drawMe();
+      var msg = '✕ ざんねん… ' + B.e.n + 'の攻撃！ ' + d + 'のダメージ' + (q.type === 'text' ? '　正解は「' + q.accept.slice(0, 3).join(' ／ ') + '」' : '');
+      box.appendChild(el('div', 'banner ng', msg));
+      var nx = el('button', 'btn', HP ? 'つぎへ' : '町へもどる'); nx.style.alignSelf = 'center';
+      nx.onclick = function () { if (HP) askQ(); else faint(); };
+      box.appendChild(nx);
+    }, 400);
+  }
+}
+function act(i) {
+  var a = JOBS[ch.j].acts[i], s = statsOf(ch), box = $('cmd');
+  MP -= a.mp;
+  var dmg = Math.round(s.atk * a.a * skMult(ch, i) * soloMult(ch.lv) * (0.9 + Math.random() * 0.2)), msg = ch.n + 'の' + a.n + '！';
+  if (a.heal) { HP = Math.min(s.mhp, HP + Math.ceil(s.mhp * a.heal * skMult(ch, i))); msg += ' HPが回復！'; }
+  if (dmg > 0) {
+    B.hp = Math.max(0, B.hp - dmg); msg += ' ' + dmg + 'のダメージ';
+    var en = $('enemy'); en.classList.remove('hit'); void en.offsetWidth; en.classList.add('hit');
+    var dd = el('div', 'dmg' + (a.ult ? ' crit' : ''), String(dmg)); document.querySelector('#s-battle .arena').appendChild(dd); setTimeout(function () { dd.remove(); }, 1000);
+  }
+  drawMe(); box.textContent = ''; box.appendChild(el('div', 'banner ok', msg));
+  setTimeout(function () { if (B.hp <= 0) win(); else askQ(); }, 1000);
+}
+async function win() {
+  $('enemy').classList.add('down');
+  var rw = soloReward(B.max, curArea.st === 'clear'), lv0 = ch.lv;
+  ch.gold = (ch.gold || 0) + rw.gold; var up = addExp(ch, rw.exp);
+  var saved = await saveChar();
+  var box = $('cmd'); box.textContent = '';
+  box.appendChild(el('div', 'banner ok', B.e.n + 'を たおした！　けいけんち +' + rw.exp + '　💰 +' + rw.gold + (up ? '　LEVEL UP! Lv.' + lv0 + '→' + ch.lv + '（スキルポイント +' + up + '）' : '') + (saved ? '' : '（保存できませんでした）')));
+  if (up) HP = statsOf(ch).mhp;
+  var nx = el('button', 'btn', 'フィールドにもどる'); nx.style.alignSelf = 'center';
+  nx.onclick = function () {
+    FD.mobs = FD.mobs.filter(function (m) { return m !== B.mob; });
+    showScreen('s-town'); setTimeout(function () { openField('area', FD.pos); if (!FD.mobs.length) say('<h3>エリアの魔物をすべて倒した！</h3>町にもどると、また魔物があらわれる。'); });
+  };
+  box.appendChild(nx);
+}
+function faint() { alert(ch.n + 'は たおれてしまった…。町で休んで、もう一度挑戦しよう。'); enterTown(); }
+</script>
+</body>
+</html>

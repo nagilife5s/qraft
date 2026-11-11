@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Qraft クエスト（先生）</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
-<link rel="stylesheet" href="theme.css?v=20261111150018">
-<link rel="stylesheet" href="quest.css?v=20261111150018">
+<link rel="stylesheet" href="theme.css?v=20261111153512">
+<link rel="stylesheet" href="quest.css?v=20261111153512">
 </head>
 <body>
 <div id="app">
@@ -41,9 +41,9 @@
     <div class="panel" id="qrcard" style="padding:.4em"><div class="qr" id="qr" style="width:6em"></div></div>
   </div>
   <div class="panel"><span class="q-sub">① このアドレスを開く：</span> <b id="joinUrl"></b>　<span class="q-sub">② 参加コードと出席番号を入れる</span></div>
-  <div class="row"><b class="grow">👥 <span id="pcount">0</span>人が参加中（班は「出発！」で自動で分けます）</b>
+  <div class="row"><b class="grow">👥 <span id="pcount">0</span>人が参加中（<span id="lbHint">そろったら「班を決める」。そのあと生徒が持ち物を選んで準備OKにします</span>）</b>
     <button class="btn quit" id="btnQuitLobby" type="button">やめる</button><button class="snd"></button>
-    <button class="btn tc-big" id="btnStart" disabled>出発！</button></div>
+    <button class="btn tc-big" id="btnStart" disabled>班を決める</button></div>
   <div class="tc-grid" id="players" style="grid-template-columns:repeat(auto-fill,minmax(9em,1fr))"></div>
 </section>
 
@@ -76,15 +76,15 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261111150018"></script>
+<script src="firebase-config.js?v=20261111153512"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script type="module">
 import { signIn, db, ref, set, get, update, remove, onValue, serverNow, shuffle, mountSetPicker,
-         decryptSet, prepareQuestion, maskOf, $, el, showScreen, confetti, qrSvg, sleep } from './lib.js?v=20261111150018';
+         decryptSet, prepareQuestion, maskOf, $, el, showScreen, confetti, qrSvg, sleep } from './lib.js?v=20261111153512';
 import { onChildAdded, onChildChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 import { fiscalYear, JOBS, MP_MAX, heroImg, lvMult, CHEER, addExp, ENEMIES, BOSS, areaOf, enemyFor,
-         zakoHp, enemyHit, bossHp, REWARD, TOWN, TOWN_DEFAULT, storyClear } from './quest.js?v=20261111150018';
-import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261111150018b';
+         zakoHp, enemyHit, bossHp, REWARD, TOWN, TOWN_DEFAULT, storyClear, statsOf, canUse, skMult, ITEMS } from './quest.js?v=20261111153512';
+import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261111153512b';
 
 wireSoundButtons();
 
@@ -153,7 +153,7 @@ $('btnCreate').onclick = async function () {
     S = { mode: 'quest', phase: 'lobby', bg: 'lab', y: YEAR, g: Number($('selG').value), c: Number($('selC').value), battle: battle, Tl: Number(segVal('segTime')),
           area: { id: AREA.id, name: AREA.name }, town: CLS.town || TOWN_DEFAULT };
     await set(ref(db, 'rooms/' + pin + '/state'), S);
-    onValue(ref(db, 'rooms/' + pin + '/players'), function (s) { players = s.val() || {}; renderLobby(); if (S.phase === 'battle') Object.keys(players).forEach(function (u) { if (!G[u]) { addPlayer(u, smallestTeam()); sendQ(u); } }); });
+    onValue(ref(db, 'rooms/' + pin + '/players'), function (s) { players = s.val() || {}; renderLobby(); lateJoin(); });
     var base = location.href.replace(/quest-host\.html.*$/, '');
     $('joinUrl').textContent = base.replace(/^https?:\/\//, '') + 'quest-play.html';
     $('pin').textContent = pin.slice(0, 3) + ' ' + pin.slice(3);
@@ -168,7 +168,8 @@ $('btnCreate').onclick = async function () {
 function renderLobby() {
   var ids = Object.keys(players);
   $('pcount').textContent = ids.length;
-  $('btnStart').disabled = !ids.length || S.phase !== 'lobby';
+  $('btnStart').disabled = !ids.length || busy || (S.phase !== 'lobby' && S.phase !== 'prep');
+  if (S.phase === 'prep') return renderPrep();
   if (S.phase !== 'lobby') return;
   var box = $('players'); box.textContent = '';
   ids.forEach(function (id) {
@@ -182,11 +183,58 @@ function renderLobby() {
 }
 
 /* ------------------------------------------------------------ 班とキャラの状態（先生の画面だけが持つ） */
+var CH = {}, busy = false;
+/* キャラ（スキル・装備・持ち物）を読む。先生の端末は admins なので読める */
+async function loadChar(u) { if (!CH[u]) CH[u] = (await get(ref(db, qpath('chars/' + players[u].sid)))).val() || { j: players[u].j, lv: players[u].lv || 1 }; return CH[u]; }
 function addPlayer(u, team) {
-  var p = players[u], job = JOBS[p.j] ? p.j : 'warrior', mhp = JOBS[job].hp;
-  G[u] = { team: team, job: job, lv: p.lv || 1, sid: p.sid, nick: p.nick, lk: p.lk, hp: mhp, mhp: mhp, mp: 0, streak: 0, ko: false, buff: false,
-           n: 0, cur: null, wait: '', queue: [], dmg: 0, kills: 0, killExp: 0, gold: 0, ok: 0, ans: 0 };
+  var p = players[u], ch = CH[u] || { j: p.j, lv: p.lv || 1 }, job = JOBS[ch.j] ? ch.j : 'warrior', st = statsOf(ch, true);
+  G[u] = { team: team, job: job, ch: ch, atk: st.atk, def: st.def, lv: ch.lv || 1, sid: p.sid, nick: p.nick, lk: p.lk, hp: st.mhp, mhp: st.mhp, mp: 0, streak: 0, ko: false, buff: false,
+           item: '', used: '', n: 0, cur: null, wait: '', queue: [], dmg: 0, kills: 0, killExp: 0, gold: 0, ok: 0, ans: 0 };
   T[team].mem.push(u);
+}
+/* 準備のあとから来た子：人数の少ない班に入れる */
+async function lateJoin() {
+  if (S.phase !== 'prep' && S.phase !== 'battle') return;
+  for (var u of Object.keys(players)) {
+    if (G[u] || G[u] === null) continue;
+    G[u] = null; await loadChar(u); addPlayer(u, smallestTeam());
+    var tm = {}; tm[u] = G[u].team; await update(ref(db, 'rooms/' + pin + '/state/tm'), tm);
+    if (S.phase === 'battle') { writeTeam(G[u].team); sendQ(u); }
+  }
+  if (S.phase === 'prep') renderPrep();
+}
+/* 準備画面（先生）：班ごとに、準備OKと持ち物を見せる */
+function renderPrep() {
+  var box = $('players'); box.textContent = ''; box.style.gridTemplateColumns = '';
+  var ready = 0;
+  T.forEach(function (t, i) {
+    var c = el('div', 'tc-g'), all = t.mem.length > 0, jobs = {};
+    c.appendChild(el('div', 't', (i + 1) + '班'));
+    var mm = el('div', 'mem-mini');
+    t.mem.forEach(function (u) { var p = players[u], g = G[u]; if (!p || !g) return; jobs[g.job] = 1; if (!p.rd) all = false;
+      var sp = el('span', p.rd ? '' : 'ko'); var im = el('img'); im.src = heroImg(g.job, p.lk); sp.appendChild(im); sp.appendChild(document.createTextNode(p.nick + (p.it && ITEMS[p.it] ? ' ' + ITEMS[p.it].ic : ''))); mm.appendChild(sp); });
+    c.appendChild(mm);
+    c.appendChild(el('small', '', all ? '✅ 準備OK' : '準備中（うすい子がまだ）'));
+    if (!jobs.priest) c.appendChild(el('small', 'warn', '⚠️ 回復役（僧侶）がいない'));
+    if (all) { c.classList.add('ready'); ready++; }
+    box.appendChild(c);
+  });
+  $('lbHint').textContent = '準備OKの班 ' + ready + ' / ' + T.length + '（全班そろっていなくても出発できます）';
+}
+async function doPrep() {
+  busy = true; $('btnStart').disabled = true;
+  window.addEventListener('beforeunload', function (e) { if (!ended) { e.preventDefault(); e.returnValue = ''; } });
+  var ids = Object.keys(players);
+  await Promise.all(ids.map(loadChar));
+  /* 班：職業がかたよらないように、職業順に並べてから配る（4人前後） */
+  ids = shuffle(ids); var order = { warrior: 0, priest: 1, mage: 2 };
+  ids.sort(function (a, b) { return (order[players[a].j] || 0) - (order[players[b].j] || 0); });
+  var nT = Math.max(1, Math.round(ids.length / 4));
+  T = []; for (var i = 0; i < nT; i++) T.push({ mem: [], ei: i, e: null, hitters: {}, kills: 0, ok: 0, ans: 0, log: '', lastTag: '' });
+  ids.forEach(function (u, k) { addPlayer(u, k % nT); });
+  var tm = {}; Object.keys(G).forEach(function (u) { if (G[u]) tm[u] = G[u].team; });
+  S.phase = 'prep'; await update(ref(db, 'rooms/' + pin + '/state'), { phase: 'prep', tm: tm, nT: nT });
+  $('btnStart').textContent = '出発！'; busy = false; renderLobby();
 }
 function smallestTeam() { var b = 0; T.forEach(function (t, i) { if (t.mem.length < T[b].mem.length) b = i; }); return b; }
 function newEnemy(t) {
@@ -196,14 +244,11 @@ function newEnemy(t) {
 }
 
 $('btnStart').onclick = async function () {
-  $('btnStart').disabled = true;
-  window.addEventListener('beforeunload', function (e) { if (!ended) { e.preventDefault(); e.returnValue = ''; } });
-  /* 班：職業がかたよらないように、職業順に並べてから配る（4人前後） */
-  var ids = shuffle(Object.keys(players)), order = { warrior: 0, priest: 1, mage: 2 };
-  ids.sort(function (a, b) { return (order[players[a].j] || 0) - (order[players[b].j] || 0); });
-  var nT = Math.max(1, Math.round(ids.length / 4));
-  T = []; for (var i = 0; i < nT; i++) T.push({ mem: [], ei: i, e: null, hitters: {}, kills: 0, ok: 0, ans: 0, log: '', lastTag: '' });
-  ids.forEach(function (u, k) { addPlayer(u, k % nT); });
+  if (S.phase === 'lobby') return doPrep();
+  $('btnStart').disabled = true; busy = true;
+  var ids = Object.keys(G).filter(function (u) { return G[u]; }), nT = T.length;
+  /* 持ち物：準備画面で選んだ物を、キャラが本当に持っていれば持たせる */
+  ids.forEach(function (u) { var p = players[u] || {}, inv = (G[u].ch.inv || {}); if (p.it && ITEMS[p.it] && ITEMS[p.it].team && inv[p.it] > 0) G[u].item = p.it; });
   if (S.battle === 'boss') {
     var avg = ids.reduce(function (a, u) { return a + G[u].lv; }, 0) / ids.length;
     var max = AR.max || bossHp(ids.length, avg, S.Tl);
@@ -213,7 +258,7 @@ $('btnStart').onclick = async function () {
     await set(ref(db, 'rooms/' + pin + '/bv'), { hp: boss.hp, max: boss.max });
   } else T.forEach(newEnemy);
   endsAt = serverNow() + 4000 + S.Tl * 1000;
-  var tm = {}; Object.keys(G).forEach(function (u) { tm[u] = G[u].team; });
+  var tm = {}; ids.forEach(function (u) { tm[u] = G[u].team; });
   S.phase = 'battle';
   await update(ref(db, 'rooms/' + pin + '/state'), { phase: 'battle', tm: tm, ends: endsAt, nT: nT });
   T.forEach(function (t, i) { writeTeam(i); });
@@ -221,7 +266,7 @@ $('btnStart').onclick = async function () {
   onChildAdded(ref(db, 'rooms/' + pin + '/act'), onAct); onChildChanged(ref(db, 'rooms/' + pin + '/act'), onAct);
   $('btSub').textContent = $('lbSub').textContent; $('btTitle').textContent = AREA.name;
   showScreen('s-battle'); sfx('go'); bgm('quiz');
-  setTimeout(function () { Object.keys(G).forEach(sendQ); }, 4000);
+  setTimeout(function () { ids.forEach(sendQ); }, 4000);
   tickId = setInterval(tick, 250); renderTeams();
 };
 
@@ -252,7 +297,7 @@ function grade(u, a) {
     } else { g.wait = 'act'; res.act = 1; g.actTimer = setTimeout(function () { if (g.wait === 'act') applyAct(u, 0); }, 10000); }
   } else {
     g.streak = 0;
-    var d = enemyHit(g.job, !!boss); g.hp = Math.max(0, g.hp - d); res.dmg = d;
+    var d = Math.max(3, enemyHit(g.job, !!boss) - (g.def - JOBS[g.job].def)); g.hp = Math.max(0, g.hp - d); res.dmg = d;
     if (!g.hp && !g.ko) { g.ko = true; t.log = g.nick + ' は気絶した…（次の正解で復活）'; }
     var pos = Math.min(g.queue.length, 3 + Math.floor(Math.random() * 4)); g.queue.splice(g.queue.length - pos, 0, q.qi);   /* まちがえた問題は、数問あとにもう一度 */
     setTimeout(function () { sendQ(u); }, 2600);
@@ -262,17 +307,28 @@ function grade(u, a) {
 }
 function onAct(snap) {
   var u = snap.key, v = snap.val() || {}, g = G[u];
+  if (g && v.a === 9) return useItem(u);
   if (g && g.wait === 'act' && v.n === g.n) applyAct(u, v.a);
+}
+/* 持ち物を使う（1回だけ）。回復のしずく：HP+20（気絶中なら復活）、マナの実：MP+3 */
+function useItem(u) {
+  var g = G[u], t = T[g.team]; if (!g.item || g.used) return;
+  g.used = g.item;
+  if (g.item === 'potion') { if (g.ko) g.ko = false; g.hp = Math.min(g.mhp, g.hp + 20); }
+  if (g.item === 'ether') g.mp = Math.min(MP_MAX, g.mp + 3);
+  t.log = g.nick + ' は' + ITEMS[g.item].n + 'を使った！';
+  writeTeam(g.team); renderTeams();
 }
 function applyAct(u, ai) {
   var g = G[u], t = T[g.team], acts = JOBS[g.job].acts, act = acts[ai] || acts[0];
   clearTimeout(g.actTimer); g.wait = '';
-  if (g.mp < act.mp || (act.streak && g.streak < act.streak)) act = acts[0];
+  if (!canUse(g.ch, ai) || g.mp < act.mp || (act.streak && g.streak < act.streak)) { act = acts[0]; ai = 0; }
   g.mp -= act.mp;
-  var dmg = Math.round(JOBS[g.job].atk * act.a * lvMult(g.lv) * (g.buff ? CHEER : 1) * (0.9 + Math.random() * 0.2));
+  var sm = skMult(g.ch, ai);
+  var dmg = Math.round(g.atk * act.a * sm * lvMult(g.lv) * (g.buff ? CHEER : 1) * (0.9 + Math.random() * 0.2));
   g.buff = false;
   var msg = g.nick + ' の' + act.n + '！';
-  if (act.heal) t.mem.forEach(function (m) { var x = G[m]; if (!x) return; if (act.revive && x.ko) { x.ko = false; } if (!x.ko) x.hp = Math.min(x.mhp, x.hp + Math.ceil(x.mhp * act.heal)); });
+  if (act.heal) t.mem.forEach(function (m) { var x = G[m]; if (!x) return; if (act.revive && x.ko) { x.ko = false; } if (!x.ko) x.hp = Math.min(x.mhp, x.hp + Math.ceil(x.mhp * act.heal * sm)); });
   if (act.heal) msg += act.revive ? ' 班全員が元気になった！' : ' 班のHPが回復！';
   if (dmg > 0) {
     g.dmg += dmg; msg += ' ' + dmg + 'のダメージ';
@@ -296,7 +352,7 @@ function applyAct(u, ai) {
 }
 function writeTeam(i) {
   var t = T[i], m = {};
-  t.mem.forEach(function (u) { var g = G[u]; if (g) m[u] = { nm: g.nick, j: g.job, lk: g.lk || 'a', hp: g.hp, mhp: g.mhp, mp: g.mp, ko: g.ko ? 1 : 0, bf: g.buff ? 1 : 0, st: g.streak }; });
+  t.mem.forEach(function (u) { var g = G[u]; if (g) m[u] = { nm: g.nick, j: g.job, lk: g.lk || 'a', it: g.item && !g.used ? g.item : '', hp: g.hp, mhp: g.mhp, mp: g.mp, ko: g.ko ? 1 : 0, bf: g.buff ? 1 : 0, st: g.streak }; });
   var e = boss ? null : { k: t.e.k, hp: t.e.hp, max: t.e.max };
   set(ref(db, 'rooms/' + pin + '/tv/' + i), { m: m, e: e, log: t.log, kills: t.kills, at: serverNow() }).catch(function () {});
 }
@@ -339,14 +395,16 @@ function bossDown() { boss.down = true; sfx('fanfare'); addLog('<em>' + BOSS.n +
 /* ------------------------------------------------------------ 終了：報酬をキャラに書き、クラスの町とエリアを進める */
 async function finish() {
   if (ended) return; ended = true; clearInterval(tickId);
-  Object.keys(G).forEach(function (u) { clearTimeout(G[u].actTimer); });
+  Object.keys(G).forEach(function (u) { if (G[u]) clearTimeout(G[u].actTimer); });
   await update(ref(db, 'rooms/' + pin + '/state'), { phase: 'saving' });
   var down = !!(boss && boss.down), clsPath = qpath('classes/' + S.g + '-' + S.c), up = {}, res = {};
   var who = Object.assign({}, AR.who || {});
-  if (boss) Object.keys(G).forEach(function (u) { who[G[u].sid] = true; });
+  if (boss) Object.keys(G).forEach(function (u) { if (G[u]) who[G[u].sid] = true; });
   for (var u of Object.keys(G)) {
-    var g = G[u], cp = qpath('chars/' + g.sid), ch = (await get(ref(db, cp))).val();
+    var g = G[u]; if (!g) continue;
+    var cp = qpath('chars/' + g.sid), ch = (await get(ref(db, cp))).val();
     if (!ch) continue;
+    if (g.used && ch.inv && ch.inv[g.used] > 0) { ch.inv[g.used]--; }
     var exp = g.dmg + g.killExp, gold = g.gold;
     if (down) { exp += REWARD.bossExp; gold += REWARD.bossGold; }
     var lv0 = ch.lv; ch.gold = (ch.gold || 0) + gold; var ups = addExp(ch, exp);
@@ -357,7 +415,7 @@ async function finish() {
   }
   /* 前の回に参加して、今回いなかった子にも、ボス撃破の報酬を入れる */
   if (down) {
-    var here = {}; Object.keys(G).forEach(function (u) { here[G[u].sid] = 1; });
+    var here = {}; Object.keys(G).forEach(function (u) { if (G[u]) here[G[u].sid] = 1; });
     for (var sid of Object.keys(who)) {
       if (here[sid]) continue;
       var p2 = qpath('chars/' + sid), c2 = (await get(ref(db, p2))).val(); if (!c2) continue;

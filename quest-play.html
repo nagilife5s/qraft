@@ -6,8 +6,8 @@
 <title>Qraft クエスト</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261111150018">
-<link rel="stylesheet" href="quest.css?v=20261111150018">
+<link rel="stylesheet" href="theme.css?v=20261111153512">
+<link rel="stylesheet" href="quest.css?v=20261111153512">
 <style>
   #s-battle .arena { min-height:12em; }
   .cmd .choices button.sel { outline:.25em solid #fff; }
@@ -52,6 +52,21 @@
   <div class="dots"><span></span><span></span><span></span></div>
 </section>
 
+<!-- 出発前の準備（チームモード） -->
+<section class="screen q-bg-lab" id="s-prep" style="gap:.9em;overflow:auto">
+  <div class="row"><div class="grow"><div class="q-sub">チームモード ・ 出発前の準備</div><div class="q-title" id="ppTitle"></div></div></div>
+  <div class="row" style="align-items:stretch;flex-wrap:wrap">
+    <div class="panel grow" style="display:flex;flex-direction:column;gap:.8em;min-width:16em">
+      <b>パーティ</b><div class="pp-list" id="ppList"></div><div class="pp-check" id="ppCheck"></div>
+    </div>
+    <div class="panel" style="width:20em;max-width:100%;display:flex;flex-direction:column;gap:.7em">
+      <b>持っていくアイテム（1つ）</b><div class="pp-items" id="ppItems"></div>
+      <button class="btn" id="ppReady">準備OK！</button>
+    </div>
+  </div>
+  <div class="pp-wait" id="ppWait">先生の「出発！」を待っています…</div>
+</section>
+
 <!-- 戦闘 -->
 <section class="screen" id="s-battle">
   <div class="bt-bg"></div>
@@ -73,7 +88,7 @@
       <div class="eshadow"></div>
     </div>
   </div>
-  <div class="q-sub" id="tlog" style="text-align:center;min-height:1.4em"></div>
+  <div class="row" style="justify-content:center;gap:.6em"><div class="q-sub" id="tlog" style="text-align:center;min-height:1.4em"></div><button class="btn ghost hide" id="itemBtn" style="font-size:.85em;padding:.25em .9em"></button></div>
   <div class="cmd" id="cmd"></div>
 </section>
 
@@ -92,12 +107,13 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261111150018"></script>
+<script src="firebase-config.js?v=20261111153512"></script>
 <script type="module">
-import { signIn, db, ref, set, get, onValue, serverNow, $, el, showScreen, confetti } from './lib.js?v=20261111150018';
-import { fiscalYear, JOBS, JOB_KEYS, MP_MAX, heroImg, ENEMIES, BOSS, storyEnter, expToNext } from './quest.js?v=20261111150018';
+import { signIn, db, ref, set, get, onValue, serverNow, $, el, showScreen, confetti } from './lib.js?v=20261111153512';
+import { fiscalYear, JOBS, JOB_KEYS, MP_MAX, heroImg, ENEMIES, BOSS, storyEnter, expToNext, canUse, ITEMS } from './quest.js?v=20261111153512';
 
 var uid = null, pin = null, state = null, sid = '', ch = null, look = 'a', job = 'mage';
+var players = {}, myItem = '', myReady = false, prepShown = false;
 var qs = null, tv = null, bv = null, myTeam = -1, started = false, done = false, sel = 0, lastN = 0, timer = null;
 
 (async function boot() {
@@ -164,7 +180,7 @@ $('btnMake').onclick = async function () {
   var nm = $('cname').value.trim();
   if (!nm) { err('makeErr', 'キャラの名前を入れてください'); return; }
   $('btnMake').disabled = true;
-  ch = { n: nm, j: job, lk: look, lv: 1, exp: 0, gold: 0, sp: 0, u: { '.sv': 'timestamp' } };
+  ch = { n: nm, j: job, lk: look, lv: 1, exp: 0, gold: 0, sp: 0, sk: { 0: 0, 1: 1, 2: 0 }, u: { '.sv': 'timestamp' } };
   try { await set(ref(db, 'quest/' + state.y + '/chars/' + sid), ch); joinRoom(); }
   catch (e) { err('makeErr', 'キャラを作れませんでした（ほかの人が先に作ったかもしれません）'); $('btnMake').disabled = false; }
 };
@@ -179,14 +195,48 @@ async function joinRoom() {
   showScreen('s-wait');
   onValue(ref(db, 'rooms/' + pin + '/state'), function (s) { state = s.val(); render(); });
   onValue(ref(db, 'rooms/' + pin + '/qs/' + uid), function (s) { qs = s.val(); drawCmd(); });
+  onValue(ref(db, 'rooms/' + pin + '/players'), function (s) { players = s.val() || {}; if (state && state.phase === 'prep') drawPrep(); });
   onValue(ref(db, 'rooms/' + pin + '/bv'), function (s) { bv = s.val(); drawArena(); });
   onValue(ref(db, 'rooms/' + pin + '/kicked/' + uid), function (s) { if (s.val()) { $('msgT').textContent = 'この部屋から退出になりました'; showScreen('s-msg'); } });
 }
 function render() {
   if (!state) { if (!done) { $('msgT').textContent = 'ゲームは終了しました'; showScreen('s-msg'); } return; }
+  if (state.phase === 'prep' && state.tm && state.tm[uid] != null) { if (!prepShown) { prepShown = true; showScreen('s-prep'); } drawPrep(); }
   if (state.phase === 'battle' && state.tm && state.tm[uid] != null && !started) startBattle();
   if (state.phase === 'end' && !done) showResult();
 }
+/* ---- 出発前の準備：班の顔ぶれ・持ち物・準備OK */
+function myPlayer() { return { nick: ch.n, sid: sid, j: ch.j, lk: ch.lk || 'a', lv: ch.lv, it: myItem, rd: myReady }; }
+function drawPrep() {
+  if (!state || !state.tm) return;
+  var t = state.tm[uid]; $('ppTitle').textContent = (t + 1) + '班　' + state.area.name + 'へ';
+  var mates = Object.keys(state.tm).filter(function (u) { return state.tm[u] === t && players[u]; });
+  var box = $('ppList'); box.textContent = ''; var jobs = {};
+  mates.forEach(function (u) {
+    var p = players[u], d = el('div', 'pp-mem' + (u === uid ? ' me' : '')); jobs[p.j] = 1;
+    var im = el('img', 'hero'); im.src = heroImg(p.j, p.lk); d.appendChild(im);
+    d.appendChild(el('b', '', p.nick)); if (u === uid) d.appendChild(el('span', 'you', 'あなた'));
+    d.appendChild(el('small', '', (JOBS[p.j] ? JOBS[p.j].name : '') + ' Lv.' + (p.lv || 1)));
+    d.appendChild(el('span', 'item', p.it && ITEMS[p.it] ? '🎒 ' + ITEMS[p.it].n : '🎒 なし'));
+    d.appendChild(el('span', 'st ' + (p.rd ? 'ok' : 'wait'), p.rd ? '準備OK' : '準備中'));
+    box.appendChild(d);
+  });
+  $('ppCheck').innerHTML = (jobs.priest ? '<span>✅ 回復役（僧侶）がいる</span>' : '<span class="warn">⚠️ 回復役がいない…回復のしずくを持っていこう</span>') + (jobs.mage ? '<span>✅ 大技役（魔法使い）がいる</span>' : '') + (jobs.warrior ? '<span>✅ 攻撃役（戦士）がいる</span>' : '');
+  var ib = $('ppItems'); ib.textContent = '';
+  [''].concat(Object.keys(ITEMS).filter(function (k) { return ITEMS[k].team; })).forEach(function (k) {
+    var have = k ? ((ch.inv && ch.inv[k]) || 0) : 1, b = el('button'); b.type = 'button'; b.className = k === myItem ? 'on' : '';
+    b.appendChild(el('b', '', k ? ITEMS[k].ic : '－')); var sp = el('span', '', k ? ITEMS[k].n : '持っていかない'); sp.appendChild(el('small', '', k ? ITEMS[k].d : '')); b.appendChild(sp);
+    b.appendChild(el('b', '', k ? '×' + have : '')); b.disabled = myReady || !have;
+    b.onclick = function () { myItem = k; drawPrep(); };
+    ib.appendChild(b);
+  });
+  if (!Object.keys(ch.inv || {}).some(function (k) { return ITEMS[k] && ITEMS[k].team && ch.inv[k] > 0; })) ib.appendChild(el('div', 'mut', 'アイテムは「ひとりで冒険」の町の道具屋で買える'));
+  $('ppReady').textContent = myReady ? '✓ 準備OK（押すと取り消し）' : '準備OK！'; $('ppReady').classList.toggle('done', myReady);
+  var n = mates.filter(function (u) { return players[u].rd; }).length;
+  $('ppWait').textContent = '先生の「出発！」を待っています…　準備OK ' + n + '/' + mates.length + '人';
+}
+$('ppReady').onclick = function () { myReady = !myReady; set(ref(db, 'rooms/' + pin + '/players/' + uid), myPlayer()).catch(function () {}); drawPrep(); };
+
 function startBattle() {
   started = true; myTeam = state.tm[uid];
   onValue(ref(db, 'rooms/' + pin + '/tv/' + myTeam), function (s) { tv = s.val(); drawArena(); });
@@ -225,6 +275,8 @@ function drawArena() {
     lastHp = e.hp;
   }
   if (tv.log && tv.log !== lastLog) { lastLog = tv.log; $('tlog').textContent = tv.log; }
+  var ib = $('itemBtn'), it = me && me.it;
+  ib.classList.toggle('hide', !it); if (it) ib.textContent = ITEMS[it].ic + ' ' + ITEMS[it].n + 'を使う';
 }
 
 function drawCmd() {
@@ -277,7 +329,8 @@ function drawResult(box, me) {
     b.appendChild(el('b', '', a.n));
     b.appendChild(el('small', '', a.heal ? (a.revive ? '班全員を復活・全回復' : '班のHPを回復') : '攻撃 ×' + a.a));
     b.appendChild(el('span', 'mp', a.mp ? 'MP ' + a.mp + (a.streak ? '・' + a.streak + '連続正解' : '') : 'MP 0'));
-    b.disabled = mp < a.mp || (a.streak && st < a.streak);
+    b.disabled = !canUse(ch, i) || mp < a.mp || (a.streak && st < a.streak);
+    if (!canUse(ch, i)) b.querySelector('small').textContent = '🔒 スキルで解放';
     b.onclick = function () {
       acts.querySelectorAll('button').forEach(function (x) { x.disabled = true; });
       set(ref(db, 'rooms/' + pin + '/act/' + uid), { n: r.n, a: i }).catch(function () {});
@@ -286,6 +339,8 @@ function drawResult(box, me) {
   });
   box.appendChild(acts);
 }
+
+$('itemBtn').onclick = function () { this.classList.add('hide'); set(ref(db, 'rooms/' + pin + '/act/' + uid), { n: qs ? qs.n : 0, a: 9 }).catch(function () {}); };
 
 /* ------------------------------------------------------------ 結果 */
 async function showResult() {

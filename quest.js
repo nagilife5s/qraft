@@ -95,3 +95,44 @@ export function storyClear(area, town, stage) {
   return area.name + 'をおおっていた霧が晴れ、「' + area.unit + 'の知識」が' + town + 'に もどってきた。' +
     (TOWN[stage] ? '村は「' + TOWN[stage].n + '」になり、' + TOWN[stage].add + 'が建った！' : '');
 }
+
+/* ====================================================================
+   スキル・装備・持ち物（2026-11-11 決定）
+   ・スキルは技ごとに5段階。1ポイントで威力・回復量 +10%。
+     技2は1以上、大技は3以上振ると使えるようになる。キャラを作ったときは技2に1ポイント入っている（無料）。
+   ・装備は武器と防具を1つずつ（買うと付け替え）。持ち物は道具屋で買い、チームモードには1つだけ持っていける。
+   ・店は町の段階で開く：道具屋1・教会2・武器・防具屋3・図書館4・城5
+   ==================================================================== */
+export var SK_MAX = 5, SK_UNLOCK = [0, 1, 3], SK_FREE = [0, 1, 0];
+export function skOf(ch) { var s = (ch && ch.sk) || {}; return [0, 1, 2].map(function (i) { return Number(s[i] != null ? s[i] : SK_FREE[i]) || 0; }); }
+export function canUse(ch, i) { return skOf(ch)[i] >= SK_UNLOCK[i]; }
+export function skMult(ch, i) { return 1 + 0.1 * skOf(ch)[i]; }
+
+var WNAME = { warrior: ['ブロンズソード', 'はがねの剣', 'きらめきの大剣'], mage: ['見習いの杖', 'ルーンの杖', '星くずの杖'], priest: ['木のメイス', '白銀のメイス', '聖なるメイス'] };
+export var WEAPONS = [{ id: 'w1', atk: 2, p: 120 }, { id: 'w2', atk: 4, p: 300 }, { id: 'w3', atk: 7, p: 700 }];
+export var ARMORS = [{ id: 'a1', n: '旅人の服', def: 1, hp: 4, p: 100 }, { id: 'a2', n: 'くさりかたびら', def: 2, hp: 8, p: 260 }, { id: 'a3', n: '光のよろい', def: 4, hp: 14, p: 600 }];
+export function weaponName(job, id) { var i = WEAPONS.findIndex(function (w) { return w.id === id; }); return i < 0 ? 'なし' : (WNAME[job] || WNAME.warrior)[i]; }
+export function armorName(id) { var a = ARMORS.filter(function (x) { return x.id === id; })[0]; return a ? a.n : 'なし'; }
+export var ITEMS = {
+  potion: { ic: '🧪', n: '回復のしずく', d: 'HPを20回復', p: 30, team: true },
+  ether:  { ic: '🔷', n: 'マナの実', d: 'MPを3回復', p: 40, team: true },
+  wing:   { ic: '🪶', n: '帰還の羽', d: 'エリアから町へ一瞬でもどる（ひとりで冒険だけ）', p: 20 }
+};
+export var ITEM_KEYS = ['potion', 'ether', 'wing'];
+export var FACS = [
+  { ic: '⛲', nm: '広場', ds: '町の真ん中', st: 0 }, { ic: '🧪', nm: '道具屋', ds: '回復アイテム', st: 1 },
+  { ic: '⛪', nm: '教会', ds: 'スキルの振り直し・見た目の変更', st: 2 }, { ic: '⚔️', nm: '武器・防具屋', ds: '装備を買う', st: 3 },
+  { ic: '📚', nm: '図書館', ds: '知識の書を読む', st: 4 }, { ic: '🏰', nm: '城', ds: '称号を見る', st: 5 }
+];
+export var RESPEC_COST = 100;
+
+/* 能力値。team=true のときはレベルでHPを増やさない（チームモードはレベル差をおさえる） */
+export function statsOf(ch, team) {
+  var j = JOBS[ch.j] || JOBS.warrior, eq = ch.eq || {}, w = WEAPONS.filter(function (x) { return x.id === eq.w; })[0], a = ARMORS.filter(function (x) { return x.id === eq.a; })[0];
+  return { atk: j.atk + (w ? w.atk : 0), def: j.def + (a ? a.def : 0), mhp: j.hp + (a ? a.hp : 0) + (team ? 0 : 2 * ((ch.lv || 1) - 1)) };
+}
+/* ひとりで冒険の攻撃倍率（上限なし。育てた分だけ強くなる） */
+export function soloMult(lv) { return 1 + 0.05 * (Math.max(1, lv) - 1); }
+/* ひとりで冒険の報酬（1回の書き込みは 経験値300・ゴールド200 まで。ルールでも弾く） */
+export function soloReward(enemyMax, review) { var r = review ? 0.5 : 1; return { exp: Math.min(300, Math.round(enemyMax * 0.8 * r)), gold: Math.min(200, Math.round(10 * r)) }; }
+export function soloEnemyHp(areaIndex) { return 30 + 8 * areaIndex; }
