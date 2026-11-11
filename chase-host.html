@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Qraft ジェットチェイス（先生）</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
-<link rel="stylesheet" href="theme.css?v=20261111135642">
+<link rel="stylesheet" href="theme.css?v=20261111142241">
 </head>
 <body>
 <div id="app">
@@ -38,6 +38,7 @@
   <div class="cnt-line">
     <b>👥 <span id="pcount">0</span>人が参加中</b>
     <div style="display:flex;gap:.8em;align-items:center">
+      <button class="btn quit" id="btnQuitLobby" type="button">やめる</button>
       <button class="snd"></button>
       <button class="btn" id="btnStart" disabled>スタート！</button>
     </div>
@@ -72,16 +73,16 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261111135642"></script>
+<script src="firebase-config.js?v=20261111142241"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script type="module">
-import { mountSetPicker } from './lib.js?v=20261111135642';
-import { newGame, step, draw as bdraw, serialize, RULE as BRULE, W as BW, H as BH } from './bomb.js?v=20261111135642';
+import { mountSetPicker } from './lib.js?v=20261111142241';
+import { newGame, step, draw as bdraw, serialize, RULE as BRULE, W as BW, H as BH } from './bomb.js?v=20261111142241';
 import { shuffle, signIn, db, ref, set, get, update, remove, onValue, serverNow,
          avatarEl, ROBOT, robotTarget, robotFrac, mountScene, parseAv,
          $, el, showScreen, confetti, qrSvg,
-         loadBackgrounds, applyBg, buildBgPickers, mountStage } from './lib.js?v=20261111135642';
-import { bgm, bgmRate, sfx, preload, wireSoundButtons } from './sound.js?v=20261111135642b';
+         loadBackgrounds, applyBg, buildBgPickers, mountStage } from './lib.js?v=20261111142241';
+import { bgm, bgmRate, sfx, preload, wireSoundButtons } from './sound.js?v=20261111142241b';
 
 mountStage();
 wireSoundButtons();
@@ -308,6 +309,8 @@ async function finish(result, lives) {
   bgmRate(1); if (win) { bgm('podium'); sfx('fanfare'); } else { bgm(null); sfx('lose'); }
 }
 $('btnEnd').onclick = function () { if (confirm('ゲームを終えますか？')) finish('lose', 0); };
+/* ロビーでやめる：ルームを消して、準備画面にもどる */
+$('btnQuitLobby').onclick = function () { if (confirm('ルームを閉じて、準備画面にもどりますか？（参加している生徒には終了が表示されます）')) $('btnClose').onclick(); };
 $('btnClose').onclick = async function () { bgm(null); await remove(ref(db, 'rooms/' + pin)); location.reload(); };
 </script>
 </body>

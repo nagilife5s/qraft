@@ -6,13 +6,14 @@
 <title>Qraft</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261111135642">
+<link rel="stylesheet" href="theme.css?v=20261111142241">
 </head>
 <body>
 <div id="app">
 
 <!-- 参加 -->
 <section class="screen" id="s-join">
+  <a class="toplink" href="index.html">← トップへ</a>
   <div class="center" style="flex:1; display:flex; flex-direction:column; gap:.8em">
     <img class="logo-img" src="img/logo-wordmark.webp" alt="Qraft" style="height:4.2em">
     <div class="joincol">
@@ -124,11 +125,11 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261111135642"></script>
+<script src="firebase-config.js?v=20261111142241"></script>
 <script type="module">
 import { mountAvatarPicker, avatarEl, signIn, db, ref, set, get, onValue, serverTimestamp, serverNow, CHOICE_STYLE,
          $, el, fmt, motionOn, showScreen, stopAnim, countUp, confetti, buildRank,
-         loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261111135642';
+         loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261111142241';
 
 mountStage();
 

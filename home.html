@@ -6,7 +6,7 @@
 <title>Qraft 家庭練習</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261111135642">
+<link rel="stylesheet" href="theme.css?v=20261111142241">
 <style>
   .hm { width:min(72em,100%); height:100%; margin:0 auto; display:flex; flex-direction:column; gap:.8em; min-height:0; }
   .hm .row { display:flex; flex-wrap:wrap; gap:.5em; align-items:center; }
@@ -39,6 +39,7 @@
 
 <!-- 本人確認 -->
 <section class="screen" id="s-id">
+  <a class="toplink" href="index.html">← トップへ</a>
   <div class="center" style="flex:1; display:flex; flex-direction:column; gap:.7em">
     <img class="logo-img" src="img/logo-wordmark.webp" alt="Qraft" style="height:4.4em">
     <div style="font-weight:900; font-size:1.8em">おうちで 練習</div>
@@ -59,6 +60,7 @@
 <section class="screen" id="s-pick">
   <div class="hm">
     <div class="stu-top"><span class="pill" id="who"></span><span style="display:flex;gap:.5em;align-items:center"><button class="snd"></button><button class="btn ghost" id="btnWho">本人確認をやり直す</button></span></div>
+    <a class="toplink inline" href="index.html">← トップへ</a>
     <div style="font-weight:900; font-size:1.6em">練習するセットを えらぼう</div>
     <div class="row" id="gradeRow"></div>
     <div class="row" id="unitRow"></div>
@@ -74,7 +76,7 @@
 
 <!-- 出題 -->
 <section class="screen" id="s-q">
-  <div class="stu-top"><span class="pill" id="qno"></span><span style="display:flex;gap:.5em;align-items:center"><span class="pill" id="qset" style="background:var(--pop1)"></span><button class="snd"></button></span></div>
+  <div class="stu-top"><span class="pill" id="qno"></span><span style="display:flex;gap:.5em;align-items:center"><span class="pill" id="qset" style="background:var(--pop1)"></span><button class="snd"></button><button class="btn quit" id="btnQuit" type="button">やめる</button></span></div>
   <div class="stu-q" id="sq"><img id="sqimg" class="qimg hide" alt=""><span id="sqtext"></span></div>
   <div class="stu-tiles" id="stiles"></div>
   <div id="textbox" class="hide">
@@ -109,12 +111,12 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261111135642"></script>
+<script src="firebase-config.js?v=20261111142241"></script>
 <script type="module">
 import { signIn, db, ref, set, get, serverTimestamp, CHOICE_STYLE, shuffle, prepareQuestion, maskOf, isTextCorrect,
-         $, el, motionOn, showScreen, confetti, loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261111135642';
+         $, el, motionOn, showScreen, confetti, loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261111142241';
 import { push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261111135642b';
+import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261111142241b';
 
 mountStage();
 wireSoundButtons();
@@ -167,6 +169,8 @@ function openPick() {
   bgm('home');                                     /* 問題選びでも同じ曲を続ける（出題に入っても途切れない） */
 }
 $('setFilter').addEventListener('input', renderList);
+/* 練習のとちゅうでやめる → セット選びにもどる */
+$('btnQuit').onclick = function () { if (confirm('練習をやめて、セット選びにもどりますか？（この回の記録は残りません）')) openPick(); };
 
 function renderPicker() {
   var gr = $('gradeRow'); gr.textContent = '';

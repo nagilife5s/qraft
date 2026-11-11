@@ -6,7 +6,7 @@
 <title>Qraft</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261111135642">
+<link rel="stylesheet" href="theme.css?v=20261111142241">
 <style>
   .menu { width:min(44em, 94%); display:grid; grid-template-columns:repeat(auto-fit, minmax(11.5em, 1fr)); gap:1em; margin-top:1.2em; }
   .mcard { display:flex; flex-direction:column; align-items:center; gap:.4em; text-decoration:none; color:var(--ink-dark); background:#fff; border:0; font:inherit; cursor:pointer; border-radius:1.2em; padding:1em .8em .9em; box-shadow:var(--shadow); transition:transform .15s, box-shadow .15s; }
@@ -15,12 +15,21 @@
   .mcard .ic { height:6.2em; display:flex; align-items:flex-end; justify-content:center; gap:.2em; }
   .mcard .ic img { height:100%; width:auto; filter:drop-shadow(0 .15em .15em rgba(40,10,70,.3)); }
   .mcard .ic.two img { height:78%; }
+  .mcard .txt { display:flex; flex-direction:column; align-items:center; gap:.4em; }
   .mcard b { font-size:1.35em; font-weight:900; }
   .mcard small { font-size:.9em; font-weight:700; opacity:.7; text-align:center; }
   .mcard.join { background:var(--pop1); } .mcard.open { background:#fff; } .mcard.home { background:#8bf0b0; }
   .mcard.mecha { background:#ffd9d2; }
   .back { margin-top:1.4em; }
   .mtitle { font-weight:900; font-size:1.7em; margin-top:.8em; }
+  @media (max-width: 560px) {
+    .menu { grid-template-columns:1fr; gap:.7em; }
+    .mcard { flex-direction:row; text-align:left; gap:1em; padding:.7em 1em; }
+    .mcard .ic { height:4.2em; width:5.5em; flex:0 0 auto; }
+    .mcard > b, .mcard > small { display:block; }
+    .mcard .txt { display:flex; flex-direction:column; align-items:flex-start; gap:.15em; }
+    .mcard small { text-align:left; }
+  }
   @media (prefers-reduced-motion: no-preference) { .screen.on .mcard { animation:popIn .5s cubic-bezier(.2,1.5,.4,1) both; } .screen.on .mcard:nth-child(2) { animation-delay:.08s; } .screen.on .mcard:nth-child(3) { animation-delay:.16s; } }
   /* トップ画面とおうちで練習の背景（背景原本/home-screen.png） */
   #app.bg { background:url(img/bg/home-screen.webp) center/cover no-repeat, var(--bgimg); }
@@ -35,9 +44,9 @@
   <section class="screen on center" id="v-main" style="gap:.2em">
     <img class="logo-img" src="img/logo-wordmark.webp" alt="Qraft" style="height:10em">
     <div class="menu">
-      <a class="mcard join" href="play.html"><div class="ic two"><img src="img/robot/animal-fox.webp" alt=""><img src="img/robot/animal-panda.webp" alt=""></div><b>ゲームに参加する</b><small>PINを入れて参加</small></a>
-      <button class="mcard open" id="goOpen" type="button"><div class="ic"><img src="img/robot/acc-crown.webp" alt=""></div><b>ゲームを開く</b><small>モードを選んで部屋を作る</small></button>
-      <a class="mcard home" href="home.html"><div class="ic"><img src="img/robot/animal-owl.webp" alt=""></div><b>おうちで練習</b><small>ひとりで問題に挑戦</small></a>
+      <a class="mcard join" href="play.html"><div class="ic two"><img src="img/robot/animal-fox.webp" alt=""><img src="img/robot/animal-panda.webp" alt=""></div><span class="txt"><b>ゲームに参加する</b><small>PINを入れて参加</small></span></a>
+      <button class="mcard open" id="goOpen" type="button"><div class="ic"><img src="img/robot/acc-crown.webp" alt=""></div><span class="txt"><b>ゲームを開く</b><small>モードを選んで部屋を作る</small></span></button>
+      <a class="mcard home" href="home.html"><div class="ic"><img src="img/robot/animal-owl.webp" alt=""></div><span class="txt"><b>おうちで練習</b><small>ひとりで問題に挑戦</small></span></a>
     </div>
   </section>
 
@@ -45,15 +54,15 @@
     <img class="logo-img" src="img/logo-wordmark.webp" alt="Qraft" style="height:6.4em">
     <div class="mtitle">モードをえらぶ</div>
     <div class="menu">
-      <a class="mcard open" href="host.html"><div class="ic"><img src="img/logo-mark.webp" alt=""></div><b>クラシック</b><small>早押しで得点を競う</small></a>
-      <a class="mcard mecha" href="chase-host.html"><div class="ic"><img src="img/robot/boss.webp" alt=""></div><b>ジェットチェイス</b><small>みんなで協力して逃げ切れ</small></a>
+      <a class="mcard open" href="host.html"><div class="ic"><img src="img/logo-mark.webp" alt=""></div><span class="txt"><b>クラシック</b><small>早押しで得点を競う</small></span></a>
+      <a class="mcard mecha" href="chase-host.html"><div class="ic"><img src="img/robot/boss.webp" alt=""></div><span class="txt"><b>ジェットチェイス</b><small>みんなで協力して逃げ切れ</small></span></a>
     </div>
     <button class="btn sub back" id="goBack" type="button">もどる</button>
   </section>
 </div>
 <script type="module">
   /* トップ画面のBGM（開いている間だけループ。ほかの画面へ行くと止まり、戻ると最初から） */
-  import { bgm, preload, wireSoundButtons } from './sound.js?v=20261111135642b';
+  import { bgm, preload, wireSoundButtons } from './sound.js?v=20261111142241b';
   wireSoundButtons(); preload(['top']); bgm('top');
   addEventListener('pagehide', function () { bgm(null); });
   addEventListener('pageshow', function (e) { if (e.persisted) bgm('top'); });   /* 「戻る」でキャッシュから復帰したとき */

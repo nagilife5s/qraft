@@ -6,7 +6,7 @@
 <title>Qraft 先生用</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261111135642">
+<link rel="stylesheet" href="theme.css?v=20261111142241">
 </head>
 <body>
 <div id="app">
@@ -48,6 +48,7 @@
   <div class="cnt-line">
     <b>👥 <span id="pcount">0</span>人が参加中</b>
     <div style="display:flex;gap:.8em;align-items:center">
+      <button class="btn quit" id="btnQuitLobby" type="button">やめる</button>
       <button class="snd"></button>
       <div class="bgpick"><button type="button" class="fab">🎨 背景</button><div class="sw"></div></div>
       <button class="btn" id="btnStart" disabled>ゲームを始める</button>
@@ -95,14 +96,14 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261111135642"></script>
+<script src="firebase-config.js?v=20261111142241"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script type="module">
 import { mountSetPicker, avatarEl, signIn, db, ref, set, get, update, remove, onValue, serverTimestamp, serverNow,
          calcScore, CHOICE_STYLE, RESULT_SEC, RANK_SEC, sleep, shuffle,
          $, el, fmt, motionOn, showScreen, later, stopAnim, countUp, confetti, qrSvg, buildRank,
-         loadBackgrounds, applyBg, buildBgPickers, savedBg, saveBg, mountStage, decryptSet, prepareQuestion, maskOf, isTextCorrect, normText } from './lib.js?v=20261111135642';
-import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261111135642b';
+         loadBackgrounds, applyBg, buildBgPickers, savedBg, saveBg, mountStage, decryptSet, prepareQuestion, maskOf, isTextCorrect, normText } from './lib.js?v=20261111142241';
+import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261111142241b';
 
 mountStage();
 
@@ -512,6 +513,8 @@ async function finish() {
   $('rest').textContent = top.slice(3).map(function (r, i) { return (i + 4) + '位 ' + r.nick + '（' + fmt(r.total) + '点）'; }).join('　');
 }
 
+/* ロビーでやめる：ルームを消して、準備画面にもどる */
+$('btnQuitLobby').onclick = function () { if (confirm('ルームを閉じて、準備画面にもどりますか？（参加している生徒には終了が表示されます）')) $('btnClose').onclick(); };
 $('btnClose').onclick = async function () {
   bgm(null);
   await remove(ref(db, 'rooms/' + pin));

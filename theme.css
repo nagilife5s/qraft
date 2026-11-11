@@ -685,7 +685,8 @@ button.tile:disabled { cursor:default; }
 .pcard { display:flex; align-items:center; gap:.6em; margin:.25em 0; padding:.5em .7em; border-radius:.8em; background:#fff; border:.15em solid #ece7fb; border-left:.45em solid var(--fc, #888); cursor:pointer; transition:background .1s, transform .1s; }
 .pcard:hover { background:#f6f2ff; transform:translateX(.1em); }
 .pcard.on { background:#e8e0ff; border-color:var(--fc, #6a35e8); }
-.pcard input { position:absolute; opacity:0; pointer-events:none; }
+.pcard { position:relative; }
+.pcard input { position:absolute; left:0; top:0; width:1px; height:1px; opacity:0; pointer-events:none; }   /* 見えないチェックボックスが一覧の外に出て、画面に空白のスクロールを作らないように */
 .pcard .pck { flex:0 0 auto; width:1.4em; height:1.4em; border-radius:.4em; border:.15em solid #b9aee0; background:#fff; display:grid; place-items:center; font-size:.95em; }
 .pcard.on .pck { background:var(--fc, #6a35e8); border-color:var(--fc, #6a35e8); } .pcard.on .pck::after { content:"✓"; color:#fff; font-weight:900; }
 .pcard .ptt { font-weight:800; flex:1; min-width:0; }
@@ -777,3 +778,39 @@ button.tile:disabled { cursor:default; }
 .snd { font:inherit; font-weight:900; font-size:1.05em; background:rgba(18,10,48,.58); backdrop-filter:blur(4px); color:#fff; border:0; border-radius:999px; padding:.5em 1.1em; cursor:pointer; white-space:nowrap; }
 .snd:hover { background:rgba(18,10,48,.78); }
 .snd.fixed { position:absolute; left:1.8em; bottom:1.4em; z-index:6; }
+
+/* ===== 2026-11-11 全体点検の修正 ===== */
+/* ボタン・見出し・説明文の改行をそろえる（1〜2文字だけ次の行に残らないように） */
+.btn, .mcard b, .mcard small, .mut, .flabel, .title2, .tnote, .lab, .hint, .err { text-wrap:balance; }
+/* 表彰台の長い名前：最後の1文字だけ落ちないように */
+.podium .p b { overflow-wrap:anywhere; text-wrap:balance; }
+/* 左上の「← トップへ」 */
+.toplink { position:absolute; left:1.2em; top:1.1em; z-index:5; font:inherit; font-weight:800; font-size:1.05em; color:#fff; background:rgba(18,10,48,.5); border:0; border-radius:999px; padding:.4em 1.1em; text-decoration:none; cursor:pointer; white-space:nowrap; }
+.toplink:hover { background:rgba(18,10,48,.75); }
+.toplink.inline { position:static; align-self:flex-start; }
+/* ロビーの「やめる」 */
+.btn.quit { font-size:1em; padding:.45em 1.2em; background:rgba(255,255,255,.2); color:#fff; box-shadow:none; }
+.btn.quit:hover { background:rgba(255,255,255,.32); }
+/* おうちで練習：組・学年のボタンを均等に並べる（6組だけ次の行に落ちないように） */
+#idG, #idC { display:grid; grid-template-columns:repeat(3, 1fr); gap:.5em; }
+#idC { grid-template-columns:repeat(6, 1fr); }
+#idG .pk, #idC .pk, #idG button, #idC button { width:100%; margin:0; }
+@media (max-width: 560px) {
+  #idC { grid-template-columns:repeat(3, 1fr); }
+  #gradeRow { display:grid; grid-template-columns:repeat(4, 1fr); gap:.4em; }
+  #gradeRow > * { width:100%; margin:0; padding-left:.2em; padding-right:.2em; white-space:nowrap; font-size:.95em; }
+  /* スマホのランキング：点数欄を細くして、名前の棒を広く */
+  .rk .row { gap:.45em; }
+  .rkAnim .delta { width:2.6em; font-size:.9em; }
+  .rk .pt { width:3.4em; font-size:1.1em; }
+  .rk .bar2 > span { display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; padding-right:.6em; }
+  /* 入力式の「送信」を押しやすく */
+  .q-foot #btnSubmit { font-size:1.5em; padding:.5em 2.6em; }
+}
+/* 上のバー（生徒・おうちで練習）：ボタンや札の中で改行しない。入りきらないときはバーごと2段にする */
+.stu-top { gap:.5em; flex-wrap:wrap; }
+.stu-top > span { flex-wrap:wrap; justify-content:flex-end; }
+.stu-top .pill, .stu-top .btn, .stu-top .snd { white-space:nowrap; }
+#qset { max-width:10em; overflow:hidden; text-overflow:ellipsis; }
+@media (max-width: 560px) { .stu-top .btn.ghost, .stu-top .btn.quit { font-size:.95em; padding:.4em .9em; } #qset { max-width:7em; } }
+@media (max-width: 560px) { #s-q #qset { display:none; } }   /* スマホは単元名の札を出さない（上のバーが1段に収まるように） */
