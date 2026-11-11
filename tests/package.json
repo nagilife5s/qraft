@@ -1,0 +1,19 @@
+{
+  "name": "qraft-tests",
+  "private": true,
+  "type": "module",
+  "description": "Qraft の自動テスト。問題データの検査・Firebaseルールのテスト・画面の表示テスト（公開サイトには含めない）",
+  "scripts": {
+    "test": "npm run test:data && npm run test:emu",
+    "test:data": "node check_questions.mjs && node --test check_questions.test.mjs",
+    "test:emu": "firebase emulators:exec --only database,auth --project qraft-e4345 \"node rules/rules.test.mjs && playwright test\"",
+    "test:rules": "firebase emulators:exec --only database --project qraft-e4345 \"node rules/rules.test.mjs\"",
+    "test:smoke": "firebase emulators:exec --only database,auth --project qraft-e4345 \"playwright test\""
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "6.0.0",
+    "@playwright/test": "1.65.0",
+    "firebase": "13.2.0",
+    "firebase-tools": "15.35.0"
+  }
+}

@@ -1,0 +1,6 @@
+# GitHub Pages（Jekyll）の設定。テスト一式は公開しない。
+exclude:
+  - tests
+  - package.json
+  - package-lock.json
+  - node_modules

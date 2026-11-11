@@ -1,1 +1,6 @@
 .DS_Store
+node_modules/
+# iCloud が作る重複コピー（「06147353 3.json」など）
+* [0-9].*
+* [0-9]
+tests/test-results/

@@ -1,0 +1,41 @@
+# Qraft の自動テスト（pushのたびに実行。結果は GitHub の Actions タブで見られる）
+#   1. 問題データの検査　2. Firebaseルールのテスト（エミュレーター）　3. 画面の表示テスト（エミュレーター）
+# 失敗しても公開（GitHub Pages）は止まらない。失敗したら Actions タブで内容を確かめる
+name: tests
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: tests
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: tests/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - run: npm ci
+      - name: 問題データの検査
+        run: npm run test:data
+      - run: npx playwright install --with-deps chromium
+      - name: ルールのテストと画面の表示テスト
+        run: npm run test:emu
+      - name: 失敗したときの画面を保存
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: tests/test-results
+          retention-days: 7

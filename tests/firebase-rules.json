@@ -1,0 +1,311 @@
+{
+  "rules": {
+    "rooms": {
+      "$pin": {
+        ".read": false,
+        ".write": "auth != null && root.child('rooms').child($pin).child('hostUid').val() === auth.uid",
+        "hostUid": {
+          ".read": true,
+          ".write": "auth != null && !data.exists() && newData.val() === auth.uid"
+        },
+        "state": {
+          ".read": true
+        },
+        "scores": {
+          ".read": "auth != null"
+        },
+        "kicked": {
+          ".read": "auth != null && root.child('rooms').child($pin).child('hostUid').val() === auth.uid",
+          "$uid": {
+            ".read": "auth != null && auth.uid === $uid"
+          }
+        },
+        "players": {
+          ".read": "auth != null",
+          "$uid": {
+            ".write": "auth != null && auth.uid === $uid && !root.child('rooms').child($pin).child('kicked').child($uid).exists()",
+            ".validate": "newData.hasChildren(['nick']) && newData.child('nick').isString() && newData.child('nick').val().length > 0 && newData.child('nick').val().length <= 20",
+            "nick": {
+              ".validate": true
+            },
+            "$other": {
+              ".validate": false
+            },
+            "av": {
+              ".validate": "newData.isString() && newData.val().length <= 6"
+            },
+            "sid": {
+              ".validate": "newData.isString() && newData.val().matches(/^[1-3]-[1-9]-[0-9]{1,2}$/)"
+            },
+            "j": {
+              ".validate": "newData.val() === 'warrior' || newData.val() === 'mage' || newData.val() === 'priest'"
+            },
+            "lk": {
+              ".validate": "newData.val() === 'a' || newData.val() === 'b'"
+            },
+            "lv": {
+              ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 99"
+            },
+            "it": {
+              ".validate": "newData.isString() && newData.val().length <= 10"
+            },
+            "rd": {
+              ".validate": "newData.isBoolean()"
+            }
+          }
+        },
+        "answers": {
+          ".read": "auth != null && root.child('rooms').child($pin).child('hostUid').val() === auth.uid",
+          "$q": {
+            "$uid": {
+              ".write": "auth != null && auth.uid === $uid && !data.exists()",
+              ".validate": "newData.child('t').val() === now && ((newData.hasChild('c') && !newData.hasChild('m') && !newData.hasChild('s') && newData.child('c').isNumber() && newData.child('c').val() >= 0 && newData.child('c').val() <= 5) || (newData.hasChild('m') && !newData.hasChild('c') && !newData.hasChild('s') && newData.child('m').isNumber() && newData.child('m').val() >= 1 && newData.child('m').val() <= 63) || (newData.hasChild('s') && !newData.hasChild('c') && !newData.hasChild('m') && newData.child('s').isString() && newData.child('s').val().length >= 1 && newData.child('s').val().length <= 60))",
+              "c": {
+                ".validate": true
+              },
+              "m": {
+                ".validate": true
+              },
+              "s": {
+                ".validate": true
+              },
+              "t": {
+                ".validate": true
+              },
+              "$other": {
+                ".validate": false
+              }
+            }
+          }
+        },
+        "run": {
+          ".read": "auth != null",
+          "$uid": {
+            ".write": "auth != null && auth.uid === $uid && root.child('rooms').child($pin).child('players').child($uid).exists()",
+            ".validate": "newData.hasChildren(['k','a','u']) && newData.child('u').val() === now && newData.child('k').isNumber() && newData.child('k').val() >= 0 && newData.child('k').val() <= 300 && newData.child('k').val() <= (data.exists() ? data.child('k').val() : 0) + 1 && newData.child('a').isNumber() && newData.child('a').val() >= newData.child('k').val() && newData.child('a').val() <= 2000",
+            "k": {
+              ".validate": true
+            },
+            "a": {
+              ".validate": true
+            },
+            "u": {
+              ".validate": true
+            },
+            "c": {
+              ".validate": "newData.isNumber()"
+            },
+            "g": {
+              ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 3600"
+            },
+            "$other": {
+              ".validate": false
+            },
+            "z": {
+              ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 2"
+            },
+            "zt": {
+              ".validate": "newData.isNumber()"
+            }
+          }
+        },
+        "bgrp": {
+          ".read": "auth != null"
+        },
+        "bd": {
+          ".read": "auth != null"
+        },
+        "bscore": {
+          ".read": "auth != null"
+        },
+        "bin": {
+          ".read": "auth != null && root.child('rooms').child($pin).child('hostUid').val() === auth.uid",
+          "$uid": {
+            ".write": "auth != null && auth.uid === $uid && root.child('rooms').child($pin).child('players').child($uid).exists()",
+            ".validate": "newData.hasChildren(['d','b']) && newData.child('d').isNumber() && newData.child('d').val() >= 0 && newData.child('d').val() <= 4 && newData.child('b').isNumber() && newData.child('b').val() >= 0 && newData.child('b').val() < 10000",
+            "d": {
+              ".validate": true
+            },
+            "b": {
+              ".validate": true
+            },
+            "$other": {
+              ".validate": false
+            }
+          }
+        },
+        "qs": {
+          "$uid": {
+            ".read": "auth != null && auth.uid === $uid"
+          }
+        },
+        "tv": {
+          ".read": "auth != null"
+        },
+        "bv": {
+          ".read": "auth != null"
+        },
+        "res": {
+          "$uid": {
+            ".read": "auth != null && auth.uid === $uid"
+          }
+        },
+        "act": {
+          ".read": "auth != null && root.child('rooms').child($pin).child('hostUid').val() === auth.uid",
+          "$uid": {
+            ".write": "auth != null && auth.uid === $uid && root.child('rooms').child($pin).child('players').child($uid).exists()",
+            ".validate": "newData.hasChildren(['n','a']) && newData.child('n').isNumber() && newData.child('a').isNumber() && newData.child('a').val() >= 0 && (newData.child('a').val() <= 2 || newData.child('a').val() === 9)",
+            "n": {
+              ".validate": true
+            },
+            "a": {
+              ".validate": true
+            },
+            "$other": {
+              ".validate": false
+            }
+          }
+        }
+      }
+    },
+    "admins": {
+      ".read": false,
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && (root.child('admins').child(auth.uid).exists() || (auth.uid === $uid && !root.child('admins').exists()))",
+        ".validate": "newData.val() === true"
+      }
+    },
+    "practice": {
+      ".read": "auth != null && root.child('admins').child(auth.uid).exists()",
+      "$sid": {
+        "$key": {
+          ".write": "auth != null && !data.exists() && $sid.matches(/^[1-3]-[1-9]-[0-9]{1,2}$/) && newData.child('y').isString() && root.child('quest').child(newData.child('y').val()).child('owners').child($sid).child(auth.uid).exists()",
+          ".validate": "newData.hasChildren(['f','n','k','t','y']) && newData.child('t').val() === now && newData.child('f').isString() && newData.child('f').val().length <= 12 && newData.child('n').isNumber() && newData.child('n').val() >= 1 && newData.child('n').val() <= 100 && newData.child('k').isNumber() && newData.child('k').val() >= 0 && newData.child('k').val() <= newData.child('n').val()",
+          "f": {
+            ".validate": true
+          },
+          "n": {
+            ".validate": true
+          },
+          "k": {
+            ".validate": true
+          },
+          "t": {
+            ".validate": true
+          },
+          "w": {
+            ".validate": "newData.isString() && newData.val().length <= 300"
+          },
+          "r": {
+            ".validate": "newData.isNumber()"
+          },
+          "$other": {
+            ".validate": false
+          },
+          "y": {
+            ".validate": "newData.isString() && newData.val().matches(/^20[0-9][0-9]$/)"
+          }
+        }
+      }
+    },
+    "quest": {
+      "$y": {
+        "chars": {
+          "$sid": {
+            ".write": "auth != null && $sid.matches(/^[1-3]-[1-9]-[0-9]{1,2}$/) && newData.exists() && (root.child('admins').child(auth.uid).exists() || (root.child('quest').child($y).child('owners').child($sid).child(auth.uid).exists() && (newData.child('sk').child('0').isNumber() && newData.child('sk').child('1').isNumber() && newData.child('sk').child('2').isNumber() && newData.child('sp').val() + newData.child('sk').child('0').val() + newData.child('sk').child('1').val() + newData.child('sk').child('2').val() === newData.child('lv').val()) && ((!data.exists() && newData.child('lv').val() === 1 && newData.child('exp').val() === 0 && newData.child('gold').val() === 0 && newData.child('sp').val() === 0 && newData.child('sk').child('0').val() === 0 && newData.child('sk').child('1').val() === 1 && newData.child('sk').child('2').val() === 0 && !newData.child('eq').exists() && !newData.child('ttl').exists() && (!newData.child('inv').child('potion').exists() || newData.child('inv').child('potion').val() === 0 || (data.child('inv').child('potion').exists() && newData.child('inv').child('potion').val() <= data.child('inv').child('potion').val())) && (!newData.child('inv').child('ether').exists() || newData.child('inv').child('ether').val() === 0 || (data.child('inv').child('ether').exists() && newData.child('inv').child('ether').val() <= data.child('inv').child('ether').val())) && (!newData.child('inv').child('wing').exists() || newData.child('inv').child('wing').val() === 0 || (data.child('inv').child('wing').exists() && newData.child('inv').child('wing').val() <= data.child('inv').child('wing').val()))) || (data.exists() && newData.child('n').val() === data.child('n').val() && newData.child('j').val() === data.child('j').val() && (((newData.child('lv').val() - data.child('lv').val()) >= 0 && (newData.child('lv').val() - data.child('lv').val()) <= 4 && (40 * (newData.child('lv').val() - data.child('lv').val()) + 20 * (newData.child('lv').val() - data.child('lv').val()) * data.child('lv').val() + 10 * (newData.child('lv').val() - data.child('lv').val()) * ((newData.child('lv').val() - data.child('lv').val()) - 1) + newData.child('exp').val() - data.child('exp').val()) >= 0 && (40 * (newData.child('lv').val() - data.child('lv').val()) + 20 * (newData.child('lv').val() - data.child('lv').val()) * data.child('lv').val() + 10 * (newData.child('lv').val() - data.child('lv').val()) * ((newData.child('lv').val() - data.child('lv').val()) - 1) + newData.child('exp').val() - data.child('exp').val()) <= 300 && newData.child('exp').val() < 40 + 20 * newData.child('lv').val() && newData.child('gold').val() <= data.child('gold').val() + 200 && (!data.child('u').exists() || data.child('u').val() + 20000 <= now) && newData.child('eq').child('w').val() === data.child('eq').child('w').val() && newData.child('eq').child('a').val() === data.child('eq').child('a').val() && newData.child('lk').val() === data.child('lk').val() && (newData.child('sk').child('0').val() === data.child('sk').child('0').val() || (!data.child('sk').exists() && newData.child('sk').child('0').val() === 0)) && (newData.child('sk').child('1').val() === data.child('sk').child('1').val() || (!data.child('sk').exists() && newData.child('sk').child('1').val() === 1)) && (newData.child('sk').child('2').val() === data.child('sk').child('2').val() || (!data.child('sk').exists() && newData.child('sk').child('2').val() === 0)) && (!newData.child('inv').child('potion').exists() || newData.child('inv').child('potion').val() === 0 || (data.child('inv').child('potion').exists() && newData.child('inv').child('potion').val() <= data.child('inv').child('potion').val())) && (!newData.child('inv').child('ether').exists() || newData.child('inv').child('ether').val() === 0 || (data.child('inv').child('ether').exists() && newData.child('inv').child('ether').val() <= data.child('inv').child('ether').val())) && (!newData.child('inv').child('wing').exists() || newData.child('inv').child('wing').val() === 0 || (data.child('inv').child('wing').exists() && newData.child('inv').child('wing').val() <= data.child('inv').child('wing').val()))) || (newData.child('lv').val() === data.child('lv').val() && newData.child('exp').val() === data.child('exp').val() && newData.child('gold').val() <= data.child('gold').val() && (newData.child('eq').child('w').val() === data.child('eq').child('w').val() || (newData.child('eq').child('w').val() === 'w1' && newData.child('gold').val() <= data.child('gold').val() - 120) || (newData.child('eq').child('w').val() === 'w2' && newData.child('gold').val() <= data.child('gold').val() - 300) || (newData.child('eq').child('w').val() === 'w3' && newData.child('gold').val() <= data.child('gold').val() - 700)) && (newData.child('eq').child('a').val() === data.child('eq').child('a').val() || (newData.child('eq').child('a').val() === 'a1' && newData.child('gold').val() <= data.child('gold').val() - 100) || (newData.child('eq').child('a').val() === 'a2' && newData.child('gold').val() <= data.child('gold').val() - 260) || (newData.child('eq').child('a').val() === 'a3' && newData.child('gold').val() <= data.child('gold').val() - 600)) && ((!newData.child('inv').child('potion').exists() || newData.child('inv').child('potion').val() === 0 || (data.child('inv').child('potion').exists() && newData.child('inv').child('potion').val() <= data.child('inv').child('potion').val())) || (((!data.child('inv').child('potion').exists() && newData.child('inv').child('potion').val() === 1) || (data.child('inv').child('potion').exists() && newData.child('inv').child('potion').val() === data.child('inv').child('potion').val() + 1)) && newData.child('gold').val() <= data.child('gold').val() - 30)) && ((!newData.child('inv').child('ether').exists() || newData.child('inv').child('ether').val() === 0 || (data.child('inv').child('ether').exists() && newData.child('inv').child('ether').val() <= data.child('inv').child('ether').val())) || (((!data.child('inv').child('ether').exists() && newData.child('inv').child('ether').val() === 1) || (data.child('inv').child('ether').exists() && newData.child('inv').child('ether').val() === data.child('inv').child('ether').val() + 1)) && newData.child('gold').val() <= data.child('gold').val() - 40)) && ((!newData.child('inv').child('wing').exists() || newData.child('inv').child('wing').val() === 0 || (data.child('inv').child('wing').exists() && newData.child('inv').child('wing').val() <= data.child('inv').child('wing').val())) || (((!data.child('inv').child('wing').exists() && newData.child('inv').child('wing').val() === 1) || (data.child('inv').child('wing').exists() && newData.child('inv').child('wing').val() === data.child('inv').child('wing').val() + 1)) && newData.child('gold').val() <= data.child('gold').val() - 20)) && !(((!data.child('inv').child('potion').exists() && newData.child('inv').child('potion').val() === 1) || (data.child('inv').child('potion').exists() && newData.child('inv').child('potion').val() === data.child('inv').child('potion').val() + 1)) && ((!data.child('inv').child('ether').exists() && newData.child('inv').child('ether').val() === 1) || (data.child('inv').child('ether').exists() && newData.child('inv').child('ether').val() === data.child('inv').child('ether').val() + 1))) && !(((!data.child('inv').child('potion').exists() && newData.child('inv').child('potion').val() === 1) || (data.child('inv').child('potion').exists() && newData.child('inv').child('potion').val() === data.child('inv').child('potion').val() + 1)) && ((!data.child('inv').child('wing').exists() && newData.child('inv').child('wing').val() === 1) || (data.child('inv').child('wing').exists() && newData.child('inv').child('wing').val() === data.child('inv').child('wing').val() + 1))) && !(((!data.child('inv').child('ether').exists() && newData.child('inv').child('ether').val() === 1) || (data.child('inv').child('ether').exists() && newData.child('inv').child('ether').val() === data.child('inv').child('ether').val() + 1)) && ((!data.child('inv').child('wing').exists() && newData.child('inv').child('wing').val() === 1) || (data.child('inv').child('wing').exists() && newData.child('inv').child('wing').val() === data.child('inv').child('wing').val() + 1))) && (newData.child('sp').val() <= data.child('sp').val() || newData.child('gold').val() <= data.child('gold').val() - 100) && (newData.child('sp').val() > data.child('sp').val() || ((!data.child('sk').child('0').exists() || newData.child('sk').child('0').val() >= data.child('sk').child('0').val()) && (!data.child('sk').child('1').exists() || newData.child('sk').child('1').val() >= data.child('sk').child('1').val()) && (!data.child('sk').child('2').exists() || newData.child('sk').child('2').val() >= data.child('sk').child('2').val())))))))))",
+            ".validate": "newData.hasChildren(['n','j','lv','exp','gold','sp']) && newData.child('n').isString() && newData.child('n').val().length >= 1 && newData.child('n').val().length <= 8 && newData.child('lv').isNumber() && newData.child('lv').val() >= 1 && newData.child('lv').val() <= 99 && newData.child('exp').isNumber() && newData.child('exp').val() >= 0 && newData.child('exp').val() <= 100000 && newData.child('gold').isNumber() && newData.child('gold').val() >= 0 && newData.child('gold').val() <= 1000000 && newData.child('sp').isNumber() && newData.child('sp').val() >= 0 && newData.child('sp').val() <= 99",
+            "n": {
+              ".validate": true
+            },
+            "lv": {
+              ".validate": true
+            },
+            "exp": {
+              ".validate": true
+            },
+            "gold": {
+              ".validate": true
+            },
+            "sp": {
+              ".validate": true
+            },
+            "j": {
+              ".validate": "newData.val() === 'warrior' || newData.val() === 'mage' || newData.val() === 'priest'"
+            },
+            "lk": {
+              ".validate": "newData.val() === 'a' || newData.val() === 'b'"
+            },
+            "u": {
+              ".validate": "newData.val() === now"
+            },
+            "ttl": {
+              "$a": {
+                ".validate": "newData.isString() && newData.val().length <= 20 && (root.child('admins').child(auth.uid).exists() || newData.val() === data.val())"
+              }
+            },
+            "$other": {
+              ".validate": false
+            },
+            "sk": {
+              "$i": {
+                ".validate": "$i.matches(/^[0-2]$/) && newData.isNumber() && newData.val() >= 0 && newData.val() <= 5"
+              }
+            },
+            "eq": {
+              "w": {
+                ".validate": "newData.val() === 'w1' || newData.val() === 'w2' || newData.val() === 'w3'"
+              },
+              "a": {
+                ".validate": "newData.val() === 'a1' || newData.val() === 'a2' || newData.val() === 'a3'"
+              },
+              "$other": {
+                ".validate": false
+              }
+            },
+            "inv": {
+              "$k": {
+                ".validate": "($k === 'potion' || $k === 'ether' || $k === 'wing') && newData.isNumber() && newData.val() >= 0 && newData.val() <= 9"
+              }
+            },
+            ".read": "auth != null && (root.child('admins').child(auth.uid).exists() || root.child('quest').child($y).child('owners').child($sid).child(auth.uid).exists())"
+          }
+        },
+        "classes": {
+          ".read": "auth != null",
+          ".write": "auth != null && root.child('admins').child(auth.uid).exists()"
+        },
+        "hall": {
+          ".read": "auth != null",
+          ".write": "auth != null && root.child('admins').child(auth.uid).exists()"
+        },
+        "owners": {
+          "$sid": {
+            ".read": "auth != null && root.child('admins').child(auth.uid).exists()",
+            "$uid": {
+              ".read": "auth != null && auth.uid === $uid",
+              ".write": "auth != null && (root.child('admins').child(auth.uid).exists() || (auth.uid === $uid && !data.exists() && newData.exists() && $sid.matches(/^[1-3]-[1-9]-[0-9]{1,2}$/) && root.child('quest').child($y).child('keys').child($sid).exists() && newData.child('c').val() === root.child('quest').child($y).child('keys').child($sid).val()))",
+              ".validate": "newData.hasChildren(['c','t']) && newData.child('t').val() === now",
+              "c": {
+                ".validate": "newData.isString() && newData.val().length <= 12"
+              },
+              "t": {
+                ".validate": true
+              },
+              "$other": {
+                ".validate": false
+              }
+            }
+          }
+        },
+        "keys": {
+          ".read": "auth != null && root.child('admins').child(auth.uid).exists()",
+          ".write": "auth != null && root.child('admins').child(auth.uid).exists()",
+          "$sid": {
+            ".validate": "$sid.matches(/^[1-3]-[1-9]-[0-9]{1,2}$/) && newData.isString() && newData.val().length >= 4 && newData.val().length <= 12"
+          }
+        }
+      }
+    }
+  }
+}

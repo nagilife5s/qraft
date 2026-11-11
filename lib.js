@@ -7,9 +7,9 @@
  * ・見た目まわり：背景の読み込みと切り替え、順位のアニメーション、紙吹雪、QR
  */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { initializeAuth, signInAnonymously, browserSessionPersistence, indexedDBLocalPersistence }
+import { connectAuthEmulator, initializeAuth, signInAnonymously, browserSessionPersistence, indexedDBLocalPersistence }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getDatabase, ref, set, get, update, remove, onValue, serverTimestamp }
+import { connectDatabaseEmulator, getDatabase, ref, set, get, update, remove, onValue, serverTimestamp }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 export { ref, set, get, update, remove, onValue, serverTimestamp };
@@ -25,6 +25,15 @@ export const auth = initializeAuth(app, {
   persistence: useSession ? browserSessionPersistence : indexedDBLocalPersistence
 });
 export const db = getDatabase(app);
+/*
+ * テスト用：自分のPC（localhost）で ?emu=1 を付けて開いたときだけ、Firebase エミュレーターにつなぐ。
+ * 一度付ければ、そのタブで別の画面へ移っても続く。公開サイトでは何もしない。（tests/ の自動テストが使う）
+ */
+export const EMU = (function () {
+  if (!/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) return false;
+  try { if (/[?&]emu=1/.test(location.search)) sessionStorage.setItem('qraft.emu', '1'); return sessionStorage.getItem('qraft.emu') === '1'; } catch (e) { return /[?&]emu=1/.test(location.search); }
+})();
+if (EMU) { connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true }); connectDatabaseEmulator(db, '127.0.0.1', 9000); }
 
 /* サーバー時刻 = 端末の時刻 + Firebase が教えてくれるずれ */
 let offset = 0;
