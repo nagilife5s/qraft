@@ -6,8 +6,8 @@
 <title>Qraft クエスト（ひとりで冒険）</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261111203309">
-<link rel="stylesheet" href="quest.css?v=20261111203309">
+<link rel="stylesheet" href="theme.css?v=20261111204034">
+<link rel="stylesheet" href="quest.css?v=20261111204034">
 <style>
   .hud-btns { display:flex; gap:.4em; }
   .hud-btns .btn { font-size:.85em; padding:.35em .9em; }
@@ -129,12 +129,12 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261111203309"></script>
+<script src="firebase-config.js?v=20261111204034"></script>
 <script type="module">
-import { signIn, db, ref, set, get, $, el, showScreen, shuffle, prepareQuestion, maskOf, isTextCorrect } from './lib.js?v=20261111203309';
+import { signIn, db, ref, set, get, $, el, showScreen, shuffle, prepareQuestion, maskOf, isTextCorrect } from './lib.js?v=20261111204034';
 import { fiscalYear, JOBS, JOB_KEYS, MP_MAX, heroImg, addExp, expToNext, ENEMIES, TOWN, TOWN_DEFAULT, enemyHit,
          SK_MAX, SK_UNLOCK, SK_FREE, skOf, canUse, skMult, WEAPONS, ARMORS, weaponName, armorName, ITEMS, ITEM_KEYS, FACS, RESPEC_COST, ensureOwner, normChar,
-         statsOf, soloMult, soloReward, soloEnemyHp, BOSS } from './quest.js?v=20261111203309';
+         statsOf, soloMult, soloReward, soloEnemyHp, BOSS } from './quest.js?v=20261111204034';
 
 var Y = fiscalYear(), me = { g: 0, c: 0, n: 0 }, sid = '', ch = null, CLS = {}, SETS = [], AREAS = [], look = 'a', job = 'mage';
 var curArea = null, HP = 0, MP = 0;
