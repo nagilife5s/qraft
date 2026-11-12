@@ -287,4 +287,4 @@ export var OBLION = [
   { n: '鎖の番王オブリオン', t: ['earth'] }, { n: '白紙の翼オブリオン', t: ['wind'] }, { n: '結晶冠の大王オブリオン', t: ['earth', 'water', 'fire'] },
   { n: '双面のオブリオン', t: ['fire', 'water'] }, { n: '天球のオブリオン', t: ['fire', 'water', 'wind', 'earth'] }, { n: '真なる忘却王オブリオン', t: ['fire', 'water', 'wind', 'earth'] }
 ];
-export function oblionImg(k) { return k <= 5 ? 'img/rikaria/boss/oblion-' + k + '.webp' : 'img/rikaria/boss/oblion-5.webp'; }
+export function oblionImg(k) { return 'img/rikaria/boss/oblion-' + Math.max(1, Math.min(9, k)) + '.webp'; }
