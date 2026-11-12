@@ -323,10 +323,12 @@ function drawResult(box, me) {
   /* 正解の選択肢に印をつける */
   document.querySelectorAll('#cmd .choices button').forEach(function (b, i) { b.classList.remove('sel'); if (r.cor & (1 << i)) b.classList.add('right', 'ans-ok'); else { b.classList.add('dim'); if (myPick & (1 << i)) b.classList.add('ans-ng'); } });
   var old = box.querySelector('.banner'); if (old) old.remove();
-  if (!r.ok) { box.appendChild(el('div', 'banner ng', '✕ ざんねん… 敵の攻撃！ ' + r.dmg + 'のダメージ')); return; }
-  if (r.rev) { box.appendChild(el('div', 'banner ok', '✓ せいかい！ 復活して、仲間を応援した！ 📣')); return; }
+  var exEl = r.ex ? el('div', 'qex', '💡 ' + r.ex) : null;   /* 解説 */
+  if (!r.ok) { box.appendChild(el('div', 'banner ng', '✕ ざんねん… 敵の攻撃！ ' + r.dmg + 'のダメージ')); if (exEl) box.appendChild(exEl); return; }
+  if (r.rev) { box.appendChild(el('div', 'banner ok', '✓ せいかい！ 復活して、仲間を応援した！ 📣')); if (exEl) box.appendChild(exEl); return; }
   box.textContent = '';
   box.appendChild(el('div', 'banner ok', '✓ せいかい！ 技をえらぼう'));
+  if (exEl) box.appendChild(exEl);
   var acts = el('div', 'actions'), mp = me ? me.mp : 0, st = me ? me.st : 0;
   JOBS[ch.j].acts.forEach(function (a, i) {
     var b = el('button', 'act' + (a.ult ? ' ult' : '')); b.type = 'button';

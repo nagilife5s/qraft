@@ -636,6 +636,7 @@ function judge(mask, text) {
     B.streak++; MP = Math.min(MP_MAX, MP + 1); drawMe();
     setTimeout(function () {
       box.textContent = ''; box.appendChild(el('div', 'banner ok', '✓ せいかい！ 技をえらぼう'));
+      if (q.ex) box.appendChild(el('div', 'qex', '💡 ' + q.ex));   /* 解説 */
       var acts = el('div', 'actions');
       JOBS[ch.j].acts.forEach(function (a, i) {
         var b = el('button', 'act' + (a.ult ? ' ult' : '')); b.type = 'button';
@@ -656,6 +657,7 @@ function judge(mask, text) {
       drawMe();
       var msg = '✕ ざんねん… ' + B.e.n + 'の攻撃！ ' + d + 'のダメージ' + (q.type === 'text' ? '　正解は「' + q.accept.slice(0, 3).join(' ／ ') + '」' : '');
       box.appendChild(el('div', 'banner ng', msg));
+      if (q.ex) box.appendChild(el('div', 'qex', '💡 ' + q.ex));   /* 解説 */
       var nx = el('button', 'btn', HP ? 'つぎへ' : '町へもどる'); nx.style.alignSelf = 'center';
       nx.onclick = function () { if (HP) askQ(); else faint(); };
       box.appendChild(nx);

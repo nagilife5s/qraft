@@ -292,7 +292,7 @@ function grade(u, a) {
   var g = G[u], q = g.cur, t = T[g.team], mask = a.c != null ? (1 << a.c) : a.m, cor = maskOf(q.correct), ok = mask === cor;
   g.ans++; t.ans++; g.wait = '';
   if (q.tag) t.lastTag = q.tag;
-  var res = { n: g.n, ok: ok ? 1 : 0, cor: cor };
+  var res = { n: g.n, ok: ok ? 1 : 0, cor: cor, ex: q.ex || '' };   /* ex＝解説（生徒の端末に出す） */
   if (ok) {
     g.ok++; t.ok++; g.streak++; g.mp = Math.min(MP_MAX, g.mp + 1);
     t.hitters[u] = 1;                 /* この敵と戦っている間に正解した子は、撃破ボーナスをもらえる */

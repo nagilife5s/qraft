@@ -413,3 +413,6 @@
 .choices button.ans-ok::after { content:"✓ 正解"; color:#0b7a3f; }
 .choices button.ans-ng::after { content:"✕ あなたの答え"; color:#b3261e; }
 .jobcard:focus-visible { outline:.25em solid #fff; }
+
+/* 戦闘で答えたあとの解説（2026-11-12） */
+.qex { background:rgba(255,255,255,.93); color:#241c4a; border-radius:.7em; padding:.45em .8em; font-weight:700; line-height:1.5; font-size:.85em; text-align:left; }

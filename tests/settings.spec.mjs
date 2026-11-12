@@ -89,3 +89,51 @@ test('クラシック：「ランキングは最後だけ」なら途中でラ�
   expect(await host.evaluate(() => !!document.querySelector('#s-end.on')), '最後まで進んだ').toBe(true);
   expect(sawRank, '途中でランキングを出していない').toBe(false);
 });
+
+/* クラシックで1問だけ遊ぶ。解説はテスト用に問題データへ差しこむ（授業用の解説つきセットは暗号化されていて、テストでは開けないため） */
+async function playOne(browser, exOn) {
+  const EX = 'テスト用の解説：答えの理由を1〜2文で示します。';
+  const ctx = await browser.newContext({ viewport: { width: 1280, height: 720 } });
+  await ctx.route(/\/questions\/(?!index)[^/]+\.json$/, async (route) => {
+    const r = await route.fetch(); const d = await r.json();
+    if (Array.isArray(d.questions)) d.questions.forEach((q) => { q.ex = EX; });
+    await route.fulfill({ response: r, json: d });
+  });
+  const host = await ctx.newPage();
+  await asTeacher(host);
+  await host.goto('host.html?emu=1');
+  const plain = await host.evaluate(async () => (await (await fetch('questions/index.json')).json()).filter((s) => !s.enc).map((s) => s.title));
+  await host.locator('#picker label.pcard', { hasText: plain[0] }).first().click();
+  await host.fill('#count', '1');
+  await host.selectOption('#limitSel', '10');
+  await host.selectOption('#paceSel', 'long');
+  if (!exOn) await host.uncheck('#exShow');
+  await host.click('#btnCreate');
+  await expect(host.locator('#pin')).toHaveText(/\d/, { timeout: 20000 });
+  const pin = (await host.locator('#pin').textContent()).replace(/\s/g, '');
+  const stu = await (await browser.newContext({ viewport: { width: 375, height: 812 } })).newPage();
+  await stu.goto('play.html?emu=1&pin=' + pin);
+  if (!(await stu.locator('#nick').isVisible())) { await stu.fill('#pin', pin); await stu.keyboard.press('Enter'); }
+  await stu.fill('#nick', 'テスト'); await stu.click('#btnJoin');
+  await expect(host.locator('#btnStart')).toBeEnabled({ timeout: 20000 });
+  await host.click('#btnStart');
+  await expect(host.locator('#s-reveal')).toHaveClass(/on/, { timeout: 40000 });   // 答えずに時間切れ → 正解発表
+  return { host, stu, EX };
+}
+
+test('クラシック：正解発表に解説を出す（先生の画面と生徒の端末）', async ({ browser }) => {
+  test.setTimeout(180000);
+  const { host, stu, EX } = await playOne(browser, true);
+  await expect(host.locator('#rex')).toBeVisible();
+  await expect(host.locator('#rex')).toContainText(EX);
+  await expect(stu.locator('#lateex')).toBeVisible({ timeout: 15000 });   // 時間切れの画面
+  await expect(stu.locator('#lateex')).toContainText(EX);
+});
+
+test('クラシック：「解説を出す」をオフにすると出ない', async ({ browser }) => {
+  test.setTimeout(180000);
+  const { host, stu } = await playOne(browser, false);
+  await expect(host.locator('#rex')).toBeHidden();
+  await expect(stu.locator('#s-late')).toHaveClass(/on/, { timeout: 15000 });
+  await expect(stu.locator('#lateex')).toBeHidden();
+});

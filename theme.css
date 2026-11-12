@@ -834,3 +834,8 @@ input.field:focus-visible, #textbox input:focus-visible, .pkq:focus-visible { ou
 .stu-tiles .tile.wrong-pick { opacity:.85; }
 /* 読み上げ用（画面には出さない） */
 .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+
+/* 授業の画面の解説（2026-11-12）。先生の大画面は大きく、生徒の端末は控えめに */
+.rex { background:rgba(255,255,255,.95); color:var(--ink-dark); border-radius:.8em; padding:.5em 1em; font-weight:800; line-height:1.55; text-align:left; max-width:40em; margin:.3em auto 0; font-size:1.3em; }
+.rex b { margin-right:.4em; }
+.res .sex { background:rgba(255,255,255,.92); color:var(--ink-dark); border-radius:.7em; padding:.45em .8em; font-weight:700; line-height:1.5; text-align:left; font-size:.85em; max-width:22em; margin:.6em auto 0; }

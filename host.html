@@ -34,6 +34,7 @@
         <div><label for="rankSel">ランキングを出す</label>
           <select id="rankSel"><option value="1" selected>毎問のあと</option><option value="3">3問ごと</option><option value="0">最後だけ</option></select></div>
       </div>
+      <label class="chk"><input id="exShow" type="checkbox" checked> 正解発表で解説を出す（先生の画面と生徒の端末）</label>
       <label class="chk"><input id="shuf" type="checkbox" checked> 選択肢の順番をシャッフルする</label>
       <label class="chk"><input id="textTime" type="checkbox" checked> 入力式の問題は、制限時間を1.5倍にする</label>
       <label>背景</label><div class="bgrow"></div>
@@ -76,6 +77,7 @@
   <div class="qhead"><span class="qno" id="rqno"></span><span class="title2">正解は…！</span><span class="qno" id="rans"></span></div>
   <div class="qcard small" id="rqtext"></div>
   <div class="dist" id="dist"></div>
+  <div class="rex hide" id="rex" role="status"></div>
   <div class="hostbar"></div>
 </section>
 
@@ -152,7 +154,7 @@ function stateOf(extra) { return Object.assign({ bg: curBg, t: serverTimestamp()
 
     SETS = await (await fetch('questions/index.json', { cache: 'no-cache' })).json();   /* 一覧は、いつも最新を取る */
     try { localStorage.removeItem('qraft.pw'); $('pw').value = sessionStorage.getItem('qraft.pw') || ''; } catch (e) {}   /* パスワードは端末に残さない（タブを閉じると消える） */
-    try { var pc = JSON.parse(localStorage.getItem('qraft.host.pace') || 'null'); if (pc) { $('paceSel').value = pc.pace; $('rankSel').value = pc.rank; } } catch (e) {}
+    try { var pc = JSON.parse(localStorage.getItem('qraft.host.pace') || 'null'); if (pc) { $('paceSel').value = pc.pace; $('rankSel').value = pc.rank; if (pc.ex === false) $('exShow').checked = false; } } catch (e) {}
     try { JSON.parse(localStorage.getItem('qraft.picked') || '[]').forEach(function (f) { if (SETS.some(function (x) { return x.file === f; })) picked[f] = true; }); } catch (e) {}   /* 前回の選択を引き継ぐ */
     $('selClear').onclick = function () { Object.keys(picked).forEach(function (k) { delete picked[k]; }); picker.render(); updateSel(); };
     $('count').oninput = function () { countTouched = true; updateSel(); };
@@ -209,8 +211,8 @@ $('btnCreate').onclick = async function () {
     var n = Math.max(1, Math.min(Number($('count').value) || qs.length, qs.length));
     qs = qs.slice(0, n);
     limit = Number($('limitSel').value);
-    PACE = PACES[$('paceSel').value] || PACES.normal; rankEvery = Number($('rankSel').value);
-    try { localStorage.setItem('qraft.host.pace', JSON.stringify({ pace: $('paceSel').value, rank: $('rankSel').value })); } catch (e) {}
+    PACE = PACES[$('paceSel').value] || PACES.normal; rankEvery = Number($('rankSel').value); showEx = $('exShow').checked;
+    try { localStorage.setItem('qraft.host.pace', JSON.stringify({ pace: $('paceSel').value, rank: $('rankSel').value, ex: showEx })); } catch (e) {}
     var doShuffle = $('shuf').checked;
     game = qs.map(function (q) { return prepareQuestion(q, doShuffle); });
     game.forEach(function (q) { q.limit = (q.type === 'text' && $('textTime').checked) ? Math.round(limit * 1.5) : limit; });   /* 入力には時間がかかる */
@@ -295,7 +297,7 @@ document.querySelectorAll('.hb-end').forEach(function (b) { b.onclick = function
 
 /* 正解発表・ランキングを見せる秒数（開始画面で選ぶ。lib.js?v=20261112102141 の RESULT_SEC・RANK_SEC が「ふつう」） */
 var PACES = { short: { result: 5, rank: 5 }, normal: { result: RESULT_SEC, rank: RANK_SEC }, long: { result: 12, rank: 10 } };
-var PACE = PACES.normal, rankEvery = 1;
+var PACE = PACES.normal, rankEvery = 1, showEx = true;
 async function runGame() {
   for (var i = 0; i < game.length && !ended; i++) {
     await askQuestion(i);
@@ -427,7 +429,8 @@ async function showResult(i) {
   await set(ref(db, 'rooms/' + pin + '/scores'), scores);
   await set(ref(db, 'rooms/' + pin + '/state'), stateOf({
     phase: 'result', i: i, n: game.length, text: q.text, image: q.image, imageAlt: q.imageAlt || '',
-    choices: q.choices, multi: q.multi, correct: q.correct, type: q.type || 'choice', accept: q.accept || null, counts: counts, answered: answered
+    choices: q.choices, multi: q.multi, correct: q.correct, type: q.type || 'choice', accept: q.accept || null, counts: counts, answered: answered,
+    ex: showEx ? (q.ex || '') : ''   /* 解説（開始画面で「出す」にしたときだけ） */
   }));
 
   /* 画面：棒グラフの下に選択肢を並べる */
@@ -435,6 +438,8 @@ async function showResult(i) {
   $('rqno').textContent = '問題 ' + (i + 1) + ' / ' + game.length;
   $('rans').textContent = '回答 ' + answered + ' / ' + activeIds().length + '人';
   $('rqtext').textContent = q.text;
+  var rex = $('rex'); rex.textContent = ''; rex.classList.toggle('hide', !(showEx && q.ex));
+  if (showEx && q.ex) { rex.appendChild(el('b', '', '💡 解説')); rex.appendChild(document.createTextNode(q.ex)); }
   if (q.type === 'text') { buildTextReveal(q, counts, answered, typed); return; }
   var max = Math.max.apply(null, counts.concat([1]));
   var dist = $('dist'); dist.textContent = ''; dist.className = 'dist n' + q.choices.length; dist.style.setProperty('--n', q.choices.length);

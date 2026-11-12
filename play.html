@@ -64,6 +64,7 @@
     <div class="resav" id="okav"></div><div class="icon">✓</div><h2>正解！</h2>
     <div class="plus">+<span id="okpts">0</span> 点</div>
     <div class="ans" id="okans"></div>
+    <div class="sex hide" id="okex"></div>
     <div class="rank">いま <b id="okrank"></b> 位 / <span id="okn"></span>人</div>
     <div class="hint"><span class="up" id="okup"></span> ・ 合計 <span id="oktotal">0</span> 点</div>
   </div>
@@ -74,6 +75,7 @@
   <div class="inner">
     <div class="resav" id="ngav"></div><div class="icon">✕</div><h2>ざんねん…</h2>
     <div class="ans" id="ngans"></div>
+    <div class="sex hide" id="ngex"></div>
     <div class="rank">いま <b id="ngrank"></b> 位 / <span id="ngn"></span>人</div>
     <div class="hint">合計 <span id="ngtotal">0</span> 点　次はとり返そう！</div>
   </div>
@@ -84,6 +86,7 @@
   <div class="inner">
     <div class="resav" id="lateav"></div><div class="icon">⏱</div><h2>時間切れ！</h2>
     <div class="ans" id="lateans"></div>
+    <div class="sex hide" id="lateex"></div>
     <div class="rank">いま <b id="laterank"></b> 位 / <span id="laten"></span>人</div>
     <div class="hint">合計 <span id="latetotal">0</span> 点　次は早めに押そう！</div>
   </div>
@@ -301,6 +304,7 @@ function drawResult(variant, me, r) {
   if (state.type === 'text') { q = (state.accept || []).slice(0, 3).join(' ／ '); }
   else { var cs = [].concat(state.correct); q = cs.map(function (i) { var c = state.choices[i]; return CHOICE_STYLE[i].shape + ' ' + (c.t || '（画像）'); }).join('　'); }
   var ansText = '正解は ' + q;
+  ['ok', 'ng', 'late'].forEach(function (v) { var e = $(v + 'ex'); e.textContent = state.ex ? '💡 ' + state.ex : ''; e.classList.toggle('hide', !state.ex); });   /* 解説（先生が出すにしたとき） */
   if (variant === 'ok') {
     showScreen('s-ok'); confetti($('conf-ok'), 26);
     countUp($('okpts'), me.last, 900, 900, false);

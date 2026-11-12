@@ -354,7 +354,7 @@ export async function decryptSet(enc, password) {
  */
 export function prepareQuestion(q, doShuffle) {
   if (q.type === 'text') {
-    return { type: 'text', text: q.q, image: q.image || null, imageAlt: q.imageAlt || '', choices: [], correct: [], multi: false,
+    return { type: 'text', text: q.q, image: q.image || null, imageAlt: q.imageAlt || '', ex: q.ex || '', choices: [], correct: [], multi: false,
              accept: q.accept.slice(), numeric: isNumericList(q.accept) };
   }
   var choices = q.choices.map(function (c) { return typeof c === 'string' ? { t: c, image: null } : { t: c.t || '', image: c.image || null, alt: c.alt || '' }; });   /* alt＝画像の説明文（読み上げ用） */
@@ -363,7 +363,7 @@ export function prepareQuestion(q, doShuffle) {
   var multi = Array.isArray(q.answers);
   var src = multi ? q.answers : (Array.isArray(q.answer) ? q.answer : [q.answer]);
   return {
-    text: q.q, image: q.image || null, imageAlt: q.imageAlt || '',
+    text: q.q, image: q.image || null, imageAlt: q.imageAlt || '', ex: q.ex || '',   /* ex＝解説（先生が確認したもの） */
     choices: order.map(function (i) { return choices[i]; }),
     correct: src.map(function (a) { return order.indexOf(a); }).sort(function (a, b) { return a - b; }),
     multi: multi
