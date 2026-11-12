@@ -6,7 +6,7 @@
 <title>リカリア</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261112225800">
+<link rel="stylesheet" href="theme.css?v=20261113055432">
 <style>
   /* リカリア：トップ（クイズ）とは別の世界。タイトル画面 → えらぶ（チーム戦／ひとりで）→ チーム戦（参加／開く）
      画像は img/rikaria/ に置く（依頼文/これから頼む/リカリア画像依頼文.md）。まだ無いあいだは、色と文字で代わりに出る。 */
@@ -78,7 +78,7 @@
   </section>
 </div>
 <script type="module">
-  import { bgm, preload, wireSoundButtons } from './sound.js?v=20261112225800b';
+  import { bgm, preload, wireSoundButtons } from './sound.js?v=20261113055432b';
   wireSoundButtons(); preload(['top']); bgm('top');
   addEventListener('pagehide', function () { bgm(null); });
   addEventListener('pageshow', function (e) { if (e.persisted) bgm('top'); });
