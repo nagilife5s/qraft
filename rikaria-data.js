@@ -148,11 +148,11 @@ export function isUlt(job, i) { return !!JOBS[job].sk[i].ult; }
 
 /* ------------------------------------------------------------ キャラ（第2版） */
 export function heroImg(job, look) {
-  var j = JOBS[job] ? job : 'warrior', l = look === 'b' && job !== 'mage' ? 'b' : 'a';   /* 魔法使いBは絵ができるまでA */
+  var j = JOBS[job] ? job : 'warrior', l = look === 'b' ? 'b' : 'a';
   return 'img/rikaria/chara/' + j + '-' + l + '.webp';
 }
 export function fieldImg(job, look, dir) {
-  var j = JOBS[job] ? job : 'warrior', l = look === 'b' && job !== 'mage' ? 'b' : 'a';
+  var j = JOBS[job] ? job : 'warrior', l = look === 'b' ? 'b' : 'a';
   return 'img/rikaria/field/' + j + '-' + l + '-' + (dir || 'down') + '.webp';
 }
 /* 覚えている技の番号 */
