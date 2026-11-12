@@ -6,8 +6,8 @@
 <title>Qraft クエスト</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261112150613">
-<link rel="stylesheet" href="quest.css?v=20261112150613">
+<link rel="stylesheet" href="theme.css?v=20261112151652">
+<link rel="stylesheet" href="quest.css?v=20261112151652">
 <style>
   #s-battle .arena { min-height:7em; }   /* 問題の欄を広くとる（2026-11-12） */
   .cmd .choices button.sel { outline:.25em solid #fff; }
@@ -107,10 +107,10 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261112150613"></script>
+<script src="firebase-config.js?v=20261112151652"></script>
 <script type="module">
-import { signIn, db, ref, set, get, onValue, serverNow, $, el, showScreen, confetti } from './lib.js?v=20261112150613';
-import { fiscalYear, JOBS, JOB_KEYS, MP_MAX, heroImg, ENEMIES, BOSS, storyEnter, expToNext, canUse, ITEMS, ensureOwner, battleGuide, cmdImg } from './quest.js?v=20261112150613';
+import { signIn, db, ref, set, get, onValue, serverNow, $, el, showScreen, confetti } from './lib.js?v=20261112151652';
+import { fiscalYear, JOBS, JOB_KEYS, MP_MAX, heroImg, ENEMIES, BOSS, storyEnter, expToNext, canUse, ITEMS, ensureOwner, battleGuide, cmdImg } from './quest.js?v=20261112151652';
 
 var uid = null, pin = null, state = null, sid = '', ch = null, look = 'a', job = 'mage';
 var players = {}, myItem = '', myReady = false, prepShown = false;

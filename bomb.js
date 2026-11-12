@@ -17,8 +17,19 @@ export var RULE = {
   hitPenalty: 30,  /* 巻き込まれたときの減点（0未満にはならない） */
   robotPts: 100,   /* 小ロボットを倒した得点 */
   robotMove: 4,    /* 小ロボットは 0.4秒で1マス */
-  length: 600      /* ゲームの長さ 60秒 */
+  length: 600,     /* ゲームの長さ 60秒 */
+  /* アイテム（2026-11-12 授業で「アイテムで爆弾が強くなるのがほしい」）。小ロボットを倒すと、ときどき落ちる */
+  itemRate: 0.45,  /* 倒したときに落ちる確率 */
+  itemLife: 120,   /* 落ちてから消えるまで 12秒 */
+  rangeMax: 5,     /* 火力アップの上限（マス） */
+  bombsMax: 4,     /* ボムアップの上限（個） */
+  moveFast: 1      /* スピードアップ後、1マス進むのに 0.1秒 */
 };
+/* f＝火力アップ、b＝ボムアップ、s＝スピードアップ。絵は img/robot/item-*.webp */
+export var ITEM = { f: { n: '火力アップ', img: 'item-fire', ic: '🔥' }, b: { n: 'ボムアップ', img: 'item-bomb', ic: '💣' }, s: { n: 'スピードアップ', img: 'item-speed', ic: '👟' } };
+function rangeOf(p) { return Math.min(RULE.rangeMax, RULE.range + (p.rg || 0)); }
+function bombsOf(p) { return Math.min(RULE.bombsMax, RULE.maxBombs + (p.mb || 0)); }
+function moveOf(p) { return p.sp ? RULE.moveFast : RULE.move; }
 var SPAWN = [[0, 0], [W - 1, H - 1], [W - 1, 0], [0, H - 1], [Math.floor(W / 2), 0], [Math.floor(W / 2), H - 1]];
 var DX = [0, 0, 0, -1, 1], DY = [0, -1, 1, 0, 0];   /* 0:なし 1:上 2:下 3:左 4:右 */
 
@@ -27,10 +38,10 @@ function inside(x, y) { return x >= 0 && y >= 0 && x < W && y < H; }
 
 /* n人のゲームを作る。seed を渡すと同じ盤面・同じロボットの動きになる */
 export function newGame(n, seed) {
-  var g = { t: 0, over: false, players: [], bombs: [], flames: [], robots: [], rng: seed || 1, ev: [] };
+  var g = { t: 0, over: false, players: [], bombs: [], flames: [], robots: [], items: [], rng: seed || 1, ev: [] };
   for (var i = 0; i < n; i++) {
     var s = SPAWN[i % SPAWN.length];
-    g.players.push({ x: s[0], y: s[1], sx: s[0], sy: s[1], mc: 0, down: 0, invul: 0, score: 0, kills: 0, d: 0 });
+    g.players.push({ x: s[0], y: s[1], sx: s[0], sy: s[1], mc: 0, down: 0, invul: 0, score: 0, kills: 0, d: 0, rg: 0, mb: 0, sp: 0 });
   }
   for (var k = 0; k < 3; k++) spawnRobot(g);
   return g;
@@ -62,10 +73,18 @@ export function step(g, inputs) {
     if (inp.d && p.mc === 0) {
       var nx = p.x + DX[inp.d], ny = p.y + DY[inp.d];
       p.d = inp.d;
-      if (free(g, nx, ny)) { p.x = nx; p.y = ny; p.mc = RULE.move; }
+      if (free(g, nx, ny)) { p.x = nx; p.y = ny; p.mc = moveOf(p); }
     }
-    if (inp.b && !bombAt(g, p.x, p.y) && g.bombs.filter(function (b) { return b.o === i; }).length < RULE.maxBombs) {
-      g.bombs.push({ x: p.x, y: p.y, o: i, t: RULE.fuse }); emit(g, { k: 'put', i: i });
+    /* アイテムを拾う */
+    g.items = (g.items || []).filter(function (it) {
+      if (it.x !== p.x || it.y !== p.y) return true;
+      if (it.k === 'f') p.rg = Math.min(RULE.rangeMax - RULE.range, (p.rg || 0) + 1);
+      else if (it.k === 'b') p.mb = Math.min(RULE.bombsMax - RULE.maxBombs, (p.mb || 0) + 1);
+      else p.sp = 1;
+      emit(g, { k: 'get', i: i, it: it.k }); return false;
+    });
+    if (inp.b && !bombAt(g, p.x, p.y) && g.bombs.filter(function (b) { return b.o === i; }).length < bombsOf(p)) {
+      g.bombs.push({ x: p.x, y: p.y, o: i, t: RULE.fuse, r: rangeOf(p) }); emit(g, { k: 'put', i: i });
     }
   });
 
@@ -78,7 +97,7 @@ export function step(g, inputs) {
     g.bombs.splice(g.bombs.indexOf(b), 1);
     emit(g, { k: 'boom', x: b.x, y: b.y });
     var cells = [[b.x, b.y]];
-    for (var d = 1; d <= 4; d++) for (var r = 1; r <= RULE.range; r++) {
+    for (var d = 1; d <= 4; d++) for (var r = 1; r <= (b.r || RULE.range); r++) {
       var x = b.x + DX[d] * r, y = b.y + DY[d] * r;
       if (!inside(x, y) || isPillar(x, y)) break;
       cells.push([x, y]);
@@ -98,9 +117,15 @@ export function step(g, inputs) {
     g.robots = g.robots.filter(function (r) {
       if (r.x !== f.x || r.y !== f.y) return true;
       var o = g.players[f.o]; if (o) { o.score += RULE.robotPts; o.kills++; }
-      emit(g, { k: 'kill', o: f.o, x: r.x, y: r.y }); return false;
+      emit(g, { k: 'kill', o: f.o, x: r.x, y: r.y });
+      if (rnd(g) < RULE.itemRate && !g.items.some(function (it) { return it.x === r.x && it.y === r.y; })) {   /* アイテムが落ちる */
+        var ks = ['f', 'b', 's'], k = ks[Math.floor(rnd(g) * 3)];
+        g.items.push({ x: r.x, y: r.y, k: k, t: RULE.itemLife });
+      }
+      return false;
     });
   });
+  g.items = (g.items || []).filter(function (it) { return --it.t > 0; });   /* 落ちたアイテムは12秒で消える */
   g.flames.forEach(function (f) { f.t--; });
   g.flames = g.flames.filter(function (f) { return f.t > 0; });
 
@@ -140,6 +165,7 @@ export function draw(ctx, g, px, opt) {
       var a = Math.random() * 6.283, v = .004 + Math.random() * .008;
       g.fx.push({ k: 's', x: e.x + .5, y: e.y + .5, vx: Math.cos(a) * v, vy: Math.sin(a) * v, t0: now, life: 380 + Math.random() * 300, col: Math.random() < .5 ? '#ffd23f' : '#ff7a1c' });
     } else if (e.k === 'kill') g.fx.push({ k: 'p', x: e.x + .5, y: e.y, text: '+' + RULE.robotPts, col: '#ffe14a', t0: now, life: 900 });
+    else if (e.k === 'get') { var gp = g.players[e.i]; if (gp) g.fx.push({ k: 'p', x: gp.x + .5, y: gp.y, text: ITEM[e.it].ic + ITEM[e.it].n, col: '#7cf3ff', t0: now, life: 1100 }); }
     else if (e.k === 'hit') { var q = g.players[e.i]; g.fx.push({ k: 'p', x: q.x + .5, y: q.y, text: '−' + RULE.hitPenalty, col: '#ff6a6a', t0: now, life: 900 }); }
   });
   g.evq = [];
@@ -166,6 +192,13 @@ export function draw(ctx, g, px, opt) {
   }
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
 
+  /* アイテム：ふわふわ浮く。消える前の3秒は点滅 */
+  (g.items || []).forEach(function (it) {
+    if (it.t < 30 && Math.floor(now / 120) % 2) return;
+    var cx = (it.x + .5) * c, by = (it.y + .92) * c - Math.abs(Math.sin(now / 260 + it.x)) * c * .1, sp = sprite(ITEM[it.k].img);
+    shadow(ctx, c, it.x, it.y);
+    if (sp) putSprite(ctx, sp, cx, by, c * .98); else { ctx.font = (c * .66) + 'px serif'; ctx.fillText(ITEM[it.k].ic, cx, by - c * .38); }
+  });
   /* 爆弾（描きおこし）：本体・つや・導火線の火花。爆発が近いと赤く光る */
   g.bombs.forEach(function (b) {
     var near = b.t < 8, pulse = 1 + .1 * Math.sin(now / (near ? 45 : 130)), cx = (b.x + .5) * c, cy = (b.y + .58) * c, r = c * .3 * pulse;
@@ -255,24 +288,26 @@ function shadow(ctx, c, vx, vy) {
    通信用：先生の画面が計算した盤面を、短い文字列にして送り、生徒の画面で「鏡」に写す。
    ・鏡（view）は draw() にそのまま渡せる形。位置の滑らかな補間は、鏡の中のオブジェクトを使い回すことで保つ
    ==================================================================== */
-export function newView() { return { t: 0, over: false, players: [], bombs: [], flames: [], robots: [], fx: [], evq: [] }; }
+export function newView() { return { t: 0, over: false, players: [], bombs: [], flames: [], robots: [], items: [], fx: [], evq: [] }; }
 export function serialize(g) {
   return JSON.stringify({
     t: g.t, o: g.over ? 1 : 0,
-    p: g.players.map(function (p) { return [p.x, p.y, p.down, p.invul, p.score, p.d, p.kills]; }),
+    p: g.players.map(function (p) { return [p.x, p.y, p.down, p.invul, p.score, p.d, p.kills, p.rg || 0, p.mb || 0, p.sp || 0]; }),
+    i: (g.items || []).map(function (it) { return [it.x, it.y, it.k, it.t]; }),
     b: g.bombs.map(function (b) { return [b.x, b.y, b.t, b.o]; }),
     f: g.flames.map(function (f) { return [f.x, f.y, f.t, f.o]; }),
     r: g.robots.map(function (r) { return [r.id, r.x, r.y]; }),
-    e: g.ev.filter(function (e) { return e.k !== 'put'; }).map(function (e) { return e.k === 'boom' ? ['b', e.x, e.y] : e.k === 'kill' ? ['k', e.o, e.x, e.y] : ['h', e.i, e.o]; })
+    e: g.ev.filter(function (e) { return e.k !== 'put'; }).map(function (e) { return e.k === 'boom' ? ['b', e.x, e.y] : e.k === 'kill' ? ['k', e.o, e.x, e.y] : e.k === 'get' ? ['g', e.i, e.it] : ['h', e.i, e.o]; })
   });
 }
 export function applyData(v, str) {
   var d = JSON.parse(str);
   v.t = d.t; v.over = !!d.o;
-  v.players = d.p.map(function (a, i) { var p = v.players[i] || {}; p.x = a[0]; p.y = a[1]; p.down = a[2]; p.invul = a[3]; p.score = a[4]; p.d = a[5]; p.kills = a[6]; return p; });
+  v.players = d.p.map(function (a, i) { var p = v.players[i] || {}; p.x = a[0]; p.y = a[1]; p.down = a[2]; p.invul = a[3]; p.score = a[4]; p.d = a[5]; p.kills = a[6]; p.rg = a[7] || 0; p.mb = a[8] || 0; p.sp = a[9] || 0; return p; });
+  v.items = (d.i || []).map(function (a) { return { x: a[0], y: a[1], k: a[2], t: a[3] }; });
   v.bombs = d.b.map(function (a) { return { x: a[0], y: a[1], t: a[2], o: a[3] }; });
   v.flames = d.f.map(function (a) { return { x: a[0], y: a[1], t: a[2], o: a[3] }; });
   var old = {}; v.robots.forEach(function (r) { old[r.id] = r; });
   v.robots = d.r.map(function (a) { var r = old[a[0]] || { id: a[0] }; r.x = a[1]; r.y = a[2]; return r; });
-  d.e.forEach(function (e) { v.evq.push(e[0] === 'b' ? { k: 'boom', x: e[1], y: e[2] } : e[0] === 'k' ? { k: 'kill', o: e[1], x: e[2], y: e[3] } : { k: 'hit', i: e[1], o: e[2] }); });
+  d.e.forEach(function (e) { v.evq.push(e[0] === 'b' ? { k: 'boom', x: e[1], y: e[2] } : e[0] === 'k' ? { k: 'kill', o: e[1], x: e[2], y: e[3] } : e[0] === 'g' ? { k: 'get', i: e[1], it: e[2] } : { k: 'hit', i: e[1], o: e[2] }); });
 }
