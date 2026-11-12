@@ -6,88 +6,188 @@
 <title>リカリア</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261113055432">
+<link rel="stylesheet" href="theme.css?v=20261113060818">
 <style>
   /* リカリア：トップ（クイズ）とは別の世界。タイトル画面 → えらぶ（チーム戦／ひとりで）→ チーム戦（参加／開く）
-     画像は img/rikaria/ に置く（依頼文/これから頼む/リカリア画像依頼文.md）。まだ無いあいだは、色と文字で代わりに出る。 */
+     ボタンは「ゲームのタイトル画面」風：文字だけのメニュー＋光の帯＋点滅するカーソル。えらぶ画面は、紺の窓に白い枠のゲームのウィンドウ。
+     画像は img/rikaria/（原本は 素材原本/リカリア｜確認用/、切り抜きは tools/cutout_rikaria.py）。 */
   #app { background:url(img/rikaria/title-bg.webp) center/cover no-repeat, radial-gradient(ellipse at 50% 18%, #f3b84a 0, #b2589f 22%, #4a2a8c 48%, #1d1648 100%); }
   .deco { display:none; }
   .screen { color:#fff; }
-  .rlogo { display:flex; flex-direction:column; align-items:center; gap:.2em; margin-bottom:.6em; }
-  .rlogo img { height:11em; width:auto; filter:drop-shadow(0 .2em .25em rgba(20,8,60,.55)); }
+  #v-title, #v-menu, #v-team { overflow-y:auto; justify-content:safe center; }
+
+  /* 漂う光の粒（飾り。押せない） */
+  .motes { position:absolute; inset:0; pointer-events:none; overflow:hidden; z-index:0; }
+  .motes i { position:absolute; bottom:-1em; width:.35em; height:.35em; border-radius:50%; background:#fff6c8; box-shadow:0 0 .6em .2em rgba(255,226,122,.7); opacity:0; }
+  .motes i:nth-child(1) { left:12%; } .motes i:nth-child(2) { left:27%; width:.25em; height:.25em; } .motes i:nth-child(3) { left:41%; }
+  .motes i:nth-child(4) { left:58%; width:.25em; height:.25em; } .motes i:nth-child(5) { left:71%; } .motes i:nth-child(6) { left:86%; width:.28em; height:.28em; }
+  .motes i:nth-child(7) { left:6%; width:.2em; height:.2em; } .motes i:nth-child(8) { left:94%; width:.22em; height:.22em; }
+  @media (prefers-reduced-motion: no-preference) {
+    .motes i { animation:rise 9s linear infinite; }
+    .motes i:nth-child(2) { animation-delay:1.5s; animation-duration:11s; } .motes i:nth-child(3) { animation-delay:3s; } .motes i:nth-child(4) { animation-delay:4.5s; animation-duration:12s; }
+    .motes i:nth-child(5) { animation-delay:6s; } .motes i:nth-child(6) { animation-delay:2.2s; animation-duration:10s; } .motes i:nth-child(7) { animation-delay:5.2s; } .motes i:nth-child(8) { animation-delay:7.4s; animation-duration:13s; }
+    @keyframes rise { 0% { transform:translate(0,0); opacity:0; } 15% { opacity:.9; } 50% { transform:translate(1.2em,-50vh); } 85% { opacity:.7; } 100% { transform:translate(-.6em,-100vh); opacity:0; } }
+  }
+  .screen > * { position:relative; z-index:1; }
+
+  /* ---- タイトル */
+  .rlogo { display:flex; flex-direction:column; align-items:center; gap:.1em; }
+  .rlogo img { height:12em; width:auto; filter:drop-shadow(0 .25em .35em rgba(20,8,60,.6)); }
   .rlogo .alt { font-weight:900; font-size:5.4em; letter-spacing:.06em; line-height:1; color:#ffd23f; -webkit-text-stroke:.07em #2a1280; paint-order:stroke fill; text-shadow:0 .08em 0 #2a1280, 0 .2em .4em rgba(20,8,60,.5); }
   .rlogo.has-img .alt { display:none; }
-  .rlogo .kana { font-weight:900; font-size:1.6em; letter-spacing:.5em; padding-left:.5em; color:#fff; text-shadow:0 .1em .3em rgba(20,8,60,.7); }
-  .tagline { font-weight:800; font-size:1.25em; opacity:.92; text-shadow:0 .1em .3em rgba(20,8,60,.7); margin-bottom:1em; }
-  .go { font-size:1.9em; padding:.5em 2.2em; background:linear-gradient(#ffe27a,#ffb703); }
-  @media (prefers-reduced-motion: no-preference) { .go { animation:glow 1.8s ease-in-out infinite; } @keyframes glow { 50% { filter:brightness(1.18) drop-shadow(0 0 .5em rgba(255,226,122,.8)); } } }
-  .menu { width:min(40em, 94%); display:grid; grid-template-columns:repeat(auto-fit, minmax(14em, 1fr)); gap:1em; margin-top:1.2em; }
-  .mcard { display:flex; flex-direction:column; align-items:center; gap:.4em; text-decoration:none; color:#fff; background:linear-gradient(160deg,#3b2a8a,#6a3fcf); border:.14em solid rgba(255,226,122,.55); font:inherit; cursor:pointer; border-radius:1.2em; padding:1.1em .8em 1em; box-shadow:var(--shadow); transition:transform .15s; }
-  .mcard:hover { transform:translateY(-.25em) scale(1.02); }
-  .mcard .ic { height:6em; display:flex; align-items:flex-end; justify-content:center; gap:.2em; }
-  .mcard .ic img { height:100%; width:auto; filter:drop-shadow(0 .15em .15em rgba(10,4,40,.5)); }
-  .mcard b { font-size:1.4em; font-weight:900; }
-  .mcard small { font-size:.9em; font-weight:700; opacity:.85; text-align:center; }
-  .mcard:focus-visible, .btn:focus-visible, .toplink:focus-visible { outline:.22em solid #fff; outline-offset:.22em; }
-  .mtitle { font-weight:900; font-size:1.8em; margin-top:.4em; text-shadow:0 .1em .3em rgba(20,8,60,.7); }
-  .back { margin-top:1.4em; }
-  #v-title, #v-menu, #v-team { overflow-y:auto; justify-content:safe center; }
+  /* 副題：金の線ではさむ */
+  .plate { display:flex; flex-direction:column; align-items:center; gap:.35em; margin-top:.1em; }
+  .plate .kana { display:flex; align-items:center; gap:.8em; font-weight:900; font-size:1.5em; letter-spacing:.55em; padding-left:.55em; color:#fff; text-shadow:0 0 .4em rgba(255,226,122,.6), 0 .1em .3em rgba(20,8,60,.8); }
+  .plate .kana::before, .plate .kana::after { content:""; width:3.2em; height:.12em; border-radius:1em; }
+  .plate .kana::before { background:linear-gradient(90deg, transparent, #ffd23f); }
+  .plate .kana::after { background:linear-gradient(90deg, #ffd23f, transparent); margin-left:-.55em; }
+  .plate .tagline { font-weight:800; font-size:1.05em; letter-spacing:.12em; opacity:.92; text-shadow:0 .1em .35em rgba(20,8,60,.9); }
+
+  /* タイトルのメニュー（文字だけ。選んでいる行に光の帯とカーソル） */
+  .tmenu { display:flex; flex-direction:column; align-items:center; gap:.15em; margin-top:2em; width:min(26em, 92%); }
+  .titem { position:relative; display:block; width:100%; font:inherit; font-weight:900; font-size:1.7em; letter-spacing:.18em; color:rgba(255,255,255,.62); background:none; border:0; padding:.42em 0; text-align:center; text-decoration:none; cursor:pointer; text-shadow:0 .08em .3em rgba(20,8,60,.9); transition:color .2s; }
+  .titem.small { font-size:1.05em; letter-spacing:.14em; color:rgba(255,255,255,.8); text-shadow:0 0 .3em rgba(20,8,60,1), 0 .08em .4em rgba(20,8,60,1); }
+  .titem::before { content:""; position:absolute; left:0; right:0; top:12%; bottom:12%; z-index:-1; opacity:0; transition:opacity .2s;
+    background:linear-gradient(90deg, transparent, rgba(255,236,170,.30) 25%, rgba(255,255,255,.42) 50%, rgba(255,236,170,.30) 75%, transparent);
+    border-top:.06em solid; border-bottom:.06em solid; border-image:linear-gradient(90deg, transparent, rgba(255,226,122,.9), transparent) 1; }
+  .titem.sel { color:#fff; text-shadow:0 0 .5em rgba(255,226,122,.9), 0 .08em .3em rgba(20,8,60,.9); }
+  .titem.sel::before { opacity:1; }
+  /* カーソル：光るクリスタル */
+  .cur { position:absolute; top:50%; width:.62em; height:.95em; margin-top:-.475em; opacity:0; pointer-events:none;
+    background:linear-gradient(135deg, #ffffff, #7ff0ff 40%, #1fb6e8 75%, #1a6fc0); clip-path:polygon(50% 0, 100% 50%, 50% 100%, 0 50%); filter:drop-shadow(0 0 .3em #35e0ff) drop-shadow(0 0 .15em #fff); }
+  .titem .cur { left:calc(50% - 5.5em); } .titem.small .cur { left:calc(50% - 5.4em); width:.5em; height:.75em; margin-top:-.375em; }
+  /* 選んでいる帯に、ときどき光が走る */
+  .titem::after { content:""; position:absolute; left:0; right:0; top:12%; bottom:12%; z-index:-1; opacity:0; pointer-events:none;
+    background:linear-gradient(100deg, transparent 40%, rgba(255,255,255,.55) 50%, transparent 60%) no-repeat; background-size:250% 100%; background-position:150% 0; }
+  @media (prefers-reduced-motion: no-preference) { .titem.sel::after { opacity:1; animation:shine 3.2s ease-in-out infinite; } @keyframes shine { 0%, 45% { background-position:150% 0; } 100% { background-position:-50% 0; } } }
+  .sel > .cur { opacity:1; }
+  @media (prefers-reduced-motion: no-preference) { .sel > .cur { animation:blink 1s steps(1) infinite; } @keyframes blink { 60% { opacity:.15; } } }
+  .titem:focus-visible, .ritem:focus-visible { outline:.16em solid #ffd23f; outline-offset:.1em; border-radius:.3em; }
+  .copy { position:absolute; bottom:1.1em; left:0; right:0; text-align:center; font-size:.8em; font-weight:700; letter-spacing:.1em; opacity:.55; text-shadow:0 .1em .3em rgba(20,8,60,.9); }
+
+  /* 最初の登場：ロゴが光りながら降りてきて、少し遅れてメニュー */
+  @media (prefers-reduced-motion: no-preference) {
+    #v-title.on .rlogo { animation:logoIn 1.1s cubic-bezier(.2,1,.3,1) both; }
+    #v-title.on .plate { animation:fadeIn .8s .7s both; }
+    #v-title.on .tmenu { animation:fadeIn .8s 1.1s both; }
+    @keyframes logoIn { 0% { opacity:0; transform:translateY(-.6em) scale(1.08); filter:brightness(2.2) blur(.15em); } 100% { opacity:1; transform:none; filter:none; } }
+    @keyframes fadeIn { 0% { opacity:0; } 100% { opacity:1; } }
+  }
+
+  /* ---- えらぶ画面：ゲームのウィンドウ（紺の窓・白い二重枠） */
+  #v-menu, #v-team { background:rgba(10,6,36,.35); }
+  .win { position:relative; width:min(34em, 94%); margin-top:1.4em; background:rgba(10,12,44,.86); border:.18em solid #fff; border-radius:.7em; box-shadow:0 0 0 .22em rgba(10,12,44,.86), 0 .8em 2em rgba(0,0,0,.55); padding:1.5em .9em .8em; }
+  .wtitle { position:absolute; left:1em; top:-.95em; background:rgba(10,12,44,1); border:.14em solid #fff; border-radius:.45em; padding:.15em .9em; font-weight:900; font-size:1.15em; letter-spacing:.2em; }
+  .ritem { position:relative; display:grid; grid-template-columns:1.4em 4.2em 1fr; align-items:center; gap:.7em; width:100%; font:inherit; color:#fff; background:none; border:0; border-radius:.4em; padding:.55em .5em; text-align:left; text-decoration:none; cursor:pointer; transition:background .15s; }
+  .ritem.sel { background:linear-gradient(90deg, rgba(255,226,122,.18), rgba(255,226,122,.04)); }
+  .ritem .cur { position:static; margin:0; justify-self:center; width:.85em; height:1.3em; }
+  .ritem .ic { height:3.6em; display:flex; align-items:flex-end; justify-content:center; }
+  .ritem .ic img { height:100%; width:auto; max-width:2.4em; object-fit:contain; filter:drop-shadow(0 .1em .15em rgba(0,0,0,.5)); }
+  .ritem .ic img + img { margin-left:-.5em; }
+  .ritem .txt { display:flex; flex-direction:column; gap:.15em; }
+  .ritem b { font-size:1.35em; font-weight:900; letter-spacing:.08em; }
+  .ritem small { font-size:.88em; font-weight:700; opacity:.75; }
+  .ritem.sel b { color:#ffe27a; }
+  .ritem.back { grid-template-columns:1.4em 1fr; margin-top:.5em; border-top:.08em dashed rgba(255,255,255,.3); border-radius:0 0 .4em .4em; padding:.7em .5em .45em; }
+  .ritem.back b { font-size:1.05em; }
+  @media (prefers-reduced-motion: no-preference) { .screen.on .win { animation:winIn .28s ease-out both; } @keyframes winIn { 0% { opacity:0; clip-path:inset(50% 0 50% 0); } 100% { opacity:1; clip-path:inset(-2em -2em -2em -2em); } } }
+
+  /* 決定したときの白い光 */
+  .flash { position:absolute; inset:0; background:#fff; opacity:0; pointer-events:none; z-index:20; }
+  .flash.go { animation:flash .45s ease-out; } @keyframes flash { 0% { opacity:.75; } 100% { opacity:0; } }
+
   @media (max-width: 560px) {
-    .menu { grid-template-columns:1fr; gap:.7em; }
-    .mcard { flex-direction:row; text-align:left; gap:1em; padding:.7em 1em; }
-    .mcard .ic { height:4em; width:5em; flex:0 0 auto; }
-    .mcard .txt { display:flex; flex-direction:column; align-items:flex-start; gap:.15em; }
-    .rlogo img { height:8em; } .rlogo .alt { font-size:4em; }
+    .rlogo img { height:7.6em; } .rlogo .alt { font-size:4em; }
+    .plate .kana { font-size:1.25em; } .plate .kana::before, .plate .kana::after { width:1.8em; }
+    .plate .tagline { font-size:.92em; letter-spacing:.06em; }
+    .titem { font-size:1.4em; }
+    .ritem { grid-template-columns:1.2em 3.4em 1fr; gap:.5em; } .ritem .ic { height:3em; }
   }
 </style>
 </head>
 <body>
 <div id="app">
   <button class="snd fixed"></button>
-  <a class="toplink" href="index.html">← トップへ</a>
+  <div class="motes" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  <div class="flash" id="flash"></div>
 
   <!-- タイトル画面 -->
   <section class="screen on center" id="v-title" style="gap:.2em">
     <div class="rlogo" id="rlogo">
-      <img src="img/rikaria/logo.webp" alt="" onload="document.getElementById('rlogo').classList.add('has-img')" onerror="this.remove()">
+      <img src="img/rikaria/logo.webp" alt="Rikaria" onload="document.getElementById('rlogo').classList.add('has-img')" onerror="this.remove()">
       <div class="alt" aria-hidden="true">Rikaria</div>
-      <div class="kana">リカリア</div>
     </div>
-    <div class="tagline">うばわれた知識を、正解の力でとりもどせ</div>
-    <button class="btn go" id="goStart" type="button">はじめる</button>
+    <div class="plate">
+      <div class="kana">リカリア</div>
+      <div class="tagline">うばわれた知識を、正解の力でとりもどせ</div>
+    </div>
+    <nav class="tmenu" aria-label="タイトルメニュー">
+      <button class="titem sel" id="goStart" type="button" data-item><span class="cur"></span>冒険をはじめる</button>
+      <a class="titem small" href="index.html" data-item><span class="cur"></span>トップへもどる</a>
+    </nav>
+    <div class="copy">© Qraft</div>
   </section>
 
   <!-- えらぶ -->
   <section class="screen center" id="v-menu" style="gap:.2em">
-    <div class="mtitle">あそびかたをえらぶ</div>
-    <div class="menu">
-      <button class="mcard" id="goTeam" type="button"><div class="ic"><img src="img/quest/hero-warrior-a.webp" alt=""><img src="img/quest/hero-priest-a.webp" alt=""></div><span class="txt"><b>チーム戦</b><small>クラスで班をつくって冒険</small></span></button>
-      <a class="mcard" href="quest.html"><div class="ic"><img src="img/quest/hero-mage-a.webp" alt=""></div><span class="txt"><b>ひとりで冒険</b><small>キャラを育てて町を発展させる</small></span></a>
+    <div class="win">
+      <div class="wtitle">あそびかた</div>
+      <button class="ritem mcard sel" id="goTeam" type="button" data-item><span class="cur"></span><span class="ic"><img src="img/quest/hero-warrior-a.webp" alt=""><img src="img/quest/hero-priest-a.webp" alt=""></span><span class="txt"><b>チーム戦</b><small>クラスで班をつくって冒険</small></span></button>
+      <a class="ritem mcard" href="quest.html" data-item><span class="cur"></span><span class="ic"><img src="img/quest/hero-mage-a.webp" alt=""></span><span class="txt"><b>ひとりで冒険</b><small>キャラを育てて町を発展させる</small></span></a>
+      <button class="ritem back" id="goBackTitle" type="button" data-item><span class="cur"></span><b>もどる</b></button>
     </div>
-    <button class="btn sub back" id="goBackTitle" type="button">もどる</button>
   </section>
 
   <!-- チーム戦 -->
   <section class="screen center" id="v-team" style="gap:.2em">
-    <div class="mtitle">チーム戦</div>
-    <div class="menu">
-      <a class="mcard" href="quest-play.html"><div class="ic"><img src="img/robot/animal-fox.webp" alt=""></div><span class="txt"><b>みんなで参加</b><small>PINと出席番号・合言葉で入る</small></span></a>
-      <a class="mcard" href="quest-host.html"><div class="ic"><img src="img/robot/acc-crown.webp" alt=""></div><span class="txt"><b>ゲームを開く</b><small>先生用：部屋をつくる</small></span></a>
+    <div class="win">
+      <div class="wtitle">チーム戦</div>
+      <a class="ritem mcard sel" href="quest-play.html" data-item><span class="cur"></span><span class="ic"><img src="img/quest/hero-mage-a.webp" alt=""></span><span class="txt"><b>みんなで参加</b><small>PINと出席番号・合言葉で入る</small></span></a>
+      <a class="ritem mcard" href="quest-host.html" data-item><span class="cur"></span><span class="ic"><img src="img/robot/acc-crown.webp" alt=""></span><span class="txt"><b>ゲームを開く</b><small>先生用：部屋をつくる</small></span></a>
+      <button class="ritem back" id="goBackMenu" type="button" data-item><span class="cur"></span><b>もどる</b></button>
     </div>
-    <button class="btn sub back" id="goBackMenu" type="button">もどる</button>
   </section>
 </div>
 <script type="module">
-  import { bgm, preload, wireSoundButtons } from './sound.js?v=20261113055432b';
+  import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261113060818b';
   wireSoundButtons(); preload(['top']); bgm('top');
   addEventListener('pagehide', function () { bgm(null); });
   addEventListener('pageshow', function (e) { if (e.persisted) bgm('top'); });
-  function show(id) { document.querySelectorAll('.screen').forEach(function (s) { s.classList.toggle('on', s.id === id); }); }
+
+  function cur() { return document.querySelector('.screen.on'); }
+  function items(s) { return Array.prototype.slice.call((s || cur()).querySelectorAll('[data-item]')); }
+  /* 選んでいる行（光の帯とカーソル）。指・マウス・キーボードのどれでも動く */
+  function select(el, quiet) {
+    var list = items(el.closest('.screen'));
+    if (el.classList.contains('sel')) return;
+    list.forEach(function (x) { x.classList.toggle('sel', x === el); });
+    if (!quiet) sfx('step');
+  }
+  items(document).forEach(function (el) {
+    el.addEventListener('pointerenter', function () { select(el); });
+    el.addEventListener('focus', function () { select(el, true); });
+  });
+  /* ↑↓ でカーソルを動かす（Enter・スペースで決定はボタンそのもの） */
+  addEventListener('keydown', function (e) {
+    if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+    var list = items(), i = list.findIndex(function (x) { return x.classList.contains('sel'); });
+    i = (i + (e.key === 'ArrowDown' ? 1 : list.length - 1)) % list.length;
+    list[i].focus(); select(list[i]); e.preventDefault();
+  });
+
+  function show(id) {
+    document.querySelectorAll('.screen').forEach(function (s) { s.classList.toggle('on', s.id === id); });
+    var s = document.getElementById(id), first = items(s)[0];
+    items(s).forEach(function (x) { x.classList.toggle('sel', x === first); });
+  }
+  function flash() { var f = document.getElementById('flash'); f.classList.remove('go'); void f.offsetWidth; f.classList.add('go'); }
   var on = function (id, fn) { document.getElementById(id).onclick = fn; };
-  on('goStart', function () { show('v-menu'); });
-  on('goTeam', function () { show('v-team'); });
+  on('goStart', function () { sfx('ok'); flash(); show('v-menu'); });
+  on('goTeam', function () { sfx('ok'); show('v-team'); });
   on('goBackTitle', function () { show('v-title'); });
   on('goBackMenu', function () { show('v-menu'); });
+  /* ほかのページへ行く行も、決定の音を鳴らしてから */
+  document.querySelectorAll('a[data-item]').forEach(function (a) { a.addEventListener('click', function () { sfx('ok'); }); });
 </script>
 </body>
 </html>
