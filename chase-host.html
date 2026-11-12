@@ -87,7 +87,7 @@ import { shuffle, signIn, db, ref, set, get, update, remove, onValue, serverNow,
 import { bgm, bgmRate, sfx, preload, wireSoundButtons } from './sound.js?v=20261112151652b';
 
 mountStage();
-wireSoundButtons();
+wireSoundButtons(); preload(['top']); bgm('top');   /* 部屋を作る前の設定画面も、トップの曲を続けて鳴らす */
 
 var uid = null, pin = null, BGS = [], curBg = 'space';
 var SETS = [], picked = {}, picker = null;

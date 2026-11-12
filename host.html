@@ -131,7 +131,7 @@ var HOSTBAR = '<button class="btn ghost hb-pause">一時停止</button><button c
   '<span class="pausebadge hide hb-badge">⏸ 一時停止中</span><span style="flex:1"></span>' +
   '<button class="snd"></button><div class="bgpick"><button type="button" class="fab">🎨 背景</button><div class="sw"></div></div>';
 document.querySelectorAll('.hostbar').forEach(function (b) { b.innerHTML = HOSTBAR; });
-wireSoundButtons();
+wireSoundButtons(); preload(['top']); bgm('top');   /* 部屋を作る前の設定画面も、トップの曲を続けて鳴らす */
 
 /* ---------------------------------------------------------------- 背景（先生だけが選べる） */
 function pickBg(k) {

@@ -299,6 +299,7 @@ function cell(x, y) { var r = MAPS[FD.key].g[y]; return r ? r[x] : undefined; }
 function blocked(x, y) { var c = cell(x, y); return c === undefined || BLOCK.has(c); }
 function enterTown(pos) {
   HP = statsOf(ch).mhp; MP = 0;   /* 町にもどると全回復 */
+  FD.mobs = [];   /* エリアの魔物を町に持ちこまない（町に魔物が出ていた。もどると魔物は出直す） */
   showScreen('s-town'); setTimeout(function () { openField('town', pos); });
 }
 function openField(key, start) {
@@ -352,8 +353,8 @@ function drawMap() {
   });
   if (m.fountain) h += '<img class="prop" src="img/quest/bld-fountain.webp" style="left:' + (m.fountain[0] - .4) * ts + 'px;top:' + (m.fountain[1] - .5) * ts + 'px;width:' + 2.8 * ts + 'px;height:' + 2.6 * ts + 'px;z-index:' + ((m.fountain[1] + 1) * 10 + 4) + '">';
   if (FD.key === 'town') NPCS.forEach(function (n) { h += '<div class="npc" style="' + box(n.x, n.y) + ';z-index:' + (n.y * 10 + 5) + '"><img src="img/quest/' + n.img + '.webp" alt=""></div>'; });
-  if (FD.key === 'area') h += '<div class="mob boss" style="' + box(35, 11, 3, 3) + ';z-index:135"><img src="' + BOSS.img + '" style="transform:scaleX(-1)"></div>';
-  h += '<div id="mobs">' + FD.mobs.map(function (mo, i) { return '<div class="mob" data-i="' + i + '" style="' + box(mo.x, mo.y) + ';z-index:' + (mo.y * 10 + 5) + '"><img src="' + ENEMIES[mo.id].img + '"></div>'; }).join('') + '</div>';
+  if (FD.key === 'area') h += '<div class="mob boss" style="' + box(35, 11, 3, 3) + ';z-index:135"><img src="' + BOSS.img + '" style="scale:-1 1"></div>';
+  h += '<div id="mobs">' + (FD.key === 'area' ? FD.mobs : []).map(function (mo, i) { return '<div class="mob" data-i="' + i + '" style="' + box(mo.x, mo.y) + ';z-index:' + (mo.y * 10 + 5) + '"><img src="' + ENEMIES[mo.id].img + '"></div>'; }).join('') + '</div>';
   h += '<div id="units"><div class="unit leader" style="' + box(FD.pos[0], FD.pos[1]) + ';z-index:' + (FD.pos[1] * 10 + 9) + '"><span class="nm">' + ch.n + '</span><img class="hero" src="' + heroImg(ch.j, ch.lk) + '" alt=""></div></div>';
   map.innerHTML = h;
   camera(true);

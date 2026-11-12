@@ -87,7 +87,7 @@ import { fiscalYear, JOBS, MP_MAX, heroImg, lvMult, CHEER, addExp, ENEMIES, BOSS
          zakoHp, enemyHit, bossHp, QUEST_DIFF, REWARD, TOWN, TOWN_DEFAULT, storyClear, statsOf, canUse, skMult, ITEMS } from './quest.js?v=20261112151652';
 import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261112151652b';
 
-wireSoundButtons();
+wireSoundButtons(); preload(['top']); bgm('top');   /* 部屋を作る前の設定画面も、トップの曲を続けて鳴らす */
 
 var uid = null, pin = null, YEAR = fiscalYear(), SETS = [], picked = {}, picker = null;
 var S = null, players = {}, G = {}, T = [], POOL = [], AREA = null, CLS = null, AR = null, ended = false, tickId = null, endsAt = 0;
