@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Qraft ジェットチェイス（先生）</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
-<link rel="stylesheet" href="theme.css?v=20261112145716">
+<link rel="stylesheet" href="theme.css?v=20261112150613">
 </head>
 <body>
 <div id="app">
@@ -75,16 +75,16 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261112145716"></script>
+<script src="firebase-config.js?v=20261112150613"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script type="module">
-import { mountSetPicker } from './lib.js?v=20261112145716';
-import { newGame, step, draw as bdraw, serialize, RULE as BRULE, W as BW, H as BH } from './bomb.js?v=20261112145716';
+import { mountSetPicker } from './lib.js?v=20261112150613';
+import { newGame, step, draw as bdraw, serialize, RULE as BRULE, W as BW, H as BH } from './bomb.js?v=20261112150613';
 import { shuffle, signIn, db, ref, set, get, update, remove, onValue, serverNow,
          avatarEl, ROBOT, ROBOT_LEVELS, setRobot, robotTarget, robotFrac, mountScene, parseAv,
          $, el, showScreen, confetti, qrSvg,
-         loadBackgrounds, applyBg, buildBgPickers, mountStage } from './lib.js?v=20261112145716';
-import { bgm, bgmRate, sfx, preload, wireSoundButtons } from './sound.js?v=20261112145716b';
+         loadBackgrounds, applyBg, buildBgPickers, mountStage } from './lib.js?v=20261112150613';
+import { bgm, bgmRate, sfx, preload, wireSoundButtons } from './sound.js?v=20261112150613b';
 
 mountStage();
 wireSoundButtons();

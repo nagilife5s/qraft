@@ -859,3 +859,10 @@ img.qimg { cursor:zoom-in; }
 .setup .seg button.on { background:#6a35e8; color:#fff; }
 /* ニックネームの「おまかせ」ボタン（2026-11-12） */
 .nick-dice { align-self:flex-start; width:auto; font:inherit; font-weight:800; font-size:.85em; margin-top:.4em; border:0; border-radius:999px; padding:.35em 1em; background:rgba(255,255,255,.9); color:var(--ink-dark); cursor:pointer; }
+/* 走っている感じのスピード線（2026-11-12）。道の速さ（--spd）に合わせて濃くなる。安全地帯では消える */
+.scene::before { content:""; position:absolute; left:0; right:0; top:40%; bottom:6%; z-index:0; pointer-events:none;
+  background:repeating-linear-gradient(180deg, transparent 0 1.6em, rgba(255,255,255,.55) 1.6em 1.75em);
+  -webkit-mask:repeating-linear-gradient(90deg, #000 0 4em, transparent 4em 13em); mask:repeating-linear-gradient(90deg, #000 0 4em, transparent 4em 13em);
+  opacity:calc((var(--spd, 0) - .3) * .7); animation:speedline .45s linear infinite; }
+@keyframes speedline { from { -webkit-mask-position:0 0; mask-position:0 0; } to { -webkit-mask-position:-13em 0; mask-position:-13em 0; } }
+@media (prefers-reduced-motion: reduce) { .scene::before { display:none; } }
