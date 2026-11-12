@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="ja" data-bg="lab">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>リカリア チーム戦</title>
+<link rel="icon" type="image/png" href="img/favicon-32.png">
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+<link rel="stylesheet" href="theme.css?v=20261113060818">
+<link rel="stylesheet" href="quest.css?v=20261113060818">
+<link rel="stylesheet" href="rikaria.css?v=20261113060818">
+<style>
+  #app { background:url(img/rikaria/title-bg.webp) center/cover no-repeat, #1d1648; }
+  .q-bg-r { background:rgba(10,6,36,.55); }
+  .cmd .choices button.sel { outline:.25em solid #fff; }
+  #s-prep { padding:1em 1.4em; gap:.8em; overflow:auto; }
+  #s-prep .panel { background:rgba(14,8,40,.78); }
+  .mem-row { display:flex; gap:.6em; flex-wrap:wrap; }
+  .mem-row .pp-mem { min-width:7em; }
+  #s-battle .bt-bg { background-size:cover; background-position:center; }
+  #s-battle .arena { margin-top:1.8em; }   /* 敵の「▼ ねらう」が上の帯にかからないように */
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- 参加：PIN → 出席番号 → 合言葉 -->
+<section class="screen center q-bg-r" id="s-join" style="gap:1em">
+  <a class="toplink" href="rikaria.html">← リカリアへ</a>
+  <img src="img/rikaria/logo.webp" alt="Rikaria" style="height:6em">
+  <div class="q-sub" style="font-size:1.2em">チーム戦に参加</div>
+  <div class="card" style="display:flex;flex-direction:column;gap:.8em;align-items:center">
+    <label class="flabel" for="pin">参加コード（先生の画面の6けた）</label>
+    <input class="field" id="pin" inputmode="numeric" autocomplete="off" maxlength="6" placeholder="123456">
+    <button class="btn" id="btnPin" type="button">つぎへ</button>
+    <div id="numBox" class="hide" style="display:flex;flex-direction:column;gap:.6em;align-items:center">
+      <b id="clsLabel"></b><b>出席番号</b><div class="numgrid" id="nums"></div>
+    </div>
+    <div id="joinErr" class="err hide" role="alert"></div>
+  </div>
+</section>
+
+<!-- キャラ作成（初回だけ） -->
+<section class="screen center q-bg-r" id="s-make" style="gap:1em;overflow:auto">
+  <div class="q-title">職業をえらぼう</div>
+  <div class="jobcards" id="jobcards"></div>
+  <div class="row" style="flex-wrap:wrap;justify-content:center"><b>見た目</b><div class="seg" id="typeSeg"><button type="button" data-v="a" class="on">タイプA</button><button type="button" data-v="b">タイプB</button></div></div>
+  <div class="row"><label for="cname"><b>キャラの名前</b></label><input class="namebox" id="cname" maxlength="8" placeholder="8文字まで"></div>
+  <div class="mut" style="font-size:.85em">画面には本名ではなく、この名前が出ます。職業と名前は、あとから変えられません。</div>
+  <button class="btn" id="btnMake" type="button">この職業にする</button>
+  <div id="makeErr" class="err hide" role="alert"></div>
+</section>
+
+<!-- 班をえらぶ -->
+<section class="screen center q-bg-r" id="s-group" style="gap:1em">
+  <div class="q-title">何班？</div>
+  <div class="q-sub" id="gpNote">単元のあいだは同じ班。進み具合は班ごとに残ります</div>
+  <div class="gpgrid" id="gpgrid"></div>
+  <button class="btn" id="btnGp" type="button" disabled>この班で参加</button>
+</section>
+
+<!-- 準備：技をえらぶ・ランクアップ -->
+<section class="screen q-bg-r" id="s-prep">
+  <div class="row" style="flex-wrap:wrap;gap:.8em;align-items:center">
+    <img class="hero sm" id="ppHero" alt="" style="height:4.5em">
+    <div class="grow"><div class="q-sub" id="ppPlace"></div><div class="q-title" id="ppTitle" style="font-size:1.6em"></div></div>
+    <div class="panel" id="ppSp" style="font-weight:900"></div>
+  </div>
+  <div class="panel" style="display:flex;flex-direction:column;gap:.5em">
+    <b>班のなかま</b><div class="mem-row" id="ppMates"></div>
+  </div>
+  <div class="panel" style="display:flex;flex-direction:column;gap:.6em">
+    <div class="row" style="flex-wrap:wrap"><b class="grow">持っていく技（ふつうの技4つ＋必殺技1つ）</b><span class="mut" style="font-size:.85em">押して選ぶ・はずす。SPで「上げる」と名前と強さが変わる</span></div>
+    <div class="ld-grid" id="ppSkills"></div>
+    <div id="ppErr" class="err hide" role="alert"></div>
+  </div>
+  <div class="row" style="justify-content:center;gap:1em;flex-wrap:wrap">
+    <button class="btn" id="ppReady" type="button">準備OK！</button>
+    <div class="pp-wait" id="ppWait"></div>
+  </div>
+</section>
+
+<!-- 探索：リーダーの地図 -->
+<section class="screen" id="s-field">
+  <div class="fd-hud">
+    <div class="panel fd-place"><div class="q-sub" id="fdPlace"></div><b id="fdName"></b><div class="fd-timer" id="fdTimer"></div></div>
+    <div class="grow"></div>
+    <div class="panel row" style="padding:.5em .9em"><span class="pill" id="fdClock"></span><span class="lead-badge">あなたがリーダー</span></div>
+  </div>
+  <div class="fd-wrap" id="wrap"><div class="fd-map" id="map"></div></div>
+  <div class="fd-help">矢印キー（WASD）か、行きたい場所をクリック。<b>ワスレモノにぶつかると戦闘</b>。群れを2回倒すと、奥の番人の部屋が開く。</div>
+  <div class="fd-pad" aria-label="移動">
+    <span></span><button type="button" data-d="0,-1" aria-label="上">▲</button><span></span>
+    <button type="button" data-d="-1,0" aria-label="左">◀</button><button type="button" data-d="0,1" aria-label="下">▼</button><button type="button" data-d="1,0" aria-label="右">▶</button>
+  </div>
+  <div class="fd-msg hide" id="fdMsg"></div>
+  <div class="fd-flash" id="fdFlash"></div>
+</section>
+
+<!-- 探索：ほかの人は練習問題（正解でMP） -->
+<section class="screen q-bg-r" id="s-prac">
+  <div class="prac-head">
+    <div class="panel grow"><div class="q-sub" id="prPlace"></div><b id="prState" style="font-size:1.2em"></b></div>
+    <span class="pill" id="prClock"></span>
+    <div class="panel me-stat mystat" id="prStat"></div>
+  </div>
+  <div class="cmd" id="prCmd"></div>
+</section>
+
+<!-- 戦闘 -->
+<section class="screen" id="s-battle">
+  <div class="bt-bg" id="btBg"></div>
+  <div class="bt-top topline">
+    <div class="teambar" id="teambar"></div>
+    <div class="midbar"><span class="nm" id="midNm"></span><div class="bar boss hide" id="bossHp"><i></i></div><span class="st" id="midSt"></span></div>
+    <span class="pill" id="btClock"></span>
+    <div class="mystat" id="bStat"></div>
+  </div>
+  <div class="arena" id="arena"><div class="floor"></div><div class="foes" id="foes"></div></div>
+  <div class="cmd" id="cmd"></div>
+</section>
+
+<!-- 結果 -->
+<section class="screen center q-bg-r" id="s-result" style="gap:1em">
+  <div class="confetti" id="conf"></div>
+  <div class="q-title" id="rTitle">今日の冒険おわり！</div>
+  <div class="story panel hide" id="rStory"></div>
+  <div class="reward" id="rCards"></div>
+  <div class="lvup hide" id="rLv"></div>
+  <div class="q-sub" id="rNote"></div>
+  <a class="linkbtn" href="rikaria.html" style="color:#fff;font-weight:800">リカリアのトップへ</a>
+</section>
+
+<section class="screen center q-bg-r" id="s-wait" style="gap:1em"><div class="q-title" id="waitT">先生が始めるのを待っています</div><div class="dots"><span></span><span></span><span></span></div></section>
+<section class="screen center q-bg-r" id="s-msg"><div class="q-title" id="msgT"></div><a class="btn" href="rikaria-play.html" style="text-decoration:none">参加画面へ</a></section>
+
+</div>
+
+<script src="firebase-config.js?v=20261113060818"></script>
+<script type="module">
+import { signIn, db, ref, set, get, update, onValue, serverNow, $, showScreen, confetti } from './lib.js?v=20261113060818';
+import { fiscalYear, ensureOwner, cmdImg } from './quest.js?v=20261113060818';
+import { JOBS, JOB_KEYS, MP_MAX, LEARN, ELEMS, ELEM, heroImg, skillName, rankOf, rankCost, canRankUp, rankUp, loadoutOf, learned, migrateChar, expToNext, unitById, battleBg, weakOf, LOAD_N } from './rikaria-data.js?v=20261113060818';
+import { el, esc, drawField, moveField, cameraOf, cellAt, dmgFx, supportFx, ovban, redflash, MAP } from './rikaria-view.js?v=20261113060818';
+
+var TS = { '.sv': 'timestamp' };
+var uid = null, pin = null, state = null, sid = '', ch = null, look = 'a', job = 'warrior', gp = 0;
+var players = {}, gv = null, qs = null, U = null, ready = false, done = false, actN = 0, ctlN = 0, lastQ = 0, view = '';
+
+(async function boot() {
+  showScreen('s-join');
+  try { uid = (await signIn()).uid; } catch (e) { err('joinErr', e.message); return; }
+  var qp = new URLSearchParams(location.search).get('pin'), saved = null;
+  try { saved = JSON.parse(localStorage.getItem('qraft.rikaria') || 'null'); } catch (e) {}
+  if (qp) $('pin').value = qp; else if (saved) $('pin').value = saved.pin;
+  if (saved && (!qp || qp === saved.pin)) { if (await openRoom(saved.pin, true)) pickNum(saved.n, true); }
+  else if (qp) openRoom(qp, false);
+})();
+function err(id, m) { $(id).textContent = m || ''; $(id).classList.toggle('hide', !m); }
+
+/* ------------------------------------------------------------ 参加 */
+$('btnPin').onclick = function () { openRoom($('pin').value.trim(), false); };
+$('pin').onkeydown = function (e) { if (e.key === 'Enter') $('btnPin').click(); };
+async function openRoom(p, silent) {
+  err('joinErr', '');
+  if (!/^\d{6}$/.test(p)) { if (!silent) err('joinErr', '参加コードは6けたの数字です'); return false; }
+  var st = (await get(ref(db, 'rooms/' + p + '/state'))).val();
+  if (!st || st.mode !== 'rikaria' || st.phase === 'end') {
+    try { localStorage.removeItem('qraft.rikaria'); } catch (e) {}
+    if (!silent) err('joinErr', st && st.mode !== 'rikaria' ? 'これはリカリアのチーム戦の部屋ではありません' : 'その参加コードの部屋が見つかりません');
+    return false;
+  }
+  if ((await get(ref(db, 'rooms/' + p + '/kicked/' + uid))).exists()) { msg('この部屋から退出になりました'); return false; }
+  pin = p; state = st; U = unitById(st.unit);
+  $('clsLabel').textContent = st.g + '年' + st.c + '組';
+  var box = $('nums'); box.textContent = '';
+  for (var i = 1; i <= 40; i++) (function (n) { var b = el('button', '', String(n)); b.type = 'button'; b.onclick = function () { pickNum(n, false); }; box.appendChild(b); })(i);
+  $('numBox').classList.remove('hide'); $('btnPin').classList.add('hide'); $('pin').disabled = true;
+  return true;
+}
+function msg(t) { $('msgT').textContent = t; showScreen('s-msg'); }
+
+async function pickNum(n, silent) {
+  sid = state.g + '-' + state.c + '-' + n;
+  document.querySelectorAll('#nums button').forEach(function (b) { b.classList.toggle('on', Number(b.textContent) === n); });
+  if (!(await ensureOwner({ db: db, ref: ref, get: get, set: set }, state.y, sid, uid, state.g + '年' + state.c + '組' + n + '番'))) return;
+  try {
+    ch = (await get(ref(db, 'quest/' + state.y + '/chars/' + sid))).val();
+    try { localStorage.setItem('qraft.rikaria', JSON.stringify({ pin: pin, n: n })); } catch (e) {}
+    if (!ch) return makeScreen();
+    if (migrateChar(ch)) {   /* 第1版のキャラ：振っていたポイントを返して第2版に */
+      ch.u = TS; await set(ref(db, 'quest/' + state.y + '/chars/' + sid), ch);
+    }
+    groupScreen();
+  } catch (e) { err('joinErr', '読みこめませんでした: ' + e.message); }
+}
+
+/* ---- キャラ作成（6職業） */
+function makeScreen() {
+  var box = $('jobcards'); box.textContent = '';
+  JOB_KEYS.forEach(function (k) {
+    var c = el('div', 'jobcard' + (k === job ? ' on' : '')); c.dataset.job = k;
+    var im = el('img', 'hero'); im.src = heroImg(k, look); im.alt = ''; c.appendChild(im);
+    c.appendChild(el('h3', '', JOBS[k].n)); c.appendChild(el('p', '', JOBS[k].trait));
+    c.onclick = function () { job = k; document.querySelectorAll('.jobcard').forEach(function (x) { x.classList.toggle('on', x.dataset.job === k); x.setAttribute('aria-pressed', x.dataset.job === k ? 'true' : 'false'); }); };
+    c.tabIndex = 0; c.setAttribute('role', 'button'); c.setAttribute('aria-pressed', k === job ? 'true' : 'false');
+    c.onkeydown = function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); c.onclick(); } };
+    box.appendChild(c);
+  });
+  showScreen('s-make');
+}
+$('typeSeg').onclick = function (e) {
+  var b = e.target.closest('button'); if (!b) return; look = b.dataset.v;
+  this.querySelectorAll('button').forEach(function (x) { x.classList.toggle('on', x === b); });
+  document.querySelectorAll('.jobcard img').forEach(function (im) { im.src = heroImg(im.parentNode.dataset.job, look); });
+};
+$('btnMake').onclick = async function () {
+  var nm = $('cname').value.trim();
+  if (!nm) { err('makeErr', 'キャラの名前を入れてください'); return; }
+  $('btnMake').disabled = true;
+  ch = { n: nm, j: job, lk: look, lv: 1, exp: 0, gold: 0, sp: 0, spt: 0, u: TS };
+  try { await set(ref(db, 'quest/' + state.y + '/chars/' + sid), ch); groupScreen(); }
+  catch (e) { err('makeErr', 'キャラを作れませんでした（ほかの人が先に作ったかもしれません）'); $('btnMake').disabled = false; }
+};
+
+/* ---- 班をえらぶ（前の班を覚えておく） */
+function groupScreen() {
+  var key = 'qraft.rikaria.gp.' + sid + '.' + state.unit; try { gp = Number(localStorage.getItem(key)) || 0; } catch (e) {}
+  var box = $('gpgrid'); box.textContent = '';
+  for (var i = 1; i <= 9; i++) (function (n) {
+    var b = el('button', n === gp ? 'on' : '', n + '班'); b.type = 'button'; b.setAttribute('aria-pressed', n === gp ? 'true' : 'false');
+    b.onclick = function () { gp = n; box.querySelectorAll('button').forEach(function (x, k) { x.classList.toggle('on', k + 1 === n); x.setAttribute('aria-pressed', k + 1 === n ? 'true' : 'false'); }); $('btnGp').disabled = false; };
+    box.appendChild(b);
+  })(i);
+  $('btnGp').disabled = !gp;
+  if (gp) $('gpNote').textContent = '前回は ' + gp + '班でした。同じなら、そのまま「この班で参加」';
+  $('btnGp').onclick = function () { try { localStorage.setItem(key, String(gp)); } catch (e) {} joinRoom(); };
+  showScreen('s-group');
+}
+
+async function joinRoom() {
+  try { await writePlayer(); }
+  catch (e) { err('joinErr', '参加できませんでした: ' + e.message); showScreen('s-join'); return; }
+  onValue(ref(db, 'rooms/' + pin + '/state'), function (s) { state = s.val(); render(); });
+  onValue(ref(db, 'rooms/' + pin + '/players'), function (s) { players = s.val() || {}; if (view === 'prep') drawPrep(); });
+  onValue(ref(db, 'rooms/' + pin + '/qs/' + uid), function (s) { qs = s.val(); drawQ(); });
+  onValue(ref(db, 'rooms/' + pin + '/gv/' + gp), function (s) { gv = s.val(); render(); });
+  onValue(ref(db, 'rooms/' + pin + '/kicked/' + uid), function (s) { if (s.val()) msg('この部屋から退出になりました'); });
+}
+function writePlayer() { return set(ref(db, 'rooms/' + pin + '/players/' + uid), { nick: ch.n, sid: sid, j: ch.j, lk: ch.lk || 'a', lv: ch.lv || 1, gp: gp, rd: ready }); }
+function saveChar() { ch.u = TS; return set(ref(db, 'quest/' + state.y + '/chars/' + sid), ch); }
+
+/* ------------------------------------------------------------ 画面の切りかえ */
+function isLead() { return state && state.gp && state.gp[gp] && state.gp[gp].lead === uid; }
+function go(id) { if (view !== id) { view = id; showScreen(id); return true; } return false; }
+function render() {
+  if (!state) { if (!done) msg('ゲームは終了しました'); return; }
+  if (state.phase === 'end' || state.phase === 'saving') { if (!done) showResult(); return; }
+  if (state.phase === 'lobby' || state.phase === 'prep') { if (go('s-prep')) drawPrep(); else drawPrep(); return; }
+  if (state.phase !== 'run' || !gv) { $('waitT').textContent = '班の準備をしています…'; go('s-wait'); return; }
+  playEvents();
+  if (gv.ph === 'explore' || gv.ph === 'enc') { if (isLead()) field(); else prac(); }
+  else battle();
+}
+
+/* ---- 準備 */
+function drawPrep() {
+  var J = JOBS[ch.j], ld = loadoutOf(ch);
+  $('ppHero').src = heroImg(ch.j, ch.lk);
+  $('ppPlace').textContent = state.g + '年' + state.c + '組 ・ ' + U.area + '（' + U.unit + '）';
+  $('ppTitle').textContent = ch.n + '　' + J.n + ' Lv.' + ch.lv + '　' + gp + '班';
+  $('ppSp').textContent = 'SP ' + (ch.sp || 0) + '　つぎのレベルまで ' + Math.max(0, expToNext(ch.lv) - (ch.exp || 0));
+  var mates = Object.keys(players).filter(function (u) { return players[u].gp === gp; });
+  var mb = $('ppMates'); mb.textContent = '';
+  mates.forEach(function (u) {
+    var p = players[u], d = el('div', 'pp-mem' + (u === uid ? ' me' : ''));
+    var im = el('img', 'hero'); im.src = heroImg(p.j, p.lk); im.alt = ''; d.appendChild(im);
+    d.appendChild(el('b', '', p.nick)); d.appendChild(el('small', '', (JOBS[p.j] ? JOBS[p.j].n : '') + ' Lv.' + (p.lv || 1)));
+    d.appendChild(el('span', 'st ' + (p.rd ? 'ok' : 'wait'), p.rd ? '準備OK' : '準備中'));
+    mb.appendChild(d);
+  });
+  var box = $('ppSkills'); box.textContent = '';
+  J.sk.forEach(function (s, i) {
+    var got = LEARN[i] <= ch.lv, on = ld.a.indexOf(i) >= 0 || ld.u === i, r = rankOf(ch, i);
+    var b = el('div', 'sk' + (s.ult ? ' ult' : '') + (on ? ' on' : '') + (got ? '' : ' lock'));
+    b.tabIndex = got ? 0 : -1; b.setAttribute('role', 'button'); b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    b.appendChild(el('b', '', (s.ult ? '★ ' : '') + (got ? skillName(ch.j, i, r, 'fire') : '？？？')));
+    b.appendChild(el('small', '', got ? s.d : 'Lv.' + LEARN[i] + 'で覚える'));
+    var meta = el('div', 'meta'); meta.appendChild(el('span', '', 'MP ' + s.mp)); meta.appendChild(el('span', 'rk', '★'.repeat(r + 1) + '☆'.repeat(2 - r)));
+    if (got && r < 2) {
+      var up = el('button', 'up', '上げる SP' + rankCost(s.mp)[r]); up.type = 'button'; up.disabled = !canRankUp(ch, i) || ready;
+      up.title = '→ ' + skillName(ch.j, i, r + 1, 'fire');
+      up.onclick = async function (e) { e.stopPropagation(); var back = JSON.parse(JSON.stringify(ch)); if (!rankUp(ch, i)) return; try { await saveChar(); } catch (x) { ch = back; err('ppErr', '保存できませんでした: ' + x.message); } drawPrep(); };
+      meta.appendChild(up);
+    }
+    b.appendChild(meta);
+    b.onclick = async function () {
+      if (!got || ready) return;
+      var a = ld.a.slice(), u = ld.u;
+      if (s.ult) u = u === i ? -1 : i;
+      else { var k = a.indexOf(i); if (k >= 0) a.splice(k, 1); else { if (a.length >= LOAD_N) a.shift(); a.push(i); } }
+      ch.ld = { a: a, u: u }; drawPrep(); saveChar().catch(function (x) { err('ppErr', '保存できませんでした: ' + x.message); });
+    };
+    b.onkeydown = function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); b.onclick(); } };
+    box.appendChild(b);
+  });
+  $('ppReady').textContent = ready ? '✓ 準備OK（押すと取り消し）' : '準備OK！'; $('ppReady').classList.toggle('done', ready);
+  var n = mates.filter(function (u) { return players[u].rd; }).length;
+  $('ppWait').textContent = (state.phase === 'prep' ? '先生の「出発！」を待っています…　' : '') + gp + '班の準備OK ' + n + '/' + mates.length + '人';
+}
+$('ppReady').onclick = function () { ready = !ready; writePlayer().catch(function () {}); drawPrep(); };
+
+/* ---- 時計 */
+setInterval(function () {
+  if (!state || state.phase !== 'run' || !state.ends) return;
+  var left = Math.max(0, (state.ends - serverNow()) / 1000), t = '⏱ ' + Math.floor(left / 60) + ':' + String(Math.floor(left % 60)).padStart(2, '0');
+  ['fdClock', 'prClock', 'btClock'].forEach(function (id) { $(id).textContent = t; });
+}, 500);
+
+/* ---- できごと（演出） */
+function playEvents() {
+  (gv.ev || []).forEach(function (e) {
+    if (e.q <= lastQ) return; lastQ = e.q;
+    var host = view === 's-battle' ? $('arena') : view === 's-field' ? $('s-field') : $('s-prac');
+    if (e.t === 'hit' && view === 's-battle') { var en = document.querySelector('#foes .enemy[data-i="' + e.i + '"]'); dmgFx(en, $('arena'), $('s-battle'), e, nameOf(e.who)); }
+    else if (e.t === 'skill' && view === 's-battle' && !e.ult && /^(10|11|24|08|21|23|06|07|05|18)$/.test(e.fx || '')) supportFx($('arena'), e.fx, e.n, nameOf(e.who), e.ult);
+    else if (e.t === 'atk' && e.who === uid) redflash($('s-battle'));
+    else if (e.s) ovban(host, e.s, e.big || e.t === 'wipe');
+    if (e.t === 'clear') confetti($('conf'), 30);
+  });
+}
+function nameOf(id) { return id === uid ? 'あなた' : (gv && gv.mem && gv.mem[id] ? gv.mem[id].n : ''); }
+
+/* ------------------------------------------------------------ 探索（リーダー） */
+var TS_ = 40;
+function field() {
+  var lead = gv.mem && gv.mem[uid];
+  if (go('s-field') || !$('map').firstChild) {
+    var r = $('wrap').getBoundingClientRect(); TS_ = Math.max(24, Math.floor(Math.min(r.width / 22, r.height / 13)));
+    $('map').style.transition = 'none'; drawField($('map'), TS_, gv, U, leadInfo(), false); cameraOf($('wrap'), $('map'), TS_, gv.pos);
+    requestAnimationFrame(function () { requestAnimationFrame(function () { $('map').style.transition = ''; }); });
+  } else {
+    var key = gv.fl + '-' + gv.wins + '-' + gv.lap;
+    if ($('map').dataset.k !== key || !moveField($('map'), TS_, gv, leadInfo())) drawField($('map'), TS_, gv, U, leadInfo(), false);
+    $('map').dataset.k = key; cameraOf($('wrap'), $('map'), TS_, gv.pos);
+  }
+  $('fdPlace').textContent = gp + '班 ・ ' + U.area + (gv.lap ? '（' + (gv.lap + 1) + '周目）' : '');
+  $('fdName').textContent = gv.fl + '階';
+  $('fdTimer').textContent = '群れ ' + gv.wins + '/2' + (gv.wins >= 2 ? '　→ 番人の部屋が開いた！' : '') + '　🔑 ' + gv.keys + '/4';
+  if (gv.ph === 'enc') { var f = $('fdFlash'); if (!f.classList.contains('on')) { f.classList.remove('on'); void f.offsetWidth; f.classList.add('on'); } }
+}
+function leadInfo() { var m = gv.mem && gv.mem[uid]; return m ? { j: m.j, lk: m.lk, name: m.n } : null; }
+function sendMove(x, y) { ctlN++; update(ref(db, 'rooms/' + pin + '/ctl/' + uid), { x: Math.max(0, Math.min(60, x)), y: Math.max(0, Math.min(60, y)), n: ctlN }).catch(function () {}); }
+var KEYS = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0], w: [0, -1], s: [0, 1], a: [-1, 0], d: [1, 0] };
+addEventListener('keydown', function (e) {
+  if (view === 's-battle' && /^[1-3]$/.test(e.key) && !e.target.closest('input')) { setTarget(+e.key - 1); return; }
+  if (view !== 's-field' || !gv) return;
+  var k = KEYS[e.key]; if (k) { e.preventDefault(); sendMove(gv.pos[0] + k[0], gv.pos[1] + k[1]); }
+});
+$('wrap').addEventListener('click', function (e) { if (view !== 's-field') return; var c = cellAt($('map'), TS_, e); sendMove(c[0], c[1]); });
+document.querySelectorAll('.fd-pad button').forEach(function (b) { b.onclick = function () { var d = b.dataset.d.split(',').map(Number); if (gv) sendMove(gv.pos[0] + d[0], gv.pos[1] + d[1]); }; });
+
+/* ------------------------------------------------------------ 探索（ほかの人：練習問題） */
+function prac() {
+  if (go('s-prac')) drawQ();
+  var lead = state.gp && state.gp[gp] && gv.mem ? gv.mem[state.gp[gp].lead] : null;
+  $('prPlace').textContent = gp + '班 ・ ' + U.area + '　' + gv.fl + '階';
+  $('prState').textContent = (gv.ph === 'enc' ? 'ワスレモノとぶつかった！' : (lead ? lead.n + '（リーダー）が探索中' : '探索中')) + '　群れ ' + gv.wins + '/2　🔑 ' + gv.keys + '/4';
+  $('prStat').innerHTML = statHtml(gv.mem && gv.mem[uid]) + '<div class="mut" style="font-size:.85em">練習問題：正解でMP +1</div>';
+}
+function statHtml(m) {
+  if (!m) return '';
+  return '<div class="row" style="gap:.4em"><span class="lbl">HP</span><div class="bar hp grow"><i style="width:' + (100 * m.hp / m.mx) + '%"></i><b>' + m.hp + '/' + m.mx + '</b></div></div>' +
+         '<div class="row" style="gap:.4em"><span class="lbl">MP</span><div class="bar mp grow"><i style="width:' + (m.mp / MP_MAX * 100) + '%"></i><b>' + m.mp + '/' + MP_MAX + '</b></div></div>';
+}
+
+/* ------------------------------------------------------------ 問題（練習・戦闘で共通。採点は先生のPC） */
+var sel = 0, myPick = 0, qn = -1;
+function qBox() { return view === 's-battle' ? $('cmd') : view === 's-prac' ? $('prCmd') : null; }
+function drawQ() {
+  var box = qBox(); if (!box || !qs) return;
+  if (qs.r && qs.r.n === qs.n) return drawResult(box);
+  if (box.dataset.n === String(qs.n) && box.firstChild) { if (view === 's-battle') drawBattleCtl(); return; }
+  box.dataset.n = qs.n; sel = 0; qn = qs.n; box.textContent = '';
+  var me = gv && gv.mem && gv.mem[uid];
+  if (view === 's-battle' && me && me.dn) box.appendChild(el('div', 'downbox', '💤 たおれてしまった…　あと ' + (3 - me.dn) + '問 正解で復活'));
+  var qb = el('div', 'qbox'); qb.appendChild(el('span', 'qnum', (view === 's-battle' ? (me && me.dn ? '復活の問題' : 'ねらい：' + tgtName()) : '練習問題（正解でMP +1）') + (qs.mu ? '（あてはまるものを すべて）' : '')));
+  qb.appendChild(document.createTextNode(qs.t)); box.appendChild(qb);
+  box.classList.toggle('has-img', !!qs.img);
+  if (qs.img) box.appendChild(cmdImg(qs.img, qs.imgAlt));
+  var chs = el('div', 'choices'), sub = el('button', 'btn hide', '答える'); sub.type = 'button'; sub.disabled = true;
+  (qs.ch || []).forEach(function (c, i) {
+    var b = el('button'); b.type = 'button';
+    if (c.image) { var ci = el('img'); ci.src = c.image; ci.alt = c.alt || ''; ci.style.maxHeight = '3em'; b.appendChild(ci); }
+    b.appendChild(document.createTextNode(c.t || ''));
+    b.onclick = function () {
+      if (qs.mu) { sel ^= (1 << i); b.classList.toggle('sel', !!(sel & (1 << i))); b.setAttribute('aria-pressed', sel & (1 << i) ? 'true' : 'false'); sub.disabled = !sel; }
+      else answer({ c: i });
+    };
+    chs.appendChild(b);
+  });
+  box.appendChild(chs);
+  if (qs.mu) { sub.classList.remove('hide'); sub.onclick = function () { if (sel) answer({ m: sel }); }; box.appendChild(sub); }
+  if (view === 's-battle') drawBattleCtl();
+}
+function answer(a) {
+  myPick = a.c != null ? (1 << a.c) : (a.m || 0);
+  qBox().querySelectorAll('.choices button, .btn').forEach(function (b) { b.disabled = true; });
+  a.t = TS; set(ref(db, 'rooms/' + pin + '/answers/' + qs.n + '/' + uid), a).catch(function () {});
+}
+function drawResult(box) {
+  var r = qs.r, key = 'r' + r.n; if (box.dataset.n === key) return; box.dataset.n = key;
+  box.querySelectorAll('.choices button').forEach(function (b, i) { b.classList.remove('sel'); if (r.cor & (1 << i)) b.classList.add('right', 'ans-ok'); else { b.classList.add('dim'); if (myPick & (1 << i)) b.classList.add('ans-ng'); } });
+  box.appendChild(el('div', 'banner ' + (r.ok ? 'ok' : 'ng'), r.ok ? (view === 's-battle' ? '✓ せいかい！ ' + (r.rv ? '復活に近づいた' : tgtName() + 'に攻撃！') : '✓ せいかい！ MP +1') : '✕ ざんねん…'));
+  if (r.ex && !r.ok) box.appendChild(el('div', 'qex', '💡 ' + r.ex));
+}
+
+/* ------------------------------------------------------------ 戦闘 */
+var POS = { 1: [96], 2: [90, 94], 3: [88, 94, 86], 4: [84, 90, 82, 88] };
+function battle() {
+  var first = go('s-battle'), me = gv.mem && gv.mem[uid];
+  $('s-battle').classList.toggle('boss', gv.kind === 'boss');
+  $('btBg').style.backgroundImage = 'url(' + battleBg(U) + ')';
+  var fs = $('foes');
+  if (first || fs.children.length !== (gv.foes || []).length) buildFoes();
+  updFoes(me);
+  $('bStat').innerHTML = statHtml(me);
+  drawTeam();
+  midBar();
+  if (first) { $('cmd').dataset.n = ''; drawQ(); } else drawBattleCtl();
+}
+function buildFoes() {
+  var box = $('foes'); box.innerHTML = '';
+  (gv.foes || []).forEach(function (f, i) {
+    var h = (POS[gv.foes.length] || POS[4])[i] || 86, e = el('div', 'enemy' + (f.fin ? ' final' : '')); e.dataset.i = i;
+    e.style.height = (f.fin ? 100 : h) + '%'; e.style.marginBottom = (i % 2 * 3) + '%';
+    e.innerHTML = '<span class="hint">クリックでねらう</span><span class="aim">▼ ねらう</span><span class="weak"></span><div class="etag"><span></span><div class="bar hp"><i></i></div></div><img alt="" src="' + esc(f.img) + '"><div class="eshadow"></div><span class="windmark"></span>';
+    if (f.gd || f.fin) e.querySelector('img').style.scale = '-1 1';
+    e.onclick = function () { setTarget(i); };
+    box.appendChild(e);
+  });
+}
+function updFoes(me) {
+  document.querySelectorAll('#foes .enemy').forEach(function (e) {
+    var i = +e.dataset.i, f = gv.foes[i]; if (!f) return;
+    e.querySelector('.bar i').style.width = (100 * f.hp / f.mx) + '%';
+    e.classList.toggle('dead', f.hp <= 0); e.classList.toggle('chg', f.chg > 0 && f.hp > 0); e.classList.toggle('barrier', !!f.br);
+    e.classList.toggle('wind', !!f.aim && f.hp > 0 && !(f.chg > 0));
+    var who = f.aim && gv.mem[f.aim]; e.querySelector('.windmark').textContent = who ? '❗ ' + (f.aim === uid ? 'あなた' : who.n) + 'をねらっている' : '';
+    var tg = me && me.tg === i && f.hp > 0; e.classList.toggle('tg', tg); e.querySelector('.aim').style.display = tg ? '' : 'none';
+    var sp = e.querySelector('.etag span'); sp.textContent = f.chg > 0 && f.hp > 0 ? '⚠ ためている ' + f.chg : f.st ? '💫 ' + f.n : f.n; sp.classList.toggle('cg', f.chg > 0 && f.hp > 0);
+    var w = weakOf(f.t), showWeak = (gv.grp && gv.grp.rv) || (me && me.j === 'summoner');
+    e.querySelector('.weak').textContent = showWeak && w ? '苦手 ' + ELEM[w].ic + ELEM[w].n : '';
+  });
+}
+function drawTeam() {
+  $('teambar').innerHTML = Object.keys(gv.mem || {}).map(function (id) {
+    var o = gv.mem[id], aimed = (gv.foes || []).some(function (f) { return f.aim === id && f.hp > 0; });
+    return '<div class="chip' + (id === uid ? ' me' : '') + (o.dn ? ' ko' : '') + (aimed ? ' aimed' : '') + '"><img alt="" src="' + heroImg(o.j, o.lk) + '">' +
+      '<div class="bar hp"><i style="width:' + (100 * o.hp / o.mx) + '%"></i></div>' + (o.dn ? '💤' : '') + esc(id === uid ? 'あなた' : o.n) + '</div>';
+  }).join('');
+}
+function midBar() {
+  var f = gv.foes && gv.foes[0], boss = gv.kind === 'boss' && f, chg = (gv.foes || []).filter(function (x) { return x.chg > 0 && x.hp > 0; })[0];
+  $('midNm').textContent = boss ? '👑 ' + f.n : gv.fl + '階 ・ ' + (gv.kind === 'guard' ? '番人の部屋' : 'ワスレモノの群れ');
+  $('bossHp').classList.toggle('hide', !boss); if (boss) $('bossHp').querySelector('i').style.width = (100 * f.hp / f.mx) + '%';
+  var st = $('midSt'); st.className = 'st' + (chg ? ' cg' : boss && f.br ? ' br' : '');
+  var need = gv.kind === 'boss' ? 4 : 3;
+  st.textContent = chg ? '⚠ ' + chg.n + ' 強い攻撃まで ' + chg.chg + '秒（班で正解 ' + (gv.gc || 0) + '/' + need + 'でガード）' : boss && f.br ? '🛡 バリア：手下を倒すと消える' : groupStatus();
+}
+function groupStatus() { var g = gv.grp || {}, a = []; if (g.sh) a.push('🛡 守り'); if (g.bf) a.push('⚔ 攻撃アップ'); if (g.rg) a.push('💚 じわじわ回復'); if (g.eb) a.push(ELEM[g.eb].ic + '精霊の力'); if (g.tr) a.push('🪤 わな'); if (g.mr) a.push('🌪 MPアップ'); return a.join('　'); }
+function tgtName() { var me = gv && gv.mem && gv.mem[uid], f = me && gv.foes && gv.foes[me.tg]; return f ? f.n : '-'; }
+function setTarget(i) { if (!gv || !gv.foes || !gv.foes[i] || gv.foes[i].hp <= 0) return; update(ref(db, 'rooms/' + pin + '/ctl/' + uid), { tg: i }).catch(function () {}); if (gv.mem[uid]) gv.mem[uid].tg = i; updFoes(gv.mem[uid]); drawBattleCtl(); }
+/* ねらい・技・精霊・僧侶の切りかえ（問題の欄のいちばん下の行） */
+function drawBattleCtl() {
+  var box = $('cmd'); if (view !== 's-battle' || !box) return;
+  var me = gv.mem && gv.mem[uid]; if (!me) return;
+  var row = $('skills'); if (!row) { row = el('div', 'skillrow'); row.id = 'skills'; box.appendChild(row); }
+  var key = JSON.stringify([me.mp, me.dn, me.tg, me.el, me.md, (gv.foes || []).map(function (f) { return f.hp > 0 ? 1 : 0; })]);
+  if (row.dataset.k === key) return; row.dataset.k = key; row.textContent = '';
+  var tg = el('div', 'tgtrow'); tg.appendChild(el('span', 'lbl2', 'ねらい'));
+  (gv.foes || []).forEach(function (f, i) {
+    var b = el('button', (i === me.tg && f.hp > 0 ? 'on' : '') + (f.hp <= 0 ? ' dead' : '') + (f.chg > 0 && f.hp > 0 ? ' cg' : '')); b.type = 'button';
+    b.innerHTML = '<kbd>' + (i + 1) + '</kbd><img alt="" src="' + esc(f.img) + '">' + esc(f.n); b.onclick = function () { setTarget(i); }; tg.appendChild(b);
+  });
+  row.appendChild(tg);
+  if (me.j === 'summoner') {
+    var er = el('div', 'elemrow'); er.appendChild(el('span', 'lbl2', '精霊'));
+    ELEMS.forEach(function (k) { var b = el('button', me.el === k ? 'on' : '', ELEM[k].ic + ELEM[k].n); b.type = 'button'; b.style.setProperty('--ec', ELEM[k].col); b.title = ELEM[k].sp; b.onclick = function () { update(ref(db, 'rooms/' + pin + '/ctl/' + uid), { el: k }).catch(function () {}); }; er.appendChild(b); });
+    row.appendChild(er);
+  }
+  if (me.j === 'priest') {
+    var pr = el('div', 'elemrow'); pr.appendChild(el('span', 'lbl2', '正解したら'));
+    [['atk', '⚔ 攻撃'], ['heal', '💚 回復']].forEach(function (x) { var b = el('button', me.md === x[0] ? 'on' : '', x[1]); b.type = 'button'; b.style.setProperty('--ec', '#5b9c6b'); b.onclick = function () { update(ref(db, 'rooms/' + pin + '/ctl/' + uid), { md: x[0] }).catch(function () {}); }; pr.appendChild(b); });
+    row.appendChild(pr);
+  }
+  row.appendChild(el('span', 'lbl2', '技'));
+  var ld = loadoutOf(ch);
+  ld.a.concat(ld.u >= 0 ? [ld.u] : []).forEach(function (i) {
+    var s = JOBS[ch.j].sk[i], b = el('button', 'act' + (s.ult ? ' ult' : '')); b.type = 'button';
+    b.appendChild(el('b', '', skillName(ch.j, i, rankOf(ch, i), me.el))); b.appendChild(el('span', 'mp', 'MP ' + s.mp));
+    b.title = s.d; b.disabled = me.mp < s.mp || !!me.dn;
+    b.onclick = function () { b.disabled = true; actN++; set(ref(db, 'rooms/' + pin + '/act/' + uid), { n: actN, a: i }).catch(function () {}); };
+    row.appendChild(b);
+  });
+}
+
+/* ------------------------------------------------------------ 結果 */
+async function showResult() {
+  done = true; view = 's-result';
+  try { localStorage.removeItem('qraft.rikaria'); } catch (e) {}
+  var r = null; for (var k = 0; k < 20 && !r; k++) { r = (await get(ref(db, 'rooms/' + pin + '/res/' + uid))).val(); if (!r) await new Promise(function (ok) { setTimeout(ok, 700); }); }
+  var box = $('rCards'); box.textContent = '';
+  if (r) {
+    if (r.boss) { $('rTitle').textContent = U.boss.n + ' を たおした！'; $('rStory').textContent = U.area + 'の霧が晴れ、「' + U.unit + 'の知識」がもどってきた。'; $('rStory').classList.remove('hide'); confetti($('conf'), 40); }
+    [['けいけんち', '+' + r.exp], ['ゴールド', '+' + r.gold], ['正解', r.ok + '/' + r.ans], ['班の進み', r.fl > 4 ? 'ボスの間' : r.fl + '階 🔑' + r.keys]].forEach(function (x) { var c = el('div', 'card'); c.appendChild(el('span', 'mut', x[0])); c.appendChild(el('b', '', x[1])); box.appendChild(c); });
+    if (r.up) { $('rLv').textContent = 'LEVEL UP! Lv.' + r.lv; $('rLv').classList.remove('hide'); }
+    $('rNote').textContent = (r.ttl ? '称号「' + r.ttl + '」を手に入れた！　' : '') + (r.sp ? 'スキルポイント +' + r.sp + '（次の準備画面で技を上げられる）　' : '') + 'つづきは次の授業で。';
+  } else $('rNote').textContent = '結果を読みこめませんでした';
+  showScreen('s-result');
+}
+</script>
+</body>
+</html>

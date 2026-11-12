@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="ja" data-bg="lab">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>リカリア チーム戦（先生）</title>
+<link rel="icon" type="image/png" href="img/favicon-32.png">
+<link rel="stylesheet" href="theme.css?v=20261113060818">
+<link rel="stylesheet" href="quest.css?v=20261113060818">
+<link rel="stylesheet" href="rikaria.css?v=20261113060818">
+<style>
+  #app { background:url(img/rikaria/title-bg.webp) center/cover no-repeat, #1d1648; }
+  .q-bg-r { background:rgba(10,6,36,.6); }
+  #s-run { padding:.6em; gap:.5em; background:#0a0720; }
+  .pj-grid { flex:1; display:grid; gap:.5em; min-height:0; }
+  .gp-card { background:rgba(14,8,40,.8); border-radius:1em; padding:.7em 1em; display:flex; flex-direction:column; gap:.4em; }
+  .gp-card .mem-mini span { display:inline-flex; align-items:center; gap:.2em; margin:0 .4em .2em 0; font-weight:800; }
+  .gp-card .mem-mini img { height:2em; }
+  .gp-card .mem-mini .ko { opacity:.45; }
+  .gp-card .prog { font-size:.85em; opacity:.85; }
+  .tm .lead { position:absolute; right:.6em; bottom:2em; z-index:41; font-size:.75em; }
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ① 準備 -->
+<section class="screen q-bg-r" id="s-setup" style="overflow:auto">
+  <div class="wrap">
+    <div class="row"><a class="backlink" href="rikaria.html" style="color:#fff">← リカリアへ</a><div class="grow"></div></div>
+    <div class="row" style="gap:.8em"><img src="img/rikaria/logo.webp" alt="Rikaria" style="height:3.6em"><div class="q-title">チーム戦（先生）</div></div>
+    <div class="panel" style="display:flex;flex-direction:column;gap:.8em">
+      <div class="form-row"><b>クラス</b>
+        <select id="selG" aria-label="学年"><option value="1">1年</option><option value="2">2年</option><option value="3">3年</option></select>
+        <select id="selC" aria-label="組"></select>
+        <span class="q-sub" id="townInfo"></span></div>
+      <div class="form-row"><b>時間</b><div class="seg" id="segTime"><button type="button" data-v="300">5分</button><button type="button" data-v="600" class="on">10分</button><button type="button" data-v="900">15分</button></div></div>
+      <div class="form-row"><b>パスワード</b><input type="password" id="pw" autocomplete="off" placeholder="問題ファイルのパスワード"></div>
+      <div class="tc-note">最初に選んだセットの単元が、冒険するダンジョンになります。どこで終わっても、班ごとに続きから始まります。</div>
+    </div>
+    <div class="qp-white"><div id="picker"></div></div>
+    <div class="selbar hide" id="selBar"><span id="selInfo"></span><span id="selChips"></span><button type="button" class="linkbtn" id="selClear">選びなおす</button></div>
+    <div style="text-align:center"><button class="btn" id="btnCreate" type="button">部屋を作る</button></div>
+    <div id="setupErr" class="err hide" role="alert"></div>
+  </div>
+</section>
+
+<!-- ② 待機室（班ごと） -->
+<section class="screen q-bg-r" id="s-lobby" style="gap:1em">
+  <div class="tc-head">
+    <div class="grow"><div class="q-sub" id="lbSub"></div><div class="q-title" id="lbTitle"></div></div>
+    <div class="panel row" style="padding:.5em 1em"><span class="q-sub">参加コード</span><span class="tc-pin" id="pin"></span></div>
+    <div class="panel" id="qrcard" style="padding:.4em"><div class="qr" id="qr" style="width:6em"></div></div>
+  </div>
+  <div class="panel"><span class="q-sub">① このアドレスを開く：</span> <b id="joinUrl"></b>　<span class="q-sub">② 参加コード・出席番号・班を入れる　③ 技をえらんで準備OK</span></div>
+  <div class="row"><b class="grow">👥 <span id="pcount">0</span>人が参加中　<span id="lbHint" class="q-sub"></span></b>
+    <button class="btn quit" id="btnQuit" type="button">やめる</button><button class="snd"></button>
+    <button class="btn tc-big" id="btnStart" type="button" disabled>出発！</button></div>
+  <div class="tc-grid" id="groups" style="grid-template-columns:repeat(auto-fill,minmax(16em,1fr))"></div>
+</section>
+
+<!-- ③ 冒険中：全班を分割して映す -->
+<section class="screen" id="s-run">
+  <div class="pj-head"><div><span class="q-sub" id="runSub"></span> <span class="q-title" id="runTitle"></span></div>
+    <div class="row" style="gap:.6em"><button class="snd"></button><div class="panel" style="padding:.3em 1em">のこり <b style="color:var(--q-gold)" id="clock">0:00</b></div><button class="btn ghost" id="btnEnd" type="button">終了して保存</button></div></div>
+  <div class="pj-grid" id="pjGrid"></div>
+</section>
+
+<!-- ④ 結果 -->
+<section class="screen center q-bg-r" id="s-end" style="gap:1em">
+  <div class="confetti" id="conf"></div>
+  <div class="lvup" id="endTitle" style="font-size:2.4em">今日の冒険おわり</div>
+  <div class="tc-grid" id="endGroups" style="width:min(70em,94%);grid-template-columns:repeat(auto-fill,minmax(16em,1fr))"></div>
+  <div class="q-sub" id="endNote"></div>
+  <button class="btn sub" id="btnClose" type="button">部屋を閉じる</button>
+</section>
+
+</div>
+
+<script src="firebase-config.js?v=20261113060818"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<script type="module">
+import { signIn, db, ref, set, get, update, remove, onValue, serverNow, shuffle, mountSetPicker,
+         decryptSet, prepareQuestion, maskOf, $, showScreen, confetti, qrSvg } from './lib.js?v=20261113060818';
+import { onChildAdded, onChildChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { fiscalYear } from './quest.js?v=20261113060818';
+import { TOWN, TOWN_DEFAULT } from './quest.js?v=20261113060818';
+import { JOBS, heroImg, statsOf, unitOf, addExp, bossSp, bossTitle, migrateChar, battleBg, LV_MAX } from './rikaria-data.js?v=20261113060818';
+import * as E from './rikaria-engine.js?v=20261113060818';
+import { el, esc, drawField, moveField, cameraOf, ovban, MAP } from './rikaria-view.js?v=20261113060818';
+import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261113060818b';
+
+wireSoundButtons(); preload(['top']); bgm('top');
+var TS = { '.sv': 'timestamp' };
+var uid = null, pin = null, YEAR = fiscalYear(), SETS = [], picked = {}, picker = null, POOL = [];
+var S = null, U = null, CLS = null, players = {}, GR = {}, P = {}, ended = false, loopId = null, endsAt = 0;
+
+function opt(sel, v, t) { var o = el('option', '', t); o.value = v; sel.appendChild(o); }
+for (var c = 1; c <= 9; c++) opt($('selC'), c, c + '組');
+function segVal(id) { return document.querySelector('#' + id + ' button.on').dataset.v; }
+document.querySelectorAll('.seg').forEach(function (s) { s.addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; s.querySelectorAll('button').forEach(function (x) { x.classList.toggle('on', x === b); }); }); });
+function clsKey() { return $('selG').value + '-' + $('selC').value; }
+function qpath(p) { return 'quest/' + YEAR + '/' + p; }
+function setupErr(m) { $('setupErr').textContent = m; $('setupErr').classList.remove('hide'); }
+function num(sid) { return Number(String(sid || '').split('-')[2]) || 0; }
+
+/* ------------------------------------------------------------ 準備 */
+(async function init() {
+  showScreen('s-setup');
+  try {
+    uid = (await signIn()).uid;
+    if ((await get(ref(db, 'admins/' + uid))).val() !== true) throw new Error('この端末は先生の端末として登録されていません。先に記録画面（records.html）で登録してください。');
+    var all = await (await fetch('questions/index.json', { cache: 'no-cache' })).json();
+    SETS = all.filter(function (s) { return !(s.types && s.types.text); });
+    try { $('pw').value = sessionStorage.getItem('qraft.pw') || ''; } catch (e) {}
+    try { var last = JSON.parse(localStorage.getItem('qraft.rikaria.last') || '{}'); if (last.g) $('selG').value = last.g; if (last.c) $('selC').value = last.c; if (last.t) document.querySelectorAll('#segTime button').forEach(function (b) { b.classList.toggle('on', b.dataset.v === String(last.t)); }); (last.sets || []).forEach(function (f) { if (SETS.some(function (s) { return s.file === f; })) picked[f] = true; }); } catch (e) {}
+    picker = mountSetPicker($('picker'), { sets: SETS, key: function (s) { return s.file; }, picked: picked, onChange: updateSel }); updateSel();
+    $('selClear').onclick = function () { Object.keys(picked).forEach(function (k) { delete picked[k]; }); picker.render(); updateSel(); };
+    $('selG').onchange = $('selC').onchange = showTown; showTown();
+  } catch (e) { setupErr(e.message); $('btnCreate').disabled = true; }
+})();
+function firstSet() { var ids = Object.keys(picked); return SETS.filter(function (x) { return x.file === ids[0]; })[0]; }
+function updateSel() {
+  var ids = Object.keys(picked), n = 0;
+  ids.forEach(function (f) { var s = SETS.filter(function (x) { return x.file === f; })[0]; if (s) n += s.count; });
+  $('selBar').classList.toggle('hide', !ids.length);
+  var f = firstSet(), u = f && unitOf(f.grade, f.unit);
+  $('selInfo').textContent = '選んだセット：' + ids.length + ' つ・合計 ' + n + ' 問' + (u ? '　ダンジョン：' + u.area + '（' + u.unit + '）' : '');
+  var chips = $('selChips'); chips.textContent = '';
+  ids.forEach(function (k) {
+    var s = SETS.filter(function (x) { return x.file === k; })[0]; if (!s) return;
+    var c = el('span', 'chip2'); c.appendChild(el('span', '', (s.grade ? s.grade + '年 ' : '') + s.title));
+    var x = el('button', '', '×'); x.type = 'button'; x.setAttribute('aria-label', s.title + 'をはずす');
+    x.onclick = function () { delete picked[k]; picker.render(); updateSel(); };
+    c.appendChild(x); chips.appendChild(c);
+  });
+}
+async function showTown() { var v = (await get(ref(db, qpath('classes/' + clsKey())))).val() || {}; $('townInfo').textContent = '町：' + (v.town || TOWN_DEFAULT) + '（' + TOWN[Math.min(5, v.stage || 0)].n + '）'; }
+
+$('btnCreate').onclick = async function () {
+  $('setupErr').classList.add('hide'); $('btnCreate').disabled = true;
+  try {
+    var files = Object.keys(picked).filter(function (f) { return SETS.some(function (s) { return s.file === f; }); });
+    if (!files.length) throw new Error('問題セットを1つ以上えらんでください');
+    var pwv = $('pw').value; POOL = [];
+    for (var i = 0; i < files.length; i++) {
+      var data = await (await fetch('questions/' + files[i])).json();
+      if (data.enc) { if (!pwv) throw new Error('パスワードを入れてください'); data = await decryptSet(data, pwv); }
+      data.questions.forEach(function (q) { if (q.type !== 'text') POOL.push(q); });
+    }
+    if (!POOL.length) throw new Error('選択式の問題がありません');
+    try { if (pwv) sessionStorage.setItem('qraft.pw', pwv); localStorage.setItem('qraft.rikaria.last', JSON.stringify({ g: $('selG').value, c: $('selC').value, sets: files, t: segVal('segTime') })); } catch (e) {}
+    var f = firstSet(); U = unitOf(f.grade, f.unit);
+    CLS = (await get(ref(db, qpath('classes/' + clsKey())))).val() || {};
+    for (var k = 0; k < 20; k++) { pin = String(Math.floor(100000 + Math.random() * 900000)); if (!(await get(ref(db, 'rooms/' + pin + '/hostUid'))).exists()) break; }
+    await set(ref(db, 'rooms/' + pin + '/hostUid'), uid);
+    S = { mode: 'rikaria', phase: 'lobby', bg: 'lab', y: YEAR, g: Number($('selG').value), c: Number($('selC').value), unit: U.id, tl: Number(segVal('segTime')) };
+    await set(ref(db, 'rooms/' + pin + '/state'), S);
+    onValue(ref(db, 'rooms/' + pin + '/players'), function (s) { players = s.val() || {}; renderLobby(); if (S.phase === 'run') lateJoin(); });
+    var base = location.href.replace(/rikaria-host\.html.*$/, '');
+    $('joinUrl').textContent = base.replace(/^https?:\/\//, '') + 'rikaria-play.html';
+    $('pin').textContent = pin.slice(0, 3) + ' ' + pin.slice(3);
+    $('lbSub').textContent = S.g + '年' + S.c + '組 ・ ' + (S.tl / 60) + '分';
+    $('lbTitle').textContent = U.area + '（' + U.unit + '）';
+    var svg = qrSvg(base + 'rikaria-play.html?pin=' + pin); if (svg) $('qr').innerHTML = svg; else $('qrcard').classList.add('hide');
+    showScreen('s-lobby'); preload(['lobby', 'quiz']); bgm('lobby');
+    window.addEventListener('beforeunload', function (e) { if (!ended && S.phase === 'run') { e.preventDefault(); e.returnValue = ''; } });
+  } catch (e) { setupErr('部屋を作れませんでした: ' + e.message); $('btnCreate').disabled = false; }
+};
+
+/* ------------------------------------------------------------ 待機室 */
+function byGroup() { var g = {}; Object.keys(players).forEach(function (u) { var n = players[u].gp || 0; (g[n] = g[n] || []).push(u); }); return g; }
+function renderLobby() {
+  var ids = Object.keys(players); $('pcount').textContent = ids.length;
+  $('btnStart').disabled = !ids.length || S.phase !== 'lobby';
+  if (S.phase !== 'lobby') return;
+  var g = byGroup(), box = $('groups'); box.textContent = ''; var readyG = 0, nG = 0;
+  Object.keys(g).sort(function (a, b) { return a - b; }).forEach(function (n) {
+    nG++; var c = el('div', 'gp-card'), all = true; c.appendChild(el('b', '', Number(n) ? n + '班' : '班が未選択'));
+    var mm = el('div', 'mem-mini');
+    g[n].sort(function (a, b) { return num(players[a].sid) - num(players[b].sid); }).forEach(function (u) {
+      var p = players[u]; if (!p.rd) all = false;
+      var sp = el('span', p.rd ? '' : 'ko'); var im = el('img'); im.src = heroImg(p.j, p.lk); im.alt = ''; sp.appendChild(im);
+      sp.appendChild(document.createTextNode(num(p.sid) + '番 ' + p.nick));
+      var x = el('button', 'chip-x', '×'); x.type = 'button'; x.title = '退出させる'; x.setAttribute('aria-label', p.nick + 'を退出させる');
+      x.onclick = function () { var up = {}; up['kicked/' + u] = true; up['players/' + u] = null; update(ref(db, 'rooms/' + pin), up); };
+      sp.appendChild(x); mm.appendChild(sp);
+    });
+    c.appendChild(mm); c.appendChild(el('small', '', all ? '✅ 全員準備OK' : '準備中（うすい人がまだ）'));
+    if (all) { c.classList.add('ready'); readyG++; }
+    box.appendChild(c);
+  });
+  $('lbHint').textContent = '準備OKの班 ' + readyG + ' / ' + nG + '（そろっていなくても出発できます）';
+}
+$('btnQuit').onclick = async function () { ended = true; await remove(ref(db, 'rooms/' + pin)); location.reload(); };
+
+/* ------------------------------------------------------------ 出発：班ごとにエンジンを作る */
+var OWN = {}, CH = {};
+async function owns(u, sid) { var k = sid + '/' + u; if (OWN[k] == null) { try { OWN[k] = (await get(ref(db, qpath('owners/' + k)))).exists(); } catch (e) { OWN[k] = false; } } return OWN[k]; }
+async function loadChar(u) {
+  if (CH[u]) return CH[u];
+  var p = players[u], ch = null;
+  if (await owns(u, p.sid)) { ch = (await get(ref(db, qpath('chars/' + p.sid)))).val(); if (ch) migrateChar(ch); }
+  CH[u] = ch || { n: p.nick, j: p.j, lk: p.lk, lv: p.lv || 1, guest: true };
+  return CH[u];
+}
+function memOf(u) { var p = players[u], ch = CH[u], st = statsOf(ch, true); return { id: u, name: ch.n || p.nick, j: ch.j, lk: ch.lk || p.lk, lv: ch.lv || 1, atk: st.atk, def: st.def, mhp: st.mhp, sr: ch.sr || {}, ld: ch.ld || null }; }
+function progPath(n) { return qpath('teams/' + S.g + '-' + S.c + '/' + U.id + '/' + n); }
+/* リーダー：前回のリーダーの次の出席番号（その日に来ている人の中で） */
+function pickLeader(uids, lastSid) {
+  var list = uids.slice().sort(function (a, b) { return num(players[a].sid) - num(players[b].sid); }), ln = num(lastSid);
+  return (list.filter(function (u) { return num(players[u].sid) > ln; })[0]) || list[0];
+}
+$('btnStart').onclick = async function () {
+  $('btnStart').disabled = true; $('lbHint').textContent = 'キャラと班の進み具合を読みこんでいます…';
+  var ids = Object.keys(players).filter(function (u) { return players[u].gp; });
+  ids.forEach(function (u) { P[u] = { n: 0, queue: [] }; });   /* 途中参加（lateJoin）と二重に入れない */
+  await Promise.all(ids.map(loadChar));
+  var g = byGroup(), gp = {};
+  for (var n of Object.keys(g)) {
+    if (!Number(n)) continue;
+    var prog = (await get(ref(db, progPath(n)))).val() || {};
+    var lead = pickLeader(g[n], prog.lead);
+    GR[n] = { G: E.newGroup({ unit: U, lap: prog.lap || 0, fl: prog.fl || 1, keys: prog.keys || 0, wins: prog.wins || 0, mem: g[n].map(memOf), snap: prog.snap || null }),
+              lead: lead, prog: prog, bossLaps: [], who: Object.assign({}, prog.who || {}) };
+    gp[n] = { lead: lead };
+  }
+  endsAt = serverNow() + S.tl * 1000;
+  S.phase = 'run'; S.gp = gp; S.ends = endsAt;
+  await update(ref(db, 'rooms/' + pin + '/state'), { phase: 'run', gp: gp, ends: endsAt });
+  onChildAdded(ref(db, 'rooms/' + pin + '/answers'), onAnsBucket); onChildChanged(ref(db, 'rooms/' + pin + '/answers'), onAnsBucket);
+  onChildAdded(ref(db, 'rooms/' + pin + '/act'), onAct); onChildChanged(ref(db, 'rooms/' + pin + '/act'), onAct);
+  onChildAdded(ref(db, 'rooms/' + pin + '/ctl'), onCtl); onChildChanged(ref(db, 'rooms/' + pin + '/ctl'), onCtl);
+  $('runSub').textContent = S.g + '年' + S.c + '組'; $('runTitle').textContent = U.area;
+  buildGrid(); showScreen('s-run'); sfx('go'); bgm('quiz');
+  ids.forEach(function (u) { if (GR[players[u].gp]) sendQ(u); });
+  loopId = setInterval(loop, 500);
+};
+/* 途中から来た人：その班に入れる（班がなければ新しく作る） */
+async function lateJoin() {
+  for (var u of Object.keys(players)) {
+    if (P[u] || !players[u].gp) continue;
+    P[u] = { n: 0 }; await loadChar(u);
+    var n = players[u].gp;
+    if (!GR[n]) {
+      var prog = (await get(ref(db, progPath(n)))).val() || {};
+      GR[n] = { G: E.newGroup({ unit: U, lap: prog.lap || 0, fl: prog.fl || 1, keys: prog.keys || 0, wins: prog.wins || 0, mem: [memOf(u)], snap: prog.snap || null }), lead: u, prog: prog, bossLaps: [], who: Object.assign({}, prog.who || {}) };
+      S.gp[n] = { lead: u }; await update(ref(db, 'rooms/' + pin + '/state/gp'), S.gp); buildGrid();
+    } else E.addMember(GR[n].G, memOf(u));
+    P[u] = null; sendQ(u);
+  }
+}
+
+/* ------------------------------------------------------------ 出題と採点（1人ずつ別の問題。正解は生徒の端末に送らない） */
+function sendQ(u) {
+  if (ended || !players[u] || !GR[players[u].gp]) return;
+  var p = P[u] = P[u] || { n: 0, queue: [] };
+  if (!p.queue || !p.queue.length) p.queue = shuffle(POOL.map(function (_, i) { return i; }));
+  var qi = p.queue.pop(), q = prepareQuestion(POOL[qi], true); q.qi = qi;
+  p.n++; p.cur = q; p.wait = true;
+  set(ref(db, 'rooms/' + pin + '/qs/' + u), { n: p.n, t: q.text, img: q.image || '', imgAlt: q.imageAlt || '', ch: q.choices, mu: q.multi ? 1 : 0 });
+}
+function onAnsBucket(snap) { var n = Number(snap.key), v = snap.val() || {}; Object.keys(v).forEach(function (u) { var p = P[u]; if (p && p.n === n && p.wait) grade(u, v[u]); }); }
+function grade(u, a) {
+  var p = P[u], q = p.cur, mask = a.c != null ? (1 << a.c) : a.m, cor = maskOf(q.correct), ok = mask === cor, R = GR[players[u].gp];
+  p.wait = false;
+  var wasDown = R && R.G.mem[u] && R.G.mem[u].dn;
+  if (R) E.answer(R.G, u, ok);
+  set(ref(db, 'rooms/' + pin + '/qs/' + u + '/r'), { n: p.n, ok: ok ? 1 : 0, cor: cor, ex: q.ex || '', rv: wasDown ? 1 : 0 });
+  if (!ok) { var pos = Math.min(p.queue.length, 3 + Math.floor(Math.random() * 4)); p.queue.splice(p.queue.length - pos, 0, q.qi); }   /* まちがえた問題は数問あとに */
+  setTimeout(function () { sendQ(u); }, ok ? 900 : 2600);
+}
+function onAct(snap) { var u = snap.key, v = snap.val() || {}, R = players[u] && GR[players[u].gp]; if (!R || v.n == null) return; P[u] = P[u] || {}; if (P[u].act === v.n) return; P[u].act = v.n; E.skill(R.G, u, v.a); }
+function onCtl(snap) {
+  var u = snap.key, v = snap.val() || {}, R = players[u] && GR[players[u].gp]; if (!R) return;
+  if (v.tg != null) E.target(R.G, u, v.tg);
+  if (v.el) E.setElem(R.G, u, v.el);
+  if (v.md) E.setMode(R.G, u, v.md);
+  P[u] = P[u] || {};
+  if (v.n != null && v.n !== P[u].mv && R.lead === u) {
+    P[u].mv = v.n; var G = R.G, dx = v.x - G.pos[0], dy = v.y - G.pos[1];
+    if (Math.abs(dx) + Math.abs(dy) === 1) E.stepDir(G, dx, dy); else E.moveTo(G, v.x, v.y);
+  }
+}
+
+/* ------------------------------------------------------------ 0.5秒ごとに全班を進める */
+function loop() {
+  if (ended) return;
+  var left = Math.max(0, (endsAt - serverNow()) / 1000);
+  $('clock').textContent = Math.floor(left / 60) + ':' + String(Math.floor(left % 60)).padStart(2, '0');
+  Object.keys(GR).forEach(function (n) {
+    var R = GR[n], G = R.G, q0 = G.seq;
+    E.step(G, .5);
+    G.ev.forEach(function (e) { if (e.q > q0 && e.t === 'clear') { R.bossLaps.push(G.lap); sfx('fanfare'); } });
+    var v = E.view(G); set(ref(db, 'rooms/' + pin + '/gv/' + n), v).catch(function () {});
+    drawTile(n, v, q0);
+  });
+  if (left <= 0) finish();
+}
+
+/* ------------------------------------------------------------ 投影：全班 */
+function buildGrid() {
+  var ns = Object.keys(GR).sort(function (a, b) { return a - b; }), cols = ns.length <= 2 ? ns.length : ns.length <= 4 ? 2 : ns.length <= 6 ? 3 : 4;
+  var g = $('pjGrid'); g.style.gridTemplateColumns = 'repeat(' + Math.max(1, cols) + ',1fr)'; g.style.gridTemplateRows = 'repeat(' + Math.ceil(ns.length / Math.max(1, cols)) + ',1fr)';
+  g.innerHTML = ns.map(function (n) { return '<div class="tm" id="tm' + n + '"></div>'; }).join('');
+}
+function drawTile(n, v, q0) {
+  var c = $('tm' + n); if (!c) return;
+  var R = GR[n], lead = v.mem[R.lead];
+  var th = '<div class="th"><span>' + n + '班　' + (v.kind === 'boss' ? 'ボスの間' : v.fl + '階') + (v.lap ? '（' + (v.lap + 1) + '周目）' : '') + '</span><span class="k">' + '🔑'.repeat(v.keys) + '<span style="opacity:.35">' + '🔑'.repeat(Math.max(0, 4 - v.keys)) + '</span></span></div>';
+  if (v.ph === 'explore' || v.ph === 'enc') {
+    if (c.dataset.m !== 'f' || c.dataset.k !== v.fl + '-' + v.wins + '-' + v.lap) {
+      c.dataset.m = 'f'; c.dataset.k = v.fl + '-' + v.wins + '-' + v.lap;
+      c.innerHTML = th + '<div class="mfield"><div class="fd-map"></div></div><div class="status"></div>';
+      var r = c.getBoundingClientRect(); c._ts = Math.max(10, Math.floor(Math.min(r.width / 13, r.height / 8)));
+      drawField(c.querySelector('.fd-map'), c._ts, v, U, lead ? { j: lead.j, lk: lead.lk, name: lead.n } : null, true);
+    } else if (!moveField(c.querySelector('.fd-map'), c._ts, v, lead ? { j: lead.j, lk: lead.lk } : null)) drawField(c.querySelector('.fd-map'), c._ts, v, U, lead ? { j: lead.j, lk: lead.lk } : null, true);
+    cameraOf(c.querySelector('.mfield'), c.querySelector('.fd-map'), c._ts, v.pos);
+    c.querySelector('.th').outerHTML = th;
+    c.querySelector('.status').textContent = v.ph === 'enc' ? 'ワスレモノとぶつかった！' : '探索中（リーダー ' + (lead ? lead.n : '') + '）　群れ ' + v.wins + '/2' + (v.wins >= 2 ? '　番人の部屋が開いた' : '');
+  } else {
+    if (c.dataset.m !== 'b' || c.querySelectorAll('.mfoe').length !== v.foes.length) {
+      c.dataset.m = 'b'; c.dataset.k = '';
+      c.innerHTML = th + '<div class="mbg" style="background-image:url(' + battleBg(U) + ')"></div><div class="mfoes">' + v.foes.map(function (f, i) { return '<div class="mfoe' + (f.fin ? ' final' : '') + '" data-i="' + i + '"><img alt="" src="' + esc(f.img) + '"' + (f.gd || f.fin ? ' style="scale:-1 1"' : '') + '><div class="bar hp"><i></i></div></div>'; }).join('') + '</div><div class="mparty"></div><div class="status"></div>';
+    }
+    c.querySelector('.th').outerHTML = th;
+    c.querySelectorAll('.mfoe').forEach(function (e) {
+      var f = v.foes[+e.dataset.i]; if (!f) return;
+      e.querySelector('.bar i').style.width = (100 * f.hp / f.mx) + '%'; e.classList.toggle('dead', f.hp <= 0); e.classList.toggle('chg', f.chg > 0 && f.hp > 0); e.classList.toggle('barrier', !!f.br);
+      var cg = e.querySelector('.cgt'); if (f.chg > 0 && f.hp > 0) { if (!cg) { cg = el('span', 'cgt'); e.prepend(cg); } cg.textContent = 'ため ' + f.chg; } else if (cg) cg.remove();
+    });
+    c.querySelector('.mparty').innerHTML = Object.keys(v.mem).map(function (id) { var o = v.mem[id]; return '<span class="' + (o.dn ? 'ko' : '') + '"><img alt="" src="' + heroImg(o.j, o.lk) + '"><div class="bar hp"><i style="width:' + (100 * o.hp / o.mx) + '%"></i></div>' + esc(o.n) + '</span>'; }).join('');
+    var ch = v.foes.filter(function (f) { return f.chg > 0 && f.hp > 0; })[0];
+    c.querySelector('.status').textContent = v.ph === 'result' ? '' : v.kind === 'boss' && !ch ? (v.foes[0] && v.foes[0].br ? '👑 ボス戦　バリア中：手下をねらえ' : '👑 ボス戦！') : ch ? '⚠ ' + ch.n + 'が力をためている！' : v.kind === 'guard' ? '番人と戦闘中！' : '戦闘中';
+    (v.ev || []).forEach(function (e) { if (e.q > q0 && e.t === 'hit' && e.d) { var en = c.querySelector('.mfoe[data-i="' + e.i + '"]'); if (en) { var d = el('div', 'pdmg', String(e.d)); en.appendChild(d); setTimeout(function () { d.remove(); }, 1000); } } });
+  }
+  (v.ev || []).forEach(function (e) { if (e.q > q0 && e.s && e.t !== 'move' && e.t !== 'say') ovban(c, e.s, e.big || e.t === 'wipe'); });
+}
+
+/* ------------------------------------------------------------ 終了：班の進み具合・キャラ・町を保存 */
+$('btnEnd').onclick = function () { finish(); };
+async function finish() {
+  if (ended) return; ended = true; clearInterval(loopId);
+  S.phase = 'saving'; await update(ref(db, 'rooms/' + pin + '/state'), { phase: 'saving' });
+  var up = {}, res = {}, firstBoss = false, cls = CLS || {}, areas = cls.areas || {};
+  for (var n of Object.keys(GR)) {
+    var R = GR[n], G = R.G, out = E.results(G), snap = E.snapshot(G);
+    G.order.forEach(function (u) { if (players[u]) R.who[players[u].sid] = true; });
+    up[progPath(n)] = { fl: snap.fl, keys: snap.keys, wins: snap.wins, lap: snap.lap, lead: players[R.lead] ? players[R.lead].sid : '', snap: snap, who: R.who, t: TS };
+    if (R.bossLaps.some(function (l) { return l === 0; }) && !(areas[U.id] && areas[U.id].done)) firstBoss = true;
+    for (var u of G.order) {
+      var p = players[u], ch = CH[u], o = out[u]; if (!p || !ch || !o) continue;
+      var r = { exp: o.exp, gold: o.gold, ok: o.ok, ans: o.ans, fl: snap.fl, keys: snap.keys, boss: R.bossLaps.length ? 1 : 0 };
+      if (!ch.guest && (await owns(u, p.sid))) {
+        var c2 = JSON.parse(JSON.stringify(ch)); delete c2.guest;
+        var lv0 = c2.lv || 1; r.up = addExp(c2, o.exp); r.lv = c2.lv; r.sp = r.up;
+        c2.gold = (c2.gold || 0) + o.gold;
+        R.bossLaps.forEach(function (l) { var b = bossSp(l); c2.sp = (c2.sp || 0) + b; c2.spt = (c2.spt || 0) + b; r.sp += b; });
+        if (R.bossLaps.length) { r.ttl = bossTitle(U, Math.max.apply(null, R.bossLaps)); c2.ttl = Object.assign({}, c2.ttl || {}); c2.ttl[U.id] = r.ttl; }
+        c2.u = TS; up[qpath('chars/' + p.sid)] = c2;
+      }
+      res[u] = r;
+    }
+  }
+  if (firstBoss) { up[qpath('classes/' + S.g + '-' + S.c + '/stage')] = Math.min(5, (cls.stage || 0) + 1); up[qpath('classes/' + S.g + '-' + S.c + '/areas/' + U.id + '/done')] = true; }
+  if (!cls.town) up[qpath('classes/' + S.g + '-' + S.c + '/town')] = TOWN_DEFAULT;
+  var saveErr = '';
+  try { await update(ref(db), up); } catch (e) { saveErr = '記録を保存できませんでした（' + e.message + '）'; }
+  await set(ref(db, 'rooms/' + pin + '/res'), res);
+  await update(ref(db, 'rooms/' + pin + '/state'), { phase: 'end' });
+  bgm(null); showEnd(firstBoss, saveErr);
+}
+function showEnd(firstBoss, saveErr) {
+  var box = $('endGroups'); box.textContent = '';
+  Object.keys(GR).sort(function (a, b) { return a - b; }).forEach(function (n) {
+    var G = GR[n].G, c = el('div', 'gp-card');
+    c.appendChild(el('b', '', n + '班　' + (G.kind === 'boss' || G.fl > 4 ? 'ボスの間' : G.fl + '階') + '　🔑' + G.keys + (G.lap ? '　' + (G.lap + 1) + '周目' : '')));
+    if (GR[n].bossLaps.length) c.appendChild(el('div', '', '🎉 ' + U.boss.n + ' をたおした！'));
+    c.appendChild(el('div', 'prog', G.ph === 'battle' ? '戦闘の途中で止めた（次は続きから）' : '探索の途中で止めた（次は続きから）'));
+    box.appendChild(c);
+  });
+  if (firstBoss) { $('endTitle').textContent = U.area + 'の霧が晴れた！'; confetti($('conf'), 50); }
+  $('endNote').textContent = saveErr || 'キャラ・班の進み具合を保存しました。次の授業は、班ごとに続きから始まります。';
+  showScreen('s-end');
+}
+$('btnClose').onclick = async function () { await remove(ref(db, 'rooms/' + pin)); location.reload(); };
+</script>
+</body>
+</html>
