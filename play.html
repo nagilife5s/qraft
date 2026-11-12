@@ -6,7 +6,7 @@
 <title>Qraft</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261112151652">
+<link rel="stylesheet" href="theme.css?v=20261112205925">
 </head>
 <body>
 <div id="app">
@@ -19,11 +19,15 @@
     <div class="joincol">
       <div class="flabel">PIN（先生の画面の6けた）</div>
       <input class="field" id="pin" inputmode="numeric" autocomplete="off" maxlength="6" placeholder="123456">
-      <div class="flabel">ニックネーム</div>
-      <input class="field" id="nick" autocomplete="off" maxlength="20" placeholder="なまえ">
-      <div class="flabel">キャラ</div>
-      <div id="avBox"></div>
-      <button class="btn" id="btnJoin" style="margin-top:.4em">参加する</button>
+      <button class="btn" id="btnPin" style="margin-top:.4em">つぎへ</button>
+      <!-- PINで部屋が分かってから出す（クエストの部屋では、ニックネームもキャラも要らないため） -->
+      <div id="stepName" class="hide" style="display:flex; flex-direction:column; gap:.8em">
+        <div class="flabel">ニックネーム</div>
+        <input class="field" id="nick" autocomplete="off" maxlength="20" placeholder="なまえ">
+        <div class="flabel">キャラ</div>
+        <div id="avBox"></div>
+        <button class="btn" id="btnJoin" style="margin-top:.4em">参加する</button>
+      </div>
       <div id="joinErr" class="err hide"></div>
     </div>
   </div>
@@ -128,11 +132,11 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261112151652"></script>
+<script src="firebase-config.js?v=20261112205925"></script>
 <script type="module">
 import { mountAvatarPicker, avatarEl, signIn, db, ref, set, get, onValue, serverTimestamp, serverNow, CHOICE_STYLE,
          $, el, fmt, motionOn, showScreen, stopAnim, countUp, confetti, buildRank,
-         loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261112151652';
+         loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261112205925';
 
 mountStage();
 
@@ -145,7 +149,7 @@ var answeredQ = -1, pickedIdx = -1, selMask = 0, lastKey = '', timerId = null, B
   BGS = await loadBackgrounds(); bgReady = true; applyBg('pop', BGS, true);
   showScreen('s-join');
   try { uid = (await signIn()).uid; avPick = mountAvatarPicker($('avBox'), uid); }
-  catch (e) { joinErr(e.message); $('btnJoin').disabled = true; return; }
+  catch (e) { joinErr(e.message); $('btnPin').disabled = true; $('btnJoin').disabled = true; return; }
 
   var saved = null;
   try { saved = JSON.parse(localStorage.getItem('qraft.player') || 'null'); } catch (e) {}
@@ -154,11 +158,35 @@ var answeredQ = -1, pickedIdx = -1, selMask = 0, lastKey = '', timerId = null, B
   if (qp && /^\d{6}$/.test(qp)) { $('pin').value = qp; if (saved && saved.pin !== qp) $('nick').value = saved.nick || ''; }
   /* 画面を更新しても、同じ人として自動で戻る */
   if (saved && saved.pin && saved.nick && (!qp || qp === saved.pin)) join(saved.pin, saved.nick, true);
-  else if (qp) $('nick').focus();
+  else if (qp && /^\d{6}$/.test(qp)) checkPin(qp);                     /* QRから来たら、PINの確認まで自動で進める */
 })();
 
 function joinErr(msg) { $('joinErr').textContent = msg; $('joinErr').classList.remove('hide'); }
 
+/* 手順1：PINで部屋を確かめる。クエストの部屋は専用の画面へ、ジェットチェイスは専用の画面でニックネームを聞く。
+   クラシックの部屋だけ、ここでニックネームとキャラを出す。 */
+async function checkPin(p) {
+  $('joinErr').classList.add('hide');
+  if (!/^\d{6}$/.test(p)) { joinErr('PINは6けたの数字です'); return; }
+  $('btnPin').disabled = true;
+  try {
+    if (!(await get(ref(db, 'rooms/' + p + '/hostUid'))).exists()) throw new Error('その PIN の部屋が見つかりません。');
+    var stt = (await get(ref(db, 'rooms/' + p + '/state'))).val();
+    if (!stt || stt.phase === 'end') throw new Error('そのゲームは、もう終了しています。');
+    var sess = /[?&]sess=1/.test(location.search) ? '&sess=1' : '';
+    if (stt.mode === 'quest') { location.replace('quest-play.html?pin=' + p + sess); return; }
+    if (stt.mode === 'chase') { location.replace('chase-play.html?pin=' + p + sess); return; }
+    $('stepName').classList.remove('hide'); $('btnPin').classList.add('hide');
+    $('nick').focus();
+  } catch (e) {
+    joinErr(e.message);
+  }
+  $('btnPin').disabled = false;
+}
+/* PINを打ちなおしたら、手順1にもどる */
+$('pin').addEventListener('input', function () { $('stepName').classList.add('hide'); $('btnPin').classList.remove('hide'); });
+$('btnPin').onclick = function () { checkPin($('pin').value.trim()); };
+$('pin').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('btnPin').click(); });
 $('btnJoin').onclick = function () { join($('pin').value.trim(), $('nick').value.trim(), false); };
 $('nick').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('btnJoin').click(); });
 

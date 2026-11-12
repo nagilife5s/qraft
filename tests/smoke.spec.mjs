@@ -60,14 +60,20 @@ for (const size of SIZES) {
     test('トップのカードがすべて画面内', async ({ page }) => {
       await page.goto('index.html?emu=1');
       const cards = page.locator('#v-main .mcard');
-      await expect(cards).toHaveCount(4);
+      await expect(cards).toHaveCount(3);
       await page.waitForTimeout(800);   // 出てくるアニメーションを待つ
       const vh = size.height;
-      for (let i = 0; i < 4; i++) {
+      for (let i = 0; i < 3; i++) {
         const b = await cards.nth(i).boundingBox();
         expect(b.y, (i + 1) + '枚目の上').toBeGreaterThanOrEqual(0);
         expect(b.y + b.height, (i + 1) + '枚目の下').toBeLessThanOrEqual(vh);
       }
+      await page.locator('#goSolo').click();
+      const solo = page.locator('#v-solo .mcard');
+      await expect(solo).toHaveCount(2);
+      for (let i = 0; i < 2; i++) await expect(solo.nth(i)).toBeInViewport();
+      await expect(page.locator('#goBackSolo')).toBeInViewport();
+      await page.locator('#goBackSolo').click();
       await page.locator('#goOpen').click();
       const modes = page.locator('#v-modes .mcard');
       await expect(modes).toHaveCount(3);

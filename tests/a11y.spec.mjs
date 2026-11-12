@@ -71,6 +71,8 @@ test('キーボードだけでトップから「おうちで練習」へ', async
   await page.goto('index.html?emu=1');
   // Tab で「おうちで練習」まで進み、選んでいる場所が見えることを確かめてから Enter
   let found = false;
+  await page.locator('#goSolo').focus();   // 「ひとりで」を開いて、その中の「おうちで練習」までTabで進む
+  await page.keyboard.press('Enter');
   for (let i = 0; i < 12; i++) {
     await page.keyboard.press('Tab');
     const t = await page.evaluate(() => document.activeElement && document.activeElement.textContent);
