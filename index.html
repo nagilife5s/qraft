@@ -6,7 +6,7 @@
 <title>Qraft</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261112205925">
+<link rel="stylesheet" href="theme.css?v=20261112215048">
 <style>
   .menu { width:min(44em, 94%); display:grid; grid-template-columns:repeat(auto-fit, minmax(11.5em, 1fr)); gap:1em; margin-top:1.2em; }
   .mcard { display:flex; flex-direction:column; align-items:center; gap:.4em; text-decoration:none; color:var(--ink-dark); background:#fff; border:0; font:inherit; cursor:pointer; border-radius:1.2em; padding:1em .8em .9em; box-shadow:var(--shadow); transition:transform .15s, box-shadow .15s; }
@@ -20,10 +20,13 @@
   .mcard small { font-size:.9em; font-weight:700; opacity:.7; text-align:center; }
   .mcard.join { background:var(--pop1); } .mcard.open { background:#fff; } .mcard.home { background:#8bf0b0; }
   .mcard.mecha { background:#ffd9d2; }
-  /* トップのカードは3枚。横に並べて1段にする */
-  #v-main .menu { width:min(56em, 100%); }
+  /* トップは「リカリア」と「クイズ」の2枚。クイズの中は3枚を横に並べて1段にする */
+  #v-main .menu, #v-quiz .menu { width:min(56em, 100%); }
+  #v-main .menu.two { width:min(40em, 100%); grid-template-columns:repeat(2, 1fr); }
+  .mcard.rikaria { background:linear-gradient(160deg,#3b2a8a,#7a4bd8); color:#fff; } .mcard.rikaria small { opacity:.85; }
+  .mcard.quiz { background:var(--pop1); }
   /* それでも入らない低い画面では、この画面の中だけ縦にスクロールできる（中央寄せのまま上が切れないよう safe） */
-  #v-main, #v-modes, #v-solo { overflow-y:auto; justify-content:safe center; }
+  #v-main, #v-quiz, #v-modes { overflow-y:auto; justify-content:safe center; }
   .mcard { scroll-margin:1em; }
   .mcard:focus-visible, .back:focus-visible { outline:.22em solid #fff; outline-offset:.22em; box-shadow:var(--shadow), 0 0 0 .5em #5b3fd6; }
   .back { margin-top:1.4em; }
@@ -31,6 +34,7 @@
   @media (max-width: 560px) {
     .menu { grid-template-columns:1fr; gap:.7em; }
     .mcard { flex-direction:row; text-align:left; gap:1em; padding:.7em 1em; }
+    #v-main .menu.two { grid-template-columns:1fr; }
     .mcard .ic { height:4.2em; width:5.5em; flex:0 0 auto; }
     .mcard > b, .mcard > small { display:block; }
     .mcard .txt { display:flex; flex-direction:column; align-items:flex-start; gap:.15em; }
@@ -47,47 +51,49 @@
   <button class="snd fixed"></button>
   <div class="deco"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
 
+  <!-- 1. 最初の分かれ道：リカリア（RPG）か、クイズか -->
   <section class="screen on center" id="v-main" style="gap:.2em">
     <img class="logo-img" src="img/logo-wordmark.webp" alt="Qraft" style="height:10em">
+    <div class="menu two">
+      <a class="mcard rikaria" href="rikaria.html"><div class="ic"><img src="img/rikaria/card.webp" alt="" onerror="this.src='img/quest/hero-mage-a.webp'"></div><span class="txt"><b>リカリア</b><small>知識を取り戻す冒険RPG</small></span></a>
+      <button class="mcard quiz" id="goQuiz" type="button"><div class="ic"><img src="img/rikaria/quiz-card.webp" alt="" onerror="this.src='img/robot/animal-fox.webp'"></div><span class="txt"><b>クイズ</b><small>みんなで対戦・おうちで練習</small></span></button>
+    </div>
+  </section>
+
+  <!-- 2. クイズ -->
+  <section class="screen center" id="v-quiz" style="gap:.2em">
+    <img class="logo-img" src="img/logo-wordmark.webp" alt="Qraft" style="height:6.4em">
+    <div class="mtitle">クイズ</div>
     <div class="menu">
       <a class="mcard join" href="play.html"><div class="ic two"><img src="img/robot/animal-fox.webp" alt=""><img src="img/robot/animal-panda.webp" alt=""></div><span class="txt"><b>みんなで参加</b><small>PINを入れて参加</small></span></a>
-      <button class="mcard home" id="goSolo" type="button"><div class="ic two"><img src="img/robot/animal-owl.webp" alt=""><img src="img/quest/hero-mage-a.webp" alt=""></div><span class="txt"><b>ひとりで</b><small>練習・クエスト</small></span></button>
+      <a class="mcard home" href="home.html"><div class="ic"><img src="img/robot/animal-owl.webp" alt=""></div><span class="txt"><b>おうちで練習</b><small>ひとりで問題に挑戦</small></span></a>
       <button class="mcard open" id="goOpen" type="button"><div class="ic"><img src="img/robot/acc-crown.webp" alt=""></div><span class="txt"><b>ゲームを開く</b><small>先生用：モードを選んで部屋を作る</small></span></button>
     </div>
+    <button class="btn sub back" id="goBackQuiz" type="button">もどる</button>
   </section>
 
-  <section class="screen center" id="v-solo" style="gap:.2em">
-    <img class="logo-img" src="img/logo-wordmark.webp" alt="Qraft" style="height:6.4em">
-    <div class="mtitle">ひとりで</div>
-    <div class="menu">
-      <a class="mcard home" href="home.html"><div class="ic"><img src="img/robot/animal-owl.webp" alt=""></div><span class="txt"><b>おうちで練習</b><small>ひとりで問題に挑戦</small></span></a>
-      <a class="mcard quest" href="quest.html"><div class="ic"><img src="img/quest/hero-mage-a.webp" alt=""></div><span class="txt"><b>クエスト</b><small>ひとりで冒険・キャラを育てる</small></span></a>
-    </div>
-    <button class="btn sub back" id="goBackSolo" type="button">もどる</button>
-  </section>
-
+  <!-- 3. クイズのモード（先生） -->
   <section class="screen center" id="v-modes" style="gap:.2em">
     <img class="logo-img" src="img/logo-wordmark.webp" alt="Qraft" style="height:6.4em">
     <div class="mtitle">モードをえらぶ</div>
     <div class="menu">
       <a class="mcard open" href="host.html"><div class="ic"><img src="img/logo-mark.webp" alt=""></div><span class="txt"><b>クラシック</b><small>早押しで得点を競う</small></span></a>
       <a class="mcard mecha" href="chase-host.html"><div class="ic"><img src="img/robot/boss.webp" alt=""></div><span class="txt"><b>ジェットチェイス</b><small>みんなで協力して逃げ切れ</small></span></a>
-      <a class="mcard quest" href="quest-host.html"><div class="ic"><img src="img/quest/hero-warrior-a.webp" alt=""></div><span class="txt"><b>クエスト</b><small>正解で戦うRPG（班で冒険）</small></span></a>
     </div>
     <button class="btn sub back" id="goBack" type="button">もどる</button>
   </section>
 </div>
 <script type="module">
   /* トップ画面のBGM（開いている間だけループ。ほかの画面へ行くと止まり、戻ると最初から） */
-  import { bgm, preload, wireSoundButtons } from './sound.js?v=20261112205925b';
+  import { bgm, preload, wireSoundButtons } from './sound.js?v=20261112215048b';
   wireSoundButtons(); preload(['top']); bgm('top');
   addEventListener('pagehide', function () { bgm(null); });
   addEventListener('pageshow', function (e) { if (e.persisted) bgm('top'); });   /* 「戻る」でキャッシュから復帰したとき */
   function show(id) { document.querySelectorAll('.screen').forEach(function (s) { s.classList.toggle('on', s.id === id); }); }
+  document.getElementById('goQuiz').onclick = function () { show('v-quiz'); };
+  document.getElementById('goBackQuiz').onclick = function () { show('v-main'); };
   document.getElementById('goOpen').onclick = function () { show('v-modes'); };
-  document.getElementById('goBack').onclick = function () { show('v-main'); };
-  document.getElementById('goSolo').onclick = function () { show('v-solo'); };
-  document.getElementById('goBackSolo').onclick = function () { show('v-main'); };
+  document.getElementById('goBack').onclick = function () { show('v-quiz'); };
 </script>
 </body>
 </html>

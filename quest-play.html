@@ -6,8 +6,8 @@
 <title>Qraft クエスト</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261112205925">
-<link rel="stylesheet" href="quest.css?v=20261112205925">
+<link rel="stylesheet" href="theme.css?v=20261112215048">
+<link rel="stylesheet" href="quest.css?v=20261112215048">
 <style>
   #s-battle .arena { min-height:7em; }   /* 問題の欄を広くとる（2026-11-12） */
   .cmd .choices button.sel { outline:.25em solid #fff; }
@@ -18,7 +18,7 @@
 
 <!-- 参加 -->
 <section class="screen center q-bg-town" id="s-join" style="gap:1em">
-  <a class="toplink" href="index.html">← トップへ</a>
+  <a class="toplink" href="rikaria.html">← トップへ</a>
   <div class="q-title">⚔️ クエスト</div>
   <div class="card" style="display:flex;flex-direction:column;gap:.8em;align-items:center">
     <div class="flabel">参加コード（先生の画面の6けた）</div>
@@ -100,17 +100,17 @@
   <div class="reward" id="rCards"></div>
   <div class="lvup hide" id="rLv"></div>
   <div class="q-sub" id="rNote"></div>
-  <a class="linkbtn" href="index.html" style="color:#fff;font-weight:800">最初の画面にもどる</a>
+  <a class="linkbtn" href="rikaria.html" style="color:#fff;font-weight:800">最初の画面にもどる</a>
 </section>
 
 <section class="screen center q-bg-lab" id="s-msg"><div class="q-title" id="msgT"></div><a class="btn" href="quest-play.html" style="text-decoration:none">参加画面へ</a></section>
 
 </div>
 
-<script src="firebase-config.js?v=20261112205925"></script>
+<script src="firebase-config.js?v=20261112215048"></script>
 <script type="module">
-import { signIn, db, ref, set, get, onValue, serverNow, $, el, showScreen, confetti } from './lib.js?v=20261112205925';
-import { fiscalYear, JOBS, JOB_KEYS, MP_MAX, heroImg, ENEMIES, BOSS, storyEnter, expToNext, canUse, ITEMS, ensureOwner, battleGuide, cmdImg } from './quest.js?v=20261112205925';
+import { signIn, db, ref, set, get, onValue, serverNow, $, el, showScreen, confetti } from './lib.js?v=20261112215048';
+import { fiscalYear, JOBS, JOB_KEYS, MP_MAX, heroImg, ENEMIES, BOSS, storyEnter, expToNext, canUse, ITEMS, ensureOwner, battleGuide, cmdImg } from './quest.js?v=20261112215048';
 
 var uid = null, pin = null, state = null, sid = '', ch = null, look = 'a', job = 'mage';
 var players = {}, myItem = '', myReady = false, prepShown = false;

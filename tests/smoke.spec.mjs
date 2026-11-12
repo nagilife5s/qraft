@@ -12,6 +12,7 @@ const SIZES = [
 ];
 const PAGES = [
   { path: 'index.html', name: 'トップ' },
+  { path: 'rikaria.html', name: 'リカリア（タイトル）' },
   { path: 'play.html', name: 'ゲームに参加（生徒）' },
   { path: 'home.html', name: 'おうちで練習' },
   { path: 'quest.html', name: 'クエスト（ひとりで冒険）' },
@@ -59,26 +60,37 @@ for (const size of SIZES) {
     }
     test('トップのカードがすべて画面内', async ({ page }) => {
       await page.goto('index.html?emu=1');
-      const cards = page.locator('#v-main .mcard');
-      await expect(cards).toHaveCount(3);
-      await page.waitForTimeout(800);   // 出てくるアニメーションを待つ
       const vh = size.height;
-      for (let i = 0; i < 3; i++) {
-        const b = await cards.nth(i).boundingBox();
-        expect(b.y, (i + 1) + '枚目の上').toBeGreaterThanOrEqual(0);
-        expect(b.y + b.height, (i + 1) + '枚目の下').toBeLessThanOrEqual(vh);
-      }
-      await page.locator('#goSolo').click();
-      const solo = page.locator('#v-solo .mcard');
-      await expect(solo).toHaveCount(2);
-      for (let i = 0; i < 2; i++) await expect(solo.nth(i)).toBeInViewport();
-      await expect(page.locator('#goBackSolo')).toBeInViewport();
-      await page.locator('#goBackSolo').click();
+      const inView = async (loc, n, label) => {
+        await expect(loc).toHaveCount(n);
+        await page.waitForTimeout(800);   // 出てくるアニメーションを待つ
+        for (let i = 0; i < n; i++) {
+          const b = await loc.nth(i).boundingBox();
+          expect(b.y, label + (i + 1) + '枚目の上').toBeGreaterThanOrEqual(0);
+          expect(b.y + b.height, label + (i + 1) + '枚目の下').toBeLessThanOrEqual(vh);
+        }
+      };
+      await inView(page.locator('#v-main .mcard'), 2, 'トップ');          // リカリア／クイズ
+      await page.locator('#goQuiz').click();
+      await inView(page.locator('#v-quiz .mcard'), 3, 'クイズ');          // みんなで参加／おうちで練習／ゲームを開く
+      await expect(page.locator('#goBackQuiz')).toBeInViewport();
       await page.locator('#goOpen').click();
-      const modes = page.locator('#v-modes .mcard');
-      await expect(modes).toHaveCount(3);
-      for (let i = 0; i < 3; i++) await expect(modes.nth(i)).toBeInViewport();
+      await inView(page.locator('#v-modes .mcard'), 2, 'モード');         // クラシック／ジェットチェイス
       await expect(page.locator('#goBack')).toBeInViewport();
+    });
+    test('リカリア：タイトル → えらぶ → チーム戦（画面内）', async ({ page }) => {
+      await page.goto('rikaria.html?emu=1');
+      await expect(page.locator('#goStart')).toBeInViewport();
+      await page.locator('#goStart').click();
+      const menu = page.locator('#v-menu .mcard');
+      await expect(menu).toHaveCount(2);
+      await page.waitForTimeout(300);
+      for (let i = 0; i < 2; i++) await expect(menu.nth(i)).toBeInViewport();
+      await page.locator('#goTeam').click();
+      const team = page.locator('#v-team .mcard');
+      await expect(team).toHaveCount(2);
+      for (let i = 0; i < 2; i++) await expect(team.nth(i)).toBeInViewport();
+      await expect(page.locator('#goBackMenu')).toBeInViewport();
     });
   });
 }

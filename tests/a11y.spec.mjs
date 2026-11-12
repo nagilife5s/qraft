@@ -5,7 +5,7 @@ import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
 const PAGES = [
-  ['index.html', 'トップ'], ['play.html', 'ゲームに参加'], ['home.html', 'おうちで練習'],
+  ['index.html', 'トップ'], ['rikaria.html', 'リカリア（タイトル）'], ['play.html', 'ゲームに参加'], ['home.html', 'おうちで練習'],
   ['quest.html', 'クエスト（ひとりで冒険）'], ['quest-play.html', 'クエスト（チーム・生徒）'],
   ['host.html', 'クラシック（先生）'], ['chase-host.html', 'ジェットチェイス（先生）'],
   ['quest-host.html', 'クエスト（先生）'], ['records.html', '記録画面（先生）'],
@@ -29,6 +29,7 @@ for (const [path, name] of PAGES) {
 
 test('axe: モードをえらぶ画面', async ({ page }) => {
   await page.goto('index.html?emu=1');
+  await page.locator('#goQuiz').click();
   await page.locator('#goOpen').click();
   await check(page, 'モードをえらぶ');
 });
@@ -71,7 +72,7 @@ test('キーボードだけでトップから「おうちで練習」へ', async
   await page.goto('index.html?emu=1');
   // Tab で「おうちで練習」まで進み、選んでいる場所が見えることを確かめてから Enter
   let found = false;
-  await page.locator('#goSolo').focus();   // 「ひとりで」を開いて、その中の「おうちで練習」までTabで進む
+  await page.locator('#goQuiz').focus();   // 「クイズ」を開いて、その中の「おうちで練習」までTabで進む
   await page.keyboard.press('Enter');
   for (let i = 0; i < 12; i++) {
     await page.keyboard.press('Tab');

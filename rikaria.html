@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ja" data-bg="pop">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>リカリア</title>
+<link rel="icon" type="image/png" href="img/favicon-32.png">
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+<link rel="stylesheet" href="theme.css?v=20261112215048">
+<style>
+  /* リカリア：トップ（クイズ）とは別の世界。タイトル画面 → えらぶ（チーム戦／ひとりで）→ チーム戦（参加／開く）
+     画像は img/rikaria/ に置く（依頼文/これから頼む/リカリア画像依頼文.md）。まだ無いあいだは、色と文字で代わりに出る。 */
+  #app { background:url(img/rikaria/title-bg.webp) center/cover no-repeat, radial-gradient(ellipse at 50% 18%, #f3b84a 0, #b2589f 22%, #4a2a8c 48%, #1d1648 100%); }
+  .deco { display:none; }
+  .screen { color:#fff; }
+  .rlogo { display:flex; flex-direction:column; align-items:center; gap:.2em; margin-bottom:.6em; }
+  .rlogo img { height:11em; width:auto; filter:drop-shadow(0 .2em .25em rgba(20,8,60,.55)); }
+  .rlogo .alt { font-weight:900; font-size:5.4em; letter-spacing:.06em; line-height:1; color:#ffd23f; -webkit-text-stroke:.07em #2a1280; paint-order:stroke fill; text-shadow:0 .08em 0 #2a1280, 0 .2em .4em rgba(20,8,60,.5); }
+  .rlogo.has-img .alt { display:none; }
+  .rlogo .kana { font-weight:900; font-size:1.6em; letter-spacing:.5em; padding-left:.5em; color:#fff; text-shadow:0 .1em .3em rgba(20,8,60,.7); }
+  .tagline { font-weight:800; font-size:1.25em; opacity:.92; text-shadow:0 .1em .3em rgba(20,8,60,.7); margin-bottom:1em; }
+  .go { font-size:1.9em; padding:.5em 2.2em; background:linear-gradient(#ffe27a,#ffb703); }
+  @media (prefers-reduced-motion: no-preference) { .go { animation:glow 1.8s ease-in-out infinite; } @keyframes glow { 50% { filter:brightness(1.18) drop-shadow(0 0 .5em rgba(255,226,122,.8)); } } }
+  .menu { width:min(40em, 94%); display:grid; grid-template-columns:repeat(auto-fit, minmax(14em, 1fr)); gap:1em; margin-top:1.2em; }
+  .mcard { display:flex; flex-direction:column; align-items:center; gap:.4em; text-decoration:none; color:#fff; background:linear-gradient(160deg,#3b2a8a,#6a3fcf); border:.14em solid rgba(255,226,122,.55); font:inherit; cursor:pointer; border-radius:1.2em; padding:1.1em .8em 1em; box-shadow:var(--shadow); transition:transform .15s; }
+  .mcard:hover { transform:translateY(-.25em) scale(1.02); }
+  .mcard .ic { height:6em; display:flex; align-items:flex-end; justify-content:center; gap:.2em; }
+  .mcard .ic img { height:100%; width:auto; filter:drop-shadow(0 .15em .15em rgba(10,4,40,.5)); }
+  .mcard b { font-size:1.4em; font-weight:900; }
+  .mcard small { font-size:.9em; font-weight:700; opacity:.85; text-align:center; }
+  .mcard:focus-visible, .btn:focus-visible, .toplink:focus-visible { outline:.22em solid #fff; outline-offset:.22em; }
+  .mtitle { font-weight:900; font-size:1.8em; margin-top:.4em; text-shadow:0 .1em .3em rgba(20,8,60,.7); }
+  .back { margin-top:1.4em; }
+  #v-title, #v-menu, #v-team { overflow-y:auto; justify-content:safe center; }
+  @media (max-width: 560px) {
+    .menu { grid-template-columns:1fr; gap:.7em; }
+    .mcard { flex-direction:row; text-align:left; gap:1em; padding:.7em 1em; }
+    .mcard .ic { height:4em; width:5em; flex:0 0 auto; }
+    .mcard .txt { display:flex; flex-direction:column; align-items:flex-start; gap:.15em; }
+    .rlogo img { height:8em; } .rlogo .alt { font-size:4em; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <button class="snd fixed"></button>
+  <a class="toplink" href="index.html">← トップへ</a>
+
+  <!-- タイトル画面 -->
+  <section class="screen on center" id="v-title" style="gap:.2em">
+    <div class="rlogo" id="rlogo">
+      <img src="img/rikaria/logo.webp" alt="" onload="document.getElementById('rlogo').classList.add('has-img')" onerror="this.remove()">
+      <div class="alt" aria-hidden="true">Rikaria</div>
+      <div class="kana">リカリア</div>
+    </div>
+    <div class="tagline">うばわれた知識を、正解の力でとりもどせ</div>
+    <button class="btn go" id="goStart" type="button">はじめる</button>
+  </section>
+
+  <!-- えらぶ -->
+  <section class="screen center" id="v-menu" style="gap:.2em">
+    <div class="mtitle">あそびかたをえらぶ</div>
+    <div class="menu">
+      <button class="mcard" id="goTeam" type="button"><div class="ic"><img src="img/quest/hero-warrior-a.webp" alt=""><img src="img/quest/hero-priest-a.webp" alt=""></div><span class="txt"><b>チーム戦</b><small>クラスで班をつくって冒険</small></span></button>
+      <a class="mcard" href="quest.html"><div class="ic"><img src="img/quest/hero-mage-a.webp" alt=""></div><span class="txt"><b>ひとりで冒険</b><small>キャラを育てて町を発展させる</small></span></a>
+    </div>
+    <button class="btn sub back" id="goBackTitle" type="button">もどる</button>
+  </section>
+
+  <!-- チーム戦 -->
+  <section class="screen center" id="v-team" style="gap:.2em">
+    <div class="mtitle">チーム戦</div>
+    <div class="menu">
+      <a class="mcard" href="quest-play.html"><div class="ic"><img src="img/robot/animal-fox.webp" alt=""></div><span class="txt"><b>みんなで参加</b><small>PINと出席番号・合言葉で入る</small></span></a>
+      <a class="mcard" href="quest-host.html"><div class="ic"><img src="img/robot/acc-crown.webp" alt=""></div><span class="txt"><b>ゲームを開く</b><small>先生用：部屋をつくる</small></span></a>
+    </div>
+    <button class="btn sub back" id="goBackMenu" type="button">もどる</button>
+  </section>
+</div>
+<script type="module">
+  import { bgm, preload, wireSoundButtons } from './sound.js?v=20261112215048b';
+  wireSoundButtons(); preload(['top']); bgm('top');
+  addEventListener('pagehide', function () { bgm(null); });
+  addEventListener('pageshow', function (e) { if (e.persisted) bgm('top'); });
+  function show(id) { document.querySelectorAll('.screen').forEach(function (s) { s.classList.toggle('on', s.id === id); }); }
+  var on = function (id, fn) { document.getElementById(id).onclick = fn; };
+  on('goStart', function () { show('v-menu'); });
+  on('goTeam', function () { show('v-team'); });
+  on('goBackTitle', function () { show('v-title'); });
+  on('goBackMenu', function () { show('v-menu'); });
+</script>
+</body>
+</html>
