@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Qraft クエスト（先生）</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
-<link rel="stylesheet" href="theme.css?v=20261112143247">
-<link rel="stylesheet" href="quest.css?v=20261112143247">
+<link rel="stylesheet" href="theme.css?v=20261112144933">
+<link rel="stylesheet" href="quest.css?v=20261112144933">
 </head>
 <body>
 <div id="app">
@@ -22,12 +22,12 @@
         <select id="selC" aria-label="組"></select>
         <span class="q-sub" id="townInfo"></span></div>
       <div class="form-row"><b>今回の戦い</b><div class="seg" id="segBattle"><button type="button" data-v="zako" class="on">雑魚戦</button><button type="button" data-v="boss">ボス戦</button></div></div>
-      <div class="form-row"><b>制限時間</b><div class="seg" id="segTime"><button type="button" data-v="300">5分</button><button type="button" data-v="480" class="on">8分</button><button type="button" data-v="600">10分</button></div></div>
+      <div class="form-row"><b>制限時間</b><div class="seg" id="segTime"><button type="button" data-v="180">3分</button><button type="button" data-v="300">5分</button><button type="button" data-v="480" class="on">8分</button><button type="button" data-v="600">10分</button></div></div>
       <div class="form-row"><b>パスワード</b><input type="password" id="pw" autocomplete="off" placeholder="問題ファイルのパスワード"></div>
       <div class="tc-note">問題セットは、選択式だけのセットから選べます（入力式が入ったセットは出しません）。最初に選んだセットの単元が、冒険するエリアになります。</div>
     </div>
     <div class="qp-white"><div id="picker"></div></div>
-    <div class="selbar hide" id="selBar"><span id="selInfo"></span><button type="button" class="linkbtn" id="selClear">選びなおす</button></div>
+    <div class="selbar hide" id="selBar"><span id="selInfo"></span><span id="selChips"></span><button type="button" class="linkbtn" id="selClear">選びなおす</button></div>
     <div style="text-align:center"><button class="btn" id="btnCreate">ルームを作る</button></div>
     <div id="setupErr" class="err hide"></div>
   </div>
@@ -76,15 +76,15 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261112143247"></script>
+<script src="firebase-config.js?v=20261112144933"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script type="module">
 import { signIn, db, ref, set, get, update, remove, onValue, serverNow, shuffle, mountSetPicker,
-         decryptSet, prepareQuestion, maskOf, $, el, showScreen, confetti, qrSvg, sleep } from './lib.js?v=20261112143247';
+         decryptSet, prepareQuestion, maskOf, $, el, showScreen, confetti, qrSvg, sleep } from './lib.js?v=20261112144933';
 import { onChildAdded, onChildChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 import { fiscalYear, JOBS, MP_MAX, heroImg, lvMult, CHEER, addExp, ENEMIES, BOSS, areaOf, enemyFor,
-         zakoHp, enemyHit, bossHp, REWARD, TOWN, TOWN_DEFAULT, storyClear, statsOf, canUse, skMult, ITEMS } from './quest.js?v=20261112143247';
-import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261112143247b';
+         zakoHp, enemyHit, bossHp, REWARD, TOWN, TOWN_DEFAULT, storyClear, statsOf, canUse, skMult, ITEMS } from './quest.js?v=20261112144933';
+import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261112144933b';
 
 wireSoundButtons();
 
@@ -110,7 +110,7 @@ function setupErr(m) { $('setupErr').textContent = m; $('setupErr').classList.re
     var all = await (await fetch('questions/index.json', { cache: 'no-cache' })).json();
     SETS = all.filter(function (s) { return !(s.types && s.types.text); });
     try { localStorage.removeItem('qraft.pw'); $('pw').value = sessionStorage.getItem('qraft.pw') || ''; } catch (e) {}   /* パスワードは端末に残さない */
-    try { var last = JSON.parse(localStorage.getItem('qraft.quest.last') || '{}'); if (last.g) $('selG').value = last.g; if (last.c) $('selC').value = last.c; (last.sets || []).forEach(function (f) { if (SETS.some(function (s) { return s.file === f; })) picked[f] = true; }); } catch (e) {}
+    try { var last = JSON.parse(localStorage.getItem('qraft.quest.last') || '{}'); if (last.g) $('selG').value = last.g; if (last.c) $('selC').value = last.c; if (last.t) document.querySelectorAll('#segTime button').forEach(function (b) { b.classList.toggle('on', b.dataset.v === String(last.t)); }); (last.sets || []).forEach(function (f) { if (SETS.some(function (s) { return s.file === f; })) picked[f] = true; }); } catch (e) {}
     picker = mountSetPicker($('picker'), { sets: SETS, key: function (s) { return s.file; }, picked: picked, onChange: updateSel }); updateSel();
     $('selClear').onclick = function () { Object.keys(picked).forEach(function (k) { delete picked[k]; }); picker.render(); updateSel(); };
     $('selG').onchange = $('selC').onchange = showTown; showTown();
@@ -122,6 +122,15 @@ function updateSel() {
   $('selBar').classList.toggle('hide', !ids.length);
   var first = SETS.filter(function (x) { return x.file === ids[0]; })[0];
   $('selInfo').textContent = '選んだセット：' + ids.length + ' つ・合計 ' + n + ' 問' + (first ? '　エリア：' + areaOf(first).name : '');
+  /* 選んでいるセットを全部、名前で見せる（前回の選択が残って、別の単元の問題が混じることがあったため。2026-11-12） */
+  var chips = $('selChips'); chips.textContent = '';
+  ids.forEach(function (k) {
+    var s = SETS.filter(function (x) { return x.file === k; })[0]; if (!s) return;
+    var c = el('span', 'chip2'); c.appendChild(el('span', '', (s.grade ? s.grade + '年 ' : '') + s.title));
+    var x = el('button', '', '×'); x.type = 'button'; x.title = 'この選択をはずす'; x.setAttribute('aria-label', s.title + 'をはずす');
+    x.onclick = function () { delete picked[k]; picker.render(); updateSel(); };
+    c.appendChild(x); chips.appendChild(c);
+  });
 }
 async function showTown() {
   var v = (await get(ref(db, qpath('classes/' + clsKey())))).val() || {};
@@ -142,7 +151,7 @@ $('btnCreate').onclick = async function () {
       data.questions.forEach(function (q) { if (q.type !== 'text') POOL.push(q); });
     }
     if (!POOL.length) throw new Error('選択式の問題がありません');
-    try { if (pwv) sessionStorage.setItem('qraft.pw', pwv); localStorage.setItem('qraft.quest.last', JSON.stringify({ g: $('selG').value, c: $('selC').value, sets: files })); } catch (e) {}
+    try { if (pwv) sessionStorage.setItem('qraft.pw', pwv); localStorage.setItem('qraft.quest.last', JSON.stringify({ g: $('selG').value, c: $('selC').value, sets: files, t: segVal('segTime') }));   /* 制限時間も前回の値を覚える */ } catch (e) {}
     AREA = areaOf(SETS.filter(function (s) { return s.file === files[0]; })[0]);
     CLS = (await get(ref(db, qpath('classes/' + clsKey())))).val() || {};
     AR = (CLS.areas && CLS.areas[AREA.id]) || {};
@@ -257,8 +266,10 @@ $('btnStart').onclick = async function () {
   ids.forEach(function (u) { var p = players[u] || {}, inv = (G[u].ch.inv || {}); if (p.it && ITEMS[p.it] && ITEMS[p.it].team && inv[p.it] > 0) G[u].item = p.it; });
   if (S.battle === 'boss') {
     var avg = ids.reduce(function (a, u) { return a + G[u].lv; }, 0) / ids.length;
-    var max = AR.max || bossHp(ids.length, avg, S.Tl);
-    boss = { hp: AR.hp != null ? AR.hp : max, max: max, tries: (AR.tries || 0) + 1 };
+    /* ボスのHPは、毎回その日の参加人数・平均レベル・時間で決め直す。前回までに削った割合は引き継ぐ
+       （2026-11-12 授業で、1回目の人数で決めたHPを使い回して、人数が変わると強すぎ・弱すぎになった） */
+    var max = bossHp(ids.length, avg, S.Tl), left = AR.max && AR.hp != null ? Math.max(0, Math.min(1, AR.hp / AR.max)) : 1;
+    boss = { hp: Math.max(1, Math.round(max * left)), max: max, tries: (AR.tries || 0) + 1 };
     $('bossPanel').classList.remove('hide'); $('bossName').textContent = BOSS.n;
     $('bossNote').textContent = boss.tries + '回目のボス戦' + (boss.tries > 1 ? '（前回までに ' + Math.round((1 - boss.hp / boss.max) * 100) + '% 削った）' : '');
     await set(ref(db, 'rooms/' + pin + '/bv'), { hp: boss.hp, max: boss.max });

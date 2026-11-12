@@ -211,3 +211,13 @@ export function battleGuide(mode) {
     document.body.appendChild(bg); b.focus();
   });
 }
+
+/*
+ * 戦闘の問題の図（2026-11-12 授業で「図が小さい・見切れる」）。押すと画面いっぱいに拡大し、もう一度押すと閉じる
+ */
+export function cmdImg(src, alt) {
+  var im = document.createElement('img'); im.className = 'qimg cmd-img'; im.src = src; im.alt = alt || '';
+  im.tabIndex = 0; im.setAttribute('role', 'button'); im.title = '押すと大きく見られます';
+  im.onkeydown = function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); im.click(); } };   /* クリックの拡大は lib.js */
+  return im;
+}

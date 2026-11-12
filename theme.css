@@ -839,3 +839,15 @@ input.field:focus-visible, #textbox input:focus-visible, .pkq:focus-visible { ou
 .rex { background:rgba(255,255,255,.95); color:var(--ink-dark); border-radius:.8em; padding:.5em 1em; font-weight:800; line-height:1.55; text-align:left; max-width:40em; margin:.3em auto 0; font-size:1.3em; }
 .rex b { margin-right:.4em; }
 .res .sex { background:rgba(255,255,255,.92); color:var(--ink-dark); border-radius:.7em; padding:.45em .8em; font-weight:700; line-height:1.5; text-align:left; font-size:.85em; max-width:22em; margin:.6em auto 0; }
+
+/* 問題の図の拡大（2026-11-12）。図は押せることがわかるよう、指のカーソルにする */
+img.qimg { cursor:zoom-in; }
+.img-zoom { position:fixed; inset:0; z-index:998; background:rgba(8,6,24,.9); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.6em; padding:12px; cursor:zoom-out; }
+.img-zoom img { max-width:96vw; max-height:88vh; object-fit:contain; background:#fff; border-radius:12px; }
+.img-zoom span { color:#fff; font-weight:800; }
+/* 生徒の端末の図を大きく（2026-11-12 授業で「図が小さくて記号が見えない」） */
+@container st (min-width: 601px) {
+  .stu-q.hasimg { grid-template-columns:minmax(0,46%) minmax(0,1fr); }
+  .stu-q.hasimg .qimg { max-height:34cqh; }
+}
+.stu-q.hasimg .qimg { background:#fff; }

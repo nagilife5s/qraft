@@ -644,3 +644,21 @@ export function mountSetPicker(box, cfg) {
   renderHead(); renderList();
   return { render: function () { renderHead(); renderList(); } };
 }
+
+/*
+ * 問題の図の拡大（2026-11-12 授業で「図が小さくて記号が見えない」）。どの画面でも、問題の図（img.qimg）を押すと
+ * 画面いっぱいに出し、もう一度押すか Esc で閉じる。lib.js を読みこむ画面すべてで効く
+ */
+export function zoomImage(src, alt, back) {
+  var bg = document.createElement('div'); bg.className = 'img-zoom'; bg.setAttribute('role', 'dialog'); bg.setAttribute('aria-label', '図の拡大（押すと閉じる）');
+  var big = document.createElement('img'); big.src = src; big.alt = alt || ''; bg.appendChild(big);
+  var t = document.createElement('span'); t.textContent = '押すと閉じる'; bg.appendChild(t);
+  bg.tabIndex = 0;
+  bg.onclick = function (e) { e.stopPropagation(); bg.remove(); if (back) back.focus(); };
+  bg.onkeydown = function (e) { if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') { e.preventDefault(); bg.onclick(e); } };
+  document.body.appendChild(bg); bg.focus();
+}
+if (typeof document !== 'undefined') document.addEventListener('click', function (e) {
+  var im = e.target && e.target.closest && e.target.closest('img.qimg');
+  if (im && im.getAttribute('src') && !im.closest('.img-zoom')) zoomImage(im.src, im.alt, im);
+});

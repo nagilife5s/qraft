@@ -416,3 +416,14 @@
 
 /* 戦闘で答えたあとの解説（2026-11-12） */
 .qex { background:rgba(255,255,255,.93); color:#241c4a; border-radius:.7em; padding:.45em .8em; font-weight:700; line-height:1.5; font-size:.85em; text-align:left; }
+
+/* 戦闘の問題（2026-11-12 授業での指摘：「答える」が画面の外に出る・図が小さい・文字が後ろの絵と重なる）
+   問題の欄は画面に収まる高さまでにして、あふれたら欄の中でスクロール。図は左に大きく、選択肢は右に */
+.arena { min-height:7em; }
+.cmd { justify-content:safe center; flex:0 1 auto; min-height:0; overflow-y:auto; }
+.cmd.has-img { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.2fr); grid-auto-rows:auto; column-gap:1em; row-gap:.6em; align-content:start; }
+.cmd.has-img > .qbox { grid-column:1 / -1; }
+.cmd.has-img > .cmd-img { grid-column:1; grid-row:2 / span 4; align-self:start; width:100%; max-height:min(34cqh, 24em); object-fit:contain; background:#fff; border-radius:.6em; margin:0; cursor:zoom-in; }
+.cmd.has-img > :not(.qbox):not(.cmd-img) { grid-column:2; }
+/* フィールドの案内は2行まで出す・12秒で消える（2026-11-12） */
+.fd-help { white-space:normal; max-width:min(90%, 46em); text-align:center; border-radius:.8em; line-height:1.5; animation:fadeOut 1s 12s forwards; }
