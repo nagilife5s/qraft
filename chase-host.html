@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Qraft ジェットチェイス（先生）</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
-<link rel="stylesheet" href="theme.css?v=20261112215048">
+<link rel="stylesheet" href="theme.css?v=20261112230000">
 </head>
 <body>
 <div id="app">
@@ -16,11 +16,12 @@
     <img class="logo-img" src="img/logo-wordmark.webp" alt="Qraft" style="height:5em">
     <div class="card setup">
       <div><a class="backlink" href="index.html">← もどる</a></div>
-      <div class="jc-head"><img src="img/robot/boss.webp" alt=""><div><div class="jc-t">ジェットチェイス</div><div class="jc-s">みんなで協力して、ジェットロボから にげきれ！<br>クリアしたら、ブラストタイムで反撃！</div></div></div>
+      <div class="jc-head"><img src="img/robot/boss.webp" alt=""><div><div class="jc-t">ジェットチェイス</div><div class="jc-s">みんなで協力して、ジェットロボから にげきれ！<br>クリアしたら、ミニゲーム（4種類からランダム）！</div></div></div>
       <label>問題セット（複数えらべます。家庭練習と同じ、正解が公開されたセットです）</label>
       <div id="picker"></div>
       <div class="selbar hide" id="selBar"><span id="selInfo"></span><span id="selChips"></span><button type="button" class="linkbtn" id="selClear">選びなおす</button></div>
       <div class="form-row"><b>1レベルの時間</b><div class="seg" id="segTl"><button type="button" data-v="120">2分</button><button type="button" data-v="180" class="on">3分</button><button type="button" data-v="240">4分</button></div></div>
+      <div class="form-row"><b>ミニゲーム</b><div class="seg" id="segMg"><button type="button" data-v="all" class="on">4種類からランダム</button><button type="button" data-v="blast">ブラストだけ</button></div></div>
       <div class="form-row"><b>難易度</b><div class="seg" id="segDiff"><button type="button" data-v="easy">やさしい</button><button type="button" data-v="normal" class="on">ふつう</button><button type="button" data-v="hard">むずかしい</button></div></div>
       <div class="note" id="goalNote"></div>
       <div style="text-align:center;margin-top:1.4em"><button class="btn" id="btnCreate">ルームを作る</button></div>
@@ -75,15 +76,15 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261112215048"></script>
+<script src="firebase-config.js?v=20261112230000"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script type="module">
-import { mountSetPicker } from './lib.js?v=20261112215048';
-import { newGame, step, draw as bdraw, serialize, RULE as BRULE, W as BW, H as BH } from './bomb.js?v=20261112215048';
+import { mountSetPicker } from './lib.js?v=20261112230000';
+import { INFO as MG, KINDS as MG_KINDS, pickKind, aspect as mgAspect, hostCreate, hostMarkInputs, hostStep, hostLeft, hostScores, hostLabel, hostLine, hostDraw } from './minigame.js?v=20261112230000';
 import { shuffle, signIn, db, ref, set, get, update, remove, onValue, serverNow,
          avatarEl, ROBOT, ROBOT_LEVELS, setRobot, robotTarget, robotFrac, mountScene, parseAv,
          $, el, showScreen, confetti, qrSvg,
-         loadBackgrounds, applyBg, buildBgPickers, mountStage } from './lib.js?v=20261112215048';
+         loadBackgrounds, applyBg, buildBgPickers, mountStage } from './lib.js?v=20261112230000';
 import { bgm, bgmRate, sfx, preload, wireSoundButtons } from './sound.js?v=20261112215048b';
 
 mountStage();
@@ -91,7 +92,7 @@ wireSoundButtons(); preload(['top']); bgm('top');   /* 部屋を作る前の設�
 
 var uid = null, pin = null, BGS = [], curBg = 'space';
 var SETS = [], picked = {}, picker = null;
-var binMap = {}, bgames = [], lastB = {}, bombTimer = null, bombRaf = null, bTotal = {}, bLevel = {};
+var binMap = {}, mg = null, lastKind = '', bombTimer = null, bombRaf = null, bTotal = {}, bLevel = {};
 var lastK = 0, players = {}, runs = {}, S = null, started = false, ended = false, tickId = null, scene = null, bannerUntil = 0;
 var GL = { 0: 'すべて', 1: '1年', 2: '2年', 3: '3年' };
 
@@ -105,8 +106,8 @@ var GL = { 0: 'すべて', 1: '1年', 2: '2年', 3: '3年' };
     try { JSON.parse(localStorage.getItem('qraft.chase.picked') || '[]').forEach(function (f) { if (SETS.some(function (x) { return x.id === f; })) picked[f] = true; }); } catch (e) {}
     $('selClear').onclick = function () { Object.keys(picked).forEach(function (k) { delete picked[k]; }); picker.render(); updateSel(); };
     /* 時間と難易度（2026-11-12）。前回の選択を覚える */
-    try { var lo = JSON.parse(localStorage.getItem('qraft.chase.opts') || '{}'); ['segTl', 'segDiff'].forEach(function (id) { var v = lo[id]; if (v) $(id).querySelectorAll('button').forEach(function (b) { b.classList.toggle('on', b.dataset.v === v); }); }); } catch (e) {}
-    ['segTl', 'segDiff'].forEach(function (id) { $(id).onclick = function (e) { var b = e.target.closest('button'); if (!b) return; this.querySelectorAll('button').forEach(function (x) { x.classList.toggle('on', x === b); x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); }); goalNote(); }; });
+    try { var lo = JSON.parse(localStorage.getItem('qraft.chase.opts') || '{}'); ['segTl', 'segDiff', 'segMg'].forEach(function (id) { var v = lo[id]; if (v) $(id).querySelectorAll('button').forEach(function (b) { b.classList.toggle('on', b.dataset.v === v); }); }); } catch (e) {}
+    ['segTl', 'segDiff', 'segMg'].forEach(function (id) { $(id).onclick = function (e) { var b = e.target.closest('button'); if (!b) return; this.querySelectorAll('button').forEach(function (x) { x.classList.toggle('on', x === b); x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); }); goalNote(); }; });
     goalNote();
     picker = mountSetPicker($('picker'), { sets: SETS, key: function (s) { return s.id; }, picked: picked, onChange: updateSel }); updateSel();
   } catch (e) { setupErr(e.message); $('btnCreate').disabled = true; }
@@ -131,7 +132,7 @@ function updateSel() {
 function segV(id) { var b = $(id).querySelector('button.on'); return b ? b.dataset.v : ''; }
 function goalNote() {
   setRobot(Number(segV('segTl')), segV('segDiff'));
-  $('goalNote').textContent = 'レベル1〜3。各レベル ' + (ROBOT.Tl / 60) + ' 分の中で、クラス全員の正解数の合計が「目標」に届けばクリア（目標は人数と難易度に合わせて自動で決まります）。追いつかれるとライフが1つ減って、そのレベルをやり直し。クリアすると、ブラストタイム（爆弾ミニゲーム）。ライフは ' + ROBOT.lives + ' つです。';
+  $('goalNote').textContent = 'レベル1〜3。各レベル ' + (ROBOT.Tl / 60) + ' 分の中で、クラス全員の正解数の合計が「目標」に届けばクリア（目標は人数と難易度に合わせて自動で決まります）。追いつかれるとライフが1つ減って、そのレベルをやり直し。クリアすると、ミニゲーム（' + (segV('segMg') === 'blast' ? 'ブラストタイム' : 'ブラスト・スカイレース・ほりほりトレジャー・チーム綱引きから、前回とちがうものをランダム') + '）。ライフは ' + ROBOT.lives + ' つです。';
 }
 function setupErr(msg) { $('setupErr').textContent = msg; $('setupErr').classList.remove('hide'); }
 
@@ -140,7 +141,7 @@ $('btnCreate').onclick = async function () {
   try {
     var ids = Object.keys(picked).filter(function (i) { return SETS.some(function (x) { return x.id === i; }); });
     if (!ids.length) throw new Error('問題セットを1つ以上えらんでください');
-    try { localStorage.setItem('qraft.chase.picked', JSON.stringify(ids)); localStorage.setItem('qraft.chase.opts', JSON.stringify({ segTl: segV('segTl'), segDiff: segV('segDiff') })); } catch (e) {}
+    try { localStorage.setItem('qraft.chase.picked', JSON.stringify(ids)); localStorage.setItem('qraft.chase.opts', JSON.stringify({ segTl: segV('segTl'), segDiff: segV('segDiff'), segMg: segV('segMg') })); } catch (e) {}
     goalNote();
     for (var i = 0; i < 20; i++) {
       pin = String(Math.floor(100000 + Math.random() * 900000));
@@ -227,8 +228,9 @@ function tick() {
     scene.draw({ phase: 'quiz', frac: frac, ks: ks });
     if (sec < 3) { if (bannerUntil < Date.now()) banner('レベル ' + S.level + ' スタート！ 問題に答えて ロボットから にげろ！', false, 3); return; }
     if (p >= 1) {
-      banner('クリア！ ブラストタイムへ！', false, 3);
-      sfx('levelup'); startBomb();
+      var nk = pickKind(lastKind, segV('segMg') === 'blast' ? ['blast'] : MG_KINDS);
+      banner('クリア！ ' + MG[nk].em + ' ' + MG[nk].name + 'へ！', false, 3);
+      sfx('levelup'); startBomb(nk);
     } else if (frac >= 1 || sec >= S.Tl) {
       var lives = S.lives - 1;
       if (lives <= 0) return finish('lose', lives);
@@ -243,21 +245,19 @@ function tick() {
   }
 }
 
-/* ------------------------------------------------------------ ブラストタイム（先生の画面が全グループを計算して、盤面を配る） */
-function startBomb() {
-  var ids = shuffle(Object.keys(players)), n = ids.length, gc = Math.max(1, Math.ceil(n / 6)), k = 0, bgrp = {};
-  bgames = []; lastB = {};
-  for (var g = 0; g < gc; g++) {
-    var size = Math.floor(n / gc) + (g < n % gc ? 1 : 0), members = ids.slice(k, k + size); k += size;
-    bgames.push({ g: newGame(size, 5000 + g * 31 + Math.floor(Math.random() * 999)), members: members });
-    members.forEach(function (u, i) { bgrp[u] = g + '.' + i; lastB[u] = (binMap[u] && binMap[u].b) || 0; });
-  }
-  var bd = {}; bgames.forEach(function (bg, gi) { bd[gi] = serialize(bg.g); });
+/* ------------------------------------------------------------ ミニゲーム（先生の画面が全グループを計算して、盤面を配る）
+   4種類（ブラスト・スカイレース・ほりほりトレジャー・チーム綱引き）。中身は minigame.js */
+function nickOf(u) { return players[u] ? players[u].nick : '?'; }
+function avOf(u) { return parseAv(players[u] && players[u].av, u); }
+function startBomb(kind) {
+  lastKind = kind;
+  mg = hostCreate(kind, shuffle(Object.keys(players)), 5000);
+  hostMarkInputs(mg, binMap);
   var start = serverNow() + 4000;
-  Promise.all([set(ref(db, 'rooms/' + pin + '/bgrp'), bgrp), set(ref(db, 'rooms/' + pin + '/bd'), bd)]).then(function () {
-    save({ phase: 'bomb', bstart: start });
+  Promise.all([set(ref(db, 'rooms/' + pin + '/bgrp'), mg.bgrp), set(ref(db, 'rooms/' + pin + '/bd'), mg.bd)]).then(function () {
+    save({ phase: 'bomb', bstart: start, mg: kind });
   });
-  S.phase = 'bomb'; S.bstart = start; bgmRate(1); bgm('blast');                                    /* この間に quiz 判定が再び走らないように、手元はすぐ切り替える */
+  S.phase = 'bomb'; S.bstart = start; S.mg = kind; bgmRate(1); bgm('blast');                     /* この間に quiz 判定が再び走らないように、手元はすぐ切り替える */
   showBomb(true); buildBombBoxes();
   clearInterval(bombTimer); bombTimer = setInterval(bombTick, 100);
   cancelAnimationFrame(bombRaf); (function loop() { bombDraw(); bombRaf = requestAnimationFrame(loop); })();
@@ -265,53 +265,49 @@ function startBomb() {
 var bcanv = [], bcoreEls = [];
 function buildBombBoxes() {
   var box = $('bombBox'); box.textContent = '';
-  /* 画面に全グループが収まる大きさを計算する（グループ数が少ないと大きく、多いと小さく） */
-  var n = bgames.length, cols = n <= 1 ? 1 : n <= 2 ? 2 : n <= 6 ? 3 : 4, rows = Math.ceil(n / cols);
+  /* 画面に全部の盤面が収まる、いちばん大きい並べ方を探す（列の数を1〜盤面の数で試す） */
+  var n = mg.boards.length, ar = mgAspect(mg.kind);
   var availH = Math.max(200, box.clientHeight || (window.innerHeight - 140)), availW = box.clientWidth || (window.innerWidth - 30);
-  var cellW = Math.floor(Math.min((availW - (cols - 1) * 10) / cols, (availH / rows - 50) * BW / BH, 1600));
-  var grid = el('div', 'grid7'); grid.style.cssText = 'display:grid; gap:.6em; grid-template-columns:repeat(' + cols + ', ' + cellW + 'px); justify-content:center; width:100%;';
+  var best = { w: 0, cols: 1 };
+  for (var cols = 1; cols <= n; cols++) {
+    var rows = Math.ceil(n / cols), w = Math.min((availW - (cols - 1) * 10) / cols - 10, (availH / rows - 56) * ar, 1600);
+    if (w > best.w) best = { w: w, cols: cols };
+  }
+  var cellW = Math.max(120, Math.floor(best.w));
+  var grid = el('div', 'grid7'); grid.style.cssText = 'display:grid; gap:.6em; grid-template-columns:repeat(' + best.cols + ', ' + cellW + 'px); justify-content:center; width:100%;';
   bcanv = []; bcoreEls = [];
-  bgames.forEach(function (bg, gi) {
+  mg.boards.forEach(function (bd, gi) {
     var cell = el('div', 'bcell'); cell.style.cssText = 'background:rgba(0,0,0,.35); border-radius:.6em; padding:.3em; color:#fff; font-weight:800; font-size:.85em;';
-    cell.appendChild(el('div', '', 'グループ ' + (gi + 1)));
-    var fr = el('div', 'bframe mini'); fr.style.display = 'block'; var cv = el('canvas'); cv.width = cellW; cv.height = Math.floor(cellW / BW * BH); cv.style.cssText = 'width:100%; display:block;'; fr.appendChild(cv); cell.appendChild(fr);
+    cell.appendChild(el('div', '', hostLabel(mg, gi)));
+    var fr = el('div', 'bframe mini'); fr.style.display = 'block'; var cv = el('canvas'); cv.width = cellW; cv.height = Math.floor(cellW / ar); cv.style.cssText = 'width:100%; display:block;'; fr.appendChild(cv); cell.appendChild(fr);
     var sc = el('div', 'gsc'); sc.style.cssText = 'line-height:1.5; margin-top:.2em;'; cell.appendChild(sc);
     grid.appendChild(cell); bcanv.push(cv); bcoreEls.push(sc);
   });
   box.appendChild(grid);
 }
 function showBomb(on) { $('bombBox').classList.toggle('hide', !on); $('sceneBox').classList.toggle('hide', on); if (!on) { clearInterval(bombTimer); cancelAnimationFrame(bombRaf); } }
-function bombDraw() {
-  bgames.forEach(function (bg, gi) {
-    var chars = [], accs = [];
-    bg.members.forEach(function (u, i) { var v = parseAv(players[u] && players[u].av, u); chars.push(v.c); accs.push(v.a); });
-    bdraw(bcanv[gi].getContext('2d'), bg.g, bcanv[gi].width, { chars: chars, accs: accs, emojis: [] });
-  });
-}
+function bombDraw() { if (!mg) return; mg.boards.forEach(function (bd, gi) { if (bcanv[gi]) hostDraw(mg, gi, bcanv[gi], avOf, nickOf); }); }
+var SFX_OF = { boom: 'boom', kill: 'kill', bigstar: 'kill', hit: 'ng', find: 'ok', sync: 'step', end: 'fanfare' };
 function bombTick() {
-  if (S.phase !== 'bomb') return;
+  if (S.phase !== 'bomb' || !mg) return;
   var now = serverNow(), left = (S.bstart - now) / 1000;
   if (left > 0) { $('hTime').textContent = '開始まで ' + Math.ceil(left); return; }
-  var upd = {}, allOver = true;
-  bgames.forEach(function (bg, gi) {
-    var inputs = bg.members.map(function (u) { var r = binMap[u] || {}, bb = (r.b || 0) > (lastB[u] || 0); lastB[u] = r.b || 0; return { d: r.d || 0, b: bb }; });
-    step(bg.g, inputs); upd[gi] = serialize(bg.g); if (!bg.g.over) allOver = false;
-    bg.g.ev.forEach(function (e) { if (e.k === 'boom' || e.k === 'kill') sfx(e.k); });
-    bcoreEls[gi].textContent = bg.members.map(function (u, i) { return (players[u] ? players[u].nick : '?') + ' ' + bg.g.players[i].score; }).join(' / ');
-  });
-  update(ref(db, 'rooms/' + pin + '/bd'), upd).catch(function () {});
-  var t = bgames[0] ? bgames[0].g.t : 0, lf = Math.max(0, (BRULE.length - t) / 10);
-  $('hTime').textContent = '0:' + String(Math.ceil(lf)).padStart(2, '0'); $('hStat').textContent = 'ブラストタイム！ 小さいロボットをたおせ（アイテムで強くなる）';
-  if (allOver) endBomb();
+  var r = hostStep(mg, binMap, now - S.bstart); mg.stepAt = performance.now();
+  r.ev.forEach(function (e) { if (SFX_OF[e]) sfx(SFX_OF[e]); });
+  mg.boards.forEach(function (bd, gi) { bcoreEls[gi].textContent = hostLine(mg, gi, nickOf); });
+  update(ref(db, 'rooms/' + pin + '/bd'), r.upd).catch(function () {});
+  var lf = hostLeft(mg, now - S.bstart);
+  $('hTime').textContent = '0:' + String(Math.ceil(lf)).padStart(2, '0'); $('hStat').textContent = MG[mg.kind].stat;
+  if (r.over) endBomb();
 }
 function endBomb() {
   clearInterval(bombTimer);
-  bLevel = {}; var rows = [];
-  bgames.forEach(function (bg) { bg.members.forEach(function (u, i) { var sc = bg.g.players[i].score; bLevel[u] = sc; bTotal[u] = (bTotal[u] || 0) + sc; rows.push({ n: players[u] ? players[u].nick : '?', s: sc }); }); });
+  bLevel = {}; var rows = [], sc = hostScores(mg);
+  Object.keys(sc).forEach(function (u) { bLevel[u] = sc[u]; bTotal[u] = (bTotal[u] || 0) + sc[u]; rows.push({ n: nickOf(u), s: sc[u] }); });
   rows.sort(function (a, b) { return b.s - a.s; });
   update(ref(db, 'rooms/' + pin + '/bscore'), bTotal).catch(function () {});
   save({ phase: 'bombres', brstart: serverNow() }); sfx('fanfare');
-  banner('このレベルのMVP：' + rows.slice(0, 3).map(function (r, i) { return (i + 1) + '位 ' + r.n + '（' + r.s + '点）'; }).join('　'), false, 6);
+  banner(MG[mg.kind].name + 'のMVP：' + rows.slice(0, 3).map(function (r, i) { return (i + 1) + '位 ' + r.n + '（' + r.s + '点）'; }).join('　'), false, 6);
 }
 
 async function finish(result, lives) {
@@ -324,10 +320,12 @@ async function finish(result, lives) {
   $('endEm').textContent = win ? '🎉' : '🤖';
   $('endTitle').textContent = win ? '全レベル クリア！ ロボットから にげきった！' : 'ロボットに つかまってしまった…';
   $('endK').textContent = K;
-  $('endSub').textContent = (S.level && !win ? 'レベル ' + S.level + ' で ゲームオーバー' : '') + (win ? '残りライフ ' + lives + ' / ' + ROBOT.lives : '') + (topB.length ? '　ブラストタイム上位：' + topB.map(function (r, i) { return (i + 1) + '位 ' + r.n + '（' + r.s + '点）'; }).join('　') : '');
+  $('endSub').textContent = (S.level && !win ? 'レベル ' + S.level + ' で ゲームオーバー' : '') + (win ? '残りライフ ' + lives + ' / ' + ROBOT.lives : '') + (topB.length ? '　ミニゲーム上位：' + topB.map(function (r, i) { return (i + 1) + '位 ' + r.n + '（' + r.s + '点）'; }).join('　') : '');
   showScreen('s-end'); if (win) confetti($('conf'), 46);
   bgmRate(1); if (win) { bgm('podium'); sfx('fanfare'); } else { bgm(null); sfx('lose'); }
 }
+/* 確認用：自分のPC（localhost）で ?mg=1 を付けて開いたときだけ、ミニゲームをすぐ始められる（例：qraftDebug.mini('dig')） */
+if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname) && /[?&]mg=1/.test(location.search)) window.qraftDebug = { mini: function (k) { banner('確認用：' + MG[k].name, false, 2); startBomb(k); } };
 $('btnEnd').onclick = function () { if (confirm('ゲームを終えますか？')) finish('lose', 0); };
 /* ロビーでやめる：ルームを消して、準備画面にもどる */
 $('btnQuitLobby').onclick = function () { if (confirm('ルームを閉じて、準備画面にもどりますか？（参加している生徒には終了が表示されます）')) $('btnClose').onclick(); };

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ja" data-bg="pop">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>チーム綱引き モック</title>
+<link rel="stylesheet" href="theme.css">
+<style>
+  html, body { height:100%; overflow:hidden; }
+  #mockbar { position:fixed; bottom:.4em; left:50%; transform:translateX(-50%); z-index:50; display:flex; gap:.4em; flex-wrap:wrap; justify-content:center; background:rgba(0,0,0,.75); padding:.35em .6em; border-radius:999px; font-size:13px; max-width:96vw; }
+  #mockbar button { font:inherit; font-weight:800; border:0; border-radius:999px; padding:.3em .9em; cursor:pointer; background:#fff; color:#222; }
+  #mockbar button.on { background:#ffd23f; }
+  .screen { padding:.5em .8em 3.2em !important; }
+  .bhud { display:flex; align-items:center; gap:.6em; flex-wrap:wrap; justify-content:center; }
+  .bhud .pill { font-weight:900; }
+  .pill.fever { background:#ff4d5e; color:#fff; animation:pulse .4s infinite alternate; }
+  @keyframes pulse { to { transform:scale(1.08); } }
+  .stage { flex:1; min-height:0; width:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.6em; }
+  .tfield { position:relative; border-radius:.9em; overflow:hidden; box-shadow:var(--shadow); border:.22em solid #fff; line-height:0; }
+  canvas { display:block; }
+  .under { display:flex; align-items:center; gap:1em; }
+  .pullbtn { font:inherit; font-weight:900; font-size:1.6em; border:0; border-radius:999px; padding:.45em 2.2em; background:linear-gradient(#ff7a7a,#e23a3a); color:#fff; box-shadow:0 .3em 0 #9a1f1f; touch-action:none; user-select:none; }
+  .pullbtn:active, .pullbtn.hit { transform:translateY(.2em); box-shadow:0 .1em 0 #9a1f1f; }
+  .team { display:flex; gap:.3em; }
+  .team div { background:rgba(255,255,255,.92); color:var(--ink-dark); border-radius:.5em; padding:.1em .4em; font-weight:800; font-size:.8em; text-align:center; min-width:3.6em; line-height:1.3; }
+  .team img { height:1.6em; display:block; margin:0 auto; }
+  .team .me { outline:.15em solid #ffd23f; }
+  .hint { opacity:.85; font-weight:700; font-size:.8em; }
+  #intro { position:absolute; inset:0; z-index:5; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.5em; background:rgba(30,30,80,.62); color:#fff; text-align:center; line-height:1.4; font-size:clamp(10px, 1.4vw, 18px); }
+  #intro .logo { font-size:3em; font-weight:900; color:#fff; text-shadow:0 .07em 0 #e23a3a, 0 .14em 0 rgba(0,0,0,.3); transform:rotate(-3deg); }
+  #intro .vs { font-size:1.4em; font-weight:900; }
+  #intro .rules { display:grid; grid-template-columns:1fr 1fr; gap:.4em; font-weight:800; }
+  #intro .rules span { background:rgba(255,255,255,.15); border-radius:.6em; padding:.3em .9em; }
+  #intro .cd { font-size:4em; font-weight:900; }
+  .grid4 { display:grid; grid-template-columns:repeat(2, 1fr); gap:.6em; width:100%; flex:1; min-height:0; }
+  .grid4 .cell { background:rgba(0,0,0,.35); border-radius:.6em; padding:.3em; color:#fff; font-size:.9em; font-weight:800; display:flex; flex-direction:column; min-height:0; }
+  .grid4 .tfield { flex:1; min-height:0; } .grid4 canvas { width:100%; height:100%; }
+  .res { display:grid; grid-template-columns:repeat(2, minmax(15em, 1fr)); gap:.5em; }
+  .res div { background:#fff; color:var(--ink-dark); border-radius:.7em; padding:.4em .8em; font-weight:800; box-shadow:0 .2em 0 rgba(0,0,0,.2); }
+  .res b.w { color:#e23a3a; }
+</style>
+</head>
+<body>
+<div id="app" class="bg" style="height:100%">
+  <div class="deco"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  <section class="screen on" id="v-stu" style="gap:.4em; height:100%">
+    <div class="bhud"><span class="pill" id="sT"></span><span class="pill" style="background:var(--pop1)" id="sS"></span><span class="pill" style="background:var(--pop3)" id="sP"></span><span class="pill fever" id="sF" style="display:none">🔥 ラストスパート！ かけ声が速くなる</span></div>
+    <div class="stage" id="stage">
+      <div class="tfield"><canvas id="cv"></canvas>
+        <div id="intro"><div class="logo">💪 チーム綱引き</div>
+          <div class="vs"><span style="color:#ff8a8a">グループ1</span>　VS　<span style="color:#8acbff">グループ2</span></div>
+          <div class="rules"><span>🔴 外の輪が 内の輪に重なったら 押す</span><span>🎯 ぴったりで PERFECT、少しずれて GOOD</span><span>🤝 チームの7割がそろうと 力が1.5倍</span><span>🚫 連打は空ぶりで 逆に弱くなる</span></div>
+          <div class="cd" id="cd"></div></div>
+      </div>
+      <div class="under"><div class="team" id="myteam"></div><button class="pullbtn" id="pb">引く！</button></div>
+      <div class="hint">スペースキー か ボタンで「引く」</div>
+    </div>
+  </section>
+  <section class="screen" id="v-host" style="gap:.5em; height:100%">
+    <div class="bhud"><span class="pill" id="hT"></span><span class="pill" style="background:var(--pop1)">全 7 グループ・4試合</span><span class="pill" style="background:#ff8a8a">チーム綱引き！</span></div>
+    <div class="grid4" id="g4"></div>
+  </section>
+  <section class="screen" id="v-end">
+    <div class="center" style="flex:1; display:flex; flex-direction:column; gap:.8em">
+      <div class="title2" style="font-size:2.3em">💪 チーム綱引き 終了！</div>
+      <div class="res" id="res"></div>
+      <div class="card" style="min-width:20em"><div style="font-weight:900;margin-bottom:.3em">🎯 PERFECT王</div><div id="mvp" style="display:flex;flex-direction:column;gap:.2em;font-weight:800"></div></div>
+      <div class="mut">勝ったチームは全員 ＋30点。この得点が、個人の得点として最後のランキングに足されます</div>
+    </div>
+  </section>
+</div>
+<div id="mockbar"></div>
+<script type="module">
+import { RULE, newMatch, step, tap, draw, beatLen, ANIMAL_NAMES } from './tug.js';
+var NAMES = 'そら ひなた れん あおい ゆうと みお はると さくら りく めい そうた ひより かいと ゆい たくみ ここな いつき みさき しょう なな けんた あかり だいき ゆず ひろと りこ まお こうた はな ゆうま みく りょう あやね とわ ふうか れお つむぎ ゆうり'.split(' ');
+var SIZES = [6, 6, 6, 6, 6, 5, 5];
+/* 組み合わせ：1対2、3対4、5対6、7対先生チーム */
+var PAIRS = [[0, 1], [2, 3], [4, 5], [6, -1]];
+function $(id) { return document.getElementById(id); }
+function gname(g) { return g < 0 ? '先生チーム' : 'グループ' + (g + 1); }
+function gsize(g) { return g < 0 ? 4 : SIZES[g]; }
+function chars(g) { return Array.from({ length: 6 }, function (_, i) { return g < 0 ? [3, 9, 11, 15][i % 4] : (i + g * 3) % 20; }); }
+function accs(g) { return g < 0 ? [5, 5, 5, 5] : [0, 8, 3, 0, 9, 1]; }
+function names(g) { return Array.from({ length: 6 }, function (_, i) { return g === 0 && i === 0 ? 'あなた' : g < 0 ? ['校長', '教頭', '担任', '副担'][i % 4] : NAMES[(g * 6 + i) % NAMES.length]; }); }
+var view = 'stu', speed = 1, matches = [], bots = [], last = performance.now(), startAt = 0, ended = false, pressed = false;
+
+function start() {
+  matches = PAIRS.map(function (pr) { return newMatch(gsize(pr[0]), gsize(pr[1])); });
+  /* ボット：かけ声のたびに、少しずれたタイミングで押す（うまさは人それぞれ） */
+  bots = matches.map(function (m) { return [0, 1].map(function (s) { return m.teams[s].players.map(function () { return { skill: 60 + Math.random() * 120, rate: .7 + Math.random() * .28, at: null, for: -1 }; }); }); });
+  ended = false; startAt = performance.now() + 3600;
+  $('intro').style.display = ''; show(view === 'end' ? 'stu' : view); bar();
+}
+function gauss() { return (Math.random() + Math.random() + Math.random() - 1.5) / 1.5; }
+function runBots(m, k) {
+  [0, 1].forEach(function (s) {
+    m.teams[s].players.forEach(function (p, i) {
+      if (k === 0 && s === 0 && i === 0 && view === 'stu') return;
+      var b = bots[k][s][i];
+      if (b.for !== m.nextBeat) { b.for = m.nextBeat; b.at = Math.random() < b.rate ? m.nextBeat + gauss() * b.skill : (Math.random() < .3 ? m.nextBeat - 350 : null); }
+      if (b.at !== null && m.t >= b.at) { tap(m, s, i); b.at = null; }
+    });
+  });
+}
+var cv = $('cv'), ctx = cv.getContext('2d'), dpr = Math.min(2, devicePixelRatio || 1), CW = 0, CH = 0;
+function sizeCanvas() {
+  var st = $('stage').getBoundingClientRect(), aw = st.width - 10, ah = st.height - 120;
+  var w = Math.max(280, Math.floor(Math.min(aw, ah * 20 / 11, 1200)));
+  CW = w; CH = Math.floor(w * 11 / 20);
+  cv.style.width = CW + 'px'; cv.style.height = CH + 'px'; cv.width = CW * dpr; cv.height = CH * dpr;
+}
+function frame(now) {
+  var pre = startAt - now, dt = Math.min(100, now - last) * speed; last = now;
+  if (pre > 0) { var n = Math.ceil(pre / 1000); $('cd').textContent = n > 3 ? '' : n; }
+  else {
+    $('intro').style.display = 'none';
+    /* 細かく刻んで進める（タイミングの判定を正確にするため） */
+    for (var s = 0; s < dt; s += 10) matches.forEach(function (m, k) { runBots(m, k); if (k === 0 && pressed) { tap(m, 0, 0); pressed = false; } step(m, Math.min(10, dt - s)); });
+  }
+  var m0 = matches[0], left = Math.max(0, (RULE.length - m0.t) / 1000), fever = m0.t > RULE.length - RULE.fever && !m0.over;
+  if (view === 'stu') {
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    draw(ctx, m0, CW, CH, { chars: [chars(0), chars(1)], accs: [accs(0), accs(1)], names: [names(0), names(1)], me: { side: 0, i: 0 }, labels: [gname(0), gname(1)], big: true });
+    var me = m0.teams[0].players[0];
+    $('sT').textContent = m0.over ? '勝負あり！' : '残り ' + Math.ceil(left) + ' 秒'; $('sS').textContent = 'あなた ' + me.score + ' 点'; $('sP').textContent = '🎯 PERFECT ' + me.perfect;
+    $('sF').style.display = fever ? '' : 'none';
+    $('myteam').innerHTML = m0.teams[0].players.map(function (p, i) { var r = p.fb && m0.t - p.fb.t < 700 ? (p.fb.res === 'p' ? '🎯' : p.fb.res === 'g' ? '👍' : '💦') : '　'; return '<div class="' + (i === 0 ? 'me' : '') + '"><img src="img/robot/animal-' + ANIMAL_NAMES[chars(0)[i]] + '.webp">' + names(0)[i] + '<br>' + r + '</div>'; }).join('');
+  } else if (view === 'host') {
+    $('hT').textContent = '残り ' + Math.ceil(left) + ' 秒';
+    document.querySelectorAll('#g4 canvas').forEach(function (c, k) {
+      var r = c.getBoundingClientRect(), w = Math.floor(r.width), h = Math.floor(w * 11 / 20); if (c.width !== w * dpr) { c.width = w * dpr; c.height = h * dpr; }
+      var cx = c.getContext('2d'); cx.setTransform(dpr, 0, 0, dpr, 0, 0); var pr = PAIRS[k];
+      draw(cx, matches[k], w, h, { chars: [chars(pr[0]), chars(pr[1])], accs: [accs(pr[0]), accs(pr[1])], names: [names(pr[0]), names(pr[1])], labels: [gname(pr[0]), gname(pr[1])] });
+    });
+  }
+  if (!ended && matches.every(function (m) { return m.over; })) { ended = true; setTimeout(endScreen, 1800); }
+  requestAnimationFrame(frame);
+}
+function endScreen() {
+  $('res').innerHTML = matches.map(function (m, k) { var pr = PAIRS[k], a = gname(pr[0]), b = gname(pr[1]); return '<div>' + (m.win === 0 ? '<b class="w">🏆 ' + a + '</b>' : a) + '　vs　' + (m.win === 1 ? '<b class="w">🏆 ' + b + '</b>' : b) + (m.win < 0 ? '　ひきわけ' : '') + '</div>'; }).join('');
+  var all = []; matches.forEach(function (m, k) { [0, 1].forEach(function (s) { var g = PAIRS[k][s]; if (g < 0) return; m.teams[s].players.forEach(function (p, i) { all.push({ n: names(g)[i], g: g, p: p.perfect, s: p.score, img: 'img/robot/animal-' + ANIMAL_NAMES[chars(g)[i]] + '.webp' }); }); }); });
+  all.sort(function (a, b) { return b.p - a.p || b.s - a.s; });
+  $('mvp').innerHTML = all.slice(0, 5).map(function (r, i) { return (i + 1) + '位　<img src="' + r.img + '" style="height:1.4em;vertical-align:middle"> ' + r.n + '（' + gname(r.g) + '）　🎯' + r.p + '回　' + r.s + '点'; }).join('');
+  show('end');
+}
+function buildHost() {
+  var box = $('g4'); box.textContent = '';
+  PAIRS.forEach(function (pr, k) { var d = document.createElement('div'); d.className = 'cell'; d.textContent = '第' + (k + 1) + '試合　' + gname(pr[0]) + ' vs ' + gname(pr[1]); var fr = document.createElement('div'); fr.className = "tfield"; var c = document.createElement('canvas'); fr.appendChild(c); d.appendChild(fr); box.appendChild(d); });
+}
+function show(v) { view = v; document.querySelectorAll('.screen').forEach(function (s) { s.classList.toggle('on', s.id === 'v-' + v); }); if (v === 'host') buildHost(); if (v === 'stu') requestAnimationFrame(sizeCanvas); bar(); }
+function bar() {
+  var b = $('mockbar'); b.textContent = '';
+  [['stu', '生徒の画面（操作できる）'], ['host', '先生の画面（全試合）']].forEach(function (x) { var e = document.createElement('button'); e.textContent = x[1]; e.className = view === x[0] ? 'on' : ''; e.onclick = function () { show(x[0]); }; b.appendChild(e); });
+  [[1, '等速'], [3, '3倍速']].forEach(function (x) { var e = document.createElement('button'); e.textContent = x[1]; e.className = speed === x[0] ? 'on' : ''; e.onclick = function () { speed = x[0]; bar(); }; b.appendChild(e); });
+  var r = document.createElement('button'); r.textContent = '▶ 最初から'; r.onclick = start; b.appendChild(r);
+}
+function press() { pressed = true; $('pb').classList.add('hit'); setTimeout(function () { $('pb').classList.remove('hit'); }, 90); }
+addEventListener('keydown', function (e) { if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) { e.preventDefault(); press(); } });
+$('pb').onpointerdown = function (e) { e.preventDefault(); press(); };
+addEventListener('resize', sizeCanvas);
+start(); requestAnimationFrame(frame);
+</script>
+</body>
+</html>

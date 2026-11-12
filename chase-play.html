@@ -6,13 +6,15 @@
 <title>Qraft ジェットチェイス</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261112215048">
+<link rel="stylesheet" href="theme.css?v=20261112230000">
 <style>
   .brow { display:flex; gap:.4em; align-items:center; background:rgba(255,255,255,.92); color:var(--ink-dark); border-radius:.6em; padding:.15em .6em; font-weight:800; font-size:.95em; }
   .brow.me { outline:.15em solid #ffd23f; }
   .pad { display:grid; grid-template-columns:repeat(3,2.8em); grid-template-rows:repeat(2,2.8em); gap:.25em; }
   .pad button, .bombbtn { font:inherit; font-size:1.2em; font-weight:900; border:0; border-radius:.6em; background:#fff; color:var(--ink-dark); box-shadow:var(--shadow); touch-action:none; }
   .bombbtn { width:3.8em; height:3.8em; border-radius:50%; background:#ff5a5a; color:#fff; }
+  .pullbtn { font:inherit; font-weight:900; font-size:1.7em; border:0; border-radius:999px; padding:.45em 2.4em; background:linear-gradient(#ff7a7a,#e23a3a); color:#fff; box-shadow:0 .3em 0 #9a1f1f; touch-action:none; user-select:none; -webkit-user-select:none; }
+  .pullbtn.hit { transform:translateY(.2em); box-shadow:0 .1em 0 #9a1f1f; }
   .fb { text-align:center; font-weight:900; font-size:1.3em; min-height:1.6em; }
   /* 生徒の画面には、追いかけてくる場面は出さない（問題の選択肢を大きく見せるため） */
   #sceneBox { display:none !important; }
@@ -75,7 +77,7 @@
     </div>
   </div>
   <div id="bombBoxS" class="hide" style="display:flex; flex-direction:column; gap:.5em; flex:1; min-height:0; align-items:center; position:relative">
-    <div class="banner hide" id="bIntro" style="position:absolute; z-index:5; top:18%; left:6%; right:6%;">💣 ブラストタイム！<br><small style="font-size:.6em">小さいロボット🤖を、爆弾でたおせ！ 矢印キー／WASDで動く・スペースで爆弾。爆発に巻き込まれると減点（5秒で復活）<br>たおすと、ときどきアイテム（🔥火力・💣爆弾の数・👟スピード）が落ちる！</small></div>
+    <div class="banner hide" id="bIntro" style="position:absolute; z-index:5; top:18%; left:6%; right:6%;"><span id="bIntroT"></span><br><small style="font-size:.6em" id="bIntroS"></small></div>
     <div class="bframe"><canvas id="bcv"></canvas></div>
     <div style="display:flex; gap:.8em; align-items:center; justify-content:center; flex-wrap:wrap; width:100%">
       <div id="brank" style="display:flex; flex-wrap:wrap; gap:.3em; justify-content:center"></div>
@@ -83,6 +85,7 @@
         <div class="pad"><span></span><button data-d="1">▲</button><span></span><button data-d="3">◀</button><button data-d="2">▼</button><button data-d="4">▶</button></div>
         <button class="bombbtn" id="bbtn">💣</button>
       </div>
+      <button class="pullbtn hide" id="tbtn">引く！</button>
     </div>
   </div>
 </section>
@@ -107,12 +110,12 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261112215048"></script>
+<script src="firebase-config.js?v=20261112230000"></script>
 <script type="module">
-import { newView, applyData, draw as bdraw, RULE as BRULE, W as BW, H as BH } from './bomb.js?v=20261112215048';
+import { INFO as MG, viewNew, viewApply, viewDraw, viewAspect, myPlace, boardMembers, tugPress, viewScore, viewLeft } from './minigame.js?v=20261112230000';
 import { parseAv, mountAvatarPicker, avatarEl, signIn, db, ref, set, get, onValue, serverNow, CHOICE_STYLE, shuffle,
          ROBOT, setRobot, robotFrac, mountScene, prepareQuestion, maskOf, isTextCorrect,
-         $, el, showScreen, confetti, loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261112215048';
+         $, el, showScreen, confetti, loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261112230000';
 
 mountStage();
 
@@ -121,7 +124,7 @@ var state = null, runs = {}, players = {}, kicked = false, closed = false, BGS =
 var started = false, finished = false, timerId = null, scene = null;
 var k = 0, a = 0, pool = [], queue = [], run = null, locked = false, selMask = 0;
 var lastLevel = 0, lastFail = 0, lastPhase = '', bannerUntil = 0;
-var bgrp = {}, myG = -1, myI = -1, bView = newView(), bUnsub = null, bRaf = null, held = [], curD = 0, bcount = 0, sentKey = '', bActive = false;
+var bgrp = {}, myG = -1, myI = -1, mgKind = 'blast', pl = null, bView = viewNew('blast'), bUnsub = null, bRaf = null, held = [], curD = 0, bcount = 0, sentKey = '', bActive = false, tugB = 0;
 
 /* ------------------------------------------------------------ 参加（クラシックと同じ入り口） */
 (async function boot() {
@@ -225,15 +228,15 @@ function tick() {
     var ks = {}; ids.forEach(function (id) { ks[id] = (runs[id] && runs[id].k) || 0; });
     scene.draw({ phase: 'quiz', frac: robotFrac(Math.max(0, sec), p), me: uid, ks: ks });
   } else if (st.phase === 'bomb' || st.phase === 'bombres') {
-    if (lastPhase !== st.phase) { var first = lastPhase !== 'bomb' && lastPhase !== 'bombres'; lastPhase = st.phase; if (first) enterBomb(); }
+    if (lastPhase !== st.phase) { var first = lastPhase !== 'bomb' && lastPhase !== 'bombres'; lastPhase = st.phase; if (first) enterBomb(st.mg || 'blast'); }
     var left2 = (st.bstart - now) / 1000;
     if (st.phase === 'bomb') {
       bActive = left2 <= 0;
       $('bIntro').classList.toggle('hide', !(left2 > -1));      /* 始まる前と、始まって1秒のあいだ、説明を出す */
-      $('hTime').textContent = left2 > 0 ? '開始まで ' + Math.ceil(left2) : '0:' + String(Math.ceil(Math.max(0, (BRULE.length - bView.t) / 10))).padStart(2, '0');
+      $('hTime').textContent = left2 > 0 ? '開始まで ' + Math.ceil(left2) : '0:' + String(Math.ceil(viewLeft(mgKind, bView, now - st.bstart))).padStart(2, '0');
     } else {
       bActive = false; setInput(0); $('bIntro').classList.add('hide'); $('hTime').textContent = '';
-      var mine = bView.players[myI]; if (bannerUntil < Date.now()) banner(mine ? 'ミニゲーム終了！ あなたは ' + mine.score + ' 点' : 'ミニゲーム終了！', false, 1);
+      var mine = viewScore(mgKind, bView, pl); if (bannerUntil < Date.now()) banner(mine != null ? 'ミニゲーム終了！ あなたは ' + mine + ' 点' : 'ミニゲーム終了！', false, 1);
     }
     $('hFill').style.width = '100%';
     if (myG < 0 && bgrp[uid]) joinBoard();
@@ -241,59 +244,95 @@ function tick() {
   }
 }
 
-/* ---- ブラストタイム */
-function enterBomb() {
+/* ---- ミニゲーム（4種類。中身は minigame.js） */
+function enterBomb(kind) {
+  mgKind = kind; var I = MG[kind];
+  $('bIntroT').textContent = I.em + ' ' + I.name + '！'; $('bIntroS').innerHTML = I.intro;
   $('sceneBox').classList.add('hide'); $('quizBox').classList.add('hide'); $('bombBoxS').classList.remove('hide');
-  $('bpad').classList.toggle('hide', !('ontouchstart' in window));
-  sizeBoard(); myG = -1; myI = -1; bView = newView(); curD = 0; sentKey = '';
+  var touch = 'ontouchstart' in window;
+  $('bpad').classList.toggle('hide', !touch || kind === 'tug'); $('tbtn').classList.toggle('hide', kind !== 'tug');
+  $('bbtn').textContent = I.btn;
+  sizeBoard(); myG = -1; myI = -1; pl = null; bView = viewNew(kind); curD = 0; sentKey = ''; held = [];
   cancelAnimationFrame(bRaf); (function loop() { drawBoard(); bRaf = requestAnimationFrame(loop); })();
 }
 function leaveBomb() {
   if (bUnsub) { bUnsub(); bUnsub = null; }
   cancelAnimationFrame(bRaf); bActive = false; held = []; setInput(0);
-  myG = -1; myI = -1;
+  myG = -1; myI = -1; pl = null;
   $('bombBoxS').classList.add('hide'); $('sceneBox').classList.remove('hide');
 }
 function joinBoard() {
-  var t = bgrp[uid].split('.'); myG = Number(t[0]); myI = Number(t[1]);
-  bUnsub = onValue(ref(db, 'rooms/' + pin + '/bd/' + myG), function (s) { if (s.val()) applyData(bView, s.val()); });
+  pl = myPlace(mgKind, bgrp, uid); if (!pl) return;
+  myG = pl.g; myI = pl.i;
+  bUnsub = onValue(ref(db, 'rooms/' + pin + '/bd/' + myG), function (s) { if (s.val()) viewApply(mgKind, bView, s.val()); });
 }
 function sizeBoard() {
-  var px = Math.max(240, Math.min(window.innerWidth - 40, (window.innerHeight - 170) * BW / BH, 900)), cv = $('bcv');
-  cv.width = Math.floor(px); cv.height = Math.floor(px / BW * BH); cv.style.width = cv.width + 'px'; cv.style.height = cv.height + 'px';
+  var ar = viewAspect(mgKind), px = Math.max(240, Math.min(window.innerWidth - 40, (window.innerHeight - (mgKind === 'tug' ? 210 : 170)) * ar, 1100)), cv = $('bcv');
+  cv.width = Math.floor(px); cv.height = Math.floor(px / ar); cv.style.width = cv.width + 'px'; cv.style.height = cv.height + 'px';
 }
 addEventListener('resize', function () { if (!$('bombBoxS').classList.contains('hide')) sizeBoard(); });
-function members() {
-  return Object.keys(bgrp).filter(function (u) { return bgrp[u].split('.')[0] === String(myG); }).sort(function (a, b) { return Number(bgrp[a].split('.')[1]) - Number(bgrp[b].split('.')[1]); });
-}
+function nickOf(u) { return players[u] ? players[u].nick : '?'; }
+function avOf(u) { return parseAv(players[u] && players[u].av, u); }
 var lastRank = '';
 function drawBoard() {
-  if (myG < 0) return;
-  var ms = members(), chars = [], accs = [], names = [];
-  ms.forEach(function (u) { var v = parseAv(players[u] && players[u].av, u); chars.push(v.c); accs.push(v.a); names.push(players[u] ? players[u].nick : '?'); });
-  bdraw($('bcv').getContext('2d'), bView, $('bcv').width, { me: myI, chars: chars, accs: accs, names: names, emojis: [] });
-  var key = ms.map(function (u, i) { return bView.players[i] ? bView.players[i].score : 0; }).join(',');
+  if (myG < 0 || !pl) return;
+  var mem = boardMembers(mgKind, bgrp, pl), ctx = $('bcv').getContext('2d'), rowsOf = [];
+  if (mgKind === 'tug') {
+    var cpu = [false, !mem[1].length];
+    viewDraw('tug', ctx, bView, $('bcv'), { elapsed: serverNow() - (state ? state.bstart : 0) }, mem, cpu, avOf, nickOf, pl);
+    rowsOf = mem[pl.side].map(function (u, i) { var p = bView.teams[pl.side] && bView.teams[pl.side].players[i]; return { u: u, i: i, s: p ? p.score : 0, me: i === pl.i }; });
+  } else {
+    var chars = [], accs = [], names = [];
+    mem.forEach(function (u) { var v = avOf(u); chars.push(v.c); accs.push(v.a); names.push(nickOf(u)); });
+    viewDraw(mgKind, ctx, bView, $('bcv'), { me: myI, chars: chars, accs: accs, names: names, emojis: [] });
+    rowsOf = mem.map(function (u, i) { return { u: u, i: i, s: bView.players[i] ? bView.players[i].score : 0, me: i === myI }; });
+  }
+  var key = rowsOf.map(function (r) { return r.s; }).join(',');
   if (key !== lastRank) {
     lastRank = key; var box = $('brank'); box.textContent = '';
-    ms.map(function (u, i) { return { u: u, i: i, s: bView.players[i] ? bView.players[i].score : 0 }; }).sort(function (a, b) { return b.s - a.s; }).forEach(function (r) {
-      var row = el('div', 'brow' + (r.i === myI ? ' me' : '')); row.appendChild(avatarEl(players[r.u] && players[r.u].av, r.u)); row.appendChild(el('span', '', (players[r.u] ? players[r.u].nick : '?') + ' ' + r.s)); box.appendChild(row);
+    rowsOf.slice().sort(function (a, b) { return b.s - a.s; }).forEach(function (r) {
+      if (!r.u) return;
+      var row = el('div', 'brow' + (r.me ? ' me' : '')); row.appendChild(avatarEl(players[r.u] && players[r.u].av, r.u)); row.appendChild(el('span', '', nickOf(r.u) + ' ' + r.s)); box.appendChild(row);
     });
   }
 }
-/* 操作：押している向き(d)と、爆弾を置いた回数(b)を送る。変わったときだけ */
+/* 操作を送る（変わったときだけ）。
+   ブラスト・ほりほり：d＝向き、b＝ボタンを押した回数
+   スカイレース：d＝上下（なければ左右）、b＝ブースト回数×10＋左右（ななめ用）
+   綱引き：d＝0、b＝かけ声の番号×4＋判定 */
 function setInput(d) {
-  curD = d; var key = d + ':' + bcount; if (key === sentKey || !pin || !uid) return; sentKey = key;
-  set(ref(db, 'rooms/' + pin + '/bin/' + uid), { d: d, b: bcount }).catch(function () {});
+  curD = d; if (!pin || !uid) return;
+  var o;
+  if (mgKind === 'sky') {
+    var v = held.filter(function (x) { return x <= 2; }), h = held.filter(function (x) { return x > 2; });
+    var dv = v.length ? v[v.length - 1] : 0, dh = h.length ? h[h.length - 1] : 0;
+    o = { d: dv || dh, b: (bcount % 900) * 10 + (dv ? dh : 0) };
+  } else if (mgKind === 'tug') o = { d: 0, b: tugB };
+  else o = { d: d, b: bcount };
+  var key = o.d + ':' + o.b; if (key === sentKey) return; sentKey = key;
+  set(ref(db, 'rooms/' + pin + '/bin/' + uid), o).catch(function () {});
+}
+function pressAction() {
+  if (!bActive) return;
+  if (mgKind === 'tug') {
+    if (!pl || !state) return;
+    var b = tugPress(bView, pl, serverNow() - state.bstart); if (b === null) return;
+    tugB = b; setInput(0);
+    var t = $('tbtn'); t.classList.add('hit'); setTimeout(function () { t.classList.remove('hit'); }, 90);
+    return;
+  }
+  bcount = (bcount + 1) % 9000; sentKey = ''; setInput(curD);
 }
 var KEYS = { ArrowUp: 1, w: 1, W: 1, ArrowDown: 2, s: 2, S: 2, ArrowLeft: 3, a: 3, A: 3, ArrowRight: 4, d: 4, D: 4 };
 addEventListener('keydown', function (e) {
   if (!bActive) return;
-  if (KEYS[e.key]) { e.preventDefault(); if (held.indexOf(KEYS[e.key]) < 0) held.push(KEYS[e.key]); setInput(held[held.length - 1]); }
-  else if (e.key === ' ') { e.preventDefault(); if (!e.repeat) { bcount = (bcount + 1) % 9000; sentKey = ''; setInput(curD); } }
+  if (KEYS[e.key] && mgKind !== 'tug') { e.preventDefault(); if (held.indexOf(KEYS[e.key]) < 0) held.push(KEYS[e.key]); setInput(held[held.length - 1]); }
+  else if (e.key === ' ' || (e.key === 'Enter' && mgKind === 'tug')) { e.preventDefault(); if (!e.repeat) pressAction(); }
 });
 addEventListener('keyup', function (e) { if (KEYS[e.key]) { held = held.filter(function (d) { return d !== KEYS[e.key]; }); setInput(held.length ? held[held.length - 1] : 0); } });
-document.querySelectorAll('#bpad .pad button').forEach(function (b) { var d = Number(b.dataset.d); b.onpointerdown = function () { if (!bActive) return; held.push(d); setInput(d); }; b.onpointerup = b.onpointerleave = function () { held = held.filter(function (x) { return x !== d; }); setInput(held.length ? held[held.length - 1] : 0); }; });
-$('bbtn').onpointerdown = function () { if (!bActive) return; bcount = (bcount + 1) % 9000; sentKey = ''; setInput(curD); };
+document.querySelectorAll('#bpad .pad button').forEach(function (b) { var d = Number(b.dataset.d); b.onpointerdown = function () { if (!bActive) return; if (held.indexOf(d) < 0) held.push(d); setInput(d); }; b.onpointerup = b.onpointerleave = b.onpointercancel = function () { held = held.filter(function (x) { return x !== d; }); setInput(held.length ? held[held.length - 1] : 0); }; });
+$('bbtn').onpointerdown = function () { pressAction(); };
+$('tbtn').onpointerdown = function (e) { e.preventDefault(); pressAction(); };
 
 function report() {
   var o = { k: k, a: a, u: serverNow() };

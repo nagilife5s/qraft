@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ja" data-bg="pop">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>ほりほりトレジャー モック</title>
+<link rel="stylesheet" href="theme.css">
+<style>
+  html, body { height:100%; overflow:hidden; }
+  #mockbar { position:fixed; bottom:.4em; left:50%; transform:translateX(-50%); z-index:50; display:flex; gap:.4em; flex-wrap:wrap; justify-content:center; background:rgba(0,0,0,.75); padding:.35em .6em; border-radius:999px; font-size:13px; max-width:96vw; }
+  #mockbar button { font:inherit; font-weight:800; border:0; border-radius:999px; padding:.3em .9em; cursor:pointer; background:#fff; color:#222; }
+  #mockbar button.on { background:#ffd23f; }
+  .screen { padding:.5em .8em 3.2em !important; }
+  .bhud { display:flex; align-items:center; gap:.6em; flex-wrap:wrap; justify-content:center; }
+  .bhud .pill { font-weight:900; }
+  .pill.fever { background:#ff4d5e; color:#fff; animation:pulse .5s infinite alternate; }
+  @keyframes pulse { to { transform:scale(1.08); } }
+  .stage { flex:1; min-height:0; width:100%; display:flex; align-items:center; justify-content:center; gap:.8em; }
+  .pit { position:relative; border-radius:.9em; overflow:hidden; box-shadow:var(--shadow); border:.22em solid #fff; line-height:0; background:#3a2414; }
+  canvas { display:block; }
+  .depth { position:absolute; right:.4em; top:.4em; bottom:.4em; width:.7em; border-radius:999px; overflow:hidden; display:flex; flex-direction:column; opacity:.9; }
+  .depth i { display:block; }
+  .depth b { position:absolute; left:-.25em; width:1.2em; height:.35em; background:#fff; border-radius:999px; box-shadow:0 0 0 .1em rgba(0,0,0,.4); transition:top .2s; }
+  .side { display:flex; flex-direction:column; gap:.35em; width:13em; flex:none; }
+  .row { display:flex; align-items:center; justify-content:space-between; gap:.4em; background:rgba(255,255,255,.93); color:var(--ink-dark); border-radius:.6em; padding:.15em .6em .15em .3em; font-weight:800; font-size:.92em; }
+  .row img { height:1.7em; vertical-align:middle; }
+  .row .dot { display:inline-block; width:.6em; height:.6em; border-radius:50%; margin-right:.25em; }
+  .row.me { outline:.18em solid #ffd23f; }
+  .zukan { display:grid; grid-template-columns:repeat(3,1fr); gap:.25em; background:rgba(255,255,255,.15); border-radius:.6em; padding:.3em; }
+  .zukan div { background:rgba(255,255,255,.9); border-radius:.4em; text-align:center; color:var(--ink-dark); font-size:.62em; font-weight:800; padding:.15em 0; line-height:1.2; }
+  .zukan div.no { opacity:.35; filter:grayscale(1); }
+  .zukan span { font-size:2em; display:block; line-height:1.2; }
+  .zukan img { height:2.2em; display:block; margin:0 auto; }
+  .ctrl { display:flex; align-items:center; gap:.6em; margin-top:.2em; }
+  .pad { display:grid; grid-template-columns:repeat(3,2.8em); grid-template-rows:repeat(3,2.8em); gap:.25em; }
+  .pad button, .drillbtn { font:inherit; font-size:1.15em; font-weight:900; border:0; border-radius:.6em; background:#fff; color:var(--ink-dark); box-shadow:0 .25em 0 rgba(0,0,0,.25); touch-action:none; }
+  .drillbtn { width:3.8em; height:3.8em; border-radius:50%; background:linear-gradient(#ffd23f,#f08c00); color:#fff; position:relative; }
+  .drillbtn small { position:absolute; right:-.2em; top:-.2em; background:#fff; color:#7a4a00; border-radius:999px; font-size:.55em; padding:.1em .5em; }
+  .drillbtn:disabled { filter:grayscale(1); opacity:.5; }
+  .hint { opacity:.85; font-weight:700; font-size:.8em; }
+  #intro { position:absolute; inset:0; z-index:5; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.5em; background:rgba(40,22,10,.72); color:#fff; text-align:center; line-height:1.4; font-size:clamp(10px, 1.35vw, 17px); }
+  #intro .logo { font-size:3em; font-weight:900; color:#ffd23f; text-shadow:0 .07em 0 #8a4a10, 0 .14em 0 rgba(0,0,0,.3); transform:rotate(-3deg); }
+  #intro .eras { display:flex; gap:.4em; font-weight:900; }
+  #intro .eras span { border-radius:.5em; padding:.2em .8em; color:#2a1a0a; }
+  #intro .rules { display:grid; grid-template-columns:1fr 1fr; gap:.4em; font-weight:800; }
+  #intro .rules span { background:rgba(255,255,255,.15); border-radius:.6em; padding:.3em .9em; }
+  #intro .cd { font-size:4em; font-weight:900; }
+  #toast { position:absolute; left:50%; top:8%; transform:translateX(-50%); z-index:4; font-size:clamp(15px, 2.2vw, 30px); font-weight:900; color:#fff; text-shadow:0 .1em 0 rgba(0,0,0,.5); pointer-events:none; opacity:0; transition:opacity .2s; white-space:nowrap; line-height:1.2; }
+  #toast.on { opacity:1; }
+  /* 見つけた化石を、しばらく大きく見せるカード */
+  #fcard { position:absolute; left:.6em; bottom:.6em; z-index:4; width:11em; background:#fffdf5; color:var(--ink-dark); border-radius:.9em; padding:.5em .6em .6em; box-shadow:0 .3em 0 rgba(0,0,0,.3); border:.2em solid #e3b873; text-align:center; line-height:1.3; transform:translateY(130%) rotate(-3deg); transition:transform .35s cubic-bezier(.2,1.4,.4,1); pointer-events:none; }
+  #fcard.on { transform:translateY(0) rotate(-3deg); }
+  #fcard .pic { height:110px; display:flex; align-items:center; justify-content:center; font-size:72px; line-height:1; background:radial-gradient(circle, #fff3c4 0%, rgba(255,243,196,0) 70%); }
+  #fcard .pic img { max-height:100%; max-width:100%; }
+  #fcard .nm { font-size:1.25em; font-weight:900; }
+  #fcard .era { display:inline-block; margin-top:.15em; padding:.05em .7em; border-radius:999px; font-weight:900; font-size:.85em; color:#2a1a0a; }
+  #fcard .env { font-size:.78em; font-weight:800; color:#1b6f8a; margin-top:.2em; }
+  #fcard .new { position:absolute; top:-.7em; right:-.5em; background:#ff4d5e; color:#fff; font-weight:900; font-size:.75em; border-radius:999px; padding:.1em .6em; }
+  .grid7 { display:grid; grid-template-columns:repeat(7, 1fr); gap:.5em; width:100%; flex:1; min-height:0; }
+  .grid7 .cell { background:rgba(0,0,0,.35); border-radius:.6em; padding:.3em; color:#fff; font-size:.8em; font-weight:800; display:flex; flex-direction:column; min-height:0; }
+  .grid7 .pit { border-width:.12em; flex:1; min-height:0; } .grid7 canvas { width:100%; height:100%; object-fit:contain; }
+  .endwrap { display:flex; gap:1.2em; align-items:center; justify-content:center; flex-wrap:wrap; }
+  .podium3 { display:flex; align-items:flex-end; gap:.8em; justify-content:center; }
+  .podium3 .col { display:flex; flex-direction:column; align-items:center; gap:.2em; font-weight:900; }
+  .podium3 .col img { height:4.2em; }
+  .podium3 .bar { width:5.5em; border-radius:.5em .5em 0 0; display:flex; align-items:flex-start; justify-content:center; padding-top:.3em; font-size:1.5em; color:#fff; }
+  .bigzukan { display:grid; grid-template-columns:repeat(3, 7.5em); gap:.4em; }
+  .bigzukan div { background:#fff; color:var(--ink-dark); border-radius:.7em; padding:.4em; text-align:center; font-weight:800; font-size:.85em; box-shadow:0 .2em 0 rgba(0,0,0,.2); }
+  .bigzukan div.no { opacity:.4; filter:grayscale(1); }
+  .bigzukan span { font-size:2.2em; display:block; line-height:1.2; }
+  .bigzukan img { height:3em; display:block; margin:0 auto; }
+  .bigzukan em { font-style:normal; display:block; font-size:.8em; color:#8a5a32; }
+</style>
+</head>
+<body>
+<div id="app" class="bg" style="height:100%">
+  <div class="deco"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  <section class="screen on" id="v-stu" style="gap:.4em; height:100%">
+    <div class="bhud"><span class="pill" id="sT"></span><span class="pill" style="background:var(--pop1)" id="sS"></span><span class="pill" style="background:#e3b873" id="sD"></span><span class="pill fever" id="sF" style="display:none">🔥 ラスト10秒 得点2倍！</span></div>
+    <div class="stage" id="stage">
+      <div class="pit" id="pit"><canvas id="cv"></canvas><div class="depth" id="depth"></div>
+        <div id="intro"><div class="logo">⛏ ほりほりトレジャー</div>
+          <div class="eras"><span style="background:#e3b873">新生代 10点</span><span style="background:#c9785a">中生代 20点</span><span style="background:#8e93a6">古生代 30点</span></div>
+          <div class="rules"><span>⛏ 下にほるほど 古い時代の化石</span><span>✨ キラッと光るところに 化石がある</span><span>🤝 みんなが掘った道は だれでも通れる</span><span>🔩 ドリルで かたい岩も一瞬（3回）</span></div>
+          <div class="cd" id="cd"></div></div>
+        <div id="toast"></div>
+        <div id="fcard"></div>
+      </div>
+      <div class="side"><div id="rank" style="display:flex;flex-direction:column;gap:.3em"></div>
+        <div class="zukan" id="zk"></div>
+        <div class="ctrl"><div class="pad" id="pad"><span></span><button data-d="1">▲</button><span></span><button data-d="3">◀</button><span></span><button data-d="4">▶</button><span></span><button data-d="2">▼</button><span></span></div>
+          <button class="drillbtn" id="bb">🔩<small id="bl">3</small></button></div>
+        <div class="hint">矢印キー / WASD で掘る・動く・スペースでドリル</div></div>
+    </div>
+  </section>
+  <section class="screen" id="v-host" style="gap:.5em; height:100%">
+    <div class="bhud"><span class="pill" id="hT"></span><span class="pill" style="background:var(--pop1)">全 7 グループ（40人）</span><span class="pill" style="background:#e3b873">ほりほりトレジャー！ 化石を さがせ</span></div>
+    <div class="grid7" id="g7"></div>
+  </section>
+  <section class="screen" id="v-end">
+    <div class="center" style="flex:1; display:flex; flex-direction:column; gap:.7em">
+      <div class="title2" style="font-size:2.2em">⛏ ほりほりトレジャー終了！</div>
+      <div class="endwrap"><div class="podium3" id="pod"></div>
+        <div><div style="font-weight:900;margin-bottom:.3em">📖 グループ1の化石ずかん</div><div class="bigzukan" id="bz"></div></div></div>
+      <div class="mut">この得点が、個人の得点として最後のランキングに足されます</div>
+    </div>
+  </section>
+</div>
+<div id="mockbar"></div>
+<script type="module">
+import { W, H, TICK_MS, RULE, LAYERS, FOSSIL, FOSSIL_ORDER, newGame, step, draw, cell, layerAt, ANIMAL_NAMES, PCOL, fossilImg } from './dig.js';
+var NAMES = 'そら ひなた れん あおい ゆうと みお はると さくら りく めい そうた ひより かいと ゆい たくみ ここな いつき みさき しょう なな けんた あかり だいき ゆず ひろと りこ まお こうた はな ゆうま みく りょう あやね とわ ふうか れお つむぎ ゆうり'.split(' ');
+var ACCS = [0, 8, 9, 10, 0, 8];
+var ROWS = 12, COLS = 18;
+function charsOf(k) { return [0, 1, 2, 3, 4, 5].map(function (i) { return (i + k * 3) % 20; }); }
+function namesOf(k) { return [0, 1, 2, 3, 4, 5].map(function (i) { return k === 0 && i === 0 ? 'あなた' : NAMES[(k * 6 + i) % NAMES.length]; }); }
+function $(id) { return document.getElementById(id); }
+var DX = [0, 0, 0, -1, 1], DY = [0, -1, 1, 0, 0];
+var view = 'stu', speed = 1, games = [], inputs = [], held = [], pressB = false, acc = 0, last = performance.now(), me = 0, startAt = 0, ended = false, camY = 0, camX = 0;
+var sizes = [6, 6, 6, 6, 6, 5, 5];
+
+function start() {
+  games = sizes.map(function (n, k) { return newGame(n, 1000 + k * 17 + Math.floor(Math.random() * 999)); });
+  inputs = games.map(function (g) { return g.players.map(function () { return { d: 0, b: false, tg: null, think: 0, greed: Math.random() }; }); });
+  held = []; pressB = false; ended = false; seen = {}; $('fcard').classList.remove('on'); acc = 0; camY = 0; camX = 0; startAt = performance.now() + 3600;
+  $('intro').style.display = ''; show(view === 'end' ? 'stu' : view); bar(); buildDepth();
+}
+/* ボット：近くの化石を目指して掘る。欲ばりな子ほど深い化石を狙う */
+function bot(g, i, inp) {
+  var p = g.players[i]; inp.b = false;
+  if (inp.tg && !cell(g, inp.tg[0], inp.tg[1]).f) inp.tg = null;
+  if (!inp.tg || --inp.think <= 0) {
+    inp.think = 25; var best = null, bs = -1e9;
+    for (var y = 2; y < H; y++) for (var x = 0; x < W; x++) { var c = cell(g, x, y); if (!c.f) continue; var v = FOSSIL[c.f].pts * (0.4 + inp.greed) - (Math.abs(x - p.x) * 1.4 + Math.abs(y - p.y)) * 2 + Math.random() * 6; if (v > bs) { bs = v; best = [x, y]; } }
+    inp.tg = best;
+  }
+  if (!inp.tg) { inp.d = 2; return; }
+  var dx = inp.tg[0] - p.x, dy = inp.tg[1] - p.y;
+  inp.d = Math.abs(dy) > 0 && (Math.abs(dy) >= Math.abs(dx) || Math.random() < .4) ? (dy > 0 ? 2 : 1) : dx ? (dx > 0 ? 4 : 3) : 0;
+  var nc = cell(g, p.x + DX[inp.d], p.y + DY[inp.d]);
+  if (nc && nc.rock && !nc.dug && p.left > 0 && Math.random() < .3) inp.b = true;
+}
+function tick() {
+  games.forEach(function (g, k) {
+    g.players.forEach(function (p, i) { if (!(k === 0 && i === me && view === 'stu')) bot(g, i, inputs[k][i]); });
+    if (view === 'stu') { var m = inputs[0][me]; m.d = held.length ? held[held.length - 1] : 0; m.b = pressB; pressB = false; }
+    step(g, inputs[k]);
+    if (k === 0) g.ev.forEach(function (e) {
+      if (e.k === 'find' && e.i === me) { var F = FOSSIL[e.f]; toast((F.env ? '🔍 ' : '✨ ') + F.n + ' を発見！ ＋' + e.pts); findCard(e.f); }
+      if (e.k === 'find' && e.i !== me && FOSSIL[e.f].pts >= 30) toast('🎉 ' + namesOf(0)[e.i] + ' が ' + FOSSIL[e.f].n + ' を発見！');
+    });
+  });
+}
+var cardT = 0, seen = {};
+var ERA_COL = { '新生代': '#e3b873', '中生代': '#e0957a', '古生代': '#aeb3c4', '示相化石': '#9fe0f0' };
+/* 見つけた化石のカード：3.5秒出しておく。はじめて見つけた化石には「NEW」 */
+function findCard(k) {
+  var F = FOSSIL[k], im = fossilImg(k), isNew = !seen[k]; seen[k] = 1;
+  $('fcard').innerHTML = (isNew ? '<div class="new">NEW!</div>' : '') + '<div class="pic">' + (im ? '<img src="' + im.src + '">' : F.ic) + '</div><div class="nm">' + F.n + '</div><div class="era" style="background:' + ERA_COL[F.era] + '">' + F.era + '</div>' + (F.env ? '<div class="env">' + F.env + '</div>' : '');
+  $('fcard').classList.add('on'); clearTimeout(cardT); cardT = setTimeout(function () { $('fcard').classList.remove('on'); }, 3500);
+}
+var toastT = 0;
+function toast(s) { $('toast').textContent = s; $('toast').classList.add('on'); clearTimeout(toastT); toastT = setTimeout(function () { $('toast').classList.remove('on'); }, 1300); }
+var cv = $('cv'), ctx = cv.getContext('2d'), dpr = Math.min(2, devicePixelRatio || 1);
+function sizeCanvas() {
+  var st = $('stage').getBoundingClientRect(), aw = st.width - 14 * 16 - 10, ah = st.height - 10;
+  var w = Math.max(260, Math.floor(Math.min(aw, ah * COLS / ROWS)));
+  cv.style.width = w + 'px'; cv.style.height = Math.floor(w * ROWS / COLS) + 'px'; cv.width = w * dpr; cv.height = Math.floor(w * ROWS / COLS) * dpr;
+}
+function buildDepth() {
+  var d = $('depth'); d.innerHTML = '';
+  for (var y = 0; y < H; y++) { var L = layerAt(y), i = document.createElement('i'); i.style.flex = '1'; i.style.background = L.c1 || '#9fd8ff'; d.appendChild(i); }
+  var b = document.createElement('b'); b.id = 'dmark'; d.appendChild(b);
+}
+function sp(i, k) { return 'img/robot/animal-' + ANIMAL_NAMES[charsOf(k)[i]] + '.webp'; }
+function fIcon(k) { var im = fossilImg(k); return im ? '<img src="' + im.src + '">' : '<span>' + FOSSIL[k].ic + '</span>'; }
+function frame(now) {
+  var pre = startAt - now;
+  if (pre > 0) { var n = Math.ceil(pre / 1000); $('cd').textContent = n > 3 ? '' : n; last = now; }
+  else { $('intro').style.display = 'none'; acc += (now - last) * speed; last = now; while (acc >= TICK_MS) { acc -= TICK_MS; tick(); } }
+  var g = games[0], left = Math.max(0, (RULE.length - g.t) / 10), fever = g.t > RULE.length - RULE.fever && !g.over;
+  if (view === 'stu') {
+    var p = g.players[me], want = Math.max(0, Math.min(H - ROWS, (p.vy === undefined ? p.y : p.vy) - ROWS * .45));
+    camY += (want - camY) * .12;
+    var wantX = Math.max(0, Math.min(W - COLS, (p.vx === undefined ? p.x : p.vx) + .5 - COLS / 2)); camX += (wantX - camX) * .12;
+    draw(ctx, g, cv.width, { me: me, chars: charsOf(0), accs: ACCS, names: namesOf(0), cam: camY, rows: ROWS, camX: camX, cols: COLS });
+    var L = layerAt(p.y);
+    $('sT').textContent = '残り ' + Math.ceil(left) + ' 秒'; $('sS').textContent = 'あなた ' + p.score + ' 点';
+    $('sD').textContent = '⛏ 深さ ' + Math.max(0, p.y - 1) * 10 + 'm　' + (L.name || '地上'); $('sD').style.background = L.c1 || '#c8ecff';
+    $('dmark').style.top = 'calc(' + (p.y + .5) / H * 100 + '% - .17em)';
+    $('sF').style.display = fever ? '' : 'none';
+    $('bl').textContent = p.left; $('bb').disabled = !p.left;
+    var order = g.players.map(function (q, i) { return i; }).sort(function (a, b) { return g.players[b].score - g.players[a].score; });
+    $('rank').innerHTML = order.map(function (i, r) { return '<div class="row' + (i === me ? ' me' : '') + '"><span><span class="dot" style="background:' + PCOL[i] + '"></span>' + (r + 1) + '位 <img src="' + sp(i, 0) + '"> ' + namesOf(0)[i] + '</span><span>' + g.players[i].score + '</span></div>'; }).join('');
+    $('zk').innerHTML = FOSSIL_ORDER.map(function (k) { var c = g.fos[k] || 0; return '<div class="' + (c ? '' : 'no') + '">' + fIcon(k) + FOSSIL[k].n + (c ? ' ×' + c : '') + '</div>'; }).join('');
+  } else if (view === 'host') {
+    $('hT').textContent = '残り ' + Math.ceil(left) + ' 秒';
+    document.querySelectorAll('#g7 canvas').forEach(function (c, k) { draw(c.getContext('2d'), games[k], c.width, { chars: charsOf(k), accs: ACCS }); });
+    document.querySelectorAll('#g7 .sc').forEach(function (e, k) { e.textContent = games[k].players.reduce(function (s, q) { return s + q.score; }, 0) + '点'; });
+  }
+  if (!ended && g.over) { ended = true; endScreen(); }
+  requestAnimationFrame(frame);
+}
+function endScreen() {
+  var all = []; games.forEach(function (gg, k) { gg.players.forEach(function (p, i) { all.push({ n: namesOf(k)[i], s: p.score, img: sp(i, k) }); }); });
+  all.sort(function (a, b) { return b.s - a.s; });
+  var cols = [[1, '#c0c8d8', '5.5em'], [0, '#ffc107', '7.5em'], [2, '#d38b4f', '4em']];
+  $('pod').innerHTML = cols.map(function (x) { var r = all[x[0]]; return '<div class="col"><img src="' + r.img + '">' + r.n + '<span>' + r.s + '点</span><div class="bar" style="background:' + x[1] + ';height:' + x[2] + '">' + (x[0] + 1) + '</div></div>'; }).join('');
+  var g = games[0];
+  $('bz').innerHTML = FOSSIL_ORDER.map(function (k) { var c = g.fos[k] || 0, F = FOSSIL[k]; return '<div class="' + (c ? '' : 'no') + '">' + fIcon(k) + F.n + '<em>' + (F.env ? F.env.replace('だった！', '') : F.era) + '</em>' + (c ? '×' + c : '未発見') + '</div>'; }).join('');
+  show('end');
+}
+function buildHost() {
+  var box = $('g7'); box.textContent = '';
+  games.forEach(function (g, k) { var d = document.createElement('div'); d.className = 'cell'; d.innerHTML = '<div>グループ ' + (k + 1) + '　<span class="sc"></span></div>'; var fr = document.createElement('div'); fr.className = 'pit'; var c = document.createElement('canvas'); c.width = 300; c.height = Math.floor(300 / W * H); fr.appendChild(c); d.appendChild(fr); box.appendChild(d); });
+}
+function show(v) { view = v; document.querySelectorAll('.screen').forEach(function (s) { s.classList.toggle('on', s.id === 'v-' + v); }); if (v === 'host') buildHost(); if (v === 'stu') requestAnimationFrame(sizeCanvas); bar(); }
+function bar() {
+  var b = $('mockbar'); b.textContent = '';
+  [['stu', '生徒の画面（操作できる）'], ['host', '先生の画面（全グループ）']].forEach(function (x) { var e = document.createElement('button'); e.textContent = x[1]; e.className = view === x[0] ? 'on' : ''; e.onclick = function () { show(x[0]); }; b.appendChild(e); });
+  [[1, '等速'], [3, '3倍速']].forEach(function (x) { var e = document.createElement('button'); e.textContent = x[1]; e.className = speed === x[0] ? 'on' : ''; e.onclick = function () { speed = x[0]; bar(); }; b.appendChild(e); });
+  var r = document.createElement('button'); r.textContent = '▶ 最初から'; r.onclick = start; b.appendChild(r);
+}
+var KEY = { ArrowUp: 1, w: 1, W: 1, ArrowDown: 2, s: 2, S: 2, ArrowLeft: 3, a: 3, A: 3, ArrowRight: 4, d: 4, D: 4 };
+addEventListener('keydown', function (e) { if (KEY[e.key]) { e.preventDefault(); if (held.indexOf(KEY[e.key]) < 0) held.push(KEY[e.key]); } else if (e.key === ' ') { e.preventDefault(); pressB = true; } });
+addEventListener('keyup', function (e) { if (KEY[e.key]) held = held.filter(function (d) { return d !== KEY[e.key]; }); });
+document.querySelectorAll('#pad button').forEach(function (b) { var d = Number(b.dataset.d); b.onpointerdown = function () { if (held.indexOf(d) < 0) held.push(d); }; b.onpointerup = b.onpointerleave = b.onpointercancel = function () { held = held.filter(function (x) { return x !== d; }); }; });
+$('bb').onpointerdown = function () { pressB = true; };
+addEventListener('resize', sizeCanvas);
+start(); requestAnimationFrame(frame);
+</script>
+</body>
+</html>
