@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Qraft クエスト（先生）</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
-<link rel="stylesheet" href="theme.css?v=20261112144933">
-<link rel="stylesheet" href="quest.css?v=20261112144933">
+<link rel="stylesheet" href="theme.css?v=20261112145716">
+<link rel="stylesheet" href="quest.css?v=20261112145716">
 </head>
 <body>
 <div id="app">
@@ -22,6 +22,7 @@
         <select id="selC" aria-label="組"></select>
         <span class="q-sub" id="townInfo"></span></div>
       <div class="form-row"><b>今回の戦い</b><div class="seg" id="segBattle"><button type="button" data-v="zako" class="on">雑魚戦</button><button type="button" data-v="boss">ボス戦</button></div></div>
+      <div class="form-row"><b>敵の強さ</b><div class="seg" id="segDiff"><button type="button" data-v="easy">やさしい</button><button type="button" data-v="normal" class="on">ふつう</button><button type="button" data-v="hard">つよい</button><button type="button" data-v="oni">おに</button></div></div>
       <div class="form-row"><b>制限時間</b><div class="seg" id="segTime"><button type="button" data-v="180">3分</button><button type="button" data-v="300">5分</button><button type="button" data-v="480" class="on">8分</button><button type="button" data-v="600">10分</button></div></div>
       <div class="form-row"><b>パスワード</b><input type="password" id="pw" autocomplete="off" placeholder="問題ファイルのパスワード"></div>
       <div class="tc-note">問題セットは、選択式だけのセットから選べます（入力式が入ったセットは出しません）。最初に選んだセットの単元が、冒険するエリアになります。</div>
@@ -76,15 +77,15 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261112144933"></script>
+<script src="firebase-config.js?v=20261112145716"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script type="module">
 import { signIn, db, ref, set, get, update, remove, onValue, serverNow, shuffle, mountSetPicker,
-         decryptSet, prepareQuestion, maskOf, $, el, showScreen, confetti, qrSvg, sleep } from './lib.js?v=20261112144933';
+         decryptSet, prepareQuestion, maskOf, $, el, showScreen, confetti, qrSvg, sleep } from './lib.js?v=20261112145716';
 import { onChildAdded, onChildChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 import { fiscalYear, JOBS, MP_MAX, heroImg, lvMult, CHEER, addExp, ENEMIES, BOSS, areaOf, enemyFor,
-         zakoHp, enemyHit, bossHp, REWARD, TOWN, TOWN_DEFAULT, storyClear, statsOf, canUse, skMult, ITEMS } from './quest.js?v=20261112144933';
-import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261112144933b';
+         zakoHp, enemyHit, bossHp, QUEST_DIFF, REWARD, TOWN, TOWN_DEFAULT, storyClear, statsOf, canUse, skMult, ITEMS } from './quest.js?v=20261112145716';
+import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261112145716b';
 
 wireSoundButtons();
 
@@ -94,6 +95,7 @@ var boss = null, logs = [];
 
 function opt(sel, v, t) { var o = el('option', '', t); o.value = v; sel.appendChild(o); }
 for (var c = 1; c <= 9; c++) opt($('selC'), c, c + '組');
+function DF() { return QUEST_DIFF[(S && S.diff) || 'normal'] || QUEST_DIFF.normal; }   /* 敵の強さ */
 function segVal(id) { return document.querySelector('#' + id + ' button.on').dataset.v; }
 document.querySelectorAll('.seg').forEach(function (s) { s.addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; s.querySelectorAll('button').forEach(function (x) { x.classList.toggle('on', x === b); }); }); });
 function clsKey() { return $('selG').value + '-' + $('selC').value; }
@@ -110,7 +112,7 @@ function setupErr(m) { $('setupErr').textContent = m; $('setupErr').classList.re
     var all = await (await fetch('questions/index.json', { cache: 'no-cache' })).json();
     SETS = all.filter(function (s) { return !(s.types && s.types.text); });
     try { localStorage.removeItem('qraft.pw'); $('pw').value = sessionStorage.getItem('qraft.pw') || ''; } catch (e) {}   /* パスワードは端末に残さない */
-    try { var last = JSON.parse(localStorage.getItem('qraft.quest.last') || '{}'); if (last.g) $('selG').value = last.g; if (last.c) $('selC').value = last.c; if (last.t) document.querySelectorAll('#segTime button').forEach(function (b) { b.classList.toggle('on', b.dataset.v === String(last.t)); }); (last.sets || []).forEach(function (f) { if (SETS.some(function (s) { return s.file === f; })) picked[f] = true; }); } catch (e) {}
+    try { var last = JSON.parse(localStorage.getItem('qraft.quest.last') || '{}'); if (last.g) $('selG').value = last.g; if (last.c) $('selC').value = last.c; if (last.d) document.querySelectorAll('#segDiff button').forEach(function (b) { b.classList.toggle('on', b.dataset.v === last.d); }); if (last.t) document.querySelectorAll('#segTime button').forEach(function (b) { b.classList.toggle('on', b.dataset.v === String(last.t)); }); (last.sets || []).forEach(function (f) { if (SETS.some(function (s) { return s.file === f; })) picked[f] = true; }); } catch (e) {}
     picker = mountSetPicker($('picker'), { sets: SETS, key: function (s) { return s.file; }, picked: picked, onChange: updateSel }); updateSel();
     $('selClear').onclick = function () { Object.keys(picked).forEach(function (k) { delete picked[k]; }); picker.render(); updateSel(); };
     $('selG').onchange = $('selC').onchange = showTown; showTown();
@@ -151,7 +153,7 @@ $('btnCreate').onclick = async function () {
       data.questions.forEach(function (q) { if (q.type !== 'text') POOL.push(q); });
     }
     if (!POOL.length) throw new Error('選択式の問題がありません');
-    try { if (pwv) sessionStorage.setItem('qraft.pw', pwv); localStorage.setItem('qraft.quest.last', JSON.stringify({ g: $('selG').value, c: $('selC').value, sets: files, t: segVal('segTime') }));   /* 制限時間も前回の値を覚える */ } catch (e) {}
+    try { if (pwv) sessionStorage.setItem('qraft.pw', pwv); localStorage.setItem('qraft.quest.last', JSON.stringify({ g: $('selG').value, c: $('selC').value, sets: files, t: segVal('segTime'), d: segVal('segDiff') }));   /* 制限時間も前回の値を覚える */ } catch (e) {}
     AREA = areaOf(SETS.filter(function (s) { return s.file === files[0]; })[0]);
     CLS = (await get(ref(db, qpath('classes/' + clsKey())))).val() || {};
     AR = (CLS.areas && CLS.areas[AREA.id]) || {};
@@ -159,14 +161,14 @@ $('btnCreate').onclick = async function () {
     if (battle === 'boss' && AR.done) throw new Error('このクラスは、' + AREA.name + 'のボスをもう倒しています。雑魚戦にするか、別の単元を選んでください。');
     for (var k = 0; k < 20; k++) { pin = String(Math.floor(100000 + Math.random() * 900000)); if (!(await get(ref(db, 'rooms/' + pin + '/hostUid'))).exists()) break; }
     await set(ref(db, 'rooms/' + pin + '/hostUid'), uid);
-    S = { mode: 'quest', phase: 'lobby', bg: 'lab', y: YEAR, g: Number($('selG').value), c: Number($('selC').value), battle: battle, Tl: Number(segVal('segTime')),
+    S = { mode: 'quest', phase: 'lobby', bg: 'lab', y: YEAR, g: Number($('selG').value), c: Number($('selC').value), battle: battle, Tl: Number(segVal('segTime')), diff: segVal('segDiff'),
           area: { id: AREA.id, name: AREA.name }, town: CLS.town || TOWN_DEFAULT };
     await set(ref(db, 'rooms/' + pin + '/state'), S);
     onValue(ref(db, 'rooms/' + pin + '/players'), function (s) { players = s.val() || {}; renderLobby(); lateJoin(); });
     var base = location.href.replace(/quest-host\.html.*$/, '');
     $('joinUrl').textContent = base.replace(/^https?:\/\//, '') + 'quest-play.html';
     $('pin').textContent = pin.slice(0, 3) + ' ' + pin.slice(3);
-    $('lbSub').textContent = S.g + '年' + S.c + '組 ・ ' + (battle === 'boss' ? 'ボス戦' : '雑魚戦') + ' ・ ' + (S.Tl / 60) + '分';
+    $('lbSub').textContent = S.g + '年' + S.c + '組 ・ ' + (battle === 'boss' ? 'ボス戦' : '雑魚戦') + ' ・ ' + (S.Tl / 60) + '分 ・ 敵の強さ「' + DF().n + '」';
     $('lbTitle').textContent = AREA.name + 'へ';
     var svg = qrSvg(base + 'quest-play.html?pin=' + pin); if (svg) $('qr').innerHTML = svg; else $('qrcard').classList.add('hide');
     showScreen('s-lobby'); preload(['lobby', 'quiz', 'podium']); bgm('lobby');
@@ -254,7 +256,7 @@ async function doPrep() {
 function smallestTeam() { var b = 0; T.forEach(function (t, i) { if (t.mem.length < T[b].mem.length) b = i; }); return b; }
 function newEnemy(t) {
   var i = t.ei++, q = t.lastTag;
-  var k = enemyFor(q, i), max = zakoHp(t.mem.length);
+  var k = enemyFor(q, i), max = Math.round(zakoHp(t.mem.length) * DF().hp);
   t.e = { k: k, hp: max, max: max }; t.hitters = {};
 }
 
@@ -268,7 +270,7 @@ $('btnStart').onclick = async function () {
     var avg = ids.reduce(function (a, u) { return a + G[u].lv; }, 0) / ids.length;
     /* ボスのHPは、毎回その日の参加人数・平均レベル・時間で決め直す。前回までに削った割合は引き継ぐ
        （2026-11-12 授業で、1回目の人数で決めたHPを使い回して、人数が変わると強すぎ・弱すぎになった） */
-    var max = bossHp(ids.length, avg, S.Tl), left = AR.max && AR.hp != null ? Math.max(0, Math.min(1, AR.hp / AR.max)) : 1;
+    var max = Math.round(bossHp(ids.length, avg, S.Tl) * DF().hp / 10) * 10, left = AR.max && AR.hp != null ? Math.max(0, Math.min(1, AR.hp / AR.max)) : 1;
     boss = { hp: Math.max(1, Math.round(max * left)), max: max, tries: (AR.tries || 0) + 1 };
     $('bossPanel').classList.remove('hide'); $('bossName').textContent = BOSS.n;
     $('bossNote').textContent = boss.tries + '回目のボス戦' + (boss.tries > 1 ? '（前回までに ' + Math.round((1 - boss.hp / boss.max) * 100) + '% 削った）' : '');
@@ -315,7 +317,7 @@ function grade(u, a) {
     } else { g.wait = 'act'; res.act = 1; g.actTimer = setTimeout(function () { if (g.wait === 'act') applyAct(u, 0); }, 10000); }
   } else {
     g.streak = 0;
-    var d = Math.max(3, enemyHit(g.job, !!boss) - (g.def - JOBS[g.job].def)); g.hp = Math.max(0, g.hp - d); res.dmg = d;
+    var d = Math.max(3, Math.round((enemyHit(g.job, !!boss) - (g.def - JOBS[g.job].def)) * DF().hit)); g.hp = Math.max(0, g.hp - d); res.dmg = d;
     if (!g.hp && !g.ko) { g.ko = true; t.log = g.nick + ' は気絶した…（次の正解で復活）'; }
     var pos = Math.min(g.queue.length, 3 + Math.floor(Math.random() * 4)); g.queue.splice(g.queue.length - pos, 0, q.qi);   /* まちがえた問題は、数問あとにもう一度 */
     setTimeout(function () { sendQ(u); }, 2600);

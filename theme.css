@@ -851,3 +851,11 @@ img.qimg { cursor:zoom-in; }
   .stu-q.hasimg .qimg { max-height:34cqh; }
 }
 .stu-q.hasimg .qimg { background:#fff; }
+/* ジェットチェイスの開始画面：時間と難易度のボタン（2026-11-12。クエストと同じ形） */
+.setup .form-row { display:flex; align-items:center; gap:.8em; flex-wrap:wrap; margin:.5em 0; }
+.setup .form-row > b { min-width:7.5em; }
+.setup .seg { display:flex; gap:.5em; flex-wrap:wrap; }
+.setup .seg button { font:inherit; font-weight:900; border:0; border-radius:.6em; background:#f2effd; color:var(--ink-dark); cursor:pointer; height:2.4em; padding:0 1.1em; }
+.setup .seg button.on { background:#6a35e8; color:#fff; }
+/* ニックネームの「おまかせ」ボタン（2026-11-12） */
+.nick-dice { align-self:flex-start; width:auto; font:inherit; font-weight:800; font-size:.85em; margin-top:.4em; border:0; border-radius:999px; padding:.35em 1em; background:rgba(255,255,255,.9); color:var(--ink-dark); cursor:pointer; }

@@ -464,9 +464,13 @@ export function mountAvatarPicker(box, uid) {
 export var ANIMALS = ['🦊', '🐼', '🐰', '🐻', '🐯', '🐸', '🐵', '🐧', '🦁', '🐮', '🐷', '🐨', '🐹', '🦄', '🐙', '🦉', '🐶', '🐱', '🐥', '🦝'];
 export function hashOf(s) { var h = 2166136261; for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
 export function avatarOf(uid) { return ANIMALS[hashOf(uid) % ANIMALS.length]; }
-export var ROBOT = { levels: 3, lives: 3, Tl: 180, Zt: 20, per: [3, 3.6, 4.2], lagMax: 0.6 };
-/* 人数 N のときの、そのレベルの目標（チーム全体の正解数） */
-export function robotTarget(N, level) { return Math.max(3, Math.round(N * ROBOT.per[level - 1])); }
+export var ROBOT = { levels: 3, lives: 3, Tl: 180, Zt: 20, per: [3, 3.6, 4.2], lagMax: 0.6, k: 1 };
+/* 難易度（2026-11-12）：目標の正解数の倍率 k とライフ。先生が開始画面で選ぶ */
+export var ROBOT_LEVELS = { easy: { n: 'やさしい', k: 0.75, lives: 4 }, normal: { n: 'ふつう', k: 1, lives: 3 }, hard: { n: 'むずかしい', k: 1.3, lives: 2 } };
+/* 開始画面の選択（Tl：1レベルの秒数、diff：難易度）を ROBOT に入れる。生徒の端末は部屋の状態から同じ値を入れる */
+export function setRobot(Tl, diff) { var d = ROBOT_LEVELS[diff] || ROBOT_LEVELS.normal; ROBOT.Tl = Tl || 180; ROBOT.k = d.k; ROBOT.lives = d.lives; }
+/* 人数 N のときの、そのレベルの目標（チーム全体の正解数）。per は3分あたりの1人の正解数なので、時間に比例させる */
+export function robotTarget(N, level) { return Math.max(3, Math.round(N * ROBOT.per[level - 1] * ROBOT.k * ROBOT.Tl / 180)); }
 /* ロボットの近さ 0〜1（1で追いつかれる）。時間の進み(sec/Tl)に対して、進捗 p が遅れるほど近づく */
 export function robotFrac(sec, p) { var lag = sec / ROBOT.Tl - p; return Math.max(0.04, Math.min(1.2, 0.12 + lag / ROBOT.lagMax * 0.88)); }
 /* 安全地帯の定員。N人に対し、合計が N+2 以上になるようにする（レベルが上がるほど偏りが大きい） */
@@ -662,3 +666,21 @@ if (typeof document !== 'undefined') document.addEventListener('click', function
   var im = e.target && e.target.closest && e.target.closest('img.qimg');
   if (im && im.getAttribute('src') && !im.closest('.img-zoom')) zoomImage(im.src, im.alt, im);
 });
+
+/*
+ * ニックネームの自動作成（2026-11-12 授業で「ニックネームを自動で作る機能」）。理科のことばで「形容＋名前」を作る。
+ * ニックネームの入力欄（input#nick）がある画面では、横に「🎲 おまかせ」ボタンを出す
+ */
+var NICK_A = ['かがやく', 'ねむれる', 'ひかる', 'ふしぎな', 'つよい', 'はやい', 'しずかな', 'あつい', 'つめたい', 'ちいさな', 'おおきな', 'かしこい', 'ゆかいな', 'まぼろしの', 'でんせつの', 'さすらいの'];
+var NICK_B = ['イオン', 'ミトコンドリア', 'マグマ', 'すいじょうき', 'ぶんし', 'げんし', 'でんし', 'ようりょくたい', 'さいぼう', 'かせき', 'すいせい', 'わくせい', 'コイル', 'でんぱ', 'プリズム', 'てこ', 'かざん', 'たいふう', 'ゾウリムシ', 'ミジンコ', 'アメーバ', 'クマムシ', 'ふりこ', 'じしゃく'];
+export function randomNick() {
+  var a = NICK_A[Math.floor(Math.random() * NICK_A.length)], b = NICK_B[Math.floor(Math.random() * NICK_B.length)];
+  return (a + b).slice(0, 20);
+}
+if (typeof document !== 'undefined') (function () {
+  var inp = document.getElementById('nick'); if (!inp || inp.dataset.dice) return;
+  inp.dataset.dice = '1';
+  var b = document.createElement('button'); b.type = 'button'; b.className = 'nick-dice'; b.textContent = '🎲 おまかせ';
+  b.title = 'ニックネームを自動で作る'; b.onclick = function () { inp.value = randomNick(); inp.dispatchEvent(new Event('input', { bubbles: true })); inp.focus(); };
+  inp.insertAdjacentElement('afterend', b);
+})();

@@ -68,6 +68,9 @@ export function enemyFor(tag, i) { return TAG_ENEMY[tag] || ALL_ZAKO[i % ALL_ZAK
 
 /* 雑魚のHP：班の人数ぶん、ひとり約2回の正解で倒れるくらい */
 export function zakoHp(size) { return Math.round(20 * Math.max(1, size)); }
+/* チームモードの難易度（2026-11-12 授業で「難易度を選べると面白い・敵がめっちゃ強いと面白い」）
+   hp：敵のHPの倍率、hit：まちがえたとき受けるダメージの倍率。報酬は変えない（ルールの検査と合わせるため） */
+export var QUEST_DIFF = { easy: { n: 'やさしい', hp: 0.75, hit: 0.7 }, normal: { n: 'ふつう', hp: 1, hit: 1 }, hard: { n: 'つよい', hp: 1.4, hit: 1.4 }, oni: { n: 'おに', hp: 2, hit: 1.8 } };
 /* 敵の攻撃（まちがえたとき受けるダメージ） */
 export function enemyHit(job, isBoss) { return Math.max(4, (isBoss ? 13 : 10) - JOBS[job].def); }
 /*
