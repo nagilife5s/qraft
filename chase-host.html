@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Qraft ジェットチェイス（先生）</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
-<link rel="stylesheet" href="theme.css?v=20261112142344">
+<link rel="stylesheet" href="theme.css?v=20261112143247">
 </head>
 <body>
 <div id="app">
@@ -60,29 +60,29 @@
 </section>
 
 <!-- ④ 終了 -->
-<section class="screen" id="s-end">
+<section class="screen" id="s-end" style="overflow-y:auto; padding-top:1.4em; padding-bottom:1.4em">
   <div class="confetti" id="conf"></div>
-  <div class="center" style="flex:1; display:flex; flex-direction:column; gap:.6em">
-    <div style="font-size:5em" id="endEm"></div>
-    <div class="title2" style="font-size:2.8em" id="endTitle"></div>
-    <div class="card" style="min-width:20em"><div class="mut" style="color:#5b5478;font-weight:800">クラス全体の正解数</div><div style="font-size:4em; font-weight:900; color:var(--bg2); line-height:1.1"><span id="endK">0</span><small style="font-size:.4em"> 問</small></div><div style="font-weight:800" id="endSub"></div></div>
-    <button class="btn sub" id="btnClose" style="margin-top:1em">ルームを閉じる</button>
+  <div class="center" style="flex:1 0 auto; display:flex; flex-direction:column; justify-content:safe center; gap:.6em">
+    <div style="font-size:3em; line-height:1" id="endEm"></div>
+    <div class="title2" style="font-size:2.3em; line-height:1.25" id="endTitle"></div>
+    <div class="card" style="min-width:20em; padding:.9em 2em"><div class="mut" style="color:#5b5478;font-weight:800">クラス全体の正解数</div><div style="font-size:3.4em; font-weight:900; color:var(--bg2); line-height:1.1"><span id="endK">0</span><small style="font-size:.4em"> 問</small></div><div style="font-weight:800" id="endSub"></div></div>
+    <button class="btn sub" id="btnClose" style="margin-top:.2em">ルームを閉じる</button>
   </div>
   <button class="snd fixed"></button>
 </section>
 
 </div>
 
-<script src="firebase-config.js?v=20261112142344"></script>
+<script src="firebase-config.js?v=20261112143247"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script type="module">
-import { mountSetPicker } from './lib.js?v=20261112142344';
-import { newGame, step, draw as bdraw, serialize, RULE as BRULE, W as BW, H as BH } from './bomb.js?v=20261112142344';
+import { mountSetPicker } from './lib.js?v=20261112143247';
+import { newGame, step, draw as bdraw, serialize, RULE as BRULE, W as BW, H as BH } from './bomb.js?v=20261112143247';
 import { shuffle, signIn, db, ref, set, get, update, remove, onValue, serverNow,
          avatarEl, ROBOT, robotTarget, robotFrac, mountScene, parseAv,
          $, el, showScreen, confetti, qrSvg,
-         loadBackgrounds, applyBg, buildBgPickers, mountStage } from './lib.js?v=20261112142344';
-import { bgm, bgmRate, sfx, preload, wireSoundButtons } from './sound.js?v=20261112142344b';
+         loadBackgrounds, applyBg, buildBgPickers, mountStage } from './lib.js?v=20261112143247';
+import { bgm, bgmRate, sfx, preload, wireSoundButtons } from './sound.js?v=20261112143247b';
 
 mountStage();
 wireSoundButtons();
