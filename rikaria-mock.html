@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ja" data-bg="lab">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>リカリア 単元の見本</title>
+<!-- 確認用（2026-11-13）：12単元の戦闘背景・ワスレモノ・番人・ボス・ダンジョンの小物を並べて見る。通信なし。?u=weather のように単元をしぼれる -->
+<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="quest.css">
+<link rel="stylesheet" href="rikaria.css">
+<style>
+  body { background:#0a0720; color:#fff; margin:0; }
+  .usec { padding:1em 1.2em 2em; border-bottom:.2em solid #2a1f5c; }
+  .usec h2 { margin:.2em 0 .6em; font-size:1.4em; }
+  .usec h2 small { opacity:.7; font-size:.65em; margin-left:.6em; }
+  .r3 { display:grid; grid-template-columns:repeat(3, 1fr); gap:.8em; }
+  .scn { position:relative; aspect-ratio:16/9; border-radius:.8em; overflow:hidden; background:#000 center/cover; }
+  .scn .lbl { position:absolute; left:.5em; top:.4em; z-index:5; font-weight:900; font-size:.85em; background:rgba(14,8,40,.75); border-radius:999px; padding:0 .7em; }
+  .scn .fz { position:absolute; left:3%; right:3%; top:12%; bottom:6%; display:flex; justify-content:space-around; align-items:flex-end; gap:2%; }
+  .scn .fz img { max-height:100%; max-width:100%; object-fit:contain; filter:drop-shadow(0 .3em .2em rgba(0,0,0,.45)); }
+  .scn .fz .ff { flex:1; height:70%; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; min-width:0; }
+  .scn .fz .ff span { font-size:.7em; font-weight:900; background:rgba(14,8,40,.7); border-radius:999px; padding:0 .5em; margin-bottom:.2em; white-space:nowrap; }
+  .scn .fz .ff.big { height:96%; flex:2; }
+  .mapbox { position:relative; aspect-ratio:16/9; border-radius:.8em; overflow:hidden; background:#1d1648; }
+  .mapbox .fd-map { transition:none; }
+</style>
+</head>
+<body>
+<div id="list"></div>
+<script type="module">
+import { UNITS, zakoImg, guardImg, bossImg, battleBg, ELEM, weakOf } from './rikaria-data.js';
+import { drawField, cameraOf, MAP } from './rikaria-view.js';
+var only = new URLSearchParams(location.search).get('u');
+var list = document.getElementById('list');
+UNITS.filter(function (u) { return !only || u.id === only; }).forEach(function (u) {
+  var d = document.createElement('section'); d.className = 'usec';
+  function foe(img, n, t, big) { return '<div class="ff' + (big ? ' big' : '') + '"><span>' + n + ' ' + ELEM[t].ic + '→苦手' + ELEM[weakOf(t)].ic + '</span><img alt="" src="' + img + '"></div>'; }
+  d.innerHTML = '<h2>' + u.area + '<small>中' + u.g + ' ' + u.unit + '</small></h2><div class="r3">' +
+    '<div class="scn" style="background-image:url(' + battleBg(u) + ')"><span class="lbl">ワスレモノの群れ</span><div class="fz">' + [0, 2, 4].map(function (i) { return foe(zakoImg(u, i), u.z[i].n, u.z[i].t); }).join('') + '</div></div>' +
+    '<div class="scn" style="background-image:url(' + battleBg(u) + ')"><span class="lbl">番人（1〜4階）</span><div class="fz">' + [1, 2, 3, 4].map(function (fl) { return foe(guardImg(u, fl), u.guards[fl - 1].n, u.guards[fl - 1].t); }).join('') + '</div></div>' +
+    '<div class="scn" style="background-image:url(' + battleBg(u) + ')"><span class="lbl">ボス</span><div class="fz">' + foe(bossImg(u), u.boss.n, u.boss.t, true) + '</div></div>' +
+    '</div><div class="r3" style="margin-top:.8em"><div class="scn" style="background-image:url(' + battleBg(u) + ')"><span class="lbl">ワスレモノ（あと3体）</span><div class="fz">' + [1, 3, 5].map(function (i) { return foe(zakoImg(u, i), u.z[i].n, u.z[i].t); }).join('') + '</div></div>' +
+    '<div class="mapbox" style="grid-column:span 2"><span class="lbl" style="position:absolute;left:.5em;top:.4em;z-index:300;font-weight:900;font-size:.85em;background:rgba(14,8,40,.75);border-radius:999px;padding:0 .7em">ダンジョン（小物）</span><div class="fd-map"></div></div></div>';
+  list.appendChild(d);
+  var mb = d.querySelector('.mapbox'), mp = mb.querySelector('.fd-map');
+  requestAnimationFrame(function () {
+    var r = mb.getBoundingClientRect(), ts = Math.floor(Math.min(r.width / 24, r.height / 13));
+    var gv = { wins: 0, fl: 2, mobs: [[15, 4, 0], [19, 16, 1], [5, 9, 2], [13, 8, 3]], pos: [12, 11], dir: 'right' };
+    drawField(mp, ts, gv, u, { j: 'hunter', lk: 'a', name: 'リーダー' }, false);
+    cameraOf(mb, mp, ts, [16, 11]);
+  });
+});
+</script>
+</body>
+</html>
