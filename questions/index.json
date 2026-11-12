@@ -226,11 +226,11 @@
  {
   "file": "sets/592a0f8b.json",
   "title": "火成岩",
-  "count": 14,
+  "count": 13,
   "types": {
    "choice": 2,
    "multi": 0,
-   "text": 12
+   "text": 11
   },
   "enc": true,
   "grade": 1,
@@ -258,9 +258,9 @@
  {
   "file": "sets/3a1f8b07.json",
   "title": "地震波",
-  "count": 7,
+  "count": 6,
   "types": {
-   "choice": 7,
+   "choice": 6,
    "multi": 0,
    "text": 0
   },
@@ -274,11 +274,11 @@
  {
   "file": "sets/7521b2cb.json",
   "title": "地震のしくみ",
-  "count": 13,
+  "count": 12,
   "types": {
    "choice": 1,
    "multi": 0,
-   "text": 12
+   "text": 11
   },
   "enc": true,
   "grade": 1,
@@ -562,9 +562,9 @@
  {
   "file": "sets/9d3ef90e.json",
   "title": "酸化",
-  "count": 13,
+  "count": 12,
   "types": {
-   "choice": 8,
+   "choice": 7,
    "multi": 0,
    "text": 5
   },
@@ -610,11 +610,11 @@
  {
   "file": "sets/2ce9143c.json",
   "title": "酸素とマグネシウムの計算問題",
-  "count": 6,
+  "count": 5,
   "types": {
    "choice": 2,
    "multi": 0,
-   "text": 4
+   "text": 3
   },
   "enc": true,
   "grade": 2,
@@ -1058,9 +1058,9 @@
  {
   "file": "sets/2f54f9b4.json",
   "title": "だ液の実験",
-  "count": 7,
+  "count": 6,
   "types": {
-   "choice": 6,
+   "choice": 5,
    "multi": 0,
    "text": 1
   },
@@ -1122,9 +1122,9 @@
  {
   "file": "sets/87292c6d.json",
   "title": "血液",
-  "count": 11,
+  "count": 10,
   "types": {
-   "choice": 4,
+   "choice": 3,
    "multi": 1,
    "text": 6
   },
