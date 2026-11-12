@@ -133,6 +133,10 @@ await t('正解数を問題数より多くできない', () => assertFails(put(a
 await t('送った記録は書き換えられない', async () => { const r = await alice.ref('practice/' + SID).push(rec()); await assertFails(r.update({ k: 10 })); });
 await t('生徒は記録を読めない', () => assertFails(alice.ref('practice').get()));
 await t('先生は記録を読める', () => assertSucceeds(teacher.ref('practice').get()));
+await t('生徒は自分の記録も消せない', () => assertFails(alice.ref('practice/' + SID).remove()));
+await t('生徒は記録を1件だけ消すこともできない', async () => { const r = await put(alice, SID); await assertFails(r.remove()); });
+await t('先生は番号ごとに記録を消せる', async () => { await assertSucceeds(teacher.ref('practice/' + SID).remove()); let v; await seed(async (d) => { v = (await d.ref('practice/' + SID).get()).val(); }); if (v !== null) throw new Error('残っている'); });
+await t('先生でも消す以外の書き換えはできない', () => assertFails(teacher.ref('practice/' + OTHER).set({ x: rec() })));
 
 console.log(`\n${pass} 件成功 / ${fail} 件失敗`);
 await env.cleanup();

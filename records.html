@@ -35,6 +35,7 @@
     期間 <select id="fd"><option value="0">すべて</option><option value="7">この7日</option><option value="30">この30日</option></select>
     <button id="btnCsv">CSVを保存</button>
     <button id="btnReload">読み込み直す</button>
+    <button id="btnDel" style="color:#b3261e">記録を消す</button> <span id="delMsg" role="status"></span>
   </div>
   <div class="note" style="margin:.4em 0">⚠️ この記録は<b>成績には直接使わない参考記録</b>です。正解数は生徒の端末が数えた値で、本人が自分の点を盛ることは防げません。
     2026年11月11日から、記録を送れるのは合言葉を入れた本人の端末だけになりました。それより前の記録には「本人確認なし」と付けています（ほかの人が番号を名乗って送った可能性があります）。</div>
@@ -138,7 +139,29 @@ function render() {
   });
   $('tblSet').innerHTML = hs;
 }
-['fg', 'fc', 'fd'].forEach(function (id) { $(id).onchange = render; });
+['fg', 'fc', 'fd'].forEach(function (id) { $(id).onchange = function () { render(); delState(); }; });
+/* 記録を消す（2026-11-12）。今の学年・クラスの絞り込みで出ている生徒の記録を、番号ごとにまとめて消す。
+   期間の絞り込み中は押せない（生徒の記録の一部だけを消すことはしない）。ルールで、消せるのは先生だけ */
+function delState() {
+  var d = +$('fd').value !== 0; $('btnDel').disabled = d;
+  $('btnDel').title = d ? '期間を「すべて」にすると押せます' : '';
+}
+delState();
+$('btnDel').onclick = async function () {
+  var g = +$('fg').value, c = +$('fc').value;
+  var rs = rows.filter(function (r) { return (!g || r.g === g) && (!c || r.c === c); });
+  var ids = Array.from(new Set(rs.map(function (r) { return r.sid; })));
+  if (!ids.length) { $('delMsg').textContent = '消す記録はありません。'; return; }
+  var who = (g ? g + '年' : '全学年') + (c ? c + '組' : (g ? 'の全クラス' : ''));
+  if (!confirm(who + 'の ' + ids.length + ' 人・' + rs.length + ' 回分の記録を消します。\n消した記録は元に戻せません。\n先に「CSVを保存」で控えをとりましたか？')) return;
+  if ((prompt('本当に消すときは「けす」と入力してください。') || '').trim() !== 'けす') { $('delMsg').textContent = '消しませんでした。'; return; }
+  $('delMsg').textContent = '消しています…';
+  try {
+    for (var i = 0; i < ids.length; i++) await remove(ref(db, 'practice/' + ids[i]));
+    $('delMsg').textContent = ids.length + ' 人・' + rs.length + ' 回分の記録を消しました。';
+  } catch (e) { $('delMsg').textContent = '消せませんでした（権限がありません。新しいルールが公開されているか確かめてください）。'; }
+  load();
+};
 $('btnReload').onclick = load;
 $('btnCsv').onclick = function () {
   var l = ['日時,学年,クラス,番号,セットID,セット,問題数,正解数,まちがえた問題番号,やりなおし,本人確認'];

@@ -206,7 +206,8 @@
           "y": {
             ".validate": "newData.isString() && newData.val().matches(/^20[0-9][0-9]$/)"
           }
-        }
+        },
+        ".write": "auth != null && root.child('admins').child(auth.uid).exists() && !newData.exists()"
       }
     },
     "quest": {

@@ -6,7 +6,7 @@
 <title>Qraft 先生用</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261112131302">
+<link rel="stylesheet" href="theme.css?v=20261112142344">
 </head>
 <body>
 <div id="app">
@@ -104,14 +104,14 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261112131302"></script>
+<script src="firebase-config.js?v=20261112142344"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script type="module">
 import { mountSetPicker, avatarEl, signIn, db, ref, set, get, update, remove, onValue, serverTimestamp, serverNow,
          calcScore, CHOICE_STYLE, RESULT_SEC, RANK_SEC, sleep, shuffle,
          $, el, fmt, motionOn, showScreen, later, stopAnim, countUp, confetti, qrSvg, buildRank,
-         loadBackgrounds, applyBg, buildBgPickers, savedBg, saveBg, mountStage, decryptSet, prepareQuestion, maskOf, isTextCorrect, normText } from './lib.js?v=20261112131302';
-import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261112131302b';
+         loadBackgrounds, applyBg, buildBgPickers, savedBg, saveBg, mountStage, decryptSet, prepareQuestion, maskOf, isTextCorrect, normText } from './lib.js?v=20261112142344';
+import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261112142344b';
 
 mountStage();
 
@@ -295,7 +295,7 @@ document.querySelectorAll('.hb-pause').forEach(function (b) {
 document.querySelectorAll('.hb-next').forEach(function (b) { b.onclick = function () { skip = true; }; });
 document.querySelectorAll('.hb-end').forEach(function (b) { b.onclick = function () { if (confirm('ゲームを終了しますか？')) { ended = true; skip = true; } }; });
 
-/* 正解発表・ランキングを見せる秒数（開始画面で選ぶ。lib.js?v=20261112131302 の RESULT_SEC・RANK_SEC が「ふつう」） */
+/* 正解発表・ランキングを見せる秒数（開始画面で選ぶ。lib.js?v=20261112142344 の RESULT_SEC・RANK_SEC が「ふつう」） */
 var PACES = { short: { result: 5, rank: 5 }, normal: { result: RESULT_SEC, rank: RANK_SEC }, long: { result: 12, rank: 10 } };
 var PACE = PACES.normal, rankEvery = 1, showEx = true;
 async function runGame() {

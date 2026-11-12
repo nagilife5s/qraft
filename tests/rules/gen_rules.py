@@ -75,6 +75,8 @@ pr['.write'] = ("auth != null && !data.exists() && $sid.matches(/^[1-3]-[1-9]-[0
                 "root.child('quest').child(newData.child('y').val()).child('owners').child($sid).child(auth.uid).exists()")
 if "'y'" not in pr['.validate']:
     pr['.validate'] = pr['.validate'].replace("newData.hasChildren(['f','n','k','t'])", "newData.hasChildren(['f','n','k','t','y'])")
+# 記録を消せるのは先生だけ（番号ごとにまとめて消す。書き換えや追加はできない）。2026-11-12
+R['rules']['practice']['$sid']['.write'] = "auth != null && root.child('admins').child(auth.uid).exists() && !newData.exists()"
 pr['y'] = {".validate": "newData.isString() && newData.val().matches(/^20[0-9][0-9]$/)"}
 json.dump(R, open(P, 'w'), ensure_ascii=False, indent=2)
 print('ok', len(c['.write']))

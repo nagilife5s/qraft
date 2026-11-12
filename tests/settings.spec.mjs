@@ -137,3 +137,33 @@ test('クラシック：「解説を出す」をオフにすると出ない', as
   await expect(stu.locator('#s-late')).toHaveClass(/on/, { timeout: 15000 });
   await expect(stu.locator('#lateex')).toBeHidden();
 });
+
+// 記録を消すボタン（2026-11-12）。ほかのテストの記録を消さないよう、3年6組だけを使う
+test('記録を消す：取り消すと残り、「けす」で今の絞り込みの記録だけ消える', async ({ page }) => {
+  await asTeacher(page);
+  const rec = { f: '06147353', n: 10, k: 7, t: Date.now(), y: '2026' };
+  await seed('practice/3-6-38', { a1: rec, a2: rec });
+  await seed('practice/3-5-38', { a1: rec });
+  await page.reload();
+  await expect(page.locator('#body')).toBeVisible({ timeout: 15000 });
+  await page.selectOption('#fg', '3'); await page.selectOption('#fc', '6');
+  await expect(page.locator('#meta')).toContainText('練習 2 回');
+  // 期間で絞り込み中は押せない
+  await page.selectOption('#fd', '7'); await expect(page.locator('#btnDel')).toBeDisabled();
+  await page.selectOption('#fd', '0'); await expect(page.locator('#btnDel')).toBeEnabled();
+  // 1回目：確認で「キャンセル」→ 何も消えない
+  page.once('dialog', d => d.dismiss());
+  await page.click('#btnDel');
+  await expect(page.locator('#meta')).toContainText('練習 2 回');
+  // 2回目：確認OK・入力ちがい → 消えない
+  page.once('dialog', d => { page.once('dialog', d2 => d2.accept('はい')); d.accept(); });
+  await page.click('#btnDel');
+  await expect(page.locator('#delMsg')).toHaveText('消しませんでした。');
+  // 3回目：「けす」→ 3年6組だけ消える
+  page.once('dialog', d => { expect(d.message()).toContain('1 人・2 回分'); page.once('dialog', d2 => d2.accept('けす')); d.accept(); });
+  await page.click('#btnDel');
+  await expect(page.locator('#delMsg')).toContainText('消しました');
+  await expect(page.locator('#meta')).toContainText('練習 0 回');
+  await page.selectOption('#fc', '5');
+  await expect(page.locator('#meta')).toContainText('練習 1 回');
+});
