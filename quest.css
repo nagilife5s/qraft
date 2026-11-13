@@ -488,3 +488,10 @@ img.slot:not(.ok) { visibility:hidden; }
 .t-swall.tower { background-color:#8f8a83; }
 .t-swall.tower::after { content:"🚩"; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:1em; }
 .t-gate.stone { background-color:#c9c3b6; }
+
+/* 職業えらび（6職業）：横1列だと左はしの戦士が画面の外に切れた（2026-11-13 授業前の確認）。折り返して、はみ出すときは上から見せる */
+#s-make { justify-content:safe center; }
+#s-make .jobcards.six { flex:0 0 auto; width:100%; }
+/* 金色の大きな見出し：ふちの線が太くて字がつぶれた。線は字の後ろに描く */
+.lvup { paint-order:stroke fill; }
+#s-end .lvup { -webkit-text-stroke:0; text-shadow:0 .08em 0 #2a1280, 0 0 .5em rgba(0,0,0,.45); }

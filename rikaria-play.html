@@ -6,9 +6,9 @@
 <title>リカリア チーム戦</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261113134143">
-<link rel="stylesheet" href="quest.css?v=20261113134143">
-<link rel="stylesheet" href="rikaria.css?v=20261113134143">
+<link rel="stylesheet" href="theme.css?v=20261113142223">
+<link rel="stylesheet" href="quest.css?v=20261113142223">
+<link rel="stylesheet" href="rikaria.css?v=20261113142223">
 <style>
   #app { background:url(img/rikaria/title-bg.webp) center/cover no-repeat, #1d1648; }
   .q-bg-r { background:rgba(10,6,36,.55); }
@@ -43,7 +43,7 @@
 <!-- キャラ作成（初回だけ） -->
 <section class="screen center q-bg-r" id="s-make" style="gap:1em;overflow:auto">
   <div class="q-title">職業をえらぼう</div>
-  <div class="jobcards" id="jobcards"></div>
+  <div class="jobcards six" id="jobcards"></div>
   <div class="row" style="flex-wrap:wrap;justify-content:center"><b>見た目</b><div class="seg" id="typeSeg"><button type="button" data-v="a" class="on">タイプA</button><button type="button" data-v="b">タイプB</button></div></div>
   <div class="row"><label for="cname"><b>キャラの名前</b></label><input class="namebox" id="cname" maxlength="8" placeholder="8文字まで"></div>
   <div class="mut" style="font-size:.85em">画面には本名ではなく、この名前が出ます。職業と名前は、あとから変えられません。</div>
@@ -141,13 +141,13 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261113134143"></script>
+<script src="firebase-config.js?v=20261113142223"></script>
 <script type="module">
-import { signIn, db, ref, set, get, update, onValue, serverNow, $, showScreen, confetti } from './lib.js?v=20261113134143';
-import { fiscalYear, ensureOwner, cmdImg } from './quest.js?v=20261113134143';
+import { signIn, db, ref, set, get, update, onValue, serverNow, $, showScreen, confetti } from './lib.js?v=20261113142223';
+import { fiscalYear, ensureOwner, cmdImg } from './quest.js?v=20261113142223';
 import { JOBS, JOB_KEYS, MP_MAX, LEARN, ELEMS, ELEM, heroImg, skillName, rankOf, rankCost, canRankUp, rankUp, loadoutOf, learned, migrateChar, expToNext, unitById, battleBg, weakOf, LOAD_N, OBLION,
-         newChar, ITEMS, carryList, spiritImg, storyBoss, storyOb, TOWN_DEFAULT } from './rikaria-data.js?v=20261113134143';
-import { el, esc, drawField, moveField, cameraOf, cellAt, dmgFx, supportFx, ovban, redflash, MAP, spiritHtml } from './rikaria-view.js?v=20261113134143';
+         newChar, ITEMS, carryList, spiritImg, storyBoss, storyOb, TOWN_DEFAULT } from './rikaria-data.js?v=20261113142223';
+import { el, esc, drawField, moveField, cameraOf, cellAt, dmgFx, supportFx, ovban, redflash, MAP, spiritHtml } from './rikaria-view.js?v=20261113142223';
 
 var TS = { '.sv': 'timestamp' };
 var uid = null, pin = null, state = null, sid = '', ch = null, look = 'a', job = 'warrior', gp = 0;
