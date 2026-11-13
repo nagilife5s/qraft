@@ -27,6 +27,10 @@ test('ひとりで冒険：町の育ち方と画面', async ({ browser }) => {
     await expect(p.locator('#s-town')).toBeVisible({ timeout: 15000 }); await p.waitForTimeout(1500);
     await p.screenshot({ path: SHOT + '/s1-town-' + st + '.png' });
   }
+  // 装備と持ち物をデータで持たせて、ステータスに絵が出るかを見る
+  await rest('PATCH', `quest/${Y}/chars/2-3-7`, { eq: { w: 'w3', a: 'a2' }, inv: { potion: 2, ether2: 1, potion3: 1 }, gold: 900 });
+  await p.reload(); if (await p.locator('#s-login').isVisible()) { await p.locator('#segG button[data-v="2"]').click(); await p.locator('#segC button', { hasText: '3' }).first().click(); await p.locator('#nums button', { hasText: /^7$/ }).click(); }
+  await expect(p.locator('#s-town')).toBeVisible({ timeout: 15000 }); await p.waitForTimeout(800);
   await p.locator('#goStat').click(); await p.waitForTimeout(600); await p.screenshot({ path: SHOT + '/s2-stat.png', fullPage: true });
   // 地図：エリアを押すと、その単元の敵が並ぶ（2年はチーム戦と同じ単元の敵）
   await p.locator('#statBack').click(); await p.locator('#goWorld').click(); await p.waitForTimeout(500);

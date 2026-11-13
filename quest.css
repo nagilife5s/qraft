@@ -527,3 +527,7 @@ img.slot:not(.ok) { visibility:hidden; }
 .hud-btns .btn { min-height:44px; }
 /* 冒険の地図：説明の箱は地図の横に置く（地図の上に重なって、右がわの場所や城が押せなかった） */
 .wm-side { position:static; flex:0 0 19em; align-self:flex-start; max-height:100%; }
+
+/* 武器・防具・道具の絵（店・ステータス・持ち物。2026-11-13） */
+.gicon { width:2.2em; height:2.2em; object-fit:contain; vertical-align:middle; margin-right:.3em; flex:none; }
+.eq-row .gicon, #stInv .gicon { width:1.8em; height:1.8em; }

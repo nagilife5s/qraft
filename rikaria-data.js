@@ -231,6 +231,11 @@ var CUT_W = [.95, .9, .8, .7, .6, .5], CUT_O = [.95, .9, .85, .8, .75, .7];
 var A_MP = [0, 1, 1, 2, 2, 3], A_HP = [3, 6, 9, 12, 15, 18];
 var A_TYPE = { warrior: 'cut', mage: 'mp', summoner: 'mp', priest: 'hp', hunter: 'hp', monk: 'hp' };
 function tierOf(id, c) { var k = id && id.charAt(0) === c ? Number(id.slice(1)) : 0; return k >= 1 && k <= GEAR_TIERS ? k : 0; }
+/* 武器・防具・道具の絵（2026-11-13。前は絵文字）。id は 'w1'〜'w6'・'a1'〜'a6'。装備なしは空 */
+export function gearImg(job, id) { return tierOf(id, 'w') || tierOf(id, 'a') ? 'img/rikaria/gear/' + (JOBS[job] ? job : 'warrior') + '-' + id + '.webp' : ''; }
+export function itemImg(k) { return 'img/rikaria/gear/item-' + k + '.webp'; }
+/* 絵のタグ（絵が読めないときは消える） */
+export function iconHtml(src) { return src ? '<img class="gicon" alt="" src="' + src + '" onerror="this.remove()">' : ''; }
 export function weaponTier(id) { return tierOf(id, 'w'); }
 export function armorTier(id) { return tierOf(id, 'a'); }
 export function weaponName(job, id) { var k = weaponTier(id); return k ? (WNAME[job] || WNAME.warrior)[k - 1] : 'なし'; }

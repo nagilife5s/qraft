@@ -6,9 +6,9 @@
 <title>リカリア チーム戦</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261113183431">
-<link rel="stylesheet" href="quest.css?v=20261113183431">
-<link rel="stylesheet" href="rikaria.css?v=20261113183431">
+<link rel="stylesheet" href="theme.css?v=20261113184052">
+<link rel="stylesheet" href="quest.css?v=20261113184052">
+<link rel="stylesheet" href="rikaria.css?v=20261113184052">
 <style>
   #app { background:url(img/rikaria/title-bg.webp) center/cover no-repeat, #1d1648; }
   .q-bg-r { background:rgba(10,6,36,.55); }
@@ -141,13 +141,13 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261113183431"></script>
+<script src="firebase-config.js?v=20261113184052"></script>
 <script type="module">
-import { signIn, db, ref, set, get, update, onValue, serverNow, $, showScreen, confetti } from './lib.js?v=20261113183431';
-import { fiscalYear, ensureOwner, cmdImg } from './quest.js?v=20261113183431';
+import { signIn, db, ref, set, get, update, onValue, serverNow, $, showScreen, confetti } from './lib.js?v=20261113184052';
+import { fiscalYear, ensureOwner, cmdImg } from './quest.js?v=20261113184052';
 import { JOBS, JOB_KEYS, MP_MAX, LEARN, ELEMS, ELEM, heroImg, skillName, rankOf, rankCost, canRankUp, rankUp, loadoutOf, learned, migrateChar, expToNext, unitById, battleBg, weakOf, LOAD_N, OBLION,
-         newChar, ITEMS, carryList, spiritImg, storyBoss, storyOb, TOWN_DEFAULT } from './rikaria-data.js?v=20261113183431';
-import { el, esc, drawField, moveField, cameraOf, cellAt, dmgFx, supportFx, ovban, redflash, MAP, spiritHtml } from './rikaria-view.js?v=20261113183431';
+         newChar, ITEMS, carryList, spiritImg, storyBoss, storyOb, TOWN_DEFAULT , itemImg, iconHtml } from './rikaria-data.js?v=20261113184052';
+import { el, esc, drawField, moveField, cameraOf, cellAt, dmgFx, supportFx, ovban, redflash, MAP, spiritHtml } from './rikaria-view.js?v=20261113184052';
 
 var TS = { '.sv': 'timestamp' };
 var uid = null, pin = null, state = null, sid = '', ch = null, look = 'a', job = 'warrior', gp = 0;
@@ -323,7 +323,7 @@ function drawPrep() {
   if (!list.length) ib.appendChild(el('span', 'mut', '持っていける持ち物がありません（回復のしずく・マナの実は、町の道具屋で買えます）'));
   else [''].concat(list).forEach(function (k) {
     var it = ITEMS[k], b = el('button', item === k ? 'on' : ''); b.type = 'button'; b.dataset.it = k; b.setAttribute('aria-pressed', item === k ? 'true' : 'false'); b.disabled = ready;
-    b.appendChild(el('span', '', it ? it.ic + ' ' + it.n + ' ×' + ch.inv[k] : '持っていかない')); if (it) b.appendChild(el('small', '', it.d));
+    var lb = el('span'); if (it) { lb.innerHTML = iconHtml(itemImg(k)); lb.appendChild(document.createTextNode(it.n + ' ×' + ch.inv[k])); } else lb.textContent = '持っていかない'; b.appendChild(lb); if (it) b.appendChild(el('small', '', it.d));
     b.onclick = function () { if (ready) return; item = k; try { localStorage.setItem('qraft.rikaria.item.' + sid, k); } catch (e) {} writePlayer().catch(function () {}); drawPrep(); };
     ib.appendChild(b);
   });
@@ -549,7 +549,7 @@ function drawBattleCtl() {
   });
   if (me.it && ITEMS[me.it]) {   /* 持ってきた持ち物（1回だけ） */
     var it = ITEMS[me.it], ib = el('button', 'act item'); ib.type = 'button'; ib.id = 'btnItem';
-    ib.appendChild(el('b', '', it.ic + ' ' + it.n)); ib.appendChild(el('span', 'mp', '1回だけ'));
+    var ibn = el('b'); ibn.innerHTML = iconHtml(itemImg(me.it)); ibn.appendChild(document.createTextNode(it.n)); ib.appendChild(ibn); ib.appendChild(el('span', 'mp', '1回だけ'));
     ib.title = it.d; ib.disabled = itemUsed || !!me.dn || gv.ph !== 'battle'; ib.onclick = useItem;
     ar.appendChild(ib);
   }

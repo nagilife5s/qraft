@@ -6,8 +6,8 @@
 <title>Qraft クエスト（ひとりで冒険）</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261113183431">
-<link rel="stylesheet" href="quest.css?v=20261113183431">
+<link rel="stylesheet" href="theme.css?v=20261113184052">
+<link rel="stylesheet" href="quest.css?v=20261113184052">
 <style>
   .hud-btns { display:flex; gap:.4em; }
   .hud-btns .btn { font-size:.85em; padding:.35em .9em; }
@@ -136,14 +136,14 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261113183431"></script>
+<script src="firebase-config.js?v=20261113184052"></script>
 <script type="module">
-import { signIn, db, ref, set, get, $, el, showScreen, shuffle, prepareQuestion, maskOf, isTextCorrect } from './lib.js?v=20261113183431';
+import { signIn, db, ref, set, get, $, el, showScreen, shuffle, prepareQuestion, maskOf, isTextCorrect } from './lib.js?v=20261113184052';
 import { addExp, expToNext, migrateChar, newChar, JOBS as RJOBS, JOB_KEYS, LEARN, RANK_POW, RANK_SEC, LOAD_N, ELEMS, ELEM, UNITS,
-         heroImg, fieldImg, skillName, rankOf, rankCost, canRankUp, rankUp, spUsed, loadoutOf, weakOf, statsOf, unitOf, zakoImg, battleBg } from './rikaria-data.js?v=20261113183431';
+         heroImg, fieldImg, skillName, rankOf, rankCost, canRankUp, rankUp, spUsed, loadoutOf, weakOf, statsOf, unitOf, zakoImg, battleBg, gearImg, itemImg, iconHtml } from './rikaria-data.js?v=20261113184052';
 import { fiscalYear, ENEMIES, TOWN, TOWN_DEFAULT,
          weaponList, armorList, weaponName, armorName, TOWN_MAX, soloDayCap, dayNo, ITEMS, ITEM_KEYS, FACS, RESPEC_COST, ensureOwner, battleGuide,
-         soloMult, soloReward, soloEnemyHp, soloEnemyAtkX, BOSS, cmdImg } from './quest.js?v=20261113183431';
+         soloMult, soloReward, soloEnemyHp, soloEnemyAtkX, BOSS, cmdImg } from './quest.js?v=20261113184052';
 
 var Y = fiscalYear(), me = { g: 0, c: 0, n: 0 }, sid = '', ch = null, CLS = {}, SETS = [], AREAS = [], look = 'a', job = 'mage';
 var curArea = null, HP = 0, MP = 0;
@@ -609,7 +609,7 @@ function shop(fi) {
   /* onBuy は保存できたかを返す。だめなら手元のキャラを元にもどす */
   function row(ic, name, desc, price, owned, onBuy) {
     var b = el('button'); b.type = 'button';
-    b.appendChild(el('b', '', ic)); var sp = el('span', '', name); sp.appendChild(el('br')); sp.appendChild(el('small', '', desc)); b.appendChild(sp);
+    var icb = el('b', '', /^img\//.test(ic) ? '' : ic); if (/^img\//.test(ic)) icb.innerHTML = iconHtml(ic); b.appendChild(icb); var sp = el('span', '', name); sp.appendChild(el('br')); sp.appendChild(el('small', '', desc)); b.appendChild(sp);
     b.appendChild(el('b', '', owned || (price ? '💰 ' + price : '無料')));
     b.disabled = !!owned || (price > (ch.gold || 0));
     b.onclick = async function () { if (b.disabled) return; b.disabled = true; var back = clone(ch); if ((await onBuy()) === false) ch = back; shop(fi); drawHud(); };
@@ -618,7 +618,7 @@ function shop(fi) {
   if (fi === 1) ITEM_KEYS.forEach(function (k) {
     var it = ITEMS[k];
     if (it.st > stage()) return;   /* 上位版は2年・3年の章から */
-    row(it.ic, it.n + '（持っている：' + inv(k) + '）', it.d, it.p, inv(k) >= 9 ? 'これ以上持てない' : '', async function () { ch.gold -= it.p; ch.inv = Object.assign({}, ch.inv || {}); ch.inv[k] = inv(k) + 1; return await saveChar(); });
+    row(itemImg(k), it.n + '（持っている：' + inv(k) + '）', it.d, it.p, inv(k) >= 9 ? 'これ以上持てない' : '', async function () { ch.gold -= it.p; ch.inv = Object.assign({}, ch.inv || {}); ch.inv[k] = inv(k) + 1; return await saveChar(); });
   });
   if (fi === 2) {
     /* 技の振り直し：100ゴールドで、使ったスキルポイントがぜんぶ戻る（sr を消す・sp＝spt・gold −100 を1回の保存で） */
@@ -629,8 +629,8 @@ function shop(fi) {
   }
   if (fi === 3) {
     var eq = ch.eq || {};
-    weaponList(ch.j, stage()).filter(function (w) { return w.open; }).forEach(function (w) { row('🗡️', w.n, w.d, w.p, eq.w === w.id ? '装備中' : '', async function () { ch.gold -= w.p; ch.eq = Object.assign({}, ch.eq || {}, { w: w.id }); return await saveChar(); }); });
-    armorList(ch.j, stage()).filter(function (a) { return a.open; }).forEach(function (a) { row('🛡️', a.n, a.d, a.p, eq.a === a.id ? '装備中' : '', async function () { ch.gold -= a.p; ch.eq = Object.assign({}, ch.eq || {}, { a: a.id }); var ok = await saveChar(); if (ok) HP = statsOf(ch).mhp; return ok; }); });
+    weaponList(ch.j, stage()).filter(function (w) { return w.open; }).forEach(function (w) { row(gearImg(ch.j, w.id), w.n, w.d, w.p, eq.w === w.id ? '装備中' : '', async function () { ch.gold -= w.p; ch.eq = Object.assign({}, ch.eq || {}, { w: w.id }); return await saveChar(); }); });
+    armorList(ch.j, stage()).filter(function (a) { return a.open; }).forEach(function (a) { row(gearImg(ch.j, a.id), a.n, a.d, a.p, eq.a === a.id ? '装備中' : '', async function () { ch.gold -= a.p; ch.eq = Object.assign({}, ch.eq || {}, { a: a.id }); var ok = await saveChar(); if (ok) HP = statsOf(ch).mhp; return ok; }); });
     var nx = weaponList(ch.j, stage()).filter(function (w) { return !w.open; })[0];
     if (nx) m.appendChild(el('div', 'mut', '町が「' + TOWN[nx.st].n + '」になると、次の品が入荷します。'));
     m.appendChild(el('div', 'mut', '買うと、いま付けている物と付け替えます（前の物は店が引き取ります）。'));
@@ -705,8 +705,8 @@ function drawStat() {
   $('stHero').src = heroImg(ch.j, ch.lk); $('stName').textContent = ch.n; $('stJob').textContent = jobName() + ' Lv.' + ch.lv;
   $('stGrid').innerHTML = '<span>HP</span><span>' + s.mhp + '</span><span>MP</span><span>' + s.mmp + '</span><span>攻撃</span><span>' + s.atk + '</span><span>防御</span><span>' + s.def + '</span><span>💰</span><span>' + (ch.gold || 0) + '</span>';
   var nx = expToNext(ch.lv); $('stXp').style.width = ((ch.exp || 0) / nx * 100) + '%'; $('stXpT').textContent = 'つぎのレベルまで ' + (nx - (ch.exp || 0));
-  $('stEq').innerHTML = '<div class="eq-row"><span>武器</span><span>' + weaponName(ch.j, eq.w) + '</span></div><div class="eq-row"><span>防具</span><span>' + armorName(ch.j, eq.a) + '</span></div>';
-  $('stInv').innerHTML = ITEM_KEYS.map(function (k) { return '<span>' + ITEMS[k].ic + ' ' + ITEMS[k].n + ' ×' + inv(k) + '</span>'; }).join('');
+  $('stEq').innerHTML = '<div class="eq-row"><span>武器</span><span>' + iconHtml(gearImg(ch.j, eq.w)) + weaponName(ch.j, eq.w) + '</span></div><div class="eq-row"><span>防具</span><span>' + iconHtml(gearImg(ch.j, eq.a)) + armorName(ch.j, eq.a) + '</span></div>';
+  $('stInv').innerHTML = ITEM_KEYS.map(function (k) { return '<span>' + iconHtml(itemImg(k)) + ITEMS[k].n + ' ×' + inv(k) + '</span>'; }).join('');
   $('spLeft').textContent = 'スキルポイント ' + (ch.sp || 0);
   /* 技10個。押すと「持っていく技」（技4つ＋必殺技1つ。チーム戦の準備画面と同じ ld）を切りかえる。SPでランクを上げる */
   var box = $('skills'), J = RJ(), ld = loadoutOf(ch); box.textContent = '';
@@ -824,7 +824,7 @@ function nextTurn() {
 function itemBar(box) {
   var bar = el('div', 'itembar');
   ITEM_KEYS.filter(function (k) { return ITEMS[k].team && inv(k); }).forEach(function (k) {
-    var it = ITEMS[k], b = el('button', '', it.ic + ' ' + it.n + ' ×' + inv(k)); b.type = 'button';
+    var it = ITEMS[k], b = el('button'); b.innerHTML = iconHtml(itemImg(k)); b.appendChild(document.createTextNode(it.n + ' ×' + inv(k))); b.type = 'button';
     b.disabled = (it.hp && HP >= statsOf(ch).mhp) || (it.mp && MP >= statsOf(ch).mmp);
     b.onclick = async function () { ch.inv = Object.assign({}, ch.inv); ch.inv[k]--; if (it.hp) HP = Math.min(statsOf(ch).mhp, HP + it.hp); else MP = Math.min(statsOf(ch).mmp, MP + it.mp); drawMe(); bar.replaceWith(itemBar(box)); await saveChar(); };
     bar.appendChild(b);
