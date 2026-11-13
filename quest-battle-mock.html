@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>クエスト戦闘モック</title>
+<title>（古い）クエスト戦闘モック 第3版</title>
 <!-- モック 第3版（2026-11-12）：クエスト・チーム戦の作り直し。方向性は ../クエスト・チーム戦の作り直し｜方向性.md
      画面の見た目は本物の部品（quest.css・ソロのフィールド・ソロの戦闘画面）を使う。画面は quest-team-view.html を3つ並べる。
      通信はない。このページが2班の進み方をまねして、3つの画面に配る（SIM）。 -->
@@ -26,7 +26,8 @@ header b{color:#fff}
 </style>
 </head>
 <body>
-<header><b>クエスト・チーム戦 モック 第3版</b>　見た目はソロモードの部品（フィールド・戦闘画面）を使っています。<br>
+<div style="position:fixed;left:0;right:0;top:0;z-index:99999;background:#7a4b00;color:#fff;font:700 13px/1.5 system-ui,sans-serif;padding:4px 12px;text-align:center">古いモックです（2026-11-12 の第3版）。今のチーム戦は本番のアプリに入っていて、ここから変わっています。　<a href="mocks.html" style="color:#ffe9a8">モックの一覧</a></div>
+<header style="margin-top:28px"><b>クエスト・チーム戦 モック 第3版</b>　見た目はソロモードの部品（フィールド・戦闘画面）を使っています。<br>
 リーダーのPCでダンジョンを歩き（矢印キー・WASD・クリック）、見えている魔物に<b>ぶつかる</b>と戦闘。戦闘は時間で進み、各自のペースで答えて、<b>敵をクリックしてねらいを決める</b>。HPが半分を切った敵は強い攻撃をためる（倒すか、班で3問正解でガード）。群れを2回倒すと番人の部屋が開き、番人を倒すと鍵。<br>
 動くのは2班だけ。リーダーとあなた以外の3人は自動で答えます。リーダーも戦闘中は自動で答えます。キー操作は、リーダーの画面を一度クリックしてから。</header>
 <div class="ctrl">
