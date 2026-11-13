@@ -6,8 +6,8 @@
 <title>Qraft クエスト（ひとりで冒険）</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261113175219">
-<link rel="stylesheet" href="quest.css?v=20261113175219">
+<link rel="stylesheet" href="theme.css?v=20261113175808">
+<link rel="stylesheet" href="quest.css?v=20261113175808">
 <style>
   .hud-btns { display:flex; gap:.4em; }
   .hud-btns .btn { font-size:.85em; padding:.35em .9em; }
@@ -136,14 +136,14 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261113175219"></script>
+<script src="firebase-config.js?v=20261113175808"></script>
 <script type="module">
-import { signIn, db, ref, set, get, $, el, showScreen, shuffle, prepareQuestion, maskOf, isTextCorrect } from './lib.js?v=20261113175219';
+import { signIn, db, ref, set, get, $, el, showScreen, shuffle, prepareQuestion, maskOf, isTextCorrect } from './lib.js?v=20261113175808';
 import { addExp, expToNext, migrateChar, newChar, JOBS as RJOBS, JOB_KEYS, LEARN, RANK_POW, RANK_SEC, LOAD_N, ELEMS, ELEM, UNITS,
-         heroImg, fieldImg, skillName, rankOf, rankCost, canRankUp, rankUp, spUsed, loadoutOf, weakOf, statsOf } from './rikaria-data.js?v=20261113175219';
+         heroImg, fieldImg, skillName, rankOf, rankCost, canRankUp, rankUp, spUsed, loadoutOf, weakOf, statsOf } from './rikaria-data.js?v=20261113175808';
 import { fiscalYear, ENEMIES, TOWN, TOWN_DEFAULT,
          weaponList, armorList, weaponName, armorName, TOWN_MAX, soloDayCap, dayNo, ITEMS, ITEM_KEYS, FACS, RESPEC_COST, ensureOwner, battleGuide,
-         soloMult, soloReward, soloEnemyHp, soloEnemyAtkX, BOSS, cmdImg } from './quest.js?v=20261113175219';
+         soloMult, soloReward, soloEnemyHp, soloEnemyAtkX, BOSS, cmdImg } from './quest.js?v=20261113175808';
 
 var Y = fiscalYear(), me = { g: 0, c: 0, n: 0 }, sid = '', ch = null, CLS = {}, SETS = [], AREAS = [], look = 'a', job = 'mage';
 var curArea = null, HP = 0, MP = 0;
@@ -543,7 +543,9 @@ function checkTouch() {
   var fl = $('fdFlash'); fl.classList.remove('on'); void fl.offsetWidth; fl.classList.add('on');
   setTimeout(function () { startBattle(m); }, 900);
 }
-function say(h) { var m = $('fdMsg'); m.innerHTML = h; m.classList.remove('hide'); }
+/* 吹き出しには「とじる」を付ける（歩いても消える。指で操作すると消し方がわかりにくかった 2026-11-13） */
+function closeBtn(m) { var ft = el('div', 'fd-foot'), b = el('button', 'btn sub', 'とじる'); b.type = 'button'; b.style.fontSize = '1em'; b.onclick = function (e) { e.stopPropagation(); m.classList.add('hide'); }; ft.appendChild(b); m.appendChild(ft); }
+function say(h) { var m = $('fdMsg'); m.innerHTML = h; closeBtn(m); m.classList.remove('hide'); }
 function route(tx, ty) {
   var W = MAPS[FD.key].g[0].length, prev = new Map(), k = function (x, y) { return y * W + x; }, q = [FD.pos];
   prev.set(k(FD.pos[0], FD.pos[1]), null);
@@ -594,7 +596,7 @@ function plaza() {
   var m = $('fdMsg'); m.textContent = '';
   m.appendChild(el('h3', '', '⛲ 広場の噴水')); m.appendChild(npcHead(0));
   m.appendChild(el('div', 'mut', town() + 'の真ん中。' + (MAPS.town.dry ? '噴水はこわれて、水が出ていない。' : '') + 'ボスを倒すたびに、町に知識がもどってくる。'));
-  m.classList.remove('hide');
+  closeBtn(m); m.classList.remove('hide');
 }
 function shop(fi) {
   var f = FACS[fi], m = $('fdMsg'); m.textContent = '';
