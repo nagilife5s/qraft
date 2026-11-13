@@ -78,7 +78,7 @@ test('クラシック：「ランキングは最後だけ」なら途中でラ�
   await stu.click('#btnJoin');
   // 先生：生徒が入ったら開始。終わるまで、ランキングの画面が一度も出ないことを見張る
   await expect(host.locator('#btnStart')).toBeEnabled({ timeout: 20000 });
-  await host.click('#btnStart');
+  await host.click('#btnStart', { force: true });   // このボタンはゆっくり大きさが変わる動きが付いていて、「止まるまで待つ」と押せないまま時間切れになった（2026-11-13）
   let sawRank = false;
   for (let t = 0; t < 120; t++) {
     const on = await host.evaluate(() => [...document.querySelectorAll('.screen.on')].map((s) => s.id));
@@ -116,7 +116,7 @@ async function playOne(browser, exOn) {
   if (!(await stu.locator('#nick').isVisible())) { await stu.fill('#pin', pin); await stu.keyboard.press('Enter'); }
   await stu.fill('#nick', 'テスト'); await stu.click('#btnJoin');
   await expect(host.locator('#btnStart')).toBeEnabled({ timeout: 20000 });
-  await host.click('#btnStart');
+  await host.click('#btnStart', { force: true });   // このボタンはゆっくり大きさが変わる動きが付いていて、「止まるまで待つ」と押せないまま時間切れになった（2026-11-13）
   await expect(host.locator('#s-reveal')).toHaveClass(/on/, { timeout: 40000 });   // 答えずに時間切れ → 正解発表
   return { host, stu, EX };
 }
