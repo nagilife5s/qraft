@@ -4,7 +4,7 @@
  * ・5〜6人の小グループで1つの地面を掘る。掘ったトンネルはみんなで使える。
  * ・生徒が送るのは「向き（0〜4）」と「ドリル」だけ。1ステップ=0.1秒。
  */
-export var W = 28, H = 52;
+export var W = 18, H = 52;   /* 横は28→18（2026-11-13 授業で「出会えない。フィールドを狭く」）。生徒の画面（16列）にほぼ全部入る */
 export var TICK_MS = 100;
 export var RULE = {
   length: 600,     /* 60秒 */
@@ -36,7 +36,7 @@ export var FOSSIL = {
 };
 export var FOSSIL_ORDER = ['vicarya', 'naumann', 'ammonite', 'dino', 'trilobite', 'fusulina', 'shijimi', 'buna', 'coral'];
 /* 1つの地面に埋める数 */
-var PLACE = { vicarya: 16, naumann: 14, shijimi: 4, buna: 4, ammonite: 18, dino: 12, coral: 5, trilobite: 18, fusulina: 15 };
+var PLACE = { vicarya: 10, naumann: 9, shijimi: 3, buna: 3, ammonite: 12, dino: 8, coral: 3, trilobite: 12, fusulina: 10 };   /* 横幅を狭くしたので、密度が同じになるよう減らした */
 var DX = [0, 0, 0, -1, 1], DY = [0, -1, 1, 0, 0];
 
 export function layerAt(y) { var L = LAYERS[0]; for (var i = 0; i < LAYERS.length; i++) if (y >= LAYERS[i].row) L = LAYERS[i]; return L; }
@@ -49,7 +49,7 @@ export function newGame(n, seed) {
     g.cells.push(L.k === 'sky' ? { dug: 1, dmg: 0 } : { dug: 0, dmg: 0, rock: 0 });
   }
   /* かたい岩（ドリルでないと時間がかかる）を少し */
-  for (var r = 0; r < 60; r++) { var rx = Math.floor(rnd(g) * W), ry = 6 + Math.floor(rnd(g) * (H - 7)); if (layerAt(ry).k !== 'ash') cell(g, rx, ry).rock = 1; }
+  for (var r = 0; r < 40; r++) { var rx = Math.floor(rnd(g) * W), ry = 6 + Math.floor(rnd(g) * (H - 7)); if (layerAt(ry).k !== 'ash') cell(g, rx, ry).rock = 1; }
   Object.keys(PLACE).forEach(function (k) { for (var i = 0; i < PLACE[k]; i++) bury(g, k); });
   var gap = W / n;
   for (var i = 0; i < n; i++) { var px = Math.floor(gap * (i + .5)); g.players.push({ x: px, y: 1, mc: 0, d: 0, face: 2, drill: 0, left: RULE.drills, score: 0, got: [], dig: 0 }); }
