@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>リカリア チーム戦（先生）</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
-<link rel="stylesheet" href="theme.css?v=20261113160628">
-<link rel="stylesheet" href="quest.css?v=20261113160628">
-<link rel="stylesheet" href="rikaria.css?v=20261113160628">
+<link rel="stylesheet" href="theme.css?v=20261113170053">
+<link rel="stylesheet" href="quest.css?v=20261113170053">
+<link rel="stylesheet" href="rikaria.css?v=20261113170053">
 <style>
   #app { background:url(img/rikaria/title-bg.webp) center/cover no-repeat, #1d1648; }
   .q-bg-r { background:rgba(10,6,36,.6); }
@@ -113,18 +113,18 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261113160628"></script>
+<script src="firebase-config.js?v=20261113170053"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script type="module">
 import { signIn, db, ref, set, get, update, remove, onValue, serverNow, shuffle, mountSetPicker,
-         decryptSet, prepareQuestion, maskOf, $, showScreen, confetti, qrSvg } from './lib.js?v=20261113160628';
+         decryptSet, prepareQuestion, maskOf, $, showScreen, confetti, qrSvg } from './lib.js?v=20261113170053';
 import { onChildAdded, onChildChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-import { fiscalYear } from './quest.js?v=20261113160628';
+import { fiscalYear } from './quest.js?v=20261113170053';
 import { TOWN, TOWN_DEFAULT, TOWN_MAX, townStart, JOBS, heroImg, statsOf, unitOf, addExp, bossSp, bossTitle, migrateChar, battleBg, LV_MAX, OBLION, OB_FORMS, obNext, obFirst, obTitle, oblionImg, REWARD, ELEM,
-         unitById, unitsOf, advMap, townName, goldOf, isCarry, storyOpen, storyBoss, storyOb, storyEnding } from './rikaria-data.js?v=20261113160628';
-import * as E from './rikaria-engine.js?v=20261113160628';
-import { el, esc, drawField, moveField, cameraOf, ovban, MAP, spiritHtml } from './rikaria-view.js?v=20261113160628';
-import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261113160628b';
+         unitById, unitsOf, advMap, townName, goldOf, isCarry, storyOpen, storyBoss, storyOb, storyEnding } from './rikaria-data.js?v=20261113170053';
+import * as E from './rikaria-engine.js?v=20261113170053';
+import { el, esc, drawField, moveField, cameraOf, ovban, MAP, spiritHtml } from './rikaria-view.js?v=20261113170053';
+import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261113170053b';
 
 wireSoundButtons(); preload(['top']); bgm('top');
 var TS = { '.sv': 'timestamp' };

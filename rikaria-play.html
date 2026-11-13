@@ -6,9 +6,9 @@
 <title>リカリア チーム戦</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261113160628">
-<link rel="stylesheet" href="quest.css?v=20261113160628">
-<link rel="stylesheet" href="rikaria.css?v=20261113160628">
+<link rel="stylesheet" href="theme.css?v=20261113170053">
+<link rel="stylesheet" href="quest.css?v=20261113170053">
+<link rel="stylesheet" href="rikaria.css?v=20261113170053">
 <style>
   #app { background:url(img/rikaria/title-bg.webp) center/cover no-repeat, #1d1648; }
   .q-bg-r { background:rgba(10,6,36,.55); }
@@ -141,13 +141,13 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261113160628"></script>
+<script src="firebase-config.js?v=20261113170053"></script>
 <script type="module">
-import { signIn, db, ref, set, get, update, onValue, serverNow, $, showScreen, confetti } from './lib.js?v=20261113160628';
-import { fiscalYear, ensureOwner, cmdImg } from './quest.js?v=20261113160628';
+import { signIn, db, ref, set, get, update, onValue, serverNow, $, showScreen, confetti } from './lib.js?v=20261113170053';
+import { fiscalYear, ensureOwner, cmdImg } from './quest.js?v=20261113170053';
 import { JOBS, JOB_KEYS, MP_MAX, LEARN, ELEMS, ELEM, heroImg, skillName, rankOf, rankCost, canRankUp, rankUp, loadoutOf, learned, migrateChar, expToNext, unitById, battleBg, weakOf, LOAD_N, OBLION,
-         newChar, ITEMS, carryList, spiritImg, storyBoss, storyOb, TOWN_DEFAULT } from './rikaria-data.js?v=20261113160628';
-import { el, esc, drawField, moveField, cameraOf, cellAt, dmgFx, supportFx, ovban, redflash, MAP, spiritHtml } from './rikaria-view.js?v=20261113160628';
+         newChar, ITEMS, carryList, spiritImg, storyBoss, storyOb, TOWN_DEFAULT } from './rikaria-data.js?v=20261113170053';
+import { el, esc, drawField, moveField, cameraOf, cellAt, dmgFx, supportFx, ovban, redflash, MAP, spiritHtml } from './rikaria-view.js?v=20261113170053';
 
 var TS = { '.sv': 'timestamp' };
 var uid = null, pin = null, state = null, sid = '', ch = null, look = 'a', job = 'warrior', gp = 0;

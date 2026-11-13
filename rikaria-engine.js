@@ -444,12 +444,14 @@ function wipe(G) {
   if (G.kind === 'oblion') { G.ph = 'rest'; G.restT = N.ob.rest; G.foes.forEach(function (f) { f.aim = null; f.chg = 0; }); emit(G, { t: 'wipe', s: '全滅…　' + N.ob.rest + '秒 休んで、HP半分で立ち上がる', big: 1 }); return; }
   G.ph = 'result'; G.resT = 3; G.wiped = true;
   present(G).forEach(function (m) { m.rw.exp = Math.round(m.rw.exp * REWARD.wipeExp); });
-  emit(G, { t: 'wipe', s: '全滅…　この階の入口からやり直し（けいけんちが少し減る）', big: 1 });
+  emit(G, { t: 'wipe', s: G.kind === 'boss' ? '全滅…　ボスの間の入口からやり直し（けいけんちが少し減る）' : '全滅…　この階の入口からやり直し（けいけんちが少し減る）', big: 1 });
 }
 function afterResult(G) {
   var lastKind = G.kind;
   G.foes = []; G.kind = null;
   present(G).forEach(function (m) { if (G.wiped) { m.hp = m.mx; m.dn = 0; } else if (!m.dn) m.hp = Math.min(m.mx, m.hp + Math.round(m.mx * .2)); m.streak = m.keep ? m.streak : m.streak; });
+  /* ボスで全滅：ボスの間の入口からやり直す（HP全回復・ボスも最初から）。前は「5階」の探索にもどり、群れ2回と番人からやり直しになっていた（2026-11-13 テストプレイ） */
+  if (G.wiped && lastKind === 'boss') { G.wiped = false; return startBattle(G, 'boss'); }
   if (G.wiped) { G.wiped = false; G.pos = G.map.start.slice(); G.trail = []; spawnMobs(G); return toExplore(G, ''); }
   if (lastKind === 'boss') {   /* 2周目へ */
     G.lap++; G.fl = 1; G.keys = 0; G.wins = 0; G.bossDown = false; G.pos = G.map.start.slice(); G.trail = []; spawnMobs(G);
