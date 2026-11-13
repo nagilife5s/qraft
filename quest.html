@@ -6,8 +6,8 @@
 <title>Qraft クエスト（ひとりで冒険）</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261113175808">
-<link rel="stylesheet" href="quest.css?v=20261113175808">
+<link rel="stylesheet" href="theme.css?v=20261113183431">
+<link rel="stylesheet" href="quest.css?v=20261113183431">
 <style>
   .hud-btns { display:flex; gap:.4em; }
   .hud-btns .btn { font-size:.85em; padding:.35em .9em; }
@@ -136,14 +136,14 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261113175808"></script>
+<script src="firebase-config.js?v=20261113183431"></script>
 <script type="module">
-import { signIn, db, ref, set, get, $, el, showScreen, shuffle, prepareQuestion, maskOf, isTextCorrect } from './lib.js?v=20261113175808';
+import { signIn, db, ref, set, get, $, el, showScreen, shuffle, prepareQuestion, maskOf, isTextCorrect } from './lib.js?v=20261113183431';
 import { addExp, expToNext, migrateChar, newChar, JOBS as RJOBS, JOB_KEYS, LEARN, RANK_POW, RANK_SEC, LOAD_N, ELEMS, ELEM, UNITS,
-         heroImg, fieldImg, skillName, rankOf, rankCost, canRankUp, rankUp, spUsed, loadoutOf, weakOf, statsOf } from './rikaria-data.js?v=20261113175808';
+         heroImg, fieldImg, skillName, rankOf, rankCost, canRankUp, rankUp, spUsed, loadoutOf, weakOf, statsOf, unitOf, zakoImg, battleBg } from './rikaria-data.js?v=20261113183431';
 import { fiscalYear, ENEMIES, TOWN, TOWN_DEFAULT,
          weaponList, armorList, weaponName, armorName, TOWN_MAX, soloDayCap, dayNo, ITEMS, ITEM_KEYS, FACS, RESPEC_COST, ensureOwner, battleGuide,
-         soloMult, soloReward, soloEnemyHp, soloEnemyAtkX, BOSS, cmdImg } from './quest.js?v=20261113175808';
+         soloMult, soloReward, soloEnemyHp, soloEnemyAtkX, BOSS, cmdImg } from './quest.js?v=20261113183431';
 
 var Y = fiscalYear(), me = { g: 0, c: 0, n: 0 }, sid = '', ch = null, CLS = {}, SETS = [], AREAS = [], look = 'a', job = 'mage';
 var curArea = null, HP = 0, MP = 0;
@@ -166,7 +166,9 @@ function teamOnly(s) { return !!(s.mpOne || s.mpAll); }
 function turnsOf(sec, r) { return Math.max(1, Math.round(sec * RANK_SEC[r] / 5)); }
 var ELM = 'fire';   /* 精霊使いの今の精霊 */
 /* 敵のタイプ（苦手な精霊を決める）。工房の6体は rikaria-data.js の単元の表から */
-var ZTYPE = {}; UNITS[0].z.forEach(function (z) { ZTYPE[z.n] = z.t; });
+/* エリアの敵は、その単元のワスレモノ6体（チーム戦と同じ絵・名前・タイプ。2026-11-13）。前はどの学年も1年の工房の6体だった */
+function unitOfArea(a) { return unitOf(me.g, a.unit); }
+function foeOf(a, k) { var u = unitOfArea(a), z = u.z[k % u.z.length]; return { n: z.n, t: z.t, img: zakoImg(u, k % u.z.length) }; }
 
 /* 施設の人（町の絵とNPC.md 2. 2026-11-13 確定）。FACS と同じ順。say＝村（0〜4）／にぎわう村（5〜8）／町（9〜12） */
 var FAC_NPC = [
@@ -435,7 +437,7 @@ function openField(key, start) {
     : '<b>魔物にぶつかると戦闘</b>。町へもどるには、<b>左はしの出口</b>へ歩くか、右上の「町へもどる」。町にもどるとHPが全回復する。';
   var fh = $('fdHelp'); fh.style.animation = 'none'; void fh.offsetWidth; fh.style.animation = '';   /* 場所が変わるたびに出し直す */
   if (key === 'area') {
-    if (!FD.mobs.length) FD.mobs = [[18, 10], [23, 15], [8, 4], [20, 19], [25, 9], [8, 21], [6, 14]].map(function (p, i) { return { id: ZAKO[(i + curArea.i) % ZAKO.length], x: p[0], y: p[1] }; });
+    if (!FD.mobs.length) FD.mobs = [[18, 10], [23, 15], [8, 4], [20, 19], [25, 9], [8, 21], [6, 14]].map(function (p, i) { return { id: (i + curArea.i) % 6, x: p[0], y: p[1] }; });
     FD.timers.push(setInterval(wander, 1100));
     $('fdTimer').textContent = 'のこりの魔物 ' + FD.mobs.length + '体';
   }
@@ -480,7 +482,7 @@ function drawMap() {
   if (m.fog) h += '<div class="fd-fog f' + m.fog + '"></div>';
   if (FD.key === 'town') NPCS.forEach(function (n) { h += '<div class="npc" style="' + box(n.x, n.y) + ';z-index:' + (n.y * 10 + 5) + '"><img src="img/quest/' + n.img + '.webp" alt=""></div>'; });
   if (FD.key === 'area') h += '<div class="mob boss" style="' + box(35, 11, 3, 3) + ';z-index:135"><img src="' + BOSS.img + '" style="scale:-1 1"></div>';
-  h += '<div id="mobs">' + (FD.key === 'area' ? FD.mobs : []).map(function (mo, i) { return '<div class="mob" data-i="' + i + '" style="' + box(mo.x, mo.y) + ';z-index:' + (mo.y * 10 + 5) + '"><img src="' + ENEMIES[mo.id].img + '"></div>'; }).join('') + '</div>';
+  h += '<div id="mobs">' + (FD.key === 'area' ? FD.mobs : []).map(function (mo, i) { return '<div class="mob" data-i="' + i + '" style="' + box(mo.x, mo.y) + ';z-index:' + (mo.y * 10 + 5) + '"><img src="' + foeOf(curArea, mo.id).img + '"></div>'; }).join('') + '</div>';
   h += '<div id="units"><div class="unit leader" style="' + box(FD.pos[0], FD.pos[1]) + ';z-index:' + (FD.pos[1] * 10 + 9) + '"><span class="nm">' + ch.n + '</span><img class="hero" src="' + fieldImg(ch.j, ch.lk, FD.dir === 'left' ? 'right' : FD.dir) + '" alt=""></div></div>';
   map.innerHTML = h;
   var lu = map.querySelector('#units .unit'); if (lu) { lu.dataset.x = FD.pos[0]; lu.classList.toggle('left', FD.dir === 'left'); }
@@ -685,7 +687,7 @@ function drawWorld() {
     if (a.st === 'lock') { p.appendChild(el('div', 'mut', '前のエリアのボスを倒すと、霧が晴れて入れるようになる。')); }
     else {
       rowx('単元', a.unit); rowx('問題セット', a.sets.length + 'セット');
-      var zk = el('div', 'wm-zako'); [0, 1, 2, 3, 4, 5].forEach(function (k) { var im = el('img'); im.src = ENEMIES[ZAKO[(k + a.i) % ZAKO.length]].img; zk.appendChild(im); }); p.appendChild(zk);
+      var zk = el('div', 'wm-zako'); [0, 1, 2, 3, 4, 5].forEach(function (k) { var im = el('img'); im.src = foeOf(a, k).img; zk.appendChild(im); }); p.appendChild(zk);
       if (a.ar.max) { var bar = el('div', 'bar boss'); var bi = el('i'); bi.style.width = (a.ar.hp / a.ar.max * 100) + '%'; bar.appendChild(bi); bar.appendChild(el('b', '', 'ボスのこりHP ' + Math.round(a.ar.hp / a.ar.max * 100) + '%')); p.appendChild(bar); }
       p.appendChild(el('div', 'mut', a.st === 'clear' ? 'クリアしたエリア。復習しに行ける（経験値は半分）。' : 'ボスは授業のチームモードで、先生の合図で戦う。'));
       var g2 = el('button', a.st === 'clear' ? 'btn sub' : 'btn', a.st === 'clear' ? '復習しに行く' : 'このエリアへ'); g2.onclick = function () { goArea(a); }; p.appendChild(g2);
@@ -781,9 +783,11 @@ async function startBattle(mob) {
   if (!P.q.length) { FD.busy = false; say('<h3>問題が読めない</h3>通信を確かめて、もう一度ためしてください。'); return; }
   var max = soloEnemyHp(curArea.i, me.g);
   /* fx＝続いている効果。t は「あと何問」。stun・slow は敵の攻撃の回数 */
-  B = { mob: mob, e: ENEMIES[mob.id], hp: max, max: max, streak: 0, P: P, t: ZTYPE[ENEMIES[mob.id].n] || 'earth',
+  var foe = foeOf(curArea, mob.id);
+  B = { mob: mob, e: foe, hp: max, max: max, streak: 0, P: P, t: foe.t || 'earth',
         fx: { guard: null, buff: null, regen: null, counter: null, dot: null, mpRate: 0, stun: 0, slow: 0, nextCrit: 0, keep: 0, reveal: 0 } };
-  $('bArea').textContent = curArea.name; $('eimg').src = B.e.img; $('ename').textContent = B.e.n; $('enemy').className = 'enemy';
+  $('bArea').textContent = curArea.name;
+  document.querySelector('#s-battle .bt-bg').style.backgroundImage = "url('" + battleBg(unitOfArea(curArea)) + "')";   /* 背景もその単元の絵 */ $('eimg').src = B.e.img; $('ename').textContent = B.e.n; $('enemy').className = 'enemy';
   $('party').innerHTML = '<div class="mate me"><span class="you">あなた</span><img class="hero" src="' + heroImg(ch.j, ch.lk) + '" alt="">' + ch.n + '</div>';
   showScreen('s-battle'); drawMe(); await battleGuide('solo'); askQ();   /* はじめての戦闘だけ、たたかい方の案内 */
 }

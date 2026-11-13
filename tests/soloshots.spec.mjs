@@ -28,6 +28,13 @@ test('ひとりで冒険：町の育ち方と画面', async ({ browser }) => {
     await p.screenshot({ path: SHOT + '/s1-town-' + st + '.png' });
   }
   await p.locator('#goStat').click(); await p.waitForTimeout(600); await p.screenshot({ path: SHOT + '/s2-stat.png', fullPage: true });
+  // 地図：エリアを押すと、その単元の敵が並ぶ（2年はチーム戦と同じ単元の敵）
+  await p.locator('#statBack').click(); await p.locator('#goWorld').click(); await p.waitForTimeout(500);
+  await p.locator('.wm-node:not(.town)').first().click(); await p.waitForTimeout(800);
+  await p.screenshot({ path: SHOT + '/s3-world.png' });
+  const srcs = await p.locator('.wm-zako img').evaluateAll(els => els.map(e => e.getAttribute('src')));
+  console.log('zako', JSON.stringify(srcs));
+  expect(srcs.length).toBe(6); expect(srcs.every(x => x.includes('img/rikaria/enemy/'))).toBe(true);
   console.log('pageerrors', JSON.stringify(errs));
   expect(errs).toEqual([]);
 });
