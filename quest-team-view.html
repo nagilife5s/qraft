@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="ja" data-bg="lab">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>クエスト チーム戦（モックの画面）</title>
+<!-- モック 第3版の画面。quest-battle-mock.html の中で ?v=proj（投影）/ lead（リーダー）/ mem（あなた）として開く。
+     見た目は quest.css（ソロのフィールド・戦闘画面と同じ部品）。動きは親ページの SIM が持つ -->
+<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="quest.css">
+<style>
+  #s-battle .bt-bg { background-image:url(img/bg/lab.webp); }
+  /* 戦闘のレイアウト（第3版の2）：上＝班の帯、まん中＝敵だけ（大きく）、下＝問題（図は左に大きく） */
+  #s-battle { padding:.7em 1.1em; gap:.5em; }
+  #s-battle .bt-top { gap:.6em; }
+  #s-battle .arena { flex:1 1 0; min-height:22%; }
+  #s-battle .arena .party { display:none; }
+  #s-battle .floor { height:30%; }
+  #s-battle .cmd { flex:0 0 auto; max-height:62%; min-height:0; justify-content:flex-start; padding:.7em 1em; }
+  #s-battle .cmd.has-img { flex:0 0 58%; }
+  #s-battle .cmd.has-img { grid-template-columns:minmax(0,1.15fr) minmax(0,1fr); grid-template-rows:auto 1fr auto auto; }
+  #s-battle .cmd.has-img > .qbox { grid-column:2; grid-row:1; font-size:1.05em; }
+  #s-battle .cmd.has-img { overflow:hidden; }
+  #s-battle .cmd.has-img > .cmd-img { grid-column:1; grid-row:1 / span 4; max-height:100%; min-height:0; height:100%; width:100%; object-fit:contain; }
+  #s-battle .cmd.has-img > :not(.qbox):not(.cmd-img) { grid-column:2; }
+  #s-battle .cmd.has-img > .cmd-img { grid-row:1 / 4; }
+  #s-battle .cmd.has-img > .choices { grid-row:2; align-self:start; }
+  #s-battle .cmd.has-img > .btn { grid-row:3; }
+  #s-battle .cmd.has-img > #skills, #s-battle .cmd.has-img > .who.who, #s-battle .cmd.has-img > .downbox.downbox { grid-column:1 / -1 !important; }
+  #s-battle .cmd.has-img > #skills { grid-row:4; }
+  #s-battle .cmd:not(.has-img) .qbox { font-size:1.35em; }
+  #s-battle .cmd:not(.has-img) .choices button { font-size:1.2em; padding:.8em; }
+  .teambar { display:flex; gap:.35em; background:rgba(14,8,40,.62); border-radius:1em; padding:.3em .7em; }
+  .chip { display:flex; flex-direction:column; align-items:center; font-size:.72em; font-weight:900; width:4.6em; }
+  .chip img { height:2.8em; }
+  .chip .bar { width:100%; height:.45em; }
+  .chip.me { color:var(--q-gold); }
+  .chip.me img { filter:drop-shadow(0 0 .2em #ffd23f); }
+  .chip.ko img { filter:grayscale(1) brightness(.6); }
+  .chip.hurt img { animation:hit .45s; }
+  /* 上の段（1本）：班・まん中（ボスのHPか場所）・自分 */
+  #s-battle .topline { background:rgba(14,8,40,.62); border-radius:1em; padding:.25em .7em; gap:1em; align-items:center; }
+  #s-battle .topline .teambar { background:none; padding:0; }
+  .chip { position:relative; width:4em; font-size:.68em; }
+  .chip img { height:2.3em; }
+  .chip.aimed img { filter:drop-shadow(0 0 .25em #ff3b5c) drop-shadow(0 0 .5em #ff3b5c); }
+  .chip.aimed::before { content:"❗"; position:absolute; top:-.3em; right:.2em; font-size:1.2em; animation:bob .5s ease-in-out infinite; }
+  .chip.healed img { filter:drop-shadow(0 0 .4em #5cf08f); }
+  .midbar { flex:1; display:flex; align-items:center; gap:.6em; font-weight:900; min-width:0; }
+  .midbar .nm { white-space:nowrap; }
+  .midbar .bar.boss { flex:1; height:.55em; }
+  .midbar .st { font-size:.8em; border-radius:999px; padding:0 .7em; white-space:nowrap; }
+  .midbar .st:empty { display:none; }
+  .midbar .st.cg { background:var(--ng); animation:blink .45s infinite alternate; }
+  .midbar .st.br { background:#2f7ce0; }
+  .mystat { width:11em; display:flex; flex-direction:column; gap:.2em; font-size:.8em; }
+  .mystat .bar { height:.75em; }
+  .mystat .lbl { width:1.8em; }
+  /* 予兆：攻撃の前に身をかがめ、だれをねらうか出す */
+  .foes .enemy.wind img { animation:windup .35s ease-in-out infinite alternate; }
+  @keyframes windup { to { transform:translateY(.25em) scale(1.05, .93) rotate(-4deg); filter:brightness(1.2) drop-shadow(0 0 .4em #ff8a3b); } }
+  .windmark { position:absolute; top:-2.6em; white-space:nowrap; font-weight:900; font-size:.8em; background:#ff8a3b; color:#2a1200; border-radius:999px; padding:0 .6em; z-index:6; }
+  .windmark:empty { display:none; }
+  /* 技ごとのエフェクト（敵の上に重ねる） */
+  .dmg small { display:block; font-size:.35em; -webkit-text-stroke:0; text-shadow:0 .1em 0 #000; }
+  .fx { position:absolute; inset:-25% -35% -10%; pointer-events:none; z-index:4; }
+  .fx.slash::before, .fx.blaze::before { content:""; position:absolute; inset:0; background:linear-gradient(125deg, transparent 44%, #fff 48%, #e8f4ff 50%, #fff 52%, transparent 56%); animation:slash .5s ease-out forwards; filter:drop-shadow(0 0 .5em #fff) drop-shadow(0 0 1.2em #9fd8ff); }
+  .fx.blaze::before { background:linear-gradient(125deg, transparent 38%, #ffd23f 45%, #fff 50%, #ff7a1c 55%, transparent 62%); filter:drop-shadow(0 0 .6em #ff7a1c); }
+  .fx.blaze::after { content:""; position:absolute; inset:15%; border-radius:50%; background:radial-gradient(circle, rgba(255,160,40,.7), transparent 65%); animation:boom .6s ease-out forwards; }
+  @keyframes slash { from { clip-path:inset(0 100% 100% 0); } 60% { clip-path:inset(0 0 0 0); opacity:1; } to { clip-path:inset(0 0 0 0); opacity:0; } }
+  .fx.flare::before { content:""; position:absolute; inset:20%; border-radius:50%; background:radial-gradient(circle, #fff 0 10%, #ffd23f 25%, #ff5a1c 50%, transparent 70%); animation:boom .55s ease-out forwards; }
+  @keyframes boom { from { transform:scale(.2); opacity:1; } to { transform:scale(1.6); opacity:0; } }
+  .fx.spark::before { content:""; position:absolute; left:35%; right:35%; top:-20%; bottom:20%; background:#fff6a0; clip-path:polygon(55% 0, 20% 48%, 48% 48%, 25% 100%, 82% 40%, 54% 40%, 78% 0); filter:drop-shadow(0 0 .5em #ffe600) drop-shadow(0 0 1em #7cc8ff); animation:zap .5s steps(2) forwards; }
+  @keyframes zap { 0%, 40% { opacity:1; } 20%, 60% { opacity:.2; } 100% { opacity:0; } }
+  .fx.stellar::before, .fx.stellar::after { content:"★ ✦ ★"; position:absolute; left:0; right:0; top:-40%; text-align:center; font-size:2.4em; color:#fff3b8; text-shadow:0 0 .4em #ffd23f; letter-spacing:.4em; animation:fall .7s ease-in forwards; }
+  .fx.stellar::after { content:"✦ ★ ✦"; animation-delay:.15s; opacity:0; }
+  @keyframes fall { from { transform:translateY(0); opacity:1; } to { transform:translateY(160%); opacity:0; } }
+  .fx.ragna::before { content:""; position:absolute; inset:-10%; background:conic-gradient(from 0deg, transparent 0 10%, #ffd23f 12%, transparent 14% 35%, #fff 37%, transparent 39% 60%, #ffd23f 62%, transparent 64% 85%, #fff 87%, transparent 89%); border-radius:50%; animation:boom .7s ease-out forwards; }
+  .fx.light::before { content:""; position:absolute; left:40%; right:40%; top:-30%; bottom:0; background:linear-gradient(transparent, rgba(255,255,220,.95), transparent); filter:blur(.2em); animation:boom .5s ease-out forwards; }
+  .quake { animation:quake .4s; }
+  @keyframes quake { 25% { transform:translate(.4em, -.2em); } 50% { transform:translate(-.4em, .2em); } 75% { transform:translate(.2em, .1em); } }
+  /* ド派手：衝撃の輪・飛び散る火花・技名のカットイン */
+  .ring { position:absolute; left:50%; top:45%; width:6em; height:6em; margin:-3em 0 0 -3em; border-radius:50%; border:.35em solid var(--rc, #fff); box-shadow:0 0 1em var(--rc, #fff), inset 0 0 1em var(--rc, #fff); pointer-events:none; z-index:5; animation:ring .55s ease-out forwards; }
+  .ring.big { border-width:.6em; animation-duration:.8s; }
+  @keyframes ring { from { transform:scale(.2); opacity:1; } to { transform:scale(var(--rs, 3)); opacity:0; } }
+  .pt { position:absolute; left:50%; top:45%; width:.55em; height:.55em; border-radius:50%; background:var(--pc, #fff); box-shadow:0 0 .6em var(--pc, #fff), 0 0 1.2em var(--pc, #fff); pointer-events:none; z-index:5; animation:pt var(--pd, .7s) cubic-bezier(.1,.8,.3,1) forwards; }
+  @keyframes pt { from { transform:translate(0,0) scale(1.3); opacity:1; } to { transform:translate(var(--dx), var(--dy)) scale(.2); opacity:0; } }
+  .hitflash { position:absolute; inset:0; z-index:4; pointer-events:none; background:radial-gradient(circle at 50% 45%, rgba(255,255,255,.95), transparent 55%); mix-blend-mode:screen; animation:rf .35s forwards; }
+  .cutin { position:absolute; left:-10%; right:-10%; top:34%; z-index:35; pointer-events:none; text-align:center; font-weight:900; font-size:2.6em; color:#fff; padding:.15em 0; transform:skewY(-4deg);
+           background:linear-gradient(90deg, transparent, var(--cc, rgba(40,20,120,.9)) 15%, var(--cc, rgba(40,20,120,.9)) 85%, transparent); text-shadow:0 .08em 0 #000, 0 0 .5em var(--cg, #7cc8ff); letter-spacing:.12em; animation:cutin 1s cubic-bezier(.2,1,.3,1) forwards; }
+  .cutin small { display:block; font-size:.38em; letter-spacing:0; opacity:.85; }
+  .cutin.ult { font-size:3.6em; top:28%; --cc:rgba(140,60,0,.92); --cg:#ffd23f; color:#fff3b8; }
+  @keyframes cutin { 0% { transform:skewY(-4deg) translateX(60%); opacity:0; } 18% { transform:skewY(-4deg) translateX(0); opacity:1; } 80% { transform:skewY(-4deg) translateX(-3%); opacity:1; } 100% { transform:skewY(-4deg) translateX(-60%); opacity:0; } }
+  .quake.big { animation:quakeBig .6s; }
+  @keyframes quakeBig { 10% { transform:translate(1em, -.5em) rotate(.6deg); } 30% { transform:translate(-1em, .6em) rotate(-.6deg); } 50% { transform:translate(.7em, .3em); } 70% { transform:translate(-.5em, -.3em); } 90% { transform:translate(.2em, .1em); } }
+  .dmg { font-size:3.2em; }
+  .dmg.crit { font-size:4.4em; color:#ffd23f; text-shadow:0 0 .4em #ff7a1c; }
+  .ultflash { position:absolute; inset:0; background:#fff7d0; pointer-events:none; z-index:30; animation:rf .6s; }
+  .foes { position:absolute; left:2%; right:2%; top:0; bottom:3%; display:flex; justify-content:space-around; align-items:flex-end; gap:1%; }
+  .foes .enemy { position:relative; right:auto; bottom:auto; flex:1; min-width:0; cursor:pointer; transition:filter .2s; }
+  .foes .enemy img { max-width:100%; object-fit:contain; }
+  .foes .enemy .etag { font-size:.95em; }
+  .foes .enemy .etag .bar { width:8em; }
+  .foes .enemy.tg .etag span { background:var(--q-gold); color:var(--ink-dark); }
+  .foes .enemy .aim { position:absolute; top:-1.5em; font-weight:900; color:var(--q-gold); text-shadow:0 .08em 0 rgba(0,0,0,.6); animation:bob 1s ease-in-out infinite; white-space:nowrap; }
+  .foes .enemy.chg img { filter:drop-shadow(0 0 .5em #ff3b5c) drop-shadow(0 0 1.2em #ff3b5c); animation:shiver .25s linear infinite; }
+  .foes .enemy.dead { pointer-events:none; }
+  .foes .enemy.dead img { animation:down .7s forwards; }
+  .foes .enemy.dead .etag { opacity:0; transition:opacity .5s; }
+  .etag .cg { background:var(--ng) !important; color:#fff !important; animation:blink .45s infinite alternate; }
+  @keyframes shiver { 0%,100% { transform:translateX(0); } 50% { transform:translateX(.12em); } }
+  @keyframes blink { to { opacity:.45; } }
+  .mate .bar.hp { width:5.2em; height:.55em; }
+  .mate.me .bar.hp { width:7em; height:.7em; }
+  .mate.hurt .hero { animation:hit .45s; }
+  .ovban { position:absolute; left:0; right:0; top:32%; text-align:center; font-weight:900; font-size:2.1em; text-shadow:0 .1em 0 #000, 0 0 .6em #000; z-index:30; pointer-events:none; animation:ovb 2s forwards; }
+  .ovban.big { color:#ff8a9a; font-size:2.5em; }
+  @keyframes ovb { 0% { opacity:0; transform:scale(.6); } 12% { opacity:1; transform:scale(1.08); } 20% { transform:scale(1); } 85% { opacity:1; } 100% { opacity:0; } }
+  .redflash { position:absolute; inset:0; background:#ff2040; opacity:0; pointer-events:none; z-index:25; animation:rf .5s; }
+  @keyframes rf { 30% { opacity:.35; } }
+  .cmd .who { font-size:.85em; opacity:.8; }
+  .skillrow { display:flex; gap:.5em; justify-content:flex-end; align-items:center; }
+  .skillrow .lbl2 { font-weight:900; font-size:.8em; opacity:.7; }
+  .tgtrow { display:flex; gap:.35em; align-items:center; margin-right:auto; }
+  .tgtrow button { font:inherit; font-weight:900; font-size:.8em; display:flex; align-items:center; gap:.3em; border:.15em solid rgba(255,255,255,.3); background:rgba(255,255,255,.1); color:#fff; border-radius:999px; padding:.15em .7em .15em .2em; cursor:pointer; }
+  .tgtrow button img { height:1.8em; }
+  .tgtrow button.on { background:var(--q-gold); color:var(--ink-dark); border-color:var(--q-gold); }
+  .tgtrow button.dead { opacity:.25; pointer-events:none; }
+  .tgtrow button.cg { border-color:var(--ng); box-shadow:0 0 .5em var(--ng); }
+  .tgtrow kbd { font:inherit; font-size:.8em; background:rgba(0,0,0,.35); border-radius:.3em; padding:0 .3em; }
+  .foes .enemy:hover img { filter:brightness(1.25) drop-shadow(0 0 .4em #ffd23f); }
+  .foes .enemy .hint { position:absolute; bottom:-.2em; font-size:.75em; font-weight:900; opacity:0; transition:opacity .2s; white-space:nowrap; text-shadow:0 .08em 0 #000; }
+  .foes .enemy:hover .hint { opacity:1; }
+  .skillrow .act { flex-direction:row; gap:.5em; padding:.35em .9em; }
+  .downbox { background:#5a1830; border-radius:.7em; padding:.4em .8em; font-weight:900; text-align:center; }
+  .bt-top .team { display:flex; gap:.6em; }
+  /* 練習（探索中の班員） */
+  #s-prac { gap:.9em; }
+  #s-prac .cmd { flex:1; justify-content:flex-start; }
+  .prac-head { display:flex; gap:.8em; align-items:center; }
+  .prac-head .panel { padding:.5em 1em; }
+  /* フィールド */
+  .door-lock { position:absolute; display:flex; align-items:center; justify-content:center; font-size:1em; z-index:200; pointer-events:none; }
+  /* 投影 */
+  #s-proj { padding:.6em; gap:.5em; background:#0a0720; }
+  .pj-head { display:flex; justify-content:space-between; align-items:center; font-weight:900; }
+  .pj-head .q-title { font-size:1.5em; }
+  .pj-grid { flex:1; display:grid; grid-template-columns:repeat(3,1fr); grid-template-rows:1fr 1fr; gap:.5em; min-height:0; }
+  .tm { position:relative; border-radius:.7em; overflow:hidden; border:.15em solid rgba(255,255,255,.25); background:#1a1238; min-height:0; }
+  .tm.mine { border-color:var(--q-gold); box-shadow:0 0 .8em rgba(255,210,63,.5); }
+  .tm .th { position:absolute; left:0; right:0; top:0; z-index:40; display:flex; justify-content:space-between; padding:.25em .6em; font-weight:900; background:rgba(14,8,40,.75); }
+  .tm .th .k { color:var(--q-gold); }
+  .tm .mbg { position:absolute; inset:-1em; background:url(img/bg/lab.webp) center/cover; filter:blur(4px) brightness(.5); }
+  .tm .mfoes { position:absolute; right:3%; top:16%; bottom:30%; left:38%; display:flex; justify-content:space-around; align-items:flex-end; }
+  .tm .mfoe { display:flex; flex-direction:column; align-items:center; height:100%; justify-content:flex-end; flex:1; min-width:0; position:relative; }
+  .tm .mfoe img { max-height:80%; max-width:100%; object-fit:contain; animation:bob 2.4s ease-in-out infinite; }
+  .tm .mfoe .bar { width:80%; height:.5em; margin-top:.2em; }
+  .tm .mfoe.dead { opacity:0; transition:opacity .6s; }
+  .tm .mfoe.chg img { filter:drop-shadow(0 0 .4em #ff3b5c); }
+  .tm .mfoe .cgt { position:absolute; top:0; background:var(--ng); border-radius:999px; padding:0 .5em; font-size:.75em; font-weight:900; animation:blink .45s infinite alternate; }
+  .tm .mparty { position:absolute; left:3%; bottom:5%; right:40%; display:flex; gap:.2em; align-items:flex-end; }
+  .tm .mparty span { flex:1; display:flex; flex-direction:column; align-items:center; font-size:.7em; font-weight:900; }
+  .tm .mparty img { height:3.2em; }
+  .tm .mparty .bar { width:90%; height:.4em; }
+  .tm .mparty .ko img { filter:grayscale(1) brightness(.6); transform:rotate(-70deg); }
+  .tm .pdmg { position:absolute; top:10%; font-weight:900; font-size:1.6em; color:#fff; -webkit-text-stroke:.05em #2a1280; animation:dmg 1s forwards; pointer-events:none; }
+  .tm .mfield { position:absolute; inset:0; overflow:hidden; }
+  .tm .mfield .fd-map { transition:transform .25s linear; }
+  .tm .status { position:absolute; left:0; right:0; bottom:0; z-index:40; text-align:center; font-weight:900; font-size:.85em; padding:.2em; background:rgba(14,8,40,.7); }
+  .tm .ovban { font-size:1.4em; }
+  /* ボス戦 */
+  #s-battle.boss .bt-bg { background-image:url(img/bg/fantasy.webp); filter:blur(5px) brightness(.35) saturate(1.3) hue-rotate(-30deg); }
+  #s-battle.boss .floor { background:radial-gradient(ellipse 60% 70% at 50% 30%, rgba(255,90,120,.35), transparent 70%), linear-gradient(transparent, rgba(0,0,0,.4)); }
+  .foes .enemy.final { flex:2.2; }
+  .foes .enemy.final .etag { display:none; }
+  .bossbar { position:relative; z-index:2; display:flex; align-items:center; gap:.7em; font-weight:900; font-size:1.05em; background:rgba(14,8,40,.72); border:.12em solid rgba(255,120,140,.55); border-radius:999px; padding:.3em 1em; }
+  .bossbar .nm { white-space:nowrap; color:#ffd0d8; }
+  .bossbar .bar { flex:1; }
+  .bossbar .st { font-size:.8em; background:var(--q-panel); border-radius:999px; padding:0 .7em; }
+  .bossbar .st.cg { background:var(--ng); animation:blink .45s infinite alternate; }
+  .bossbar .st.br { background:#2f7ce0; }
+  .foes .enemy.barrier::after { content:""; position:absolute; left:50%; transform:translateX(-50%); aspect-ratio:1; top:4%; bottom:2%; border-radius:50%; border:.25em solid rgba(124,200,255,.9); background:radial-gradient(circle, rgba(124,200,255,.05) 50%, rgba(124,200,255,.35)); box-shadow:0 0 1.2em #7cc8ff; animation:glow 1.2s ease-in-out infinite alternate; pointer-events:none; z-index:3; }
+  .dmg.guard { color:#9fd8ff; font-size:1.8em; }
+  #s-clear { gap:1em; }
+  #s-clear .clbox { background:rgba(14,8,40,.82); border:.15em solid rgba(255,210,63,.6); border-radius:1.4em; padding:1.2em 2em; display:flex; flex-direction:column; align-items:center; gap:.9em; box-shadow:0 .4em 1.5em rgba(0,0,0,.5); }
+  #s-clear .lvup { -webkit-text-stroke:0; text-shadow:0 .08em 0 #2a1280; font-size:2.2em; }
+  #s-clear .story { background:none; box-shadow:none; padding:0; }
+  #s-clear .reward .card { min-width:10em; background:rgba(14,8,40,.78); color:#fff; padding:.8em 1em; border-radius:1em; }
+  #s-clear .reward .card small { display:block; opacity:.7; font-weight:800; }
+  .tm .mfoe.final { flex:2.4; }
+  .tm .mfoe.barrier img { filter:drop-shadow(0 0 .5em #7cc8ff) drop-shadow(0 0 .2em #7cc8ff); }
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- 投影：全班 -->
+<section class="screen" id="s-proj">
+  <div class="pj-head"><div><span class="q-sub">2年3組 ・ 天気の変化のダンジョン</span> <span class="q-title">クエスト</span></div><div class="panel" style="padding:.3em 1em">のこり <b style="color:var(--q-gold)">4:12</b></div></div>
+  <div class="pj-grid" id="pjGrid"></div>
+</section>
+
+<!-- リーダー：フィールド（ソロと同じ部品） -->
+<section class="screen" id="s-town">
+  <div class="fd-hud">
+    <div class="panel fd-place">
+      <div class="q-sub">2班 ・ 天気の変化のダンジョン</div>
+      <b id="fdName"></b>
+      <div class="fd-timer" id="fdTimer"></div>
+    </div>
+    <div class="grow"></div>
+    <div class="panel row" style="padding:.5em .9em"><img class="hero sm" id="hudHero" alt=""><div><b>リーダー</b><span class="you-lead">先頭</span></div></div>
+  </div>
+  <div class="fd-wrap" id="wrap"><div class="fd-map" id="map"></div></div>
+  <div class="fd-help" id="fdHelp">矢印キー（WASD）か、行きたい場所をクリックで移動。<b>魔物にぶつかると戦闘</b>。群れを倒すと、奥の番人の部屋の扉が開く。</div>
+  <div class="fd-msg hide" id="fdMsg"></div>
+  <div class="fd-flash" id="fdFlash"></div>
+</section>
+
+<!-- 班員：探索中の練習 -->
+<section class="screen q-bg-lab" id="s-prac">
+  <div class="prac-head">
+    <div class="panel grow"><div class="q-sub">2班 ・ 天気の変化のダンジョン</div><b id="pracPlace" style="font-size:1.3em"></b></div>
+    <div class="panel me-stat" id="pracStat"></div>
+  </div>
+  <div class="cmd" id="pracCmd"></div>
+</section>
+
+<!-- 戦闘（ソロの戦闘画面と同じ部品。敵は2〜3体） -->
+<section class="screen" id="s-battle">
+  <div class="bt-bg"></div>
+  <div class="bt-top topline">
+    <div class="teambar" id="teambar"></div>
+    <div class="midbar" id="midbar"><span class="nm" id="midNm"></span><div class="bar boss hide" id="bossHp"><i></i></div><span class="st" id="midSt"></span></div>
+    <div class="mystat" id="bStat"></div>
+  </div>
+  <div class="arena" id="arena">
+    <div class="floor"></div>
+    <div class="party" id="party"></div>
+    <div class="foes" id="foes"></div>
+  </div>
+  <div class="cmd" id="cmd"></div>
+</section>
+
+<!-- ボスを倒した -->
+<section class="screen center q-bg-town" id="s-clear">
+  <div class="clbox">
+  <div class="lvup" id="clTitle"></div>
+  <div class="q-sub">2班 ・ 天気の変化のダンジョン クリア</div>
+  <div class="reward">
+    <div class="card panel"><small>けいけんち</small><b>+300</b></div>
+    <div class="card panel"><small>ゴールド</small><b>💰 +200</b></div>
+    <div class="card panel"><small>称号（ひとりひとりに）</small><b style="font-size:1.3em">天気を晴らす者</b></div>
+    <div class="card panel"><small>クラスの町</small><b style="font-size:1.3em">発展 +1</b></div>
+  </div>
+  <div class="story panel" style="max-width:34em;text-align:center">アルケミラが封じていた「天気の知識」が町にもどった。<br>ダンジョンは2周目に入る。敵が強くなり、奥には裏ボスがひそんでいる…</div>
+  <button class="btn" id="btn2nd">2周目へ</button>
+  </div>
+</section>
+
+</div>
+<script>
+var V = new URLSearchParams(location.search).get('v') || 'mem';
+var $ = function (id) { return document.getElementById(id); };
+function el(t, c, txt) { var e = document.createElement(t); if (c) e.className = c; if (txt != null) e.textContent = txt; return e; }
+function show(id) { document.querySelectorAll('.screen').forEach(function (s) { s.classList.toggle('on', s.id === id); }); }
+function heroImg(m) { return 'img/quest/hero-' + m.j + '-' + m.lk + '.webp'; }
+var S = null;
+
+(function wait() { if (parent.SIM && parent.SIM.ready) { S = parent.SIM; S.views.push(onEvent); onEvent({ t: 'explore' }); } else setTimeout(wait, 100); })();
+
+function onEvent(ev) {
+  if (V === 'proj') return proj(ev);
+  var who = V === 'lead' ? S.lead : S.me;
+  if (S.phase === 'clear') return clearView(ev);
+  if (S.phase === 'explore' || S.phase === 'enc') {
+    if (V === 'lead') field(ev); else prac(ev, who);
+  } else battle(ev, who);
+}
+
+/* ============================================================ フィールド（ソロの drawMap と同じつくり） */
+var TILE_CLS = { k: 't-floor', '#': 't-wall', c: 't-carpet', '<': 't-exitw', D: 't-carpet' };
+var PROPS = { s: ['prop-shelf', 1.4], t: ['prop-labtable', 1.15], x: ['prop-crystal', 1.2], q: ['prop-cauldron', 1.15], y: ['prop-bookshelf', 1.8], p: ['prop-pipes', 1.2], z: ['prop-sacks', 1.1] };
+var FTS = 40, path = [], walkId = null, lastFloor = 0;
+function drawField(mapEl, ts, mini) {
+  var g = S.map.g, W = g[0].length, H = g.length, open = S.wins >= S.need;
+  function box(x, y, w, h) { return 'left:' + x * ts + 'px;top:' + y * ts + 'px;width:' + (w || 1) * ts + 'px;height:' + (h || 1) * ts + 'px'; }
+  mapEl.style.width = W * ts + 'px'; mapEl.style.height = H * ts + 'px'; mapEl.style.fontSize = ts * .5 + 'px';
+  var h = '', props = '';
+  g.forEach(function (r, y) { r.forEach(function (c, x) {
+    var pr = PROPS[c], cls = pr ? 't-floor' : (c === 'D' && !open ? 't-wall' : TILE_CLS[c]);
+    if (cls === 't-floor' && (x + y) % 2) cls += ' alt';
+    if (c === '#' && (g[y + 1] == null || g[y + 1][x] === '#')) cls += ' top';
+    if ((c === 'c' || c === 'D') && g[y - 1] && g[y - 1][x] === 'c' && g[y + 1] && g[y + 1][x] === 'c') cls += ' v';
+    h += '<div class="tile ' + cls + '" style="' + box(x, y) + '"></div>';
+    if (pr) { var s = pr[1]; props += '<img class="prop" src="img/quest/' + pr[0] + '.webp" style="left:' + (x + .5 - s / 2) * ts + 'px;top:' + (y + 1 - s) * ts + 'px;width:' + s * ts + 'px;height:' + s * ts + 'px;z-index:' + (y * 10 + 4) + '">'; }
+  }); });
+  h += props;
+  if (!open) h += '<div class="door-lock" style="' + box(S.map.door[0], S.map.door[1]) + '">🔒</div>';
+  var gd = S.map.guard;
+  h += '<div class="mob boss" style="' + box(gd[0] - .5, gd[1] - 1, 2, 2) + ';z-index:' + (gd[1] * 10 + 6) + '"><img src="img/quest/metarich.webp" style="scale:-1 1"></div>';
+  h += S.mobs.map(function (m, i) { return '<div class="mob" data-i="' + i + '" style="' + box(m.x, m.y) + ';z-index:' + (m.y * 10 + 5) + '"><img src="' + S.ENEMIES[m.id].img + '"></div>'; }).join('');
+  h += '<div class="unit leader" id="' + (mini ? '' : 'me-unit') + '" style="' + box(S.pos[0], S.pos[1]) + ';z-index:' + (S.pos[1] * 10 + 9) + '">' + (mini ? '' : '<span class="nm">リーダー</span>') + '<img class="hero" src="' + heroImg(S.lead) + '" alt=""></div>';
+  mapEl.innerHTML = h;
+}
+function cameraOf(wrapEl, mapEl, ts) {
+  var r = wrapEl.getBoundingClientRect(), W = S.map.g[0].length * ts, H = S.map.g.length * ts;
+  var cx = Math.min(0, Math.max(r.width - W, r.width / 2 - (S.pos[0] + .5) * ts)), cy = Math.min(0, Math.max(r.height - H, r.height / 2 - (S.pos[1] + .5) * ts));
+  mapEl.style.transform = 'translate(' + (W < r.width ? (r.width - W) / 2 : cx) + 'px,' + (H < r.height ? (r.height - H) / 2 : cy) + 'px)';
+}
+function field(ev) {
+  if (!$('s-town').classList.contains('on') || ev.t === 'explore') {
+    show('s-town');
+    var r = $('wrap').getBoundingClientRect(); FTS = Math.max(24, Math.floor(Math.min(r.width / 17, r.height / 10.5)));
+    $('map').style.transition = 'none'; drawField($('map'), FTS, false); cameraOf($('wrap'), $('map'), FTS);
+    requestAnimationFrame(function () { requestAnimationFrame(function () { $('map').style.transition = ''; }); });
+    $('hudHero').src = heroImg(S.lead);
+    if (ev.s) say('<h3>' + ev.s + '</h3>');
+  }
+  $('fdName').textContent = S.floor + '階';
+  $('fdTimer').textContent = '群れ ' + S.wins + '/' + S.need + (S.wins >= S.need ? '　→ 番人の部屋が開いた！' : '') + '　🔑 ' + S.keys + '/4';
+  if (ev.t === 'move') { var u = $('me-unit'); u.classList.add('walk'); u.style.left = S.pos[0] * FTS + 'px'; u.style.top = S.pos[1] * FTS + 'px'; u.style.zIndex = S.pos[1] * 10 + 9; cameraOf($('wrap'), $('map'), FTS); clearTimeout(u._t); u._t = setTimeout(function () { u.classList.remove('walk'); }, 260); }
+  if (ev.t === 'mobs') S.mobs.forEach(function (m, i) { var e = document.querySelector('#map .mob[data-i="' + i + '"]'); if (e) { e.style.left = m.x * FTS + 'px'; e.style.top = m.y * FTS + 'px'; e.style.zIndex = m.y * 10 + 5; } });
+  if (ev.t === 'enc') { path = []; var f = $('fdFlash'); f.classList.remove('on'); void f.offsetWidth; f.classList.add('on'); }
+  if (ev.t === 'say') say('<h3>' + ev.s + '</h3>');
+}
+function say(h) { var m = $('fdMsg'); m.innerHTML = h; m.classList.remove('hide'); clearTimeout(m._t); m._t = setTimeout(function () { m.classList.add('hide'); }, 2600); }
+var KEYS = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0], w: [0, -1], s: [0, 1], a: [-1, 0], d: [1, 0] };
+addEventListener('keydown', function (e) { if (V === 'mem' && S && S.phase === 'battle' && /^[1-3]$/.test(e.key)) { S.setTarget(S.me, +e.key - 1); return; } if (V !== 'lead' || !S) return; var k = KEYS[e.key]; if (k) { e.preventDefault(); path = []; S.step(k[0], k[1]); } });
+$('wrap').addEventListener('click', function (e) {
+  if (V !== 'lead' || S.phase !== 'explore') return;
+  var r = $('map').getBoundingClientRect(), tx = Math.floor((e.clientX - r.left) / FTS), ty = Math.floor((e.clientY - r.top) / FTS);
+  var W = S.map.g[0].length, prev = new Map(), k = function (x, y) { return y * W + x; }, q = [S.pos];
+  prev.set(k(S.pos[0], S.pos[1]), null);
+  while (q.length) { var p = q.shift(); if (p[0] === tx && p[1] === ty) break;
+    [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(function (d) { var nx = p[0] + d[0], ny = p[1] + d[1]; if (prev.has(k(nx, ny)) || S.cell(nx, ny) === undefined) return; if (S.blocked(nx, ny) && !(nx === tx && ny === ty)) return; prev.set(k(nx, ny), p); q.push([nx, ny]); }); }
+  path = []; var cur = prev.has(k(tx, ty)) ? [tx, ty] : null;
+  while (cur && !(cur[0] === S.pos[0] && cur[1] === S.pos[1])) { path.unshift(cur); cur = prev.get(k(cur[0], cur[1])); }
+});
+setInterval(function () { if (V !== 'lead' || !S || !path.length || S.phase !== 'explore') return; var p = path[0]; if (S.step(p[0] - S.pos[0], p[1] - S.pos[1])) path.shift(); else if (S.phase !== 'explore' || S.blocked(p[0], p[1])) path = []; }, 220);
+
+/* ============================================================ 問題（練習・戦闘で共通） */
+var answering = false, sel = [];
+function statHtml(m) {
+  return '<div class="row" style="gap:.4em"><span class="lbl">HP</span><div class="bar hp grow"><i style="width:' + (100 * m.hp / m.max) + '%"></i><b>' + m.hp + '/' + m.max + '</b></div></div>' +
+         '<div class="row" style="gap:.4em"><span class="lbl">MP</span><div class="bar mp grow"><i style="width:' + (m.mp / 5 * 100) + '%"></i><b>' + m.mp + '/5</b></div></div>';
+}
+function drawQ(box, m, inBattle) {
+  var q = S.getQ(m); sel = [];
+  box.textContent = ''; box.classList.toggle('has-img', !!q.image);
+  if (inBattle && m.down) box.appendChild(el('div', 'downbox', '💤 たおれてしまった…　あと ' + (3 - m.down) + '問 正解で復活'));
+  var qb = el('div', 'qbox'); qb.appendChild(el('span', 'qnum', (inBattle ? (m.down ? '復活の問題' : 'ねらい：' + tgtName(m)) : '練習問題（正解でMP +1）') + (q.multi ? '（' + q.correct.length + 'つ選ぶ）' : '')));
+  qb.appendChild(document.createTextNode(q.text)); box.appendChild(qb);
+  if (q.image) { var im = el('img', 'qimg cmd-img'); im.src = q.image; im.alt = ''; box.appendChild(im); }
+  var chs = el('div', 'choices'), sub;
+  q.choices.forEach(function (c, i) {
+    var b = el('button', '', c); b.type = 'button'; if (V === 'lead') b.disabled = true;
+    b.onclick = function () {
+      if (!q.multi) return submit(box, m, [i], inBattle);
+      var k = sel.indexOf(i); if (k >= 0) sel.splice(k, 1); else if (sel.length < q.correct.length) sel.push(i);
+      chs.querySelectorAll('button').forEach(function (x, j) { x.classList.toggle('sel', sel.indexOf(j) >= 0); });
+      sub.disabled = sel.length !== q.correct.length;
+    };
+    chs.appendChild(b);
+  });
+  box.appendChild(chs);
+  if (q.multi) { sub = el('button', 'btn', '答える'); sub.disabled = true; sub.style.alignSelf = 'center'; sub.onclick = function () { submit(box, m, sel.slice(), inBattle); }; box.appendChild(sub); }
+  if (inBattle) box.appendChild(skillRow(m));
+  if (V === 'lead') box.appendChild(el('div', 'who', '（モック）リーダーも戦闘では答えて攻撃する。ここでは自動で答えています'));
+}
+function tgtName(m) { var f = S.foes[m.tgt]; return f ? f.n : '-'; }
+function skillRow(m) {
+  var row = el('div', 'skillrow'); row.id = 'skills';
+  /* ねらい：ここのボタン・敵をクリック・キーの 1 2 3 で変えられる */
+  var tg = el('div', 'tgtrow'); tg.id = 'tgtrow'; tg.appendChild(el('span', 'lbl2', 'ねらい'));
+  S.foes.forEach(function (f, i) {
+    var b = el('button'); b.type = 'button'; b.dataset.i = i; b.disabled = V === 'lead';
+    b.innerHTML = '<kbd>' + (i + 1) + '</kbd><img src="' + f.img + '" alt="">' + f.n;
+    b.onclick = function () { S.setTarget(m, i); }; tg.appendChild(b);
+  });
+  row.appendChild(tg);
+  row.appendChild(el('span', 'lbl2', '技'));
+  S.JOBS[m.j].acts.forEach(function (a, i) {
+    if (!a.mp) return;
+    var b = el('button', 'act' + (a.ult ? ' ult' : '')); b.type = 'button';
+    b.appendChild(el('b', '', a.n)); b.appendChild(el('span', 'mp', 'MP ' + a.mp));
+    b.dataset.mp = a.mp; b.disabled = m.mp < a.mp || m.down || V === 'lead';
+    b.onclick = function () { S.skill(m, i); };
+    row.appendChild(b);
+  });
+  return row;
+}
+function submit(box, m, mask, inBattle) {
+  if (answering) return; answering = true;
+  var q = S.getQ(m), ok = S.answer(m, mask);
+  box.querySelectorAll('button').forEach(function (b) { b.disabled = true; });
+  box.querySelectorAll('.choices button').forEach(function (b, i) { var c = q.correct.indexOf(i) >= 0; b.classList.remove('sel'); b.classList.add(c ? 'right' : 'dim'); });
+  box.appendChild(el('div', 'banner ' + (ok ? 'ok' : 'ng'), ok ? (inBattle ? (m.down ? '✓ せいかい！' : '✓ せいかい！ ' + tgtName(m) + 'に攻撃！') : '✓ せいかい！ MP +1') : '✕ ざんねん…'));
+  if (q.ex && !ok) box.appendChild(el('div', 'qex', '💡 ' + q.ex));
+  setTimeout(function () { answering = false; redrawQ(); }, ok ? 700 : 1600);
+}
+function redrawQ() {
+  var who = V === 'lead' ? S.lead : S.me;
+  if (S.phase === 'battle') drawQ($('cmd'), who, true); else if (S.phase === 'explore') drawQ($('pracCmd'), who, false);
+}
+
+/* ============================================================ 練習（探索中の班員） */
+function prac(ev, m) {
+  if (!$('s-prac').classList.contains('on')) { show('s-prac'); drawQ($('pracCmd'), m, false); }
+  $('pracPlace').textContent = 'リーダーが ' + S.floor + '階を探索中　群れ ' + S.wins + '/' + S.need + '　🔑 ' + S.keys + '/4';
+  $('pracStat').innerHTML = statHtml(m);
+  if (ev.t === 'enc') ovban($('s-prac'), '魔物とぶつかった！');
+  if (ev.s && ev.t === 'explore') ovban($('s-prac'), ev.s);
+}
+
+/* ============================================================ 戦闘 */
+var POS = { 1: [[0, 96]], 2: [[0, 90], [0, 94]], 3: [[0, 88], [0, 94], [0, 86]] };   /* 右からの位置・高さ（％） */
+function battle(ev, m) {
+  if (!$('s-battle').classList.contains('on') || ev.t === 'start') {
+    show('s-battle'); $('s-battle').classList.toggle('boss', !!S.isBoss);
+    buildFoes(m); answering = false; drawQ($('cmd'), m, true);
+  }
+  if (ev.t === 'summon') { buildFoes(m); var old = $('skills'); if (old) old.replaceWith(skillRow(m)); }
+  bossBar();
+  $('bStat').innerHTML = statHtml(m);
+  drawParty(ev, m); updFoes(m);
+  document.querySelectorAll('#tgtrow button').forEach(function (b) { var i = +b.dataset.i, f = S.foes[i]; b.classList.toggle('on', i === m.tgt && f.hp > 0); b.classList.toggle('dead', f.hp <= 0); b.classList.toggle('cg', f.chg > 0 && f.hp > 0); });
+  var sk = $('skills'); if (sk) sk.querySelectorAll('.act').forEach(function (b) { b.disabled = m.mp < +b.dataset.mp || m.down || V === 'lead'; });
+  if (ev.t === 'hit') S.fx.slice(-1).forEach(function (f) { if (!f.shown || !f.shown[V]) { (f.shown = f.shown || {})[V] = 1; dmgFx(f); } });
+  if (ev.s && ev.t !== 'explore') ovban($('arena'), ev.s, ev.big || ev.lose);
+  if (ev.t === 'ban' && ev.big) flash($('s-battle'));
+  if (ev.t === 'atk' && ev.who === m.id) flash($('s-battle'));
+  if ((ev.t === 'revive' && ev.who === m.id) || (ev.t === 'tick' && m.down && !$('cmd').querySelector('.downbox') && !answering)) drawQ($('cmd'), m, true);
+  if (ev.t === 'tgt' || ev.t === 'hit') { var qn = $('cmd').querySelector('.qnum'); if (qn && !m.down) qn.firstChild && (qn.textContent = 'ねらい：' + tgtName(m) + (S.getQ(m).multi ? '（' + S.getQ(m).correct.length + 'つ選ぶ）' : '')); }
+}
+function buildFoes(m) {
+  var box = $('foes'); box.innerHTML = '';
+  S.foes.forEach(function (f, i) {
+    var p = (POS[S.foes.length] || POS[3])[i], e = el('div', 'enemy' + (f.final ? ' final' : '')); e.dataset.i = i;
+    e.style.height = p[1] + '%'; e.style.marginBottom = (i % 2 * 3) + '%';
+    e.innerHTML = '<span class="hint">クリックでねらう</span><span class="aim">▼ ねらう</span><div class="etag"><span>' + f.n + '</span><div class="bar hp"><i></i></div></div><img src="' + f.img + '" alt=""><div class="eshadow"></div>';
+    if (f.boss) e.querySelector('img').style.scale = '-1 1';
+    if (f.final) e.style.height = '100%';
+    e.onclick = function () { if (V === 'mem') S.setTarget(m, i); };
+    box.appendChild(e);
+  });
+}
+function updFoes(m) {
+  document.querySelectorAll('#foes .enemy').forEach(function (e) {
+    var f = S.foes[+e.dataset.i]; if (!f) return;
+    e.querySelector('.bar i').style.width = (100 * f.hp / f.max) + '%';
+    e.classList.toggle('dead', f.hp <= 0); e.classList.toggle('chg', f.chg > 0 && f.hp > 0); e.classList.toggle('barrier', !!f.barrier);
+    e.classList.toggle('wind', !!f.aim && f.hp > 0 && !(f.chg > 0));
+    var wm = e.querySelector('.windmark'); if (!wm) { wm = el('span', 'windmark'); e.appendChild(wm); }
+    var who = S.MEM.filter(function (o) { return o.id === f.aim; })[0]; wm.textContent = who ? '❗ ' + (who === m ? 'あなた' : who.n) + 'をねらっている' : '';
+    e.classList.toggle('tg', +e.dataset.i === m.tgt && f.hp > 0);
+    e.querySelector('.aim').style.display = +e.dataset.i === m.tgt && f.hp > 0 ? '' : 'none';
+    var sp = e.querySelector('.etag span'); sp.textContent = f.chg > 0 && f.hp > 0 ? '⚠ ためている ' + Math.ceil(f.chg) : f.n; sp.classList.toggle('cg', f.chg > 0 && f.hp > 0);
+  });
+}
+function bossBar() {
+  /* 上の段のまん中：ボス戦はボスの名前とHP（細い）、ふだんは場所。右に、いちばん大事な状況を1つだけ */
+  var f = S.foes[0], boss = S.isBoss && f, ch = S.foes.filter(function (x) { return x.chg > 0 && x.hp > 0; })[0];
+  $('midNm').textContent = boss ? '👑 ' + f.n : S.floor + '階 ・ ' + (S.isGuard ? '番人の部屋' : '魔物の群れ');
+  $('bossHp').classList.toggle('hide', !boss); if (boss) $('bossHp').querySelector('i').style.width = (100 * f.hp / f.max) + '%';
+  var st = $('midSt'); st.className = 'st' + (ch ? ' cg' : boss && f.barrier ? ' br' : '');
+  st.textContent = ch ? '⚠ ' + ch.n + ' 強い攻撃まで ' + Math.ceil(ch.chg) + '秒（班で' + (S.isBoss ? 4 : 3) + '問正解でガード）' : boss && f.barrier ? '🛡 バリア：手下を倒すと消える' : '';
+}
+function drawParty(ev, m) {
+  $('teambar').innerHTML = S.MEM.map(function (o) {
+    var aimed = S.foes.some(function (f) { return f.aim === o.id && f.hp > 0; });
+    return '<div class="chip' + (o === m ? ' me' : '') + (o.down ? ' ko' : '') + (aimed ? ' aimed' : '') + (ev.t === 'atk' && ev.who === o.id ? ' hurt' : '') + (ev.t === 'heal' ? ' healed' : '') + '"><img src="' + heroImg(o) + '" alt="">' +
+      '<div class="bar hp"><i style="width:' + (100 * o.hp / o.max) + '%"></i></div>' + (o.down ? '💤' : '') + (o === m ? (V === 'lead' ? 'リーダー' : 'あなた') : o.n) + '</div>';
+  }).join('');
+}
+function dmgFx(f) {
+  var e = document.querySelector('#foes .enemy[data-i="' + f.i + '"]'); if (!e) return;
+  var who = S.MEM.filter(function (o) { return o.id === f.who; })[0], wn = who ? (who === S.me && V === 'mem' ? 'あなた' : who.n) : '';
+  var d = el('div', 'dmg' + (f.guard ? ' guard' : f.crit ? ' crit' : ''));
+  d.innerHTML = f.guard ? 'バリア！' : '<small>' + wn + (f.name ? 'の' + f.name : '') + '</small>' + f.d; e.appendChild(d); setTimeout(function () { d.remove(); }, 1100);
+  var FX = { warrior0: 'slash', warrior1: 'blaze', warrior2: 'ragna', mage0: 'flare', mage1: 'spark', mage2: 'stellar', priest0: 'light' };
+  if (f.guard) return;
+  var kind = FX[f.kind] || 'slash', skill = !!f.name, COL = { slash: '#cfeaff', blaze: '#ff8a1c', ragna: '#ffd23f', flare: '#ff6a2a', spark: '#fff36a', stellar: '#ffe9a0', light: '#fffbe0' }, c = COL[kind];
+  var x = el('div', 'fx ' + kind); e.appendChild(x); setTimeout(function () { x.remove(); }, 1000);
+  var hf = el('div', 'hitflash'); e.appendChild(hf); setTimeout(function () { hf.remove(); }, 400);
+  /* 衝撃の輪（技・必殺技は2重・大きく） */
+  [0, skill ? 120 : -1, f.ult ? 240 : -1].forEach(function (t, k) { if (t < 0) return; setTimeout(function () { var r = el('div', 'ring' + (skill ? ' big' : '')); r.style.setProperty('--rc', c); r.style.setProperty('--rs', f.ult ? 6 : skill ? 4.2 : 2.6); e.appendChild(r); setTimeout(function () { r.remove(); }, 900); }, t); });
+  /* 飛び散る火花 */
+  var n = f.ult ? 34 : skill ? 22 : 12;
+  for (var i = 0; i < n; i++) { var pt = el('div', 'pt'), ang = Math.random() * Math.PI * 2, dist = (f.ult ? 9 : skill ? 6.5 : 4) * (0.5 + Math.random());
+    pt.style.setProperty('--dx', Math.cos(ang) * dist + 'em'); pt.style.setProperty('--dy', Math.sin(ang) * dist + 'em'); pt.style.setProperty('--pc', i % 3 ? c : '#fff'); pt.style.setProperty('--pd', (0.5 + Math.random() * .5) + 's');
+    if (f.ult) pt.style.width = pt.style.height = (0.5 + Math.random() * .6) + 'em';
+    e.appendChild(pt); (function (q) { setTimeout(function () { q.remove(); }, 1100); })(pt); }
+  /* 画面のゆれ */
+  var a = $('arena'); a.classList.remove('quake', 'big'); void a.offsetWidth; if (skill || f.crit) a.classList.add('quake'); if (f.ult) a.classList.add('big');
+  /* 技名のカットイン */
+  if (skill) { var cu = el('div', 'cutin' + (f.ult ? ' ult' : '')); cu.innerHTML = '<small>' + wn + 'の</small>' + f.name + (f.ult ? '！！' : '！'); if (!f.ult) { cu.style.setProperty('--cg', c); } $('arena').appendChild(cu); setTimeout(function () { cu.remove(); }, 1000); }
+  if (f.ult) { var w = el('div', 'ultflash'); $('s-battle').appendChild(w); setTimeout(function () { w.remove(); }, 700); }
+  e.classList.remove('hit'); void e.offsetWidth; e.classList.add('hit');
+}
+function clearView(ev) {
+  if (!$('s-clear').classList.contains('on')) {
+    show('s-clear'); $('clTitle').textContent = '🎉 ' + S.BOSS.n + ' をたおした！';
+    $('btn2nd').style.display = V === 'lead' ? '' : 'none';
+    $('btn2nd').textContent = '2周目へ（リーダーが進める）';
+    $('btn2nd').onclick = function () { S.backFromClear(); };
+  }
+}
+function ovban(host, s, big) { host.querySelectorAll(':scope > .ovban').forEach(function (o) { o.remove(); }); var b = el('div', 'ovban' + (big ? ' big' : ''), s); host.appendChild(b); setTimeout(function () { b.remove(); }, 2000); }
+function flash(host) { var f = el('div', 'redflash'); host.appendChild(f); setTimeout(function () { f.remove(); }, 500); }
+
+/* ============================================================ 投影（全班） */
+var OTHERS = [
+  { n: '1班', fl: 3, k: 2, foes: ['banara', 'awabon'], hp: [.4, .8], party: ['warrior-b', 'mage-a', 'priest-b', 'mage-b'], st: '戦闘中' },
+  null,
+  { n: '3班', fl: 2, k: 1, field: true, st: '探索中　群れ 2/3' },
+  { n: '4班', fl: 1, k: 0, foes: ['donbuka', 'tokerun', 'mistoru'], hp: [1, .3, .6], chg: 1, party: ['priest-a', 'warrior-a', 'mage-b', 'priest-b'], st: 'ミストルが力をためている！' },
+  { n: '5班', fl: 3, k: 2, foes: ['metarich'], hp: [.55], boss: 1, party: ['mage-a', 'warrior-b', 'priest-a', 'warrior-a', 'mage-b'], st: '番人と戦闘中！' },
+  { n: '6班', fl: 2, k: 1, field: true, st: '探索中　群れ 1/3' }];
+var pjBuilt = false;
+function proj(ev) {
+  show('s-proj');
+  if (!pjBuilt) {
+    pjBuilt = true;
+    $('pjGrid').innerHTML = OTHERS.map(function (o, i) { return '<div class="tm' + (o ? '' : ' mine') + '" id="tm' + i + '"></div>'; }).join('');
+    OTHERS.forEach(function (o, i) { if (o) $('tm' + i).innerHTML = staticTeam(o); });
+  }
+  var c = $('tm1');
+  var th = '<div class="th"><span>2班　' + S.floor + '階</span><span class="k">' + '🔑'.repeat(S.keys) + '<span style="opacity:.35">' + '🔑'.repeat(4 - S.keys) + '</span></span></div>';
+  if (S.phase === 'explore' || S.phase === 'enc') {
+    if (!c.querySelector('.mfield') || ev.t === 'explore') {
+      c.innerHTML = th + '<div class="mfield"><div class="fd-map"></div></div><div class="status"></div>';
+      var r = c.getBoundingClientRect(); c._ts = Math.max(10, Math.floor(Math.min(r.width / 13, r.height / 8)));
+    }
+    var mf = c.querySelector('.mfield'), mp = mf.querySelector('.fd-map');
+    drawField(mp, c._ts, true); cameraOf(mf, mp, c._ts);
+    c.querySelector('.status').textContent = S.phase === 'enc' ? '魔物とぶつかった！' : '探索中　群れ ' + S.wins + '/' + S.need + (S.wins >= S.need ? '　番人の部屋が開いた' : '');
+    c.querySelector('.th').outerHTML = th;
+  } else {
+    if (!c.querySelector('.mfoes') || ev.t === 'start' || ev.t === 'summon' || c.querySelectorAll('.mfoe').length !== S.foes.length) {
+      c.innerHTML = th + '<div class="mbg"></div><div class="mfoes">' + S.foes.map(function (f, i) { return '<div class="mfoe' + (f.final ? ' final' : '') + '" data-i="' + i + '"><img src="' + f.img + '" alt=""' + (f.boss ? ' style="scale:-1 1"' : '') + '><div class="bar hp"><i></i></div></div>'; }).join('') + '</div><div class="mparty"></div><div class="status"></div>';
+    }
+    c.querySelector('.th').outerHTML = th;
+    c.querySelectorAll('.mfoe').forEach(function (e) {
+      var f = S.foes[+e.dataset.i]; if (!f) return;
+      e.querySelector('.bar i').style.width = (100 * f.hp / f.max) + '%'; e.classList.toggle('dead', f.hp <= 0); e.classList.toggle('chg', f.chg > 0 && f.hp > 0); e.classList.toggle('barrier', !!f.barrier);
+      var cg = e.querySelector('.cgt'); if (f.chg > 0 && f.hp > 0) { if (!cg) { cg = el('span', 'cgt'); e.prepend(cg); } cg.textContent = 'ため ' + Math.ceil(f.chg); } else if (cg) cg.remove();
+    });
+    c.querySelector('.mparty').innerHTML = S.MEM.map(function (o) { return '<span class="' + (o.down ? 'ko' : '') + '"><img src="' + heroImg(o) + '" alt=""><div class="bar hp"><i style="width:' + (100 * o.hp / o.max) + '%"></i></div>' + o.n + '</span>'; }).join('');
+    var ch = S.foes.filter(function (f) { return f.chg > 0 && f.hp > 0; })[0];
+    c.querySelector('.status').textContent = S.phase === 'clear' ? '🎉 ボスをたおした！ 単元クリア' : S.isBoss && !ch ? (S.foes[0].barrier ? '👑 ボス戦　バリア中：手下をねらえ' : '👑 ボス戦！') : ch ? '⚠ ' + ch.n + 'が力をためている！' : (S.isGuard ? '番人と戦闘中！' : '戦闘中');
+    if (ev.t === 'hit') S.fx.slice(-1).forEach(function (f) { if (!f.shown || !f.shown.proj) { (f.shown = f.shown || {}).proj = 1; var e = c.querySelector('.mfoe[data-i="' + f.i + '"]'); if (e) { var d = el('div', 'pdmg', String(f.d)); e.appendChild(d); setTimeout(function () { d.remove(); }, 1000); } } });
+  }
+  if (ev.s && ev.t !== 'tick') ovban(c, ev.s, ev.big || ev.lose);
+}
+function staticTeam(o) {
+  var th = '<div class="th"><span>' + o.n + '　' + o.fl + '階</span><span class="k">' + '🔑'.repeat(o.k) + '<span style="opacity:.35">' + '🔑'.repeat(4 - o.k) + '</span></span></div>';
+  if (o.field) return th + '<div class="mbg" style="background-image:none;background:#2b2560;filter:none"></div><div class="mparty" style="right:3%;bottom:30%;justify-content:center"><span><img src="img/quest/hero-priest-b.webp" alt=""></span></div><div class="status">' + o.st + '</div>';
+  return th + '<div class="mbg"></div><div class="mfoes">' + o.foes.map(function (id, i) {
+    return '<div class="mfoe' + (o.chg && i === 2 ? ' chg' : '') + '">' + (o.chg && i === 2 ? '<span class="cgt">ため 6</span>' : '') + '<img src="img/quest/' + id + '.webp" alt=""' + (o.boss ? ' style="scale:-1 1"' : '') + '><div class="bar hp"><i style="width:' + o.hp[i] * 100 + '%"></i></div></div>';
+  }).join('') + '</div><div class="mparty">' + o.party.map(function (p) { return '<span><img src="img/quest/hero-' + p + '.webp" alt=""><div class="bar hp"><i style="width:' + (50 + Math.random() * 50) + '%"></i></div></span>'; }).join('') + '</div><div class="status">' + o.st + '</div>';
+}
+</script>
+</body>
+</html>

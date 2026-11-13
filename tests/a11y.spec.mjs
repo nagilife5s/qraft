@@ -45,7 +45,7 @@ test('家庭練習：問題に答えたあとの画面（正解・不正解の�
   await page.click('#btnId');
   await page.fill('form input', 'abc234');
   await page.click('form button[type=submit]');
-  await page.locator('#s-pick button', { hasText: '塩化銅水溶液の電気分解' }).click();
+  await page.locator('#s-pick button', { hasText: /^塩化銅水溶液の電気分解\s*3年/ }).click();
   // 選択問題になるまで進め、わざと間違える
   const shown = () => page.waitForFunction(() => { const v = (e) => e && e.offsetParent !== null; return v(document.querySelector('#stiles .tile')) || v(document.getElementById('textAns')); });
   for (let i = 0; i < 8; i++) {

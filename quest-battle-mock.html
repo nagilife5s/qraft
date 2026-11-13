@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>クエスト戦闘モック</title>
+<!-- モック 第3版（2026-11-12）：クエスト・チーム戦の作り直し。方向性は ../クエスト・チーム戦の作り直し｜方向性.md
+     画面の見た目は本物の部品（quest.css・ソロのフィールド・ソロの戦闘画面）を使う。画面は quest-team-view.html を3つ並べる。
+     通信はない。このページが2班の進み方をまねして、3つの画面に配る（SIM）。 -->
+<style>
+body{margin:0;background:#0a0d1c;color:#f3f5ff;font-family:"Hiragino Maru Gothic ProN","Hiragino Sans",system-ui,sans-serif}
+header{padding:10px 16px;color:#a9b1d6;font-size:13px;line-height:1.6}
+header b{color:#fff}
+.ctrl{margin:0 16px 10px;display:flex;gap:8px;flex-wrap:wrap}
+.ctrl button{border:0;border-radius:10px;padding:7px 12px;font:inherit;font-size:12px;font-weight:bold;background:#2f3870;color:#fff;cursor:pointer}
+.lbl{font-size:13px;color:#a9b1d6;margin:0 0 6px}
+.row{display:flex;gap:16px;padding:0 16px 16px;flex-wrap:wrap}
+.dev{flex:1 1 420px;min-width:0}
+.frame{position:relative;width:100%;border:6px solid #2a3260;border-radius:12px;overflow:hidden;background:#000}
+.frame.proj{aspect-ratio:16/9}
+.frame.pc{aspect-ratio:16/10;border-radius:12px 12px 4px 4px}
+.frame iframe{position:absolute;left:0;top:0;border:0;transform-origin:0 0}
+.frame.proj iframe{width:1920px;height:1080px}
+.frame.pc iframe{width:1366px;height:854px}
+.log{margin:0 16px 16px;color:#a9b1d6;font-size:12px;line-height:1.6;max-height:120px;overflow:auto}
+</style>
+</head>
+<body>
+<header><b>クエスト・チーム戦 モック 第3版</b>　見た目はソロモードの部品（フィールド・戦闘画面）を使っています。<br>
+リーダーのPCでダンジョンを歩き（矢印キー・WASD・クリック）、見えている魔物に<b>ぶつかる</b>と戦闘。戦闘は時間で進み、各自のペースで答えて、<b>敵をクリックしてねらいを決める</b>。HPが半分を切った敵は強い攻撃をためる（倒すか、班で3問正解でガード）。群れを2回倒すと番人の部屋が開き、番人を倒すと鍵。<br>
+動くのは2班だけ。リーダーとあなた以外の3人は自動で答えます。リーダーも戦闘中は自動で答えます。キー操作は、リーダーの画面を一度クリックしてから。</header>
+<div class="ctrl">
+  <button id="cWin">（試験用）いまの戦闘に勝つ</button>
+  <button id="cOpen">（試験用）番人の部屋を開ける</button>
+  <button id="cBoss">（試験用）ボス戦へ（鍵4つ）</button>
+  <button id="cFast">（試験用）答える速さ：<span id="fast">ふつう（6〜14秒）</span></button>
+  <button id="cRate">（試験用）ほかの人の正解率：<span id="rate">70</span>%</button>
+</div>
+<div class="row"><div class="dev" style="flex-basis:100%"><p class="lbl">① 投影画面（先生のPC）：全班を分割表示</p><div class="frame proj"><iframe src="quest-team-view.html?v=proj" title="投影画面"></iframe></div></div></div>
+<div class="row">
+  <div class="dev"><p class="lbl">② リーダーのPC（2班）</p><div class="frame pc"><iframe src="quest-team-view.html?v=lead" title="リーダーの画面"></iframe></div></div>
+  <div class="dev"><p class="lbl">③ あなたのPC（2班 5番）</p><div class="frame pc"><iframe src="quest-team-view.html?v=mem" title="あなたの画面"></iframe></div></div>
+</div>
+<div class="log" id="log"></div>
+
+<script>
+/* 画面は本物の大きさ（投影 1920×1080・Chromebook 1366×854）で開き、縮めて並べる */
+function fit() { document.querySelectorAll('.frame iframe').forEach(function (f) { f.style.transform = 'scale(' + (f.parentNode.clientWidth / parseInt(getComputedStyle(f).width)) + ')'; }); }
+addEventListener('resize', fit); addEventListener('load', fit); setTimeout(fit, 0);
+</script>
+<script type="module">
+import { JOBS, ENEMIES, BOSS } from './quest.js';
+var $ = function (id) { return document.getElementById(id); };
+function rnd(a) { return a[Math.floor(Math.random() * a.length)]; }
+function shuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+function log(s) { $('log').innerHTML = s + '<br>' + $('log').innerHTML; }
+
+/* ---------------- 問題（2年 天気の家庭練習セット。選ぶ問題だけ） ---------------- */
+var POOL = [];
+var FALLBACK = [
+  { q: '空気が冷やされて、水蒸気が水滴にかわる現象を何という？', choices: ['蒸発', '沸騰', '凝結', '昇華'], answer: 2 },
+  { q: 'セキツイ動物を2つ選びなさい。', choices: ['メダカ', 'イカ', 'カエル', 'ミミズ'], answers: [0, 2] },
+  { q: '等圧線の間隔がせまいところでは、風は？', choices: ['弱い', '吹かない', '強い', '向きが逆'], answer: 2 }];
+async function loadQ() {
+  for (var id of ['2555d1d9', '26724b2e', '39d31380', '52178de3']) {
+    try { var d = await (await fetch('home/' + id + '.json')).json(); POOL = POOL.concat(d.questions.filter(function (q) { return q.type !== 'text' && q.choices; })); } catch (e) {}
+  }
+  if (!POOL.length) POOL = FALLBACK;
+}
+function makeQ() {
+  var q = rnd(POOL), order = shuffle(q.choices.map(function (_, i) { return i; }));
+  var ans = Array.isArray(q.answers) ? q.answers : [q.answer];
+  return { text: q.q, image: q.image || null, ex: q.ex || '', multi: Array.isArray(q.answers),
+           choices: order.map(function (i) { var c = q.choices[i]; return typeof c === 'string' ? c : (c.t || ''); }),
+           correct: order.map(function (o, i) { return ans.indexOf(o) >= 0 ? i : -1; }).filter(function (i) { return i >= 0; }) };
+}
+
+/* ---------------- ダンジョン（ソロのエリアと同じタイル。# 壁 k 床 c じゅうたん D 扉 < 入口） ---------------- */
+function buildDungeon() {
+  var W = 36, H = 22, g = Array.from({ length: H }, function () { return Array(W).fill('#'); });
+  function fill(x0, y0, x1, y1, c) { for (var y = y0; y <= y1; y++) for (var x = x0; x <= x1; x++) g[y][x] = c; }
+  fill(1, 8, 8, 14, 'k'); fill(11, 2, 22, 8, 'k'); fill(11, 13, 22, 19, 'k'); fill(26, 6, 34, 16, 'k');
+  fill(0, 11, 25, 11, 'c'); fill(16, 8, 17, 13, 'c'); fill(0, 11, 0, 11, '<'); g[11][25] = 'D';
+  [[13, 2], [15, 2], [17, 2], [19, 2], [21, 2]].forEach(function (p) { g[p[1]][p[0]] = 's'; });
+  [[13, 5], [20, 5], [13, 17], [20, 16], [3, 9]].forEach(function (p) { g[p[1]][p[0]] = 't'; });
+  [[11, 19], [22, 19], [1, 14], [26, 6], [34, 6], [26, 16], [34, 16]].forEach(function (p) { g[p[1]][p[0]] = 'x'; });
+  [[11, 2], [22, 2]].forEach(function (p) { g[p[1]][p[0]] = 'y'; });
+  [[19, 15], [1, 8]].forEach(function (p) { g[p[1]][p[0]] = 'q'; });
+  [[11, 8], [22, 8], [11, 13], [22, 13]].forEach(function (p) { g[p[1]][p[0]] = 'p'; });
+  [[7, 14], [14, 19], [21, 19]].forEach(function (p) { g[p[1]][p[0]] = 'z'; });
+  return { g: g, start: [1, 11], guard: [31, 11], door: [25, 11] };
+}
+
+/* ---------------- 2班の状態 ---------------- */
+var MEM = [
+  { id: 'L', n: 'リーダー', j: 'warrior', lk: 'a' }, { id: '2', n: '2番', j: 'mage', lk: 'b' }, { id: '3', n: '3番', j: 'priest', lk: 'a' },
+  { id: '4', n: '4番', j: 'warrior', lk: 'b' }, { id: '5', n: 'あなた', j: 'mage', lk: 'a' }];
+MEM.forEach(function (m) { m.hp = m.max = 30; m.mp = 0; m.down = 0; m.tgt = 0; });
+var ZAKO = Object.keys(ENEMIES).filter(function (k) { return k !== 'metarich'; });
+
+var N = {
+  hp: { zako: 23, guard: 80, boss: 150 },            /* 敵のHP＝この数×その日の人数 */
+  hit: { zako: 3, guard: 4, boss: 4 },               /* ふつうの攻撃のダメージ */
+  atk: { zako: 7, guard: 4, boss: 4 },               /* 攻撃の間隔（秒）＝この数＋0〜3秒 */
+  chg: { zako: 6, guard: 8, boss: 10 },              /* 強い攻撃のダメージ（全員） */
+  chgSec: { zako: 10, guard: 10, boss: 12 },         /* ためる時間（秒） */
+  guardOk: { zako: 3, guard: 3, boss: 4 },           /* ガードに要る班の正解数 */
+  need: 2,                                           /* 番人の部屋が開くまでに倒す群れの数 */
+  ans: [6, 14]                                       /* ほかの人が1問に答える秒数（モックの自動） */
+};
+function kindOf(f) { return f && f.final ? 'boss' : S.isGuard ? 'guard' : 'zako'; }
+var S = window.SIM = {
+  JOBS: JOBS, ENEMIES: ENEMIES, BOSS: BOSS, MEM: MEM, me: MEM[4], lead: MEM[0],
+  phase: 'explore', floor: 2, keys: 1, wins: 0, need: N.need, map: buildDungeon(), pos: null, mobs: [], foes: [], fx: [], rate: 0.7,
+  views: [], q: {}, guardCnt: 0,
+  emit: function (ev) { S.views.forEach(function (v) { try { v(ev || {}); } catch (e) { console.error(e); } }); },
+  log: log
+};
+S.pos = S.map.start.slice();
+function spawn() { S.mobs = [[15, 5], [19, 3], [14, 16], [19, 18], [5, 10], [29, 8]].slice(0, 5).map(function (p) { return { x: p[0], y: p[1], id: rnd(ZAKO) }; }); }
+spawn();
+var BLOCK = 'stxyqpz#';
+S.cell = function (x, y) { var r = S.map.g[y]; return r ? r[x] : undefined; };
+S.blocked = function (x, y) { var c = S.cell(x, y); if (c === undefined || BLOCK.includes(c)) return true; if (c === 'D') return S.wins < S.need; if (c === '<') return true; return false; };
+
+/* ---------------- 探索 ---------------- */
+var lastStep = 0;
+S.step = function (dx, dy) {
+  if (S.phase !== 'explore' || Date.now() - lastStep < 200) return false;
+  var nx = S.pos[0] + dx, ny = S.pos[1] + dy;
+  if (nx === S.map.guard[0] && ny === S.map.guard[1]) { startBattle(true); return false; }
+  var mi = S.mobs.findIndex(function (m) { return m.x === nx && m.y === ny; });
+  if (mi >= 0) { var mob = S.mobs.splice(mi, 1)[0]; S.emit({ t: 'enc' }); setTimeout(function () { startBattle(false, mob); }, 900); S.phase = 'enc'; return false; }
+  if (S.blocked(nx, ny)) { if (S.cell(nx, ny) === 'D') S.emit({ t: 'say', s: '扉に鍵がかかっている。群れをあと ' + (S.need - S.wins) + '回 倒すと開く' }); return false; }
+  lastStep = Date.now(); S.pos = [nx, ny]; S.emit({ t: 'move' }); return true;
+};
+setInterval(function () {   /* 魔物はゆっくり歩きまわる（自分から当たりに行く） */
+  if (S.phase !== 'explore') return;
+  S.mobs.forEach(function (m) {
+    if (Math.random() < .45) return;
+    var d = rnd([[1, 0], [-1, 0], [0, 1], [0, -1]]), nx = m.x + d[0], ny = m.y + d[1];
+    if (S.cell(nx, ny) !== 'k' || (nx === S.pos[0] && ny === S.pos[1]) || S.mobs.some(function (o) { return o !== m && o.x === nx && o.y === ny; })) return;
+    m.x = nx; m.y = ny;
+  });
+  S.emit({ t: 'mobs' });
+}, 1100);
+
+/* ---------------- 答える（探索中は練習問題：正解でMP） ---------------- */
+S.getQ = function (m) { if (!S.q[m.id]) S.q[m.id] = makeQ(); return S.q[m.id]; };
+S.answer = function (m, mask) {
+  var q = S.getQ(m), ok = q.correct.length === mask.length && q.correct.every(function (c) { return mask.indexOf(c) >= 0; });
+  delete S.q[m.id];
+  if (S.phase === 'battle') onAnswer(m, ok); else if (ok) m.mp = Math.min(5, m.mp + 1);
+  S.emit({ t: 'ans', who: m.id, ok: ok });
+  return ok;
+};
+S.setTarget = function (m, i) { if (S.foes[i] && S.foes[i].hp > 0) { m.tgt = i; S.emit({ t: 'tgt' }); } };
+S.skill = function (m, i) {
+  var a = JOBS[m.j].acts[i]; if (S.phase !== 'battle' || m.down || m.mp < a.mp) return;
+  m.mp -= a.mp;
+  if (a.heal) { MEM.forEach(function (o) { if (o.down && a.revive) { o.down = 0; o.hp = o.max; } else if (!o.down) o.hp = Math.min(o.max, o.hp + Math.ceil(o.max * a.heal)); }); S.emit({ t: 'heal', who: m.id, n: a.n }); }
+  if (a.a) hitFoe(m, Math.round(8 * a.a * (0.9 + Math.random() * .2)), a.n, !!a.ult, m.j + i);
+  S.emit({ t: 'skill' });
+};
+
+/* ---------------- 戦闘（時間で進む） ---------------- */
+var timers = [];
+function startBattle(isGuard, mob) {
+  if (isGuard === 'boss') return startBoss();
+  S.phase = 'battle'; S.isGuard = isGuard; S.isBoss = false; S.t0 = Date.now();
+  var n = isGuard ? 1 : 2 + (Math.random() < .5 ? 1 : 0), people = MEM.length;   // 実装では、その日に来た人数で敵の強さを変える
+  S.foes = [];
+  for (var i = 0; i < n; i++) {
+    var id = isGuard ? 'metarich' : (i === 0 && mob ? mob.id : rnd(ZAKO)), hp = Math.round((isGuard ? N.hp.guard : N.hp.zako) * people);
+    S.foes.push({ id: id, n: isGuard ? '番人' + ENEMIES[id].n : ENEMIES[id].n, img: ENEMIES[id].img, hp: hp, max: hp, chg: 0, charged: false, atk: 3 + Math.random() * 3, boss: isGuard });
+  }
+  MEM.forEach(function (m) { m.tgt = Math.floor(Math.random() * n); delete S.q[m.id]; });
+  S.me.tgt = 0;
+  log((isGuard ? '番人とたたかう' : '魔物の群れ') + '：' + S.foes.map(function (f) { return f.n; }).join('・'));
+  S.emit({ t: 'start', s: isGuard ? '番人があらわれた！' : '魔物が ' + n + '体 あらわれた！' });
+  autoMembers();
+  timers.push(setInterval(tick, 500));
+}
+/* ボス戦（鍵4つ）：班だけで挑む。HPが70%で手下を2体よぶ→手下がいる間はボスにバリア。40%で強い攻撃（4問正解でガード） */
+function startBoss() {
+  stop(); S.phase = 'battle'; S.isGuard = false; S.isBoss = true; S.summoned = false;
+  var hp = N.hp.boss * MEM.length; S.t0 = Date.now();
+  S.foes = [{ id: 'boss', n: BOSS.n, img: BOSS.img, hp: hp, max: hp, chg: 0, charged: false, atk: 4, boss: true, final: true, barrier: false }];
+  MEM.forEach(function (m) { m.tgt = 0; m.hp = m.max; m.down = 0; delete S.q[m.id]; });
+  log('ボス戦：' + BOSS.n);
+  S.emit({ t: 'start', s: BOSS.n + ' があらわれた！', boss: 1 });
+  autoMembers();
+  timers.push(setInterval(tick, 500));
+}
+function autoMembers() {
+  MEM.forEach(function (m) { if (m !== S.me) timers.push(setTimeout(function loop() {
+    if (S.phase !== 'battle') return;
+    var q = S.getQ(m), ok = Math.random() < S.rate;
+    if (Math.random() < .25) { var a = aliveFoes(); if (a.length) m.tgt = S.foes.indexOf(rnd(a)); }
+    S.answer(m, ok ? q.correct : [(q.correct[0] + 1) % q.choices.length]);
+    if (m.mp >= 2 && Math.random() < .3) S.skill(m, 1);
+    timers.push(setTimeout(loop, (N.ans[0] + Math.random() * (N.ans[1] - N.ans[0])) * 1000));
+  }, 2500 + Math.random() * 4000)); });
+}
+function aliveFoes() { return S.foes.filter(function (f) { return f.hp > 0; }); }
+function onAnswer(m, ok) {
+  if (m.down) { if (ok) { m.down++; if (m.down > 2) { m.down = 0; m.hp = Math.round(m.max / 2); log(m.n + ' が復活'); S.emit({ t: 'revive', who: m.id }); } } return; }
+  if (!ok) return;
+  m.mp = Math.min(5, m.mp + 1);
+  hitFoe(m, Math.round(6 + Math.random() * 5), null, false, m.j + '0');
+}
+function hitFoe(m, d, name, big, kind) {
+  var f = S.foes[m.tgt];
+  if (!f || f.hp <= 0) { var a = aliveFoes(); if (!a.length) return; f = a[0]; m.tgt = S.foes.indexOf(f); }
+  var crit = !big && Math.random() < .12; if (crit) d *= 2;
+  if (f.barrier) { S.fx.push({ i: m.tgt, d: 0, guard: 1, who: m.id }); S.emit({ t: 'hit' }); return; }
+  f.hp = Math.max(0, f.hp - d);
+  S.fx.push({ i: m.tgt, d: d, crit: crit || big, who: m.id, name: name, kind: kind, ult: big });
+  if (S.isBoss && !f.final && f.hp <= 0 && !S.foes.some(function (x) { return !x.final && x.hp > 0; })) { S.foes[0].barrier = false; S.emit({ t: 'ban', s: 'バリアが消えた！ いまだ、ボスをねらえ！' }); log('バリアが消えた'); }
+  if (aliveFoes().some(function (x) { return x.chg > 0; })) {
+    S.guardCnt++;
+    if (S.guardCnt >= N.guardOk[S.isBoss ? 'boss' : S.isGuard ? 'guard' : 'zako']) S.foes.forEach(function (x) { if (x.chg > 0 && x.hp > 0) { x.chg = 0; S.emit({ t: 'ban', s: 'ガード成功！ 強い攻撃を打ち消した' }); log('ガード成功'); } });
+  }
+  if (f.hp <= 0 && f.chg > 0) { f.chg = 0; S.emit({ t: 'ban', s: 'ためていた ' + f.n + ' を倒した！' }); }
+  S.emit({ t: 'hit' });
+  if (!aliveFoes().length) win();
+}
+function tick() {
+  if (S.phase !== 'battle') return;
+  S.foes.forEach(function (f) {
+    if (f.hp <= 0) return;
+    if (f.final && !S.summoned && f.hp < f.max * .7) {
+      S.summoned = true; f.barrier = true;
+      ['awabon', 'mistoru'].forEach(function (id) { var h = N.hp.zako * MEM.length; S.foes.push({ id: id, n: ENEMIES[id].n, img: ENEMIES[id].img, hp: h, max: h, chg: 0, charged: true, atk: 3 + Math.random() * 2 }); });
+      MEM.forEach(function (m) { m.tgt = 1 + Math.floor(Math.random() * 2); });
+      S.emit({ t: 'summon', s: BOSS.n + ' が手下をよんだ！ バリアをはった' }); log('手下をよんでバリア'); return;
+    }
+    if (!f.charged && f.hp < f.max * (f.final ? .4 : .5) && !f.barrier && !S.foes.some(function (x) { return x !== f && x.chg > 0 && x.hp > 0; })) { f.charged = true; f.chg = N.chgSec[kindOf(f)]; S.guardCnt = 0; S.emit({ t: 'ban', s: f.n + ' が 力をためている！' + '（班で' + N.guardOk[kindOf(f)] + '問正解でガード）' }); log(f.n + ' が強い攻撃をためはじめた'); }
+    if (f.chg > 0) { f.chg -= .5; if (f.chg <= 0) { f.chg = 0; var dd = N.chg[kindOf(f)]; MEM.forEach(function (m) { if (!m.down) hurt(m, dd); }); S.emit({ t: 'ban', s: f.n + ' の強い攻撃！ 全員に' + dd + 'ダメージ', big: 1 }); } return; }
+    f.atk -= .5;
+    if (f.atk <= 1.5 && !f.aim) { var w = rnd(MEM.filter(function (m) { return !m.down; })); if (w) { f.aim = w.id; S.emit({ t: 'aim', who: w.id, f: S.foes.indexOf(f) }); } }
+    if (f.atk <= 0) { f.atk = N.atk[kindOf(f)] + Math.random() * 3; var t = MEM.filter(function (m) { return m.id === f.aim && !m.down; })[0] || rnd(MEM.filter(function (m) { return !m.down; })); f.aim = null; if (t) { hurt(t, N.hit[kindOf(f)]); S.emit({ t: 'atk', who: t.id, f: S.foes.indexOf(f) }); } }
+  });
+  S.emit({ t: 'tick' });
+  if (MEM.every(function (m) { return m.down; })) wipe();
+}
+function hurt(m, d) { m.hp = Math.max(0, m.hp - d); if (m.hp <= 0 && !m.down) { m.down = 1; log(m.n + ' がたおれた'); } }
+function stop() { timers.forEach(function (t) { clearTimeout(t); clearInterval(t); }); timers = []; }
+function win() {
+  stop(); S.phase = 'result'; if (S.t0) log('⏱ この戦闘 ' + Math.round((Date.now() - S.t0) / 1000) + '秒');
+  if (S.isBoss) {
+    S.phase = 'clear'; log('ボスをたおした');
+    S.emit({ t: 'clear', s: BOSS.n + ' をたおした！' });
+    return;
+  }
+  if (S.isGuard) {
+    S.keys++; S.emit({ t: 'win', s: '番人をたおした！ 鍵を手に入れた 🔑' }); log('鍵 ' + S.keys + '/4');
+    setTimeout(function () { S.floor++; S.wins = 0; S.pos = S.map.start.slice(); spawn(); toExplore(S.floor + '階へ進んだ'); }, 3000);
+  } else {
+    S.wins++; S.emit({ t: 'win', s: '勝利！ けいけんち +' + (20 + Math.floor(Math.random() * 10)) });
+    setTimeout(function () { toExplore(S.wins >= S.need ? '番人の部屋の扉が開いた！' : ''); }, 2500);
+  }
+}
+function wipe() {
+  stop(); S.phase = 'result'; S.emit({ t: 'win', s: '全滅…　入口からやり直し（けいけんちが少し減る）', lose: 1 }); log('全滅');
+  setTimeout(function () { MEM.forEach(function (m) { m.hp = m.max; m.down = 0; }); S.pos = S.map.start.slice(); toExplore(''); }, 3000);
+}
+function toExplore(msg) {
+  S.phase = 'explore'; S.foes = []; MEM.forEach(function (m) { delete S.q[m.id]; if (!m.down) m.hp = Math.min(m.max, m.hp + 6); });
+  S.emit({ t: 'explore', s: msg });
+}
+
+$('cWin').onclick = function () { if (S.phase !== 'battle') return; S.foes.forEach(function (f) { f.hp = 0; }); win(); };
+$('cOpen').onclick = function () { if (S.phase !== 'explore') return; S.wins = S.need; S.emit({ t: 'explore', s: '番人の部屋の扉が開いた！' }); };
+$('cBoss').onclick = function () { S.keys = 4; S.emit({ t: 'tick' }); startBoss(); };
+S.backFromClear = function () { S.keys = 1; S.floor = 2; S.wins = 0; S.pos = S.map.start.slice(); spawn(); toExplore('2周目：敵が強くなった。裏ボスがどこかにいる…'); };
+$('cFast').onclick = function () { var f = N.ans[0] === 6; N.ans = f ? [2, 4] : [6, 14]; $('fast').textContent = f ? 'はやい（2〜4秒）' : 'ふつう（6〜14秒）'; };
+$('cRate').onclick = function () { S.rate = S.rate > .5 ? .3 : S.rate > .2 ? .95 : .7; $('rate').textContent = Math.round(S.rate * 100); };
+
+await loadQ();
+S.ready = true; S.emit({ t: 'explore' });
+</script>
+</body>
+</html>
