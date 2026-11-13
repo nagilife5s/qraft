@@ -6,8 +6,8 @@
 <title>Qraft クエスト（ひとりで冒険）</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261113142223">
-<link rel="stylesheet" href="quest.css?v=20261113142223">
+<link rel="stylesheet" href="theme.css?v=20261113142456">
+<link rel="stylesheet" href="quest.css?v=20261113142456">
 <style>
   .hud-btns { display:flex; gap:.4em; }
   .hud-btns .btn { font-size:.85em; padding:.35em .9em; }
@@ -130,14 +130,14 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261113142223"></script>
+<script src="firebase-config.js?v=20261113142456"></script>
 <script type="module">
-import { signIn, db, ref, set, get, $, el, showScreen, shuffle, prepareQuestion, maskOf, isTextCorrect } from './lib.js?v=20261113142223';
+import { signIn, db, ref, set, get, $, el, showScreen, shuffle, prepareQuestion, maskOf, isTextCorrect } from './lib.js?v=20261113142456';
 import { addExp, expToNext, migrateChar, newChar, JOBS as RJOBS, JOB_KEYS, LEARN, RANK_POW, RANK_SEC, LOAD_N, ELEMS, ELEM, UNITS,
-         heroImg, fieldImg, skillName, rankOf, rankCost, canRankUp, rankUp, spUsed, loadoutOf, weakOf, statsOf } from './rikaria-data.js?v=20261113142223';
+         heroImg, fieldImg, skillName, rankOf, rankCost, canRankUp, rankUp, spUsed, loadoutOf, weakOf, statsOf } from './rikaria-data.js?v=20261113142456';
 import { fiscalYear, ENEMIES, TOWN, TOWN_DEFAULT,
          weaponList, armorList, weaponName, armorName, TOWN_MAX, soloDayCap, dayNo, ITEMS, ITEM_KEYS, FACS, RESPEC_COST, ensureOwner, battleGuide,
-         soloMult, soloReward, soloEnemyHp, BOSS, cmdImg } from './quest.js?v=20261113142223';
+         soloMult, soloReward, soloEnemyHp, soloEnemyAtkX, BOSS, cmdImg } from './quest.js?v=20261113142456';
 
 var Y = fiscalYear(), me = { g: 0, c: 0, n: 0 }, sid = '', ch = null, CLS = {}, SETS = [], AREAS = [], look = 'a', job = 'mage';
 var curArea = null, HP = 0, MP = 0;
@@ -769,7 +769,7 @@ async function poolOf(a) {
 async function startBattle(mob) {
   var P = await poolOf(curArea);
   if (!P.q.length) { FD.busy = false; say('<h3>問題が読めない</h3>通信を確かめて、もう一度ためしてください。'); return; }
-  var max = soloEnemyHp(curArea.i);
+  var max = soloEnemyHp(curArea.i, me.g);
   /* fx＝続いている効果。t は「あと何問」。stun・slow は敵の攻撃の回数 */
   B = { mob: mob, e: ENEMIES[mob.id], hp: max, max: max, streak: 0, P: P, t: ZTYPE[ENEMIES[mob.id].n] || 'earth',
         fx: { guard: null, buff: null, regen: null, counter: null, dot: null, mpRate: 0, stun: 0, slow: 0, nextCrit: 0, keep: 0, reveal: 0 } };
@@ -865,7 +865,7 @@ function judge(mask, text) {
     var d = 0, msg;
     if (f.stun > 0) { f.stun--; msg = '✕ ざんねん… でも ' + B.e.n + 'は動けない！'; }
     else {
-      d = Math.max(4, 10 - J.def) * st.cut; if (f.guard) d *= 1 - f.guard.cut; if (f.slow > 0) { d *= .5; f.slow--; }
+      d = Math.max(4, 10 - J.def) * soloEnemyAtkX(me.g) * st.cut; if (f.guard) d *= 1 - f.guard.cut; if (f.slow > 0) { d *= .5; f.slow--; }
       d = Math.max(1, Math.round(d)); HP = Math.max(0, HP - d);
       msg = '✕ ざんねん… ' + B.e.n + 'の攻撃！ ' + d + 'のダメージ';
       if (f.counter && HP > 0) { var cd = Math.max(1, Math.round(st.atk * soloMult(ch.lv) * f.counter.pow)); B.hp = Math.max(0, B.hp - cd); msg += '　カウンター！ ' + cd + 'のダメージ'; }

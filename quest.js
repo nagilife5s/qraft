@@ -7,7 +7,7 @@
  *   ・シングルモードの書き込み上限：経験値＋300・ゴールド＋200（firebase-rules.json）
  */
 
-import { TOWN, TOWN_DEFAULT, TOWN_MAX, ITEMS, ITEM_KEYS, weaponName, armorName, weaponList, armorList, gearOf, goldOf, soloGold, soloDayCap, dayNo } from './rikaria-data.js?v=20261113142223';
+import { TOWN, TOWN_DEFAULT, TOWN_MAX, ITEMS, ITEM_KEYS, weaponName, armorName, weaponList, armorList, gearOf, goldOf, soloGold, soloDayCap, dayNo } from './rikaria-data.js?v=20261113142456';
 /* 町・装備・道具は rikaria-data.js が正本（2026-11-13 確定の数値の表） */
 export { goldOf, TOWN, TOWN_DEFAULT, TOWN_MAX, ITEMS, ITEM_KEYS, weaponName, armorName, weaponList, armorList, soloGold, soloDayCap, dayNo };
 
@@ -175,7 +175,13 @@ export function soloMult(lv) { return 1 + 0.05 * (Math.max(1, lv) - 1); }
 /* ひとりで冒険の報酬（1回の書き込みは 経験値300・ゴールド200 まで。ルールでも弾く） */
 /* ゴールドは学年の値（soloGold）。1日の上限（soloDayCap）は呼ぶ側とルールで止める */
 export function soloReward(enemyMax, review, grade) { var r = review ? 0.5 : 1; return { exp: Math.min(300, Math.round(enemyMax * 0.8 * r)), gold: Math.max(1, Math.round(soloGold(grade) * r)) }; }
-export function soloEnemyHp(areaIndex) { return 30 + 8 * areaIndex; }
+/* 敵の強さは学年で上げる（2026-11-13）。2年はLv16・3年はLv30から始まるので、1年のままの敵だと1〜2発で倒せてしまうため。
+   HP：学年の始まりのレベルの攻撃倍率 ×（1・1.25・1.5）。素の攻撃でおよそ4〜6回、技と装備を使えば2〜3回で倒せる強さ。
+   攻撃：キャラのHPの伸び（レベルごとに+2）に合わせる。まちがえて倒れるまでの回数は、どの学年もほぼ同じ。
+   1年は今までと同じ値（HP 30＋8×エリアの番号・攻撃1倍） */
+var SOLO_START = [1, 1, 16, 30], SOLO_HPX = [1, 1, 1.25, 1.5];
+export function soloEnemyHp(areaIndex, grade) { return Math.round((30 + 8 * areaIndex) * soloMult(SOLO_START[grade] || 1) * (SOLO_HPX[grade] || 1)); }
+export function soloEnemyAtkX(grade) { return 1 + 0.07 * ((SOLO_START[grade] || 1) - 1); }
 
 /* ====================================================================
    はじめての戦闘の案内（端末ごとに一度だけ。2026-11-12）
