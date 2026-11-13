@@ -2,7 +2,7 @@
  * リカリア・チーム戦の画面の部品（生徒の rikaria-play.html と先生の rikaria-host.html で共通）。
  * 地図（ソロのフィールドと同じタイル）・技のエフェクト（採用したエフェクト画像＋衝撃の輪・火花・カットイン）・帯の表示。
  */
-import { propImg, zakoImg, guardImg, fieldImg, effectImg, heroImg } from './rikaria-data.js';
+import { propImg, zakoImg, guardImg, fieldImg, effectImg, heroImg, spiritImg } from './rikaria-data.js';
 import { buildMap } from './rikaria-engine.js';
 
 export var MAP = buildMap();
@@ -12,7 +12,34 @@ export function el(t, c, txt) { var e = document.createElement(t); if (c) e.clas
 var OLD_PROPS = { 1: ['prop-shelf', 1.4], 2: ['prop-bookshelf', 1.8], 3: ['prop-labtable', 1.15], 4: ['prop-pipes', 1.2], 5: ['prop-cauldron', 1.15], 6: ['prop-crystal', 1.2], 7: ['prop-sacks', 1.1], 8: ['prop-barrel', 1.1] };
 var TILE_CLS = { k: 't-floor', '#': 't-wall', c: 't-carpet', '<': 't-exitw', D: 't-carpet' };
 
-/* 地図を描く。gv＝班の画面データ、U＝単元、lead＝リーダー {j, lk, name} */
+/* 壁のたいまつ（下が床の壁のマス）。絵 img/rikaria/prop/torch.webp が届いたら絵を使い、無いあいだはCSSの炎 */
+var TORCHES = [[15, 1], [21, 2], [2, 7], [5, 7], [10, 10], [21, 10], [24, 10], [29, 4], [33, 4], [14, 20], [20, 20]].filter(function (p) {
+  var g = MAP.g; return g[p[1]] && g[p[1]][p[0]] === '#' && g[p[1] + 1] && g[p[1] + 1][p[0]] !== '#' && g[p[1] + 1][p[0]] !== undefined;
+});
+var TORCH_IMG = 'img/rikaria/prop/torch.webp', torchOk = false;
+if (typeof Image !== 'undefined') { var tp = new Image(); tp.onload = function () { torchOk = true; document.querySelectorAll('.torch:not(.pic)').forEach(function (t) { t.classList.add('pic'); t.insertAdjacentHTML('afterbegin', '<img alt="" src="' + TORCH_IMG + '">'); }); }; tp.src = TORCH_IMG; }
+function dirOf(d) { return d === 'left' || d === 'right' ? 'right' : (d || 'down'); }
+/* リーダーの後ろを一列で歩く班員（gv.mem の順。リーダーは除く） */
+function followers(gv, lead) {
+  var ids = Object.keys(gv.mem || {}).filter(function (id) { return !lead || id !== lead.id; });
+  return (gv.tr || []).slice(0, ids.length).map(function (t, i) { var m = gv.mem[ids[i]]; return { x: t[0], y: t[1], dir: t[2], j: m.j, lk: m.lk }; });
+}
+/* 精霊使いの横に浮かぶ、いま切りかえている精霊（精霊使いでなければ空） */
+export function spiritHtml(m) { return m && m.j === 'summoner' && !m.dn ? '<img class="spirit" alt="" data-el="' + esc(m.el || 'fire') + '" src="' + spiritImg(m.el) + '">' : ''; }
+
+/* 床・壁・じゅうたんは単元ごとの絵（img/rikaria/tile/<単元>-<種類>.webp。2026-11-13）。
+   床の絵は石4×4個で1枚なので、4マス四方に1枚を敷く。壁は上の面（walltop）と手前の面（wall。2マスに1枚）。
+   じゅうたんは、たての通路はそのまま、よこの通路は90度回した絵（carpetv） */
+function tileBg(U, cls, x, y, ts) {
+  if (!U || !U.id) return '';
+  var b = 'img/rikaria/tile/' + U.id + '-', f = function (n, size, px, py) { return ";background:url('" + b + n + ".webp') " + (-px) + 'px ' + (-py) + 'px / ' + size + 'px ' + size + 'px'; };
+  if (cls.indexOf('t-floor') === 0) return f('floor', ts * 4, (x % 4) * ts, (y % 4) * ts);
+  if (cls.indexOf('t-wall') === 0) return cls.indexOf(' top') > 0 ? f('walltop', ts, 0, 0) : f('wall', ts * 2, (x % 2) * ts, 0);
+  if (cls.indexOf('t-carpet') === 0) return f(cls.indexOf(' v') > 0 ? 'carpet' : 'carpetv', ts, 0, 0);
+  return '';
+}
+
+/* 地図を描く。gv＝班の画面データ、U＝単元、lead＝リーダー {id, j, lk, name} */
 export function drawField(mapEl, ts, gv, U, lead, mini) {
   var g = MAP.g, W = MAP.w, H = MAP.h, open = gv.wins >= 2;
   function box(x, y, w, h) { return 'left:' + x * ts + 'px;top:' + y * ts + 'px;width:' + (w || 1) * ts + 'px;height:' + (h || 1) * ts + 'px'; }
@@ -23,7 +50,8 @@ export function drawField(mapEl, ts, gv, U, lead, mini) {
     if (cls === 't-floor' && (x + y) % 2) cls += ' alt';
     if (c === '#' && (g[y + 1] == null || g[y + 1][x] === '#')) cls += ' top';
     if ((c === 'c' || c === 'D') && g[y - 1] && g[y - 1][x] === 'c' && g[y + 1] && g[y + 1][x] === 'c') cls += ' v';
-    h += '<div class="tile ' + cls + '" style="' + box(x, y) + '"></div>';
+    var tb = tileBg(U, cls, x, y, ts);
+    h += '<div class="tile ' + cls + (tb ? ' tx' : '') + '" style="' + box(x, y) + tb + '"></div>';
     if (pi) {
       var src = propImg(U, pi), s = 1.25;
       if (!src) { src = 'img/quest/' + OLD_PROPS[pi][0] + '.webp'; s = OLD_PROPS[pi][1]; }
@@ -31,11 +59,14 @@ export function drawField(mapEl, ts, gv, U, lead, mini) {
     }
   }); });
   h += props;
+  TORCHES.forEach(function (t) { h += '<div class="torch' + (torchOk ? ' pic' : '') + '" style="' + box(t[0], t[1]) + '">' + (torchOk ? '<img alt="" src="' + TORCH_IMG + '">' : '') + '<i></i></div>'; });
   if (!open) h += '<div class="door-lock" style="' + box(MAP.door[0], MAP.door[1]) + '">🔒</div>';
+  else h += '<div class="door-glow" style="' + box(MAP.door[0], MAP.door[1]) + '"></div>';   /* 扉が開いたら光らせて、行き先を知らせる */
   var gd = MAP.guard;
   h += '<div class="mob boss" style="' + box(gd[0] - .5, gd[1] - 1, 2, 2) + ';z-index:' + (gd[1] * 10 + 6) + '"><img alt="" src="' + guardImg(U, Math.min(4, gv.fl)) + '" style="scale:-1 1"></div>';
   h += (gv.mobs || []).map(function (m, i) { return '<div class="mob" data-i="' + i + '" style="' + box(m[0], m[1]) + ';z-index:' + (m[1] * 10 + 5) + '"><img alt="" src="' + zakoImg(U, m[2]) + '"></div>'; }).join('');
   var p = gv.pos || MAP.start;
+  h += followers(gv, lead).map(function (f, i) { return '<div class="unit fol' + (f.dir === 'left' ? ' left' : '') + '" data-f="' + i + '" style="' + box(f.x, f.y) + ';z-index:' + (f.y * 10 + 8) + '"><img class="hero" alt="" src="' + fieldImg(f.j, f.lk, dirOf(f.dir)) + '"></div>'; }).join('');
   h += '<div class="unit leader' + (gv.dir === 'left' ? ' left' : '') + '" data-me="1" style="' + box(p[0], p[1]) + ';z-index:' + (p[1] * 10 + 9) + '">' + (mini || !lead ? '' : '<span class="nm">' + esc(lead.name) + '</span>') +
        '<img class="hero" alt="" src="' + (lead ? fieldImg(lead.j, lead.lk, gv.dir === 'left' || gv.dir === 'right' ? 'right' : gv.dir) : 'img/quest/hero-warrior-a.webp') + '"></div>';
   mapEl.innerHTML = h;
@@ -48,6 +79,13 @@ export function moveField(mapEl, ts, gv, lead) {
     var im = u.querySelector('img'); if (lead) { var src = fieldImg(lead.j, lead.lk, gv.dir === 'left' || gv.dir === 'right' ? 'right' : gv.dir); if (im.getAttribute('src') !== src) im.src = src; }
     u.classList.add('walk'); clearTimeout(u._t); u._t = setTimeout(function () { u.classList.remove('walk'); }, 300);
   }
+  var fs = followers(gv, lead), fe = mapEl.querySelectorAll('.unit.fol');
+  if (fe.length !== fs.length) return false;   /* 列の人数が変わったら描き直す */
+  fs.forEach(function (f, i) {
+    var e = fe[i]; e.style.left = f.x * ts + 'px'; e.style.top = f.y * ts + 'px'; e.style.zIndex = f.y * 10 + 8; e.classList.toggle('left', f.dir === 'left');
+    var fi = e.querySelector('img'), fsrc = fieldImg(f.j, f.lk, dirOf(f.dir)); if (fi.getAttribute('src') !== fsrc) fi.src = fsrc;
+    e.classList.add('walk'); clearTimeout(e._t); e._t = setTimeout(function () { e.classList.remove('walk'); }, 300);
+  });
   var mobs = mapEl.querySelectorAll('.mob[data-i]');
   if (mobs.length !== (gv.mobs || []).length) return false;   /* 数が変わったら描き直す */
   (gv.mobs || []).forEach(function (m, i) { var e = mobs[i]; e.style.left = m[0] * ts + 'px'; e.style.top = m[1] * ts + 'px'; e.style.zIndex = m[1] * 10 + 5; });

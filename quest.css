@@ -427,3 +427,64 @@
 .cmd.has-img > :not(.qbox):not(.cmd-img) { grid-column:2; }
 /* フィールドの案内は2行まで出す・12秒で消える（2026-11-12） */
 .fd-help { white-space:normal; max-width:min(90%, 46em); text-align:center; border-radius:.8em; line-height:1.5; animation:fadeOut 1s 12s forwards; }
+
+/* ==================================================================
+   ひとりで冒険（quest.html）2026-11-13：6職業・技10個／施設のNPC／育つ町
+   ================================================================== */
+/* 職業カード6枚 */
+.jobcards.six { flex-wrap:wrap; justify-content:center; max-width:64em; gap:.8em; }
+.jobcards.six .jobcard { width:11.5em; padding:.8em; gap:.4em; }
+.jobcards.six .jobcard .hero { height:6em; }
+.jobcards.six .jobcard h3 { font-size:1.2em; }
+.jobcards.six .jobcard p { font-size:.78em; }
+/* ステータス画面の技（押すと持っていく技を切りかえ） */
+.skills .hint { grid-column:1 / -1; font-size:.85em; font-weight:800; opacity:.9; }
+.skill.pick { cursor:pointer; border:.2em solid transparent; }
+.skill.pick.on { border-color:#6a35e8; background:#f2edff; }
+.skill.pick.ult.on { background:linear-gradient(135deg,#fff7d6,#ffe08a); }
+.skill.pick.lock { opacity:.5; cursor:default; }
+.skill.pick:focus-visible { outline:.2em solid #fff; }
+.skill .rk { color:#c98a00; letter-spacing:.05em; }
+.skill button.up { width:auto; height:auto; border-radius:999px; padding:.3em .8em; font-size:.8em; white-space:nowrap; }
+.tag.team { background:#ffe3e3; color:#b3261e; }
+/* 戦闘：技のボタン（こうげき＋技4つ＋必殺技）・精霊・効果の表示 */
+.actions.solo { grid-template-columns:repeat(3,1fr); }
+.actwrap { display:flex; flex-direction:column; gap:.5em; }
+.elems { display:flex; gap:.4em; justify-content:center; align-items:center; font-weight:800; font-size:.9em; }
+.elems button { font:inherit; font-weight:900; border:.15em solid transparent; border-radius:999px; padding:.15em .8em; background:#fff; color:var(--ink-dark); cursor:pointer; }
+.elems button.on { border-color:var(--q-gold); background:#fff3b8; }
+.bfx { display:flex; gap:.3em; flex-wrap:wrap; min-height:0; }
+.bfx span, .eweak span { font-size:.72em; font-weight:900; background:rgba(255,255,255,.18); border-radius:999px; padding:.05em .6em; }
+.eweak { display:flex; gap:.3em; flex-wrap:wrap; justify-content:center; }
+.eweak:empty, .bfx:empty { display:none; }
+/* 施設のNPC（顔の絵は img/quest/npc6-<名前>.webp。無ければ出さない） */
+.fd-msg .who { margin-bottom:.5em; }
+.fd-msg .who .npc6 { height:5.5em; border-radius:.6em; }
+.fd-msg .who .line { line-height:1.6; }
+
+/* ---------- 育つ町（段階0＝廃墟 → 12＝城下町） ---------- */
+/* あとから入れる絵（img/quest/town/<名前>.webp）。読めるまで隠し、無ければ仮の絵に置きかえる */
+img.slot:not(.ok) { visibility:hidden; }
+.ph { position:absolute; pointer-events:none; display:flex; align-items:flex-end; justify-content:center; line-height:1; }
+.ph span { filter:drop-shadow(0 .06em 0 rgba(0,0,0,.3)); }
+.ph.badge { align-items:flex-start; justify-content:flex-end; font-size:1.2em !important; }
+.ph-css { position:absolute; pointer-events:none; }
+.prop.dead { filter:grayscale(1) sepia(.35) brightness(.62) contrast(1.1) drop-shadow(0 .12em 0 rgba(0,0,0,.28)); }
+.prop.rubble { filter:grayscale(.6) brightness(.8) drop-shadow(0 .12em 0 rgba(0,0,0,.28)); }
+.prop.ruin { filter:grayscale(1) brightness(.72) contrast(.9) drop-shadow(0 .12em 0 rgba(0,0,0,.28)); }
+.bimg.ruin-castle { filter:grayscale(1) brightness(.6) contrast(.9); clip-path:polygon(0 100%, 0 64%, 9% 56%, 18% 70%, 30% 50%, 41% 67%, 52% 46%, 63% 66%, 74% 52%, 86% 68%, 100% 58%, 100% 100%); }
+.bimg.scaf { filter:sepia(.45) saturate(.7) brightness(.92) drop-shadow(0 .12em 0 rgba(0,0,0,.28)); }
+.ph-flags { background-image:linear-gradient(135deg, #e0484d 25%, transparent 25%), linear-gradient(225deg, #ffd23f 25%, transparent 25%); background-size:1.6em 1.6em; background-repeat:repeat-x; border-top:.08em solid #7a5a2a; }
+.fd-fog { position:absolute; inset:0; pointer-events:none; z-index:390; background:rgba(150,150,165,.32); }
+.fd-fog.f1 { background:rgba(175,175,190,.15); }
+/* タイル */
+.t-dirt { background-color:#b99a6b; background-image:radial-gradient(ellipse at 28% 32%, #c7ab7e 0 16%, transparent 18%), radial-gradient(ellipse at 74% 70%, #a98958 0 12%, transparent 14%); }
+.t-dirt.alt { background-color:#b59666; }
+.t-step { background:linear-gradient(180deg, #4fb0ef, #3a8fd6); }
+.t-step::after { content:""; position:absolute; inset:14% 12% 16%; border-radius:48% 52% 44% 50%; background:radial-gradient(circle at 35% 30%, #d6d1c8, #96908a); box-shadow:0 .1em 0 rgba(0,0,0,.3); }
+.t-field { background-color:#8a5f35; background-image:radial-gradient(circle at 25% 28%, #6fd06a 0 9%, transparent 10%), radial-gradient(circle at 75% 28%, #6fd06a 0 9%, transparent 10%), radial-gradient(circle at 25% 76%, #6fd06a 0 9%, transparent 10%), radial-gradient(circle at 75% 76%, #6fd06a 0 9%, transparent 10%), repeating-linear-gradient(0deg, transparent 0 40%, #74502c 40% 50%); }
+.t-swall { background-color:#a8a39b; background-image:linear-gradient(#8a857d 2px, transparent 2px), linear-gradient(90deg, #8a857d 2px, transparent 2px); background-size:50% 50%; box-shadow:inset 0 .16em 0 #cfcac2, inset 0 -.2em 0 #6f6a63; }
+.t-swall.low { background-color:#b3aea6; }
+.t-swall.tower { background-color:#8f8a83; }
+.t-swall.tower::after { content:"🚩"; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:1em; }
+.t-gate.stone { background-color:#c9c3b6; }

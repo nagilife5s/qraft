@@ -30,12 +30,12 @@ test('クイズに参加：存在しないPINはエラー', async ({ page }) => 
   await expect(page.locator('#joinErr')).toContainText('見つかりません');
 });
 
-test('クイズに参加：クエストの部屋のPINは専用画面へ', async ({ page }) => {
-  await room('222222', 'quest');
+test('クイズに参加：リカリアのチーム戦の部屋のPINは専用画面へ', async ({ page }) => {
+  await room('222222', 'rikaria');
   await page.goto('play.html?emu=1');
   await page.fill('#pin', '222222'); await page.fill('#nick', 'a');
   await page.click('#btnJoin');
-  await expect(page).toHaveURL(/quest-play\.html\?pin=222222/);
+  await expect(page).toHaveURL(/rikaria-play\.html\?pin=222222/);
 });
 
 test('クイズに参加：ジェットチェイスの部屋のPINは専用画面へ', async ({ page }) => {

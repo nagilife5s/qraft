@@ -168,37 +168,4 @@ test('記録を消す：取り消すと残り、「けす」で今の絞り込�
   await expect(page.locator('#meta')).toContainText('練習 1 回');
 });
 
-// クエスト（チーム）の生徒の画面：2つ選ぶ問題で「答える」が画面の中にあり、答えを送れる。図は押すと拡大（2026-11-12 授業での指摘）
-test('クエスト（チーム）：2つ選ぶ問題を答えられる・図を拡大できる', async ({ page }) => {
-  test.setTimeout(90000);
-  const PIN = '246810', Y = '2026', SID = '2-1-3';
-  await page.setViewportSize({ width: 1280, height: 720 });
-  await page.goto('quest-play.html?emu=1');
-  const uid = await page.evaluate(async () => {
-    await new Promise(r => setTimeout(r, 1500));
-    const u = performance.getEntriesByType('resource').map(e => e.name).find(n => n.includes('/lib.js'));
-    return (await (await import(u)).signIn()).uid;
-  });
-  const now = Date.now();
-  await seed('quest/' + Y + '/keys/' + SID, 'abc234');
-  await seed('quest/' + Y + '/owners/' + SID + '/' + uid, { c: 'abc234', t: now });
-  await seed('quest/' + Y + '/chars/' + SID, { n: 'テスト', j: 'mage', lk: 'a', lv: 3, exp: 0, gold: 0, sp: 0, sk: { 0: 0, 1: 1, 2: 0 }, u: now });
-  await seed('rooms/' + PIN + '/state', { mode: 'quest', phase: 'battle', g: 2, c: 1, y: Y, area: { name: '霧の森', k: 'forest' }, tm: { [uid]: 0 }, ends: now + 300000, Tl: 300, battle: 'zako' });
-  await seed('rooms/' + PIN + '/tv/0', { m: { [uid]: { nm: 'テスト', j: 'mage', lk: 'a', hp: 30, mhp: 30, mp: 1 }, x1: { nm: 'なかま', j: 'warrior', lk: 'b', hp: 40, mhp: 40, mp: 0 } }, e: { k: 'donbuka', hp: 40, max: 60 }, log: '' });
-  await page.evaluate((pin) => { localStorage.setItem('qraft.quest', JSON.stringify({ pin, n: 3 })); localStorage.setItem('qraft.quest.guide.team', '1'); }, PIN);
-  await page.goto('quest-play.html?emu=1');
-  await expect(page.locator('#s-battle')).toBeVisible({ timeout: 15000 });
-  await seed('rooms/' + PIN + '/qs/' + uid, { n: 1, t: 'セキツイ動物にあてはまるものを すべて選びなさい。長い問題文のときに、画面の下のほうがどうなるかを確かめるための文です。', img: 'img/logo-mark.png', imgAlt: '図', ch: [{ t: 'メダカ' }, { t: 'イカ' }, { t: 'カエル' }, { t: 'バッタ' }], mu: 1, ko: 0 });
-  const sub = page.locator('#cmd button.btn', { hasText: '答える' });
-  await expect(sub).toBeVisible({ timeout: 10000 });
-  await expect(sub).toBeInViewport({ ratio: 1 });           // 前は画面の下にはみ出して押せなかった
-  await page.locator('#cmd .choices button', { hasText: 'メダカ' }).click();
-  await page.locator('#cmd .choices button', { hasText: 'カエル' }).click();
-  // 図を押すと拡大、もう一度押すと閉じる
-  await page.locator('#cmd img.qimg').click();
-  await expect(page.locator('.img-zoom')).toBeVisible();
-  await page.locator('.img-zoom').click();
-  await expect(page.locator('.img-zoom')).toHaveCount(0);
-  await sub.click();
-  await expect.poll(async () => (await (await fetch(`${DB}/rooms/${PIN}/answers/1/${uid}/m.json?ns=${NS}`, { headers: { Authorization: 'Bearer owner' } })).json())).toBe(5);   // メダカ(1)＋カエル(4)
-});
+// 古いチーム戦（quest-play.html）のテストは、2026-11-13 にリカリアのチーム戦へ切り替えたので外した（通しは rikaria.spec.mjs）

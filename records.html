@@ -52,6 +52,17 @@
       番号 1〜<input id="kn" type="number" min="1" max="40" value="40" style="width:4.5em">
       <button id="btnKeys">一覧を見る</button> <button class="main" id="btnMakeKeys">合言葉を作る</button> <button id="btnPrintKeys">印刷用に開く</button> <span id="keyMsg"></span></div>
     <div style="overflow:auto"><table id="tblKeys"></table></div></div>
+  <h2>前年度から移す（進級・クラス替え）</h2>
+  <div class="note">4月に、前の年度のキャラ（レベル・技・装備・ゴールド・称号）を新しい番号へまとめて移します。生徒は何もしません。<br>
+    名簿のExcelから<b>「前の年度の番号」「新しい番号」の2列</b>（<code>1-2-3</code> のように 学年-組-番号）をコピーして、下に貼ってください。1行に1人です。<br>
+    ・合言葉は移りません。移したあと、上の「合言葉」で新しい番号の合言葉を作って配ってください。<br>
+    ・前の年度のデータは消しません（まちがえたら、表を直してもう一度移せます）。表にない人（転出・卒業）は移しません。
+    <div class="row"><b id="cvYears"></b></div>
+    <textarea id="cvIn" rows="8" style="width:100%;box-sizing:border-box;font:inherit;font-family:ui-monospace,monospace;padding:.5em;border-radius:.5em;border:1px solid #bdb5de" placeholder="1-2-3	2-1-7&#10;1-2-4	2-3-12" aria-label="前の年度の番号と新しい番号の対応表"></textarea>
+    <div class="row"><button id="btnCvCheck">内容を確かめる</button>
+      <label><input type="checkbox" id="cvOver"> 新しい番号にすでにキャラがいても上書きする</label>
+      <button class="main" id="btnCvGo" disabled>この内容で移す</button> <span id="cvMsg" role="status"></span></div>
+    <div style="overflow:auto"><table id="tblCv"></table></div></div>
   <h2>先生の端末を増やす</h2>
   <div class="note">この端末のID: <code id="myUid"></code><br>
     別の端末で開いたときに出るIDを、ここに入れて追加します。<br>
@@ -223,6 +234,100 @@ $('btnPrintKeys').onclick = function () {
   var w = window.open('', '_blank');
   w.document.write('<!DOCTYPE html><html lang="ja"><meta charset="utf-8"><title>クエストの合言葉 ' + c[0] + '年' + c[1] + '組</title><style>body{font-family:sans-serif;margin:8mm}main{display:grid;grid-template-columns:repeat(4,1fr)}.card{border:1px dashed #999;padding:4mm;display:flex;flex-direction:column;gap:1mm;break-inside:avoid}.card b{font-size:13pt}.card code{font-size:18pt;letter-spacing:2pt;font-weight:700}small{color:#666;font-size:8pt}</style><main>' + cards + '</main><script>print()<\/script></html>');
   w.document.close();
+};
+/* ------------------------------------------------------------ 前年度から移す（2026-11-13 決定）
+   quest/<前年度>/chars/<旧番号> を quest/<今年度>/chars/<新番号> へ写す。キャラ・技・装備・持ち物・ゴールド・称号はそのまま、
+   その日の稼ぎ（gd・gg）だけ消す。合言葉（keys）と持ち主（owners）は写さない。前年度のデータは消さない。
+   書けるのは先生の端末だけ（ルール）。写す項目は、ルールが受け付けるものだけにしぼる */
+var PY = QY - 1, CV = [];
+$('cvYears').textContent = PY + '年度 → ' + QY + '年度';
+var SID_RE = /^[1-3]-[1-9]-[0-9]{1,2}$/, JOB_N = { warrior: '戦士', mage: '魔法使い', priest: '僧侶', hunter: '狩人', monk: '武闘家', summoner: '精霊使い' };
+function sidName(id) { return id.replace(/(\d)-(\d+)-(\d+)/, '$1年$2組 $3番'); }
+/* 全角の数字・いろいろな横棒・頭の0（1-02-03）をそろえる */
+function normSid(x) { return String(x || '').normalize('NFKC').replace(/[‐-―−ー]/g, '-').replace(/-0+(\d)/g, '-$1'); }
+/* 貼った表を読む：タブ・コンマ・空白で区切った2列。数字のない行（見出し・空行）は飛ばす */
+function parsePairs(text) {
+  var out = [];
+  String(text).split(/\r?\n/).forEach(function (line, i) {
+    var raw = line.normalize('NFKC').trim(); if (!raw || !/[0-9]/.test(raw)) return;
+    var cols = raw.split(/[\s,、]+/).filter(function (x) { return x !== ''; }).map(normSid);
+    var r = { line: i + 1, raw: raw, old: cols[0] || '', nw: cols[1] || '', err: '', warn: [] };
+    if (cols.length !== 2) r.err = '2列（前の番号・新しい番号）になっていません';
+    else if (!SID_RE.test(r.old) || !SID_RE.test(r.nw)) r.err = '番号の形がちがいます（学年-組-番号。例 1-2-3）';
+    out.push(r);
+  });
+  var co = {}, cn = {};
+  out.forEach(function (r) { if (r.err) return; co[r.old] = (co[r.old] || 0) + 1; cn[r.nw] = (cn[r.nw] || 0) + 1; });
+  out.forEach(function (r) {
+    if (r.err) return;
+    if (co[r.old] > 1) r.err = '前の番号 ' + r.old + ' が2回以上出ています';
+    else if (cn[r.nw] > 1) r.err = '新しい番号 ' + r.nw + ' が2回以上出ています';
+    else if (+r.nw[0] !== +r.old[0] + 1) r.warn.push('学年が1つ上がっていません');
+  });
+  return out;
+}
+/* 写すキャラを作る。第1版の形（sk がある・spt がない）は、振っていたポイントを全部返して第2版にする */
+function carryChar(o) {
+  var lv = Math.max(1, Math.min(50, Math.floor(o.lv || 1)));
+  var c = { n: String(o.n || '').slice(0, 8), j: o.j, lk: o.lk === 'b' ? 'b' : 'a', lv: lv, exp: lv >= 50 ? 0 : Math.max(0, o.exp || 0), gold: Math.max(0, o.gold || 0) };
+  if (o.sk != null || o.spt == null) { c.spt = lv - 1; c.sp = lv - 1; }
+  else { c.spt = o.spt; c.sp = o.sp || 0; if (o.sr) c.sr = o.sr; if (o.ld) c.ld = o.ld; }
+  if (o.eq) c.eq = o.eq;
+  if (o.inv) c.inv = o.inv;
+  if (o.ttl) c.ttl = o.ttl;
+  c.u = { '.sv': 'timestamp' };
+  return c;
+}
+/* その行を移すかどうか。[移すか, 表示, 赤くするか] */
+function cvState(r) {
+  if (r.err) return [false, '✕ ' + r.err, true];
+  if (r.done) return [false, '✓ 移しました', false];
+  if (!r.src) return [false, '✕ 前の年度にキャラがいません（移しません）', true];
+  if (!JOB_N[r.src.j] || !r.src.n) return [false, '✕ 前の年度のキャラのデータが読めません', true];
+  if (r.dst && !$('cvOver').checked) return [false, '－ 新しい番号にすでにキャラがいます（' + esc(r.dst.n) + ' Lv' + r.dst.lv + '）。移しません', true];
+  return [true, r.dst ? '⚠ 上書きして移します（今の ' + esc(r.dst.n) + ' Lv' + r.dst.lv + ' は消えます）' : '○ 移します', false];
+}
+function drawCv() {
+  var h = '<tr><th>行</th><th>前の番号</th><th>新しい番号</th><th>キャラ</th><th>どうなるか</th></tr>', n = 0;
+  CV.forEach(function (r) {
+    var st = cvState(r); if (st[0]) n++;
+    var who = r.src ? esc(r.src.n) + '（' + (JOB_N[r.src.j] || '?') + ' Lv' + r.src.lv + '・' + (r.src.gold || 0) + 'G）' : '';
+    h += '<tr><td>' + r.line + '</td><td>' + (SID_RE.test(r.old) ? sidName(r.old) : esc(r.raw)) + '</td><td>' + (SID_RE.test(r.nw) ? sidName(r.nw) : esc(r.nw)) + '</td><td>' + who + '</td><td' + (st[2] ? ' class="low"' : '') + '>' + st[1] +
+      (r.warn.length && !r.err ? '<br><span style="color:#8a6d00;font-weight:400">⚠ ' + r.warn.join('・') + '</span>' : '') + '</td></tr>';
+  });
+  $('tblCv').innerHTML = CV.length ? h : '';
+  $('btnCvGo').disabled = !n;
+  return n;
+}
+function cvCount(n) { return CV.length + ' 行のうち ' + n + ' 人を移せます。' + (n < CV.length ? '赤い行は移しません。' : ''); }
+async function checkCv() {
+  CV = parsePairs($('cvIn').value); $('btnCvGo').disabled = true;
+  if (!CV.length) { $('tblCv').innerHTML = ''; $('cvMsg').textContent = '対応表を貼ってください。'; return; }
+  $('cvMsg').textContent = '確かめています…';
+  try {
+    await Promise.all(CV.filter(function (r) { return !r.err; }).map(function (r) {
+      return Promise.all([get(ref(db, 'quest/' + PY + '/chars/' + r.old)), get(ref(db, 'quest/' + QY + '/chars/' + r.nw))]).then(function (v) { r.src = v[0].val(); r.dst = v[1].val(); });
+    }));
+  } catch (e) { $('cvMsg').textContent = '読みこめませんでした：' + e.message; return; }
+  $('cvMsg').textContent = cvCount(drawCv());
+}
+$('btnCvCheck').onclick = checkCv;
+$('cvOver').onchange = function () { if (CV.length) $('cvMsg').textContent = cvCount(drawCv()); };
+$('cvIn').oninput = function () { $('btnCvGo').disabled = true; $('cvMsg').textContent = '表を変えたら、もう一度「内容を確かめる」を押してください。'; };
+$('btnCvGo').onclick = async function () {
+  var list = CV.filter(function (r) { return cvState(r)[0]; }), over = list.filter(function (r) { return r.dst; }).length;
+  if (!list.length) return;
+  if (!confirm(PY + '年度のキャラ ' + list.length + ' 人を、' + QY + '年度の新しい番号へ移します。' + (over ? '\nそのうち ' + over + ' 人は、新しい番号に今いるキャラを上書きします（元に戻せません）。' : '') + '\nよろしいですか？')) return;
+  $('btnCvGo').disabled = true; $('btnCvCheck').disabled = true;
+  var ok = 0, ng = [];
+  for (var i = 0; i < list.length; i++) {
+    var r = list[i]; $('cvMsg').textContent = '移しています… ' + (i + 1) + '/' + list.length;
+    try { await set(ref(db, 'quest/' + QY + '/chars/' + r.nw), carryChar(r.src)); r.done = true; ok++; }
+    catch (e) { ng.push(r.old + '→' + r.nw); }
+  }
+  $('btnCvCheck').disabled = false;
+  drawCv();
+  $('cvMsg').textContent = ok + ' 人を移しました。' + (ng.length ? '移せなかった人：' + ng.join('、') + '（新しいルールが公開されているか確かめてください）。' : '') + '新しい番号の合言葉を、上の「合言葉」で作って配ってください。';
 };
 $('btnAdd').onclick = async function () {
   var u = $('addUid').value.trim(); if (!u) return;

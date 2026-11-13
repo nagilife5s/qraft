@@ -6,9 +6,9 @@ import AxeBuilder from '@axe-core/playwright';
 
 const PAGES = [
   ['index.html', 'トップ'], ['rikaria.html', 'リカリア（タイトル）'], ['play.html', 'ゲームに参加'], ['home.html', 'おうちで練習'],
-  ['quest.html', 'クエスト（ひとりで冒険）'], ['quest-play.html', 'クエスト（チーム・生徒）'],
+  ['quest.html', 'クエスト（ひとりで冒険）'], ['rikaria-play.html', 'リカリア・チーム戦（生徒）'],
   ['host.html', 'クラシック（先生）'], ['chase-host.html', 'ジェットチェイス（先生）'],
-  ['quest-host.html', 'クエスト（先生）'], ['records.html', '記録画面（先生）'],
+  ['rikaria-host.html', 'リカリア・チーム戦（先生）'], ['records.html', '記録画面（先生）'],
 ];
 test.use({ viewport: { width: 1280, height: 720 } });
 

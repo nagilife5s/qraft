@@ -6,9 +6,9 @@
 <title>リカリア チーム戦</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261113060818">
-<link rel="stylesheet" href="quest.css?v=20261113060818">
-<link rel="stylesheet" href="rikaria.css?v=20261113060818">
+<link rel="stylesheet" href="theme.css?v=20261113134143">
+<link rel="stylesheet" href="quest.css?v=20261113134143">
+<link rel="stylesheet" href="rikaria.css?v=20261113134143">
 <style>
   #app { background:url(img/rikaria/title-bg.webp) center/cover no-repeat, #1d1648; }
   .q-bg-r { background:rgba(10,6,36,.55); }
@@ -74,6 +74,10 @@
     <div class="ld-grid" id="ppSkills"></div>
     <div id="ppErr" class="err hide" role="alert"></div>
   </div>
+  <div class="panel" style="display:flex;flex-direction:column;gap:.6em">
+    <div class="row" style="flex-wrap:wrap"><b class="grow">持っていく持ち物（回復のどうぐを1つ）</b><span class="mut" style="font-size:.85em">戦闘中に1回だけ使える。使うと持ち物から1つ減る</span></div>
+    <div class="it-row" id="ppItems" role="group" aria-label="持っていく持ち物"></div>
+  </div>
   <div class="row" style="justify-content:center;gap:1em;flex-wrap:wrap">
     <button class="btn" id="ppReady" type="button">準備OK！</button>
     <div class="pp-wait" id="ppWait"></div>
@@ -132,19 +136,22 @@
 </section>
 
 <section class="screen center q-bg-r" id="s-wait" style="gap:1em"><div class="q-title" id="waitT">先生が始めるのを待っています</div><div class="dots"><span></span><span></span><span></span></div></section>
+<div class="story-mini hide" id="storyMini" role="status"></div>
 <section class="screen center q-bg-r" id="s-msg"><div class="q-title" id="msgT"></div><a class="btn" href="rikaria-play.html" style="text-decoration:none">参加画面へ</a></section>
 
 </div>
 
-<script src="firebase-config.js?v=20261113060818"></script>
+<script src="firebase-config.js?v=20261113134143"></script>
 <script type="module">
-import { signIn, db, ref, set, get, update, onValue, serverNow, $, showScreen, confetti } from './lib.js?v=20261113060818';
-import { fiscalYear, ensureOwner, cmdImg } from './quest.js?v=20261113060818';
-import { JOBS, JOB_KEYS, MP_MAX, LEARN, ELEMS, ELEM, heroImg, skillName, rankOf, rankCost, canRankUp, rankUp, loadoutOf, learned, migrateChar, expToNext, unitById, battleBg, weakOf, LOAD_N } from './rikaria-data.js?v=20261113060818';
-import { el, esc, drawField, moveField, cameraOf, cellAt, dmgFx, supportFx, ovban, redflash, MAP } from './rikaria-view.js?v=20261113060818';
+import { signIn, db, ref, set, get, update, onValue, serverNow, $, showScreen, confetti } from './lib.js?v=20261113134143';
+import { fiscalYear, ensureOwner, cmdImg } from './quest.js?v=20261113134143';
+import { JOBS, JOB_KEYS, MP_MAX, LEARN, ELEMS, ELEM, heroImg, skillName, rankOf, rankCost, canRankUp, rankUp, loadoutOf, learned, migrateChar, expToNext, unitById, battleBg, weakOf, LOAD_N, OBLION,
+         newChar, ITEMS, carryList, spiritImg, storyBoss, storyOb, TOWN_DEFAULT } from './rikaria-data.js?v=20261113134143';
+import { el, esc, drawField, moveField, cameraOf, cellAt, dmgFx, supportFx, ovban, redflash, MAP, spiritHtml } from './rikaria-view.js?v=20261113134143';
 
 var TS = { '.sv': 'timestamp' };
 var uid = null, pin = null, state = null, sid = '', ch = null, look = 'a', job = 'warrior', gp = 0;
+var item = '', itemUsed = false;   /* 持っていく持ち物（回復系を1つ）・もう使ったか */
 var players = {}, gv = null, qs = null, U = null, ready = false, done = false, actN = 0, ctlN = 0, lastQ = 0, view = '';
 
 (async function boot() {
@@ -218,7 +225,7 @@ $('btnMake').onclick = async function () {
   var nm = $('cname').value.trim();
   if (!nm) { err('makeErr', 'キャラの名前を入れてください'); return; }
   $('btnMake').disabled = true;
-  ch = { n: nm, j: job, lk: look, lv: 1, exp: 0, gold: 0, sp: 0, spt: 0, u: TS };
+  ch = newChar(nm, job, look, state.g); ch.u = TS;   /* 学年の目安のレベルから（2年 Lv16・3年 Lv30。スキルポイントも持って始まる） */
   try { await set(ref(db, 'quest/' + state.y + '/chars/' + sid), ch); groupScreen(); }
   catch (e) { err('makeErr', 'キャラを作れませんでした（ほかの人が先に作ったかもしれません）'); $('btnMake').disabled = false; }
 };
@@ -239,6 +246,8 @@ function groupScreen() {
 }
 
 async function joinRoom() {
+  try { item = localStorage.getItem('qraft.rikaria.item.' + sid) || ''; itemUsed = localStorage.getItem('qraft.rikaria.used') === pin + '/' + sid; } catch (e) {}
+  if (carryList(ch).indexOf(item) < 0) item = '';
   try { await writePlayer(); }
   catch (e) { err('joinErr', '参加できませんでした: ' + e.message); showScreen('s-join'); return; }
   onValue(ref(db, 'rooms/' + pin + '/state'), function (s) { state = s.val(); render(); });
@@ -247,19 +256,23 @@ async function joinRoom() {
   onValue(ref(db, 'rooms/' + pin + '/gv/' + gp), function (s) { gv = s.val(); render(); });
   onValue(ref(db, 'rooms/' + pin + '/kicked/' + uid), function (s) { if (s.val()) msg('この部屋から退出になりました'); });
 }
-function writePlayer() { return set(ref(db, 'rooms/' + pin + '/players/' + uid), { nick: ch.n, sid: sid, j: ch.j, lk: ch.lk || 'a', lv: ch.lv || 1, gp: gp, rd: ready }); }
+/* it＝持っていく持ち物。使ったら「!」を頭に付ける（先生のPCへの合図） */
+function writePlayer() { var p = { nick: ch.n, sid: sid, j: ch.j, lk: ch.lk || 'a', lv: ch.lv || 1, gp: gp, rd: ready }; if (item) p.it = (itemUsed ? '!' : '') + item; return set(ref(db, 'rooms/' + pin + '/players/' + uid), p); }
 function saveChar() { ch.u = TS; return set(ref(db, 'quest/' + state.y + '/chars/' + sid), ch); }
 
 /* ------------------------------------------------------------ 画面の切りかえ */
+function isOb() { return state && state.kind === 'ob'; }
 function isLead() { return state && state.gp && state.gp[gp] && state.gp[gp].lead === uid; }
 function go(id) { if (view !== id) { view = id; showScreen(id); return true; } return false; }
 function render() {
+  var sm = $('storyMini'), st = state && state.story;   /* 先生の画面に物語の場面が出ているあいだ、短く出す */
+  sm.classList.toggle('hide', !st); if (st) sm.innerHTML = '<b>' + esc(st.h || '') + '</b>' + esc(st.s || '');
   if (!state) { if (!done) msg('ゲームは終了しました'); return; }
   if (state.phase === 'end' || state.phase === 'saving') { if (!done) showResult(); return; }
   if (state.phase === 'lobby' || state.phase === 'prep') { if (go('s-prep')) drawPrep(); else drawPrep(); return; }
   if (state.phase !== 'run' || !gv) { $('waitT').textContent = '班の準備をしています…'; go('s-wait'); return; }
   playEvents();
-  if (gv.ph === 'explore' || gv.ph === 'enc') { if (isLead()) field(); else prac(); }
+  if (!isOb() && (gv.ph === 'explore' || gv.ph === 'enc')) { if (isLead()) field(); else prac(); }
   else battle();
 }
 
@@ -267,7 +280,7 @@ function render() {
 function drawPrep() {
   var J = JOBS[ch.j], ld = loadoutOf(ch);
   $('ppHero').src = heroImg(ch.j, ch.lk);
-  $('ppPlace').textContent = state.g + '年' + state.c + '組 ・ ' + U.area + '（' + U.unit + '）';
+  $('ppPlace').textContent = state.g + '年' + state.c + '組 ・ ' + (isOb() ? '忘却の城：' + OBLION[state.ob - 1].n + '（クラス全員で戦う）' : U.area + '（' + U.unit + '）');
   $('ppTitle').textContent = ch.n + '　' + J.n + ' Lv.' + ch.lv + '　' + gp + '班';
   $('ppSp').textContent = 'SP ' + (ch.sp || 0) + '　つぎのレベルまで ' + Math.max(0, expToNext(ch.lv) - (ch.exp || 0));
   var mates = Object.keys(players).filter(function (u) { return players[u].gp === gp; });
@@ -303,6 +316,16 @@ function drawPrep() {
     };
     b.onkeydown = function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); b.onclick(); } };
     box.appendChild(b);
+  });
+  /* 持っていく持ち物（回復系を1つ） */
+  var ib = $('ppItems'), list = carryList(ch); ib.textContent = '';
+  if (list.indexOf(item) < 0) item = '';
+  if (!list.length) ib.appendChild(el('span', 'mut', '持っていける持ち物がありません（回復のしずく・マナの実は、町の道具屋で買えます）'));
+  else [''].concat(list).forEach(function (k) {
+    var it = ITEMS[k], b = el('button', item === k ? 'on' : ''); b.type = 'button'; b.dataset.it = k; b.setAttribute('aria-pressed', item === k ? 'true' : 'false'); b.disabled = ready;
+    b.appendChild(el('span', '', it ? it.ic + ' ' + it.n + ' ×' + ch.inv[k] : '持っていかない')); if (it) b.appendChild(el('small', '', it.d));
+    b.onclick = function () { if (ready) return; item = k; try { localStorage.setItem('qraft.rikaria.item.' + sid, k); } catch (e) {} writePlayer().catch(function () {}); drawPrep(); };
+    ib.appendChild(b);
   });
   $('ppReady').textContent = ready ? '✓ 準備OK（押すと取り消し）' : '準備OK！'; $('ppReady').classList.toggle('done', ready);
   var n = mates.filter(function (u) { return players[u].rd; }).length;
@@ -349,7 +372,7 @@ function field() {
   $('fdTimer').textContent = '群れ ' + gv.wins + '/2' + (gv.wins >= 2 ? '　→ 番人の部屋が開いた！' : '') + '　🔑 ' + gv.keys + '/4';
   if (gv.ph === 'enc') { var f = $('fdFlash'); if (!f.classList.contains('on')) { f.classList.remove('on'); void f.offsetWidth; f.classList.add('on'); } }
 }
-function leadInfo() { var m = gv.mem && gv.mem[uid]; return m ? { j: m.j, lk: m.lk, name: m.n } : null; }
+function leadInfo() { var m = gv.mem && gv.mem[uid]; return m ? { id: uid, j: m.j, lk: m.lk, name: m.n } : null; }
 function sendMove(x, y) { ctlN++; update(ref(db, 'rooms/' + pin + '/ctl/' + uid), { x: Math.max(0, Math.min(60, x)), y: Math.max(0, Math.min(60, y)), n: ctlN }).catch(function () {}); }
 var KEYS = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0], w: [0, -1], s: [0, 1], a: [-1, 0], d: [1, 0] };
 addEventListener('keydown', function (e) {
@@ -371,7 +394,7 @@ function prac() {
 function statHtml(m) {
   if (!m) return '';
   return '<div class="row" style="gap:.4em"><span class="lbl">HP</span><div class="bar hp grow"><i style="width:' + (100 * m.hp / m.mx) + '%"></i><b>' + m.hp + '/' + m.mx + '</b></div></div>' +
-         '<div class="row" style="gap:.4em"><span class="lbl">MP</span><div class="bar mp grow"><i style="width:' + (m.mp / MP_MAX * 100) + '%"></i><b>' + m.mp + '/' + MP_MAX + '</b></div></div>';
+         '<div class="row" style="gap:.4em"><span class="lbl">MP</span><div class="bar mp grow"><i style="width:' + (m.mp / (m.mm || MP_MAX) * 100) + '%"></i><b>' + m.mp + '/' + (m.mm || MP_MAX) + '</b></div></div>';
 }
 
 /* ------------------------------------------------------------ 問題（練習・戦闘で共通。採点は先生のPC） */
@@ -411,7 +434,7 @@ function answer(a) {
 function drawResult(box) {
   var r = qs.r, key = 'r' + r.n; if (box.dataset.n === key) return; box.dataset.n = key;
   box.querySelectorAll('.choices button').forEach(function (b, i) { b.classList.remove('sel'); if (r.cor & (1 << i)) b.classList.add('right', 'ans-ok'); else { b.classList.add('dim'); if (myPick & (1 << i)) b.classList.add('ans-ng'); } });
-  box.appendChild(el('div', 'banner ' + (r.ok ? 'ok' : 'ng'), r.ok ? (view === 's-battle' ? '✓ せいかい！ ' + (r.rv ? '復活に近づいた' : tgtName() + 'に攻撃！') : '✓ せいかい！ MP +1') : '✕ ざんねん…'));
+  box.appendChild(el('div', 'banner ' + (r.ok ? 'ok' : 'ng'), r.ok ? (view === 's-battle' ? '✓ せいかい！ ' + (r.rv ? '復活に近づいた' : r.cu ? 'じゃまが治った' : gv && gv.rt ? 'MP +1' : tgtName() + 'に攻撃！') : '✓ せいかい！ MP +1') : '✕ ざんねん…'));
   if (r.ex && !r.ok) box.appendChild(el('div', 'qex', '💡 ' + r.ex));
 }
 
@@ -419,13 +442,14 @@ function drawResult(box) {
 var POS = { 1: [96], 2: [90, 94], 3: [88, 94, 86], 4: [84, 90, 82, 88] };
 function battle() {
   var first = go('s-battle'), me = gv.mem && gv.mem[uid];
-  $('s-battle').classList.toggle('boss', gv.kind === 'boss');
-  $('btBg').style.backgroundImage = 'url(' + battleBg(U) + ')';
+  $('s-battle').classList.toggle('boss', gv.kind === 'boss' || gv.kind === 'oblion');
+  $('s-battle').classList.toggle('obl', gv.kind === 'oblion');
+  $('btBg').style.backgroundImage = 'url(' + (gv.kind === 'oblion' ? 'img/rikaria/bg/castle.webp' : battleBg(U)) + ')';
   var fs = $('foes');
   if (first || fs.children.length !== (gv.foes || []).length) buildFoes();
   updFoes(me);
-  $('bStat').innerHTML = statHtml(me);
-  drawTeam();
+  $('bStat').innerHTML = statHtml(me) + (me && me.sl ? '<div class="bad">🔒 技が封じられた：正解すると治る</div>' : '') + (me && me.ps ? '<div class="bad">☠ 毒：正解すると治る</div>' : '');
+  drawTeam(); mySpirit(me);
   midBar();
   if (first) { $('cmd').dataset.n = ''; drawQ(); } else drawBattleCtl();
 }
@@ -435,7 +459,8 @@ function buildFoes() {
     var h = (POS[gv.foes.length] || POS[4])[i] || 86, e = el('div', 'enemy' + (f.fin ? ' final' : '')); e.dataset.i = i;
     e.style.height = (f.fin ? 100 : h) + '%'; e.style.marginBottom = (i % 2 * 3) + '%';
     e.innerHTML = '<span class="hint">クリックでねらう</span><span class="aim">▼ ねらう</span><span class="weak"></span><div class="etag"><span></span><div class="bar hp"><i></i></div></div><img alt="" src="' + esc(f.img) + '"><div class="eshadow"></div><span class="windmark"></span>';
-    if (f.gd || f.fin) e.querySelector('img').style.scale = '-1 1';
+    if ((f.gd || f.fin) && !f.ob) e.querySelector('img').style.scale = '-1 1';
+    if (f.ob) e.classList.add('obl');
     e.onclick = function () { setTarget(i); };
     box.appendChild(e);
   });
@@ -445,6 +470,8 @@ function updFoes(me) {
     var i = +e.dataset.i, f = gv.foes[i]; if (!f) return;
     e.querySelector('.bar i').style.width = (100 * f.hp / f.mx) + '%';
     e.classList.toggle('dead', f.hp <= 0); e.classList.toggle('chg', f.chg > 0 && f.hp > 0); e.classList.toggle('barrier', !!f.br);
+    e.classList.toggle('cast', !!f.cs && f.hp > 0); e.classList.toggle('ward', !!f.wd); e.classList.toggle('rage', !!f.rg);
+    if (f.ob && ELEM[f.t]) e.style.setProperty('--obc', ELEM[f.t].col);
     e.classList.toggle('wind', !!f.aim && f.hp > 0 && !(f.chg > 0));
     var who = f.aim && gv.mem[f.aim]; e.querySelector('.windmark').textContent = who ? '❗ ' + (f.aim === uid ? 'あなた' : who.n) + 'をねらっている' : '';
     var tg = me && me.tg === i && f.hp > 0; e.classList.toggle('tg', tg); e.querySelector('.aim').style.display = tg ? '' : 'none';
@@ -456,16 +483,27 @@ function updFoes(me) {
 function drawTeam() {
   $('teambar').innerHTML = Object.keys(gv.mem || {}).map(function (id) {
     var o = gv.mem[id], aimed = (gv.foes || []).some(function (f) { return f.aim === id && f.hp > 0; });
-    return '<div class="chip' + (id === uid ? ' me' : '') + (o.dn ? ' ko' : '') + (aimed ? ' aimed' : '') + '"><img alt="" src="' + heroImg(o.j, o.lk) + '">' +
-      '<div class="bar hp"><i style="width:' + (100 * o.hp / o.mx) + '%"></i></div>' + (o.dn ? '💤' : '') + esc(id === uid ? 'あなた' : o.n) + '</div>';
+    return '<div class="chip' + (id === uid ? ' me' : '') + (o.dn ? ' ko' : '') + (aimed ? ' aimed' : '') + '"><img alt="" src="' + heroImg(o.j, o.lk) + '">' + spiritHtml(o) +
+      '<div class="bar hp"><i style="width:' + (100 * o.hp / o.mx) + '%"></i></div>' + (o.dn ? '💤' : '') + (o.sl ? '🔒' : '') + (o.ps ? '☠' : '') + esc(id === uid ? 'あなた' : o.n) + '</div>';
   }).join('');
 }
+/* 自分が精霊使いのとき：いま切りかえている精霊が、戦いの場に大きく浮かぶ */
+function mySpirit(me) {
+  var sp = $('mySpirit');
+  if (me && me.j === 'summoner' && !me.dn) {
+    if (!sp) { sp = el('img', 'spirit big'); sp.id = 'mySpirit'; sp.alt = ''; $('arena').appendChild(sp); }
+    var src = spiritImg(me.el); if (sp.getAttribute('src') !== src) { sp.src = src; sp.dataset.el = me.el; }
+  } else if (sp) sp.remove();
+}
 function midBar() {
-  var f = gv.foes && gv.foes[0], boss = gv.kind === 'boss' && f, chg = (gv.foes || []).filter(function (x) { return x.chg > 0 && x.hp > 0; })[0];
-  $('midNm').textContent = boss ? '👑 ' + f.n : gv.fl + '階 ・ ' + (gv.kind === 'guard' ? '番人の部屋' : 'ワスレモノの群れ');
+  var f = gv.foes && gv.foes[0], boss = (gv.kind === 'boss' || gv.kind === 'oblion') && f, chg = (gv.foes || []).filter(function (x) { return x.chg > 0 && x.hp > 0; })[0];
+  $('midNm').textContent = boss ? '👑 ' + f.n + (f.ob && ELEM[f.t] ? '　' + ELEM[f.t].ic + ELEM[f.t].n : '') : gv.fl + '階 ・ ' + (gv.kind === 'guard' ? '番人の部屋' : 'ワスレモノの群れ');
   $('bossHp').classList.toggle('hide', !boss); if (boss) $('bossHp').querySelector('i').style.width = (100 * f.hp / f.mx) + '%';
-  var st = $('midSt'); st.className = 'st' + (chg ? ' cg' : boss && f.br ? ' br' : '');
-  var need = gv.kind === 'boss' ? 4 : 3;
+  var st = $('midSt'); st.className = 'st' + (gv.rt || (boss && f.cs) ? ' cg' : chg ? ' cg' : boss && f.br ? ' br' : '');
+  var need = gv.kind === 'boss' || gv.kind === 'oblion' ? 4 : 3;
+  if (gv.rt) { st.textContent = '💤 全滅…　あと ' + gv.rt + '秒で立ち上がる（その間も正解でMP）'; return; }
+  if (boss && f.cs) { st.textContent = '✨ 「' + f.cs + '」のかまえ！'; return; }
+  if (boss && !chg && (f.wd || f.rg)) { st.className = 'st br'; st.textContent = f.wd ? '🛡 守りを固めている（ダメージ半分）' : '💢 怒っている（攻撃が強い）'; return; }
   st.textContent = chg ? '⚠ ' + chg.n + ' 強い攻撃まで ' + chg.chg + '秒（班で正解 ' + (gv.gc || 0) + '/' + need + 'でガード）' : boss && f.br ? '🛡 バリア：手下を倒すと消える' : groupStatus();
 }
 function groupStatus() { var g = gv.grp || {}, a = []; if (g.sh) a.push('🛡 守り'); if (g.bf) a.push('⚔ 攻撃アップ'); if (g.rg) a.push('💚 じわじわ回復'); if (g.eb) a.push(ELEM[g.eb].ic + '精霊の力'); if (g.tr) a.push('🪤 わな'); if (g.mr) a.push('🌪 MPアップ'); return a.join('　'); }
@@ -476,7 +514,7 @@ function drawBattleCtl() {
   var box = $('cmd'); if (view !== 's-battle' || !box) return;
   var me = gv.mem && gv.mem[uid]; if (!me) return;
   var row = $('skills'); if (!row) { row = el('div', 'skillrow'); row.id = 'skills'; box.appendChild(row); }
-  var key = JSON.stringify([me.mp, me.dn, me.tg, me.el, me.md, (gv.foes || []).map(function (f) { return f.hp > 0 ? 1 : 0; })]);
+  var key = JSON.stringify([me.mp, me.dn, me.sl, me.tg, me.el, me.md, me.it, itemUsed, gv.ph, (gv.foes || []).map(function (f) { return f.hp > 0 ? 1 : 0; })]);
   if (row.dataset.k === key) return; row.dataset.k = key; row.textContent = '';
   var tg = el('div', 'tgtrow'); tg.appendChild(el('span', 'lbl2', 'ねらい'));
   (gv.foes || []).forEach(function (f, i) {
@@ -499,20 +537,46 @@ function drawBattleCtl() {
   ld.a.concat(ld.u >= 0 ? [ld.u] : []).forEach(function (i) {
     var s = JOBS[ch.j].sk[i], b = el('button', 'act' + (s.ult ? ' ult' : '')); b.type = 'button';
     b.appendChild(el('b', '', skillName(ch.j, i, rankOf(ch, i), me.el))); b.appendChild(el('span', 'mp', 'MP ' + s.mp));
-    b.title = s.d; b.disabled = me.mp < s.mp || !!me.dn;
+    b.title = me.sl ? '封じられている（正解すると治る）' : s.d; b.disabled = me.mp < s.mp || !!me.dn || !!me.sl;
     b.onclick = function () { b.disabled = true; actN++; set(ref(db, 'rooms/' + pin + '/act/' + uid), { n: actN, a: i }).catch(function () {}); };
     row.appendChild(b);
   });
+  if (me.it && ITEMS[me.it]) {   /* 持ってきた持ち物（1回だけ） */
+    var it = ITEMS[me.it], ib = el('button', 'act item'); ib.type = 'button'; ib.id = 'btnItem';
+    ib.appendChild(el('b', '', it.ic + ' ' + it.n)); ib.appendChild(el('span', 'mp', '1回だけ'));
+    ib.title = it.d; ib.disabled = itemUsed || !!me.dn || gv.ph !== 'battle'; ib.onclick = useItem;
+    row.appendChild(ib);
+  }
+}
+/* 持ち物を使う：先生のPCに合図（players/<uid>/it の頭に「!」）→ 効果は先生のPCのエンジンがかける。自分のキャラの持ち物を1つ減らす */
+function useItem() {
+  var me = gv && gv.mem && gv.mem[uid], k = me && me.it; if (!k || itemUsed || me.dn || gv.ph !== 'battle') return;
+  itemUsed = true; item = k;
+  try { localStorage.setItem('qraft.rikaria.used', pin + '/' + sid); } catch (e) {}
+  writePlayer().catch(function () {});
+  var n = (ch.inv && ch.inv[k]) || 0;
+  if (n > 0) { ch.inv = Object.assign({}, ch.inv); ch.inv[k] = n - 1; saveChar().catch(function () {}); }
+  drawBattleCtl();
 }
 
 /* ------------------------------------------------------------ 結果 */
 async function showResult() {
   done = true; view = 's-result';
+  var tw = (state && state.tw) || { n: TOWN_DEFAULT, st: 0 };   /* 町の名前と段階（先生のPCが終了のときに送る） */
+  $('storyMini').classList.add('hide');
   try { localStorage.removeItem('qraft.rikaria'); } catch (e) {}
   var r = null; for (var k = 0; k < 20 && !r; k++) { r = (await get(ref(db, 'rooms/' + pin + '/res/' + uid))).val(); if (!r) await new Promise(function (ok) { setTimeout(ok, 700); }); }
   var box = $('rCards'); box.textContent = '';
-  if (r) {
-    if (r.boss) { $('rTitle').textContent = U.boss.n + ' を たおした！'; $('rStory').textContent = U.area + 'の霧が晴れ、「' + U.unit + 'の知識」がもどってきた。'; $('rStory').classList.remove('hide'); confetti($('conf'), 40); }
+  if (r && r.ob) {
+    var OB = OBLION[r.ob - 1];
+    $('rTitle').textContent = r.obWin ? OB.n + ' を封じた！' : '今日の戦いおわり！';
+    $('rStory').textContent = r.obWin ? storyOb(r.ob, 'a', tw.n).s : 'オブリオンの残りHPは ' + r.obHp + '%。次の授業で、クラスみんなで続きから。';
+    $('rStory').classList.remove('hide'); if (r.obWin) confetti($('conf'), 50);
+    [['けいけんち', '+' + r.exp], ['ゴールド', '+' + r.gold], ['正解', r.ok + '/' + r.ans], ['与えたダメージ', r.dmg || 0]].forEach(function (x) { var c = el('div', 'card'); c.appendChild(el('span', 'mut', x[0])); c.appendChild(el('b', '', x[1])); box.appendChild(c); });
+    if (r.up) { $('rLv').textContent = 'LEVEL UP! Lv.' + r.lv; $('rLv').classList.remove('hide'); }
+    $('rNote').textContent = (r.ttl ? '称号「' + r.ttl + '」を手に入れた！　' : '') + (r.sp ? 'スキルポイント +' + r.sp + '　' : '');
+  } else if (r) {
+    if (r.boss) { $('rTitle').textContent = U.boss.n + ' を たおした！'; $('rStory').textContent = storyBoss(U, tw.n, tw.st).s; $('rStory').classList.remove('hide'); confetti($('conf'), 40); }
     [['けいけんち', '+' + r.exp], ['ゴールド', '+' + r.gold], ['正解', r.ok + '/' + r.ans], ['班の進み', r.fl > 4 ? 'ボスの間' : r.fl + '階 🔑' + r.keys]].forEach(function (x) { var c = el('div', 'card'); c.appendChild(el('span', 'mut', x[0])); c.appendChild(el('b', '', x[1])); box.appendChild(c); });
     if (r.up) { $('rLv').textContent = 'LEVEL UP! Lv.' + r.lv; $('rLv').classList.remove('hide'); }
     $('rNote').textContent = (r.ttl ? '称号「' + r.ttl + '」を手に入れた！　' : '') + (r.sp ? 'スキルポイント +' + r.sp + '（次の準備画面で技を上げられる）　' : '') + 'つづきは次の授業で。';

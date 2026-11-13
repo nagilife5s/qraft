@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>リカリア チーム戦（先生）</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
-<link rel="stylesheet" href="theme.css?v=20261113060818">
-<link rel="stylesheet" href="quest.css?v=20261113060818">
-<link rel="stylesheet" href="rikaria.css?v=20261113060818">
+<link rel="stylesheet" href="theme.css?v=20261113134143">
+<link rel="stylesheet" href="quest.css?v=20261113134143">
+<link rel="stylesheet" href="rikaria.css?v=20261113134143">
 <style>
   #app { background:url(img/rikaria/title-bg.webp) center/cover no-repeat, #1d1648; }
   .q-bg-r { background:rgba(10,6,36,.6); }
@@ -19,6 +19,7 @@
   .gp-card .mem-mini .ko { opacity:.45; }
   .gp-card .prog { font-size:.85em; opacity:.85; }
   .tm .lead { position:absolute; right:.6em; bottom:2em; z-index:41; font-size:.75em; }
+  #obRow select { font-size:1em; padding:.3em .5em; border-radius:.5em; }
 </style>
 </head>
 <body>
@@ -33,10 +34,24 @@
       <div class="form-row"><b>クラス</b>
         <select id="selG" aria-label="学年"><option value="1">1年</option><option value="2">2年</option><option value="3">3年</option></select>
         <select id="selC" aria-label="組"></select>
-        <span class="q-sub" id="townInfo"></span></div>
+        <span class="q-sub" id="townInfo"></span>
+        <button type="button" class="iconbtn" id="btnTown" aria-label="町の名前を変える" title="町の名前を変える" aria-expanded="false">✏️</button>
+        <span id="townEdit" class="hide"><input type="text" id="townName" maxlength="12" autocomplete="off" aria-label="町の名前（12文字まで）" placeholder="ルーメンの村">
+          <button type="button" class="btn sub" id="townSave">決定</button> <button type="button" class="linkbtn" id="townCancel" style="color:#fff">やめる</button></span></div>
+      <div class="form-row"><b>戦い</b><div class="seg" id="segMode"><button type="button" data-v="dg" class="on">ダンジョン</button><button type="button" data-v="ob">オブリオン戦（学期末）</button></div></div>
+      <div class="form-row hide" id="obRow"><b>オブリオン</b><select id="selOb" aria-label="戦う形態"></select>
+        <div class="seg" id="segSem"><button type="button" data-v="3" class="on">3学期制</button><button type="button" data-v="2">2学期制</button></div>
+        <span class="q-sub" id="obInfo"></span></div>
       <div class="form-row"><b>時間</b><div class="seg" id="segTime"><button type="button" data-v="300">5分</button><button type="button" data-v="600" class="on">10分</button><button type="button" data-v="900">15分</button></div></div>
       <div class="form-row"><b>パスワード</b><input type="password" id="pw" autocomplete="off" placeholder="問題ファイルのパスワード"></div>
-      <div class="tc-note">最初に選んだセットの単元が、冒険するダンジョンになります。どこで終わっても、班ごとに続きから始まります。</div>
+      <div class="tc-note" id="setupNote">地図でえらんだ単元が、冒険するダンジョンになります。どこで終わっても、班ごとに続きから始まります。</div>
+    </div>
+    <!-- 冒険の地図：場所を押すと、その単元になる。霧＝まだボスを倒していない・旗＝クリア -->
+    <div class="panel am-wrap" id="amWrap">
+      <div class="row" style="flex-wrap:wrap"><b class="grow">🗺 冒険の地図：行き先（単元）をえらぶ</b>
+        <span class="am-list"><label for="selUnit">単元</label><select id="selUnit"></select></span></div>
+      <div class="am-map" id="amMap"></div>
+      <div class="q-sub" id="amNote"></div>
     </div>
     <div class="qp-white"><div id="picker"></div></div>
     <div class="selbar hide" id="selBar"><span id="selInfo"></span><span id="selChips"></span><button type="button" class="linkbtn" id="selClear">選びなおす</button></div>
@@ -75,25 +90,34 @@
   <button class="btn sub" id="btnClose" type="button">部屋を閉じる</button>
 </section>
 
+<!-- 物語の場面（章の始まり・単元ボス・オブリオン・エンディング）。「つぎへ」で閉じる -->
+<div class="story-ov hide" id="story" role="dialog" aria-modal="true" aria-labelledby="stH">
+  <img class="st-pic" id="stPic" alt="">
+  <h2 id="stH"></h2><p id="stS"></p>
+  <div class="row" style="gap:1em"><span class="st-n" id="stN"></span><button class="btn" id="stNext" type="button">つぎへ</button></div>
 </div>
 
-<script src="firebase-config.js?v=20261113060818"></script>
+</div>
+
+<script src="firebase-config.js?v=20261113134143"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script type="module">
 import { signIn, db, ref, set, get, update, remove, onValue, serverNow, shuffle, mountSetPicker,
-         decryptSet, prepareQuestion, maskOf, $, showScreen, confetti, qrSvg } from './lib.js?v=20261113060818';
+         decryptSet, prepareQuestion, maskOf, $, showScreen, confetti, qrSvg } from './lib.js?v=20261113134143';
 import { onChildAdded, onChildChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-import { fiscalYear } from './quest.js?v=20261113060818';
-import { TOWN, TOWN_DEFAULT } from './quest.js?v=20261113060818';
-import { JOBS, heroImg, statsOf, unitOf, addExp, bossSp, bossTitle, migrateChar, battleBg, LV_MAX } from './rikaria-data.js?v=20261113060818';
-import * as E from './rikaria-engine.js?v=20261113060818';
-import { el, esc, drawField, moveField, cameraOf, ovban, MAP } from './rikaria-view.js?v=20261113060818';
-import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261113060818b';
+import { fiscalYear } from './quest.js?v=20261113134143';
+import { TOWN, TOWN_DEFAULT, TOWN_MAX, townStart, JOBS, heroImg, statsOf, unitOf, addExp, bossSp, bossTitle, migrateChar, battleBg, LV_MAX, OBLION, OB_FORMS, obNext, obFirst, obTitle, oblionImg, REWARD, ELEM,
+         unitById, unitsOf, advMap, townName, goldOf, isCarry, storyOpen, storyBoss, storyOb, storyEnding } from './rikaria-data.js?v=20261113134143';
+import * as E from './rikaria-engine.js?v=20261113134143';
+import { el, esc, drawField, moveField, cameraOf, ovban, MAP, spiritHtml } from './rikaria-view.js?v=20261113134143';
+import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261113134143b';
 
 wireSoundButtons(); preload(['top']); bgm('top');
 var TS = { '.sv': 'timestamp' };
 var uid = null, pin = null, YEAR = fiscalYear(), SETS = [], picked = {}, picker = null, POOL = [];
 var S = null, U = null, CLS = null, players = {}, GR = {}, P = {}, ended = false, loopId = null, endsAt = 0;
+var O = null, OBW = {}, obDown = false;   /* オブリオン戦：クラスで1体の体・その形態に参加した人 */
+function isOb() { return S ? S.kind === 'ob' : segVal('segMode') === 'ob'; }
 
 function opt(sel, v, t) { var o = el('option', '', t); o.value = v; sel.appendChild(o); }
 for (var c = 1; c <= 9; c++) opt($('selC'), c, c + '組');
@@ -113,18 +137,50 @@ function num(sid) { return Number(String(sid || '').split('-')[2]) || 0; }
     var all = await (await fetch('questions/index.json', { cache: 'no-cache' })).json();
     SETS = all.filter(function (s) { return !(s.types && s.types.text); });
     try { $('pw').value = sessionStorage.getItem('qraft.pw') || ''; } catch (e) {}
-    try { var last = JSON.parse(localStorage.getItem('qraft.rikaria.last') || '{}'); if (last.g) $('selG').value = last.g; if (last.c) $('selC').value = last.c; if (last.t) document.querySelectorAll('#segTime button').forEach(function (b) { b.classList.toggle('on', b.dataset.v === String(last.t)); }); (last.sets || []).forEach(function (f) { if (SETS.some(function (s) { return s.file === f; })) picked[f] = true; }); } catch (e) {}
-    picker = mountSetPicker($('picker'), { sets: SETS, key: function (s) { return s.file; }, picked: picked, onChange: updateSel }); updateSel();
+    try { var last = JSON.parse(localStorage.getItem('qraft.rikaria.last') || '{}'); if (last.g) $('selG').value = last.g; if (last.c) $('selC').value = last.c; if (last.t) document.querySelectorAll('#segTime button').forEach(function (b) { b.classList.toggle('on', b.dataset.v === String(last.t)); }); if (last.m) { document.querySelectorAll('#segMode button').forEach(function (b) { b.classList.toggle('on', b.dataset.v === last.m); }); modeUi(); } (last.sets || []).forEach(function (f) { if (SETS.some(function (s) { return s.file === f; })) picked[f] = true; }); if (last.u && unitById(last.u).id === last.u && unitById(last.u).g === Number($('selG').value)) selUnit = last.u; } catch (e) {}
+    mountPicker(); drawMap();
     $('selClear').onclick = function () { Object.keys(picked).forEach(function (k) { delete picked[k]; }); picker.render(); updateSel(); };
-    $('selG').onchange = $('selC').onchange = showTown; showTown();
+    $('selG').onchange = function () { selUnit = ''; mountPicker(); showTown(); }; $('selC').onchange = showTown; showTown();
+    $('selUnit').onchange = function () { pickUnit($('selUnit').value); };
+    $('segMode').addEventListener('click', function () { setTimeout(modeUi, 0); });
+    $('segSem').addEventListener('click', function () { setTimeout(function () { fillOb(null); }, 0); });
   } catch (e) { setupErr(e.message); $('btnCreate').disabled = true; }
 })();
+/* ------------------------------------------------------------ 冒険の地図で単元をえらぶ（霧＝まだボスを倒していない・旗＝クリア） */
+var selUnit = '';   /* えらんだ単元の id（空＝まだ。そのときは最初に選んだセットの単元） */
+function mountPicker() {
+  var u = selUnit ? unitById(selUnit) : null;
+  var sets = u ? SETS.filter(function (x) { return x.unit === u.unit && (!x.grade || x.grade === u.g); }) : SETS;
+  if (!sets.length) sets = SETS;   /* その単元の問題セットがまだ無いときは、ぜんぶ出す */
+  picker = mountSetPicker($('picker'), { sets: sets, key: function (x) { return x.file; }, picked: picked, onChange: updateSel }); updateSel();
+}
+function pickUnit(id) { selUnit = id && unitById(id).id === id ? id : ''; mountPicker(); drawMap(); }
+function drawMap() {
+  var g = Number($('selG').value), M = advMap(g), us = unitsOf(g), areas = CLSV.areas || {}, box = $('amMap');
+  if (selUnit && !us.some(function (u) { return u.id === selUnit; })) selUnit = '';
+  box.style.aspectRatio = M.ratio; box.style.backgroundImage = 'url(' + M.img + ')';
+  var done = function (u) { return !!(areas[u.id] && areas[u.id].done); };
+  var h = us.map(function (u) { var p = M.at[u.id]; return done(u) ? '' : '<div class="am-fog" style="left:' + p[0] + '%;top:' + (p[1] - 3) + '%"></div>'; }).join('');
+  h += '<span class="am-mark" style="left:' + M.town[0] + '%;top:' + M.town[1] + '%">🏠 ' + esc(CLSV.town || TOWN_DEFAULT) + '</span><span class="am-mark" style="left:' + M.castle[0] + '%;top:' + M.castle[1] + '%">🏰 忘却の城</span>';
+  h += us.map(function (u) {
+    var p = M.at[u.id], d = done(u), on = u.id === selUnit;
+    return '<button type="button" class="am-node' + (d ? ' clear' : '') + (on ? ' on' : '') + '" data-u="' + u.id + '" aria-pressed="' + (on ? 'true' : 'false') + '" style="left:' + p[0] + '%;top:' + p[1] + '%">' +
+      (d ? '<span class="flag" aria-hidden="true">🚩</span>' : '') + '<i class="pin"></i><b>' + esc(u.area) + '</b><small>' + esc(u.unit) + ' ・ ' + (d ? 'クリア' : '霧の中') + '</small></button>';
+  }).join('');
+  box.innerHTML = h;
+  box.querySelectorAll('.am-node').forEach(function (b) { b.onclick = function () { pickUnit(b.dataset.u); }; });
+  var sel = $('selUnit'); sel.textContent = ''; opt(sel, '', '（地図でえらぶ）');
+  us.forEach(function (u) { opt(sel, u.id, u.unit + '：' + u.area + (done(u) ? '（クリア）' : '（霧の中）')); }); sel.value = selUnit;
+  var su = selUnit ? unitById(selUnit) : null;
+  $('amNote').textContent = su ? 'ダンジョン：' + su.area + '（' + su.unit + '）。下に、この単元の問題セットが出ています。' : '場所を押すと、その単元がダンジョンになります（押さないときは、最初に選んだセットの単元）。';
+}
+function curUnit() { var f = firstSet(); return selUnit ? unitById(selUnit) : f ? unitOf(f.grade, f.unit) : null; }
 function firstSet() { var ids = Object.keys(picked); return SETS.filter(function (x) { return x.file === ids[0]; })[0]; }
 function updateSel() {
   var ids = Object.keys(picked), n = 0;
   ids.forEach(function (f) { var s = SETS.filter(function (x) { return x.file === f; })[0]; if (s) n += s.count; });
   $('selBar').classList.toggle('hide', !ids.length);
-  var f = firstSet(), u = f && unitOf(f.grade, f.unit);
+  var u = curUnit();
   $('selInfo').textContent = '選んだセット：' + ids.length + ' つ・合計 ' + n + ' 問' + (u ? '　ダンジョン：' + u.area + '（' + u.unit + '）' : '');
   var chips = $('selChips'); chips.textContent = '';
   ids.forEach(function (k) {
@@ -135,7 +191,46 @@ function updateSel() {
     c.appendChild(x); chips.appendChild(c);
   });
 }
-async function showTown() { var v = (await get(ref(db, qpath('classes/' + clsKey())))).val() || {}; $('townInfo').textContent = '町：' + (v.town || TOWN_DEFAULT) + '（' + TOWN[Math.min(5, v.stage || 0)].n + '）'; }
+var CLSV = {};
+/* 1回だけ読む（get() が返ってこないことがあったため、onValue の1回読みにする） */
+function once(path) { return new Promise(function (ok, ng) { onValue(ref(db, path), function (sn) { ok(sn.val()); }, function (e) { ng(e); }, { onlyOnce: true }); }); }
+function townLine() { var v = CLSV; $('townInfo').textContent = '町：' + (v.town || TOWN_DEFAULT) + '（' + TOWN[Math.min(TOWN_MAX, v.stage != null ? v.stage : townStart(Number($('selG').value)))].n + '）'; }   /* 部屋を作る前は S がない */
+/* 町の名前（学級で決めて、先生が入れる。組ごとにいつでも変えられる。空にすると「ルーメンの村」にもどる） */
+function townEdit(open) { $('townEdit').classList.toggle('hide', !open); $('btnTown').setAttribute('aria-expanded', open ? 'true' : 'false'); if (open) { $('townName').value = CLSV.town && CLSV.town !== TOWN_DEFAULT ? CLSV.town : ''; $('townName').focus(); } }
+$('btnTown').onclick = function () { townEdit($('townEdit').classList.contains('hide')); };
+$('townCancel').onclick = function () { townEdit(false); };
+$('townName').onkeydown = function (e) { if (e.key === 'Enter') $('townSave').click(); if (e.key === 'Escape') townEdit(false); };
+$('townSave').onclick = async function () {
+  var key = clsKey(), nm = townName($('townName').value);
+  $('setupErr').classList.add('hide');
+  try { await set(ref(db, qpath('classes/' + key + '/town')), nm); if (key === clsKey()) { CLSV.town = nm; townLine(); drawMap(); } townEdit(false); }
+  catch (e) { setupErr('町の名前を保存できませんでした: ' + e.message); }
+};
+async function showTown() {
+  CLSV = {}; townEdit(false); drawMap(); fillOb(null); $('obInfo').textContent = 'クラスの記録を読みこみ中…';   /* 読みこむ前に、学年から決まる形態を先に出しておく */
+  var key = clsKey(), v;
+  try { v = await once(qpath('classes/' + key)); } catch (e) { $('obInfo').textContent = 'クラスの記録を読みこめませんでした（' + e.message + '）'; return; }
+  if (key !== clsKey()) return;   /* 読みこむ間にクラスを変えた */
+  CLSV = v = v || {};
+  townLine(); drawMap();
+  var sem = v.ob && v.ob.sem ? String(v.ob.sem) : '3';
+  document.querySelectorAll('#segSem button').forEach(function (b) { b.classList.toggle('on', b.dataset.v === sem); });
+  fillOb(v.ob && v.ob.k != null ? v.ob.k : null);
+}
+/* オブリオン：クラスの「次に戦う形態」を出す（はじめてのときは学年から。2学期制・3年から受け持つクラスはここで直す） */
+function fillOb(k) {
+  var sem = Number(segVal('segSem')), forms = OB_FORMS[sem], sel = $('selOb'), ob = CLSV.ob || {};
+  if (k == null || (k && forms.indexOf(k) < 0)) k = ob.k != null && forms.indexOf(ob.k) >= 0 ? ob.k : obFirst(Number($('selG').value), sem);
+  sel.textContent = '';
+  forms.forEach(function (f, i) { opt(sel, f, '形態' + f + '　' + OBLION[f - 1].n + '（' + (Math.floor(i / (forms.length / 3)) + 1) + '年' + (i % (forms.length / 3) + 1) + (sem === 3 ? '学期' : '期') + '末）'); });
+  if (k) sel.value = String(k);
+  $('obInfo').textContent = !k && ob.k === 0 ? 'このクラスは9形態すべてを倒しました' : ob.k === k && ob.hp > 0 ? '前回の続き：残りHP ' + Math.ceil(100 * ob.hp / ob.mx) + '%' : 'はじめての戦い';
+}
+function modeUi() {
+  var ob = segVal('segMode') === 'ob';
+  $('obRow').classList.toggle('hide', !ob);
+  $('setupNote').textContent = ob ? 'クラス全員で1体のオブリオンと戦います（出題は選んだセットから）。倒せなかったら、HPは次の授業に持ち越します。' : '地図でえらんだ単元が、冒険するダンジョンになります。どこで終わっても、班ごとに続きから始まります。';
+}
 
 $('btnCreate').onclick = async function () {
   $('setupErr').classList.add('hide'); $('btnCreate').disabled = true;
@@ -149,19 +244,20 @@ $('btnCreate').onclick = async function () {
       data.questions.forEach(function (q) { if (q.type !== 'text') POOL.push(q); });
     }
     if (!POOL.length) throw new Error('選択式の問題がありません');
-    try { if (pwv) sessionStorage.setItem('qraft.pw', pwv); localStorage.setItem('qraft.rikaria.last', JSON.stringify({ g: $('selG').value, c: $('selC').value, sets: files, t: segVal('segTime') })); } catch (e) {}
-    var f = firstSet(); U = unitOf(f.grade, f.unit);
+    try { if (pwv) sessionStorage.setItem('qraft.pw', pwv); localStorage.setItem('qraft.rikaria.last', JSON.stringify({ g: $('selG').value, c: $('selC').value, sets: files, t: segVal('segTime'), m: segVal('segMode'), u: selUnit })); } catch (e) {}
+    U = curUnit();
     CLS = (await get(ref(db, qpath('classes/' + clsKey())))).val() || {};
     for (var k = 0; k < 20; k++) { pin = String(Math.floor(100000 + Math.random() * 900000)); if (!(await get(ref(db, 'rooms/' + pin + '/hostUid'))).exists()) break; }
     await set(ref(db, 'rooms/' + pin + '/hostUid'), uid);
-    S = { mode: 'rikaria', phase: 'lobby', bg: 'lab', y: YEAR, g: Number($('selG').value), c: Number($('selC').value), unit: U.id, tl: Number(segVal('segTime')) };
+    S = { mode: 'rikaria', phase: 'lobby', bg: 'lab', y: YEAR, g: Number($('selG').value), c: Number($('selC').value), unit: U.id, tl: Number(segVal('segTime')), kind: segVal('segMode') };
+    if (S.kind === 'ob') { S.ob = Number($('selOb').value); S.sem = Number(segVal('segSem')); if (!S.ob) throw new Error('戦う形態をえらんでください'); }
     await set(ref(db, 'rooms/' + pin + '/state'), S);
-    onValue(ref(db, 'rooms/' + pin + '/players'), function (s) { players = s.val() || {}; renderLobby(); if (S.phase === 'run') lateJoin(); });
+    onValue(ref(db, 'rooms/' + pin + '/players'), function (s) { players = s.val() || {}; renderLobby(); if (S.phase === 'run') { lateJoin(); itemCheck(); } });
     var base = location.href.replace(/rikaria-host\.html.*$/, '');
     $('joinUrl').textContent = base.replace(/^https?:\/\//, '') + 'rikaria-play.html';
     $('pin').textContent = pin.slice(0, 3) + ' ' + pin.slice(3);
     $('lbSub').textContent = S.g + '年' + S.c + '組 ・ ' + (S.tl / 60) + '分';
-    $('lbTitle').textContent = U.area + '（' + U.unit + '）';
+    $('lbTitle').textContent = S.kind === 'ob' ? '忘却の城：' + OBLION[S.ob - 1].n : U.area + '（' + U.unit + '）';
     var svg = qrSvg(base + 'rikaria-play.html?pin=' + pin); if (svg) $('qr').innerHTML = svg; else $('qrcard').classList.add('hide');
     showScreen('s-lobby'); preload(['lobby', 'quiz']); bgm('lobby');
     window.addEventListener('beforeunload', function (e) { if (!ended && S.phase === 'run') { e.preventDefault(); e.returnValue = ''; } });
@@ -204,7 +300,20 @@ async function loadChar(u) {
   CH[u] = ch || { n: p.nick, j: p.j, lk: p.lk, lv: p.lv || 1, guest: true };
   return CH[u];
 }
-function memOf(u) { var p = players[u], ch = CH[u], st = statsOf(ch, true); return { id: u, name: ch.n || p.nick, j: ch.j, lk: ch.lk || p.lk, lv: ch.lv || 1, atk: st.atk, def: st.def, mhp: st.mhp, sr: ch.sr || {}, ld: ch.ld || null }; }
+function memOf(u) { var p = players[u], ch = CH[u], st = statsOf(ch, true); return { id: u, name: ch.n || p.nick, j: ch.j, lk: ch.lk || p.lk, lv: ch.lv || 1, atk: st.atk, def: st.def, mhp: st.mhp, cut: st.cut, healX: st.healX, crit: st.crit, mmp: st.mmp, sr: ch.sr || {}, ld: ch.ld || null, it: carryOf(u) }; }
+/* 持っていく持ち物（準備画面で生徒が選んだ回復系を1つ。players/<uid>/it。自分のキャラが持っているものだけ） */
+function carryOf(u) { var p = players[u] || {}, ch = CH[u], k = String(p.it || '').replace(/^!/, ''); return ch && !ch.guest && isCarry(k) && ch.inv && ch.inv[k] > 0 ? k : ''; }
+/* 生徒が「使う」を押すと players/<uid>/it が「!」で始まる名前になる（合図）。効果をかけて、キャラの持ち物を1つ減らす（保存は終了のとき。生徒の端末も自分で減らす） */
+var ITU = {};
+function itemCheck() {
+  if (!S || S.phase !== 'run' || ended) return;
+  Object.keys(players).forEach(function (u) {
+    var p = players[u], R = GR[p.gp]; if (!R || !R.G.mem[u] || ITU[u] || String(p.it || '').charAt(0) !== '!') return;
+    var k = R.G.mem[u].it; if (!E.useItem(R.G, u)) return;   /* いまは使えない（探索中など）→ 次の0.5秒でもう一度 */
+    ITU[u] = true; var ch = CH[u];
+    if (ch && ch.inv && ch.inv[k] > 0) { ch.inv = Object.assign({}, ch.inv); ch.inv[k]--; }
+  });
+}
 function progPath(n) { return qpath('teams/' + S.g + '-' + S.c + '/' + U.id + '/' + n); }
 /* リーダー：前回のリーダーの次の出席番号（その日に来ている人の中で） */
 function pickLeader(uids, lastSid) {
@@ -217,32 +326,67 @@ $('btnStart').onclick = async function () {
   ids.forEach(function (u) { P[u] = { n: 0, queue: [] }; });   /* 途中参加（lateJoin）と二重に入れない */
   await Promise.all(ids.map(loadChar));
   var g = byGroup(), gp = {};
+  if (isOb()) {   /* オブリオン戦：クラスで1体。同じ形態の続きならHPを持ち越す */
+    var ob = CLS.ob || {}, mem = ids.map(memOf), avg = mem.reduce(function (a, m) { return a + m.lv; }, 0) / Math.max(1, mem.length);
+    var same = ob.k === S.ob && ob.hp > 0 && ob.mx > 0;
+    O = E.newOblion(S.ob, same ? ob.mx : E.obHp(S.ob, ids.length, avg), same ? ob.hp : 0);
+    OBW = same ? Object.assign({}, ob.who || {}) : {};
+  }
   for (var n of Object.keys(g)) {
     if (!Number(n)) continue;
+    if (O) { GR[n] = { G: E.newGroup({ unit: U, mem: g[n].map(memOf) }), lead: g[n][0], prog: {}, bossLaps: [], who: {} }; E.startOblion(GR[n].G, O); gp[n] = { lead: g[n][0] }; continue; }
     var prog = (await get(ref(db, progPath(n)))).val() || {};
     var lead = pickLeader(g[n], prog.lead);
     GR[n] = { G: E.newGroup({ unit: U, lap: prog.lap || 0, fl: prog.fl || 1, keys: prog.keys || 0, wins: prog.wins || 0, mem: g[n].map(memOf), snap: prog.snap || null }),
               lead: lead, prog: prog, bossLaps: [], who: Object.assign({}, prog.who || {}) };
     gp[n] = { lead: lead };
   }
+  /* 物語の場面：その年度の最初の授業は「章の始まり」、オブリオン戦は「戦いの前」のセリフ。「つぎへ」で冒険が始まる */
+  var pages = [];
+  if (!CLS.open) { pages.push(storyOpen(S.g, CLS.town, CLS.stage)); CLS.open = true; update(ref(db, qpath('classes/' + S.g + '-' + S.c)), { open: true }).catch(function () {}); }
+  if (O) pages.push(storyOb(S.ob, 'b', CLS.town));
+  if (pages.length) { $('lbHint').textContent = ''; await story(pages, true); }
   endsAt = serverNow() + S.tl * 1000;
   S.phase = 'run'; S.gp = gp; S.ends = endsAt;
   await update(ref(db, 'rooms/' + pin + '/state'), { phase: 'run', gp: gp, ends: endsAt });
   onChildAdded(ref(db, 'rooms/' + pin + '/answers'), onAnsBucket); onChildChanged(ref(db, 'rooms/' + pin + '/answers'), onAnsBucket);
   onChildAdded(ref(db, 'rooms/' + pin + '/act'), onAct); onChildChanged(ref(db, 'rooms/' + pin + '/act'), onAct);
   onChildAdded(ref(db, 'rooms/' + pin + '/ctl'), onCtl); onChildChanged(ref(db, 'rooms/' + pin + '/ctl'), onCtl);
-  $('runSub').textContent = S.g + '年' + S.c + '組'; $('runTitle').textContent = U.area;
+  $('runSub').textContent = S.g + '年' + S.c + '組'; $('runTitle').textContent = O ? '忘却の城' : U.area;
   buildGrid(); showScreen('s-run'); sfx('go'); bgm('quiz');
   ids.forEach(function (u) { if (GR[players[u].gp]) sendQ(u); });
   loopId = setInterval(loop, 500);
 };
+/* 物語の場面を順に出す（絵＋2〜3文）。「つぎへ」を最後まで押すと終わる。push＝生徒の端末にも短く出す（rooms/<pin>/state/story） */
+function story(pages, push) {
+  pages = (pages || []).filter(Boolean); if (!pages.length) return Promise.resolve();
+  return new Promise(function (ok) {
+    var i = 0, pic = $('stPic');
+    function show() {
+      var p = pages[i];
+      pic.classList.remove('hide'); pic.classList.toggle('ob', /\/boss\//.test(p.img || ''));
+      pic.onerror = function () { pic.classList.add('hide'); };   /* 町の絵がまだ無いときは、絵をかくして背景だけにする */
+      if (p.img) pic.src = p.img; else pic.classList.add('hide');
+      $('stH').textContent = p.h || ''; $('stS').textContent = p.s; $('stN').textContent = pages.length > 1 ? (i + 1) + ' / ' + pages.length : '';
+      if (push && pin) update(ref(db, 'rooms/' + pin + '/state'), { story: { h: p.h || '', s: p.s } }).catch(function () {});
+    }
+    $('stNext').onclick = function () {
+      if (++i < pages.length) return show();
+      $('story').classList.add('hide'); $('stNext').onclick = null;
+      if (push && pin) update(ref(db, 'rooms/' + pin + '/state'), { story: null }).catch(function () {});
+      ok();
+    };
+    $('story').classList.remove('hide'); show(); $('stNext').focus();
+  });
+}
 /* 途中から来た人：その班に入れる（班がなければ新しく作る） */
 async function lateJoin() {
   for (var u of Object.keys(players)) {
     if (P[u] || !players[u].gp) continue;
     P[u] = { n: 0 }; await loadChar(u);
     var n = players[u].gp;
-    if (!GR[n]) {
+    if (!GR[n] && O) { GR[n] = { G: E.newGroup({ unit: U, mem: [memOf(u)] }), lead: u, prog: {}, bossLaps: [], who: {} }; E.startOblion(GR[n].G, O); S.gp[n] = { lead: u }; await update(ref(db, 'rooms/' + pin + '/state/gp'), S.gp); buildGrid(); }
+    else if (!GR[n]) {
       var prog = (await get(ref(db, progPath(n)))).val() || {};
       GR[n] = { G: E.newGroup({ unit: U, lap: prog.lap || 0, fl: prog.fl || 1, keys: prog.keys || 0, wins: prog.wins || 0, mem: [memOf(u)], snap: prog.snap || null }), lead: u, prog: prog, bossLaps: [], who: Object.assign({}, prog.who || {}) };
       S.gp[n] = { lead: u }; await update(ref(db, 'rooms/' + pin + '/state/gp'), S.gp); buildGrid();
@@ -264,9 +408,9 @@ function onAnsBucket(snap) { var n = Number(snap.key), v = snap.val() || {}; Obj
 function grade(u, a) {
   var p = P[u], q = p.cur, mask = a.c != null ? (1 << a.c) : a.m, cor = maskOf(q.correct), ok = mask === cor, R = GR[players[u].gp];
   p.wait = false;
-  var wasDown = R && R.G.mem[u] && R.G.mem[u].dn;
+  var wasDown = R && R.G.mem[u] && R.G.mem[u].dn, mm = R && R.G.mem[u], wasBad = mm && !mm.dn && (mm.seal > 0 || mm.psn > 0) && R.G.ph === 'battle';
   if (R) E.answer(R.G, u, ok);
-  set(ref(db, 'rooms/' + pin + '/qs/' + u + '/r'), { n: p.n, ok: ok ? 1 : 0, cor: cor, ex: q.ex || '', rv: wasDown ? 1 : 0 });
+  set(ref(db, 'rooms/' + pin + '/qs/' + u + '/r'), { n: p.n, ok: ok ? 1 : 0, cor: cor, ex: q.ex || '', rv: wasDown ? 1 : 0, cu: ok && wasBad ? 1 : 0 });
   if (!ok) { var pos = Math.min(p.queue.length, 3 + Math.floor(Math.random() * 4)); p.queue.splice(p.queue.length - pos, 0, q.qi); }   /* まちがえた問題は数問あとに */
   setTimeout(function () { sendQ(u); }, ok ? 900 : 2600);
 }
@@ -284,22 +428,30 @@ function onCtl(snap) {
 }
 
 /* ------------------------------------------------------------ 0.5秒ごとに全班を進める */
+var R_END = null;
 function loop() {
   if (ended) return;
   var left = Math.max(0, (endsAt - serverNow()) / 1000);
   $('clock').textContent = Math.floor(left / 60) + ':' + String(Math.floor(left % 60)).padStart(2, '0');
+  if (O) E.obTick(O, .5);
+  itemCheck();
+  var obEv = [];
   Object.keys(GR).forEach(function (n) {
-    var R = GR[n], G = R.G, q0 = G.seq;
+    var R = GR[n], G = R.G, q0 = R.q0 != null ? R.q0 : 0;
     E.step(G, .5);
-    G.ev.forEach(function (e) { if (e.q > q0 && e.t === 'clear') { R.bossLaps.push(G.lap); sfx('fanfare'); } });
+    G.ev.forEach(function (e) { if (e.q > q0 && e.t === 'clear') { if (O) { if (!obDown) { obDown = true; sfx('fanfare'); } } else { R.bossLaps.push(G.lap); sfx('fanfare'); } } if (O && e.q > q0 && e.ob && !obEv.some(function (x) { return x.s === e.s; })) obEv.push(e); });
+    R.q0 = G.seq;
     var v = E.view(G); set(ref(db, 'rooms/' + pin + '/gv/' + n), v).catch(function () {});
-    drawTile(n, v, q0);
+    if (O) drawObTile(n, v, q0); else drawTile(n, v, q0);
   });
+  if (O) drawObStage(obEv);
+  if (obDown && !R_END) { R_END = setTimeout(finish, 9000); }
   if (left <= 0) finish();
 }
 
 /* ------------------------------------------------------------ 投影：全班 */
 function buildGrid() {
+  if (O) return buildObGrid();
   var ns = Object.keys(GR).sort(function (a, b) { return a - b; }), cols = ns.length <= 2 ? ns.length : ns.length <= 4 ? 2 : ns.length <= 6 ? 3 : 4;
   var g = $('pjGrid'); g.style.gridTemplateColumns = 'repeat(' + Math.max(1, cols) + ',1fr)'; g.style.gridTemplateRows = 'repeat(' + Math.ceil(ns.length / Math.max(1, cols)) + ',1fr)';
   g.innerHTML = ns.map(function (n) { return '<div class="tm" id="tm' + n + '"></div>'; }).join('');
@@ -313,8 +465,8 @@ function drawTile(n, v, q0) {
       c.dataset.m = 'f'; c.dataset.k = v.fl + '-' + v.wins + '-' + v.lap;
       c.innerHTML = th + '<div class="mfield"><div class="fd-map"></div></div><div class="status"></div>';
       var r = c.getBoundingClientRect(); c._ts = Math.max(10, Math.floor(Math.min(r.width / 13, r.height / 8)));
-      drawField(c.querySelector('.fd-map'), c._ts, v, U, lead ? { j: lead.j, lk: lead.lk, name: lead.n } : null, true);
-    } else if (!moveField(c.querySelector('.fd-map'), c._ts, v, lead ? { j: lead.j, lk: lead.lk } : null)) drawField(c.querySelector('.fd-map'), c._ts, v, U, lead ? { j: lead.j, lk: lead.lk } : null, true);
+      drawField(c.querySelector('.fd-map'), c._ts, v, U, lead ? { id: R.lead, j: lead.j, lk: lead.lk, name: lead.n } : null, true);
+    } else if (!moveField(c.querySelector('.fd-map'), c._ts, v, lead ? { id: R.lead, j: lead.j, lk: lead.lk } : null)) drawField(c.querySelector('.fd-map'), c._ts, v, U, lead ? { id: R.lead, j: lead.j, lk: lead.lk } : null, true);
     cameraOf(c.querySelector('.mfield'), c.querySelector('.fd-map'), c._ts, v.pos);
     c.querySelector('.th').outerHTML = th;
     c.querySelector('.status').textContent = v.ph === 'enc' ? 'ワスレモノとぶつかった！' : '探索中（リーダー ' + (lead ? lead.n : '') + '）　群れ ' + v.wins + '/2' + (v.wins >= 2 ? '　番人の部屋が開いた' : '');
@@ -329,7 +481,7 @@ function drawTile(n, v, q0) {
       e.querySelector('.bar i').style.width = (100 * f.hp / f.mx) + '%'; e.classList.toggle('dead', f.hp <= 0); e.classList.toggle('chg', f.chg > 0 && f.hp > 0); e.classList.toggle('barrier', !!f.br);
       var cg = e.querySelector('.cgt'); if (f.chg > 0 && f.hp > 0) { if (!cg) { cg = el('span', 'cgt'); e.prepend(cg); } cg.textContent = 'ため ' + f.chg; } else if (cg) cg.remove();
     });
-    c.querySelector('.mparty').innerHTML = Object.keys(v.mem).map(function (id) { var o = v.mem[id]; return '<span class="' + (o.dn ? 'ko' : '') + '"><img alt="" src="' + heroImg(o.j, o.lk) + '"><div class="bar hp"><i style="width:' + (100 * o.hp / o.mx) + '%"></i></div>' + esc(o.n) + '</span>'; }).join('');
+    c.querySelector('.mparty').innerHTML = Object.keys(v.mem).map(function (id) { var o = v.mem[id]; return '<span class="' + (o.dn ? 'ko' : '') + '"><img alt="" src="' + heroImg(o.j, o.lk) + '">' + spiritHtml(o) + '<div class="bar hp"><i style="width:' + (100 * o.hp / o.mx) + '%"></i></div>' + esc(o.n) + '</span>'; }).join('');
     var ch = v.foes.filter(function (f) { return f.chg > 0 && f.hp > 0; })[0];
     c.querySelector('.status').textContent = v.ph === 'result' ? '' : v.kind === 'boss' && !ch ? (v.foes[0] && v.foes[0].br ? '👑 ボス戦　バリア中：手下をねらえ' : '👑 ボス戦！') : ch ? '⚠ ' + ch.n + 'が力をためている！' : v.kind === 'guard' ? '番人と戦闘中！' : '戦闘中';
     (v.ev || []).forEach(function (e) { if (e.q > q0 && e.t === 'hit' && e.d) { var en = c.querySelector('.mfoe[data-i="' + e.i + '"]'); if (en) { var d = el('div', 'pdmg', String(e.d)); en.appendChild(d); setTimeout(function () { d.remove(); }, 1000); } } });
@@ -337,22 +489,61 @@ function drawTile(n, v, q0) {
   (v.ev || []).forEach(function (e) { if (e.q > q0 && e.s && e.t !== 'move' && e.t !== 'say') ovban(c, e.s, e.big || e.t === 'wipe'); });
 }
 
+/* ------------------------------------------------------------ 投影：オブリオン戦（上に大きく1体とクラスのHP、下に班ごとのようす） */
+function buildObGrid() {
+  var ns = Object.keys(GR).sort(function (a, b) { return a - b; }), g = $('pjGrid');
+  g.style.gridTemplateColumns = '1fr'; g.style.gridTemplateRows = '1fr auto';
+  g.innerHTML = '<div class="ob-stage" id="obStage"><div class="ob-bg"></div><img id="obImg" alt="" src="' + oblionImg(O.k) + '">' +
+    '<div class="ob-hud"><b id="obName"></b><div class="bar hp obbar"><i></i><b id="obPct"></b></div><span class="ob-st" id="obSt"></span></div></div>' +
+    '<div class="ob-gps" style="grid-template-columns:repeat(' + Math.min(ns.length, 5) + ',1fr)">' + ns.map(function (n) { return '<div class="gp-card ob-gp" id="tm' + n + '"></div>'; }).join('') + '</div>';
+}
+function drawObStage(evs) {
+  var st = $('obStage'); if (!st) return;
+  var e9 = O.sw === 'guard', col = e9 ? '#fff' : ELEM[O.t[O.ei]].col;
+  $('obImg').style.setProperty('--obc', col); $('obImg').classList.toggle('cast', !!O.cast); $('obImg').classList.toggle('dead', O.hp <= 0);
+  $('obName').textContent = '👑 ' + O.n + '　' + (e9 ? '班ごとに色が変わる' : 'いまの色：' + ELEM[O.t[O.ei]].ic + ELEM[O.t[O.ei]].n);
+  var pct = O.hp / O.mx; st.querySelector('.obbar i').style.width = (100 * pct) + '%'; $('obPct').textContent = 'クラスのHP ' + Math.ceil(100 * pct) + '%';
+  $('obSt').textContent = O.hp <= 0 ? '🎉 たおした！' : O.cast ? '✨「' + O.sk[O.cast.i].n + '」のかまえ！' : O.ward > 0 ? '🛡 守りを固めている' : O.rage > 0 ? '💢 怒っている' : '';
+  evs.forEach(function (e) { if (e.s && e.t !== 'bsk') ovban(st, e.s, e.big || e.t === 'cast' || e.t === 'clear'); });
+}
+function drawObTile(n, v, q0) {
+  var c = $('tm' + n); if (!c) return;
+  var mem = Object.keys(v.mem).map(function (id) { var o = v.mem[id]; return '<span class="' + (o.dn ? 'ko' : '') + '"><img alt="" src="' + heroImg(o.j, o.lk) + '">' + spiritHtml(o) + '<i class="hpb"><i style="width:' + (100 * o.hp / o.mx) + '%"></i></i>' + (o.sl ? '🔒' : '') + (o.ps ? '☠' : '') + esc(o.n) + '</span>'; }).join('');
+  var f = v.foes[0] || {}, st = v.ph === 'rest' ? '💤 全滅… あと' + v.rt + '秒で立ち上がる' : f.chg > 0 ? '⚠ 強い攻撃まで ' + f.chg + '秒（ガード ' + (v.gc || 0) + '/4）' : v.ph === 'result' ? '🎉 勝利！' : '戦闘中';
+  var col = f.t && ELEM[f.t] ? ELEM[f.t].col : '#fff';
+  c.className = 'gp-card ob-gp' + (v.ph === 'rest' ? ' rest' : '') + (f.chg > 0 ? ' cg' : '');
+  c.innerHTML = '<b>' + n + '班 <i class="dot" style="background:' + col + '"></i></b><div class="mem-mini">' + mem + '</div><small>' + st + '</small>';
+  (v.ev || []).forEach(function (e) { if (e.q > q0 && !e.ob && (e.t === 'wipe' || (e.t === 'ban' && /ガード成功/.test(e.s)))) ovban(c, e.s, false); });
+}
+
 /* ------------------------------------------------------------ 終了：班の進み具合・キャラ・町を保存 */
 $('btnEnd').onclick = function () { finish(); };
+/* ごほうびは、いま保存されているキャラに足す（授業中に生徒が上げた技のランク・技えらび・使った持ち物を、参加したときの写しで上書きしないため） */
+async function freshChar(sid, ch) {
+  var c = null;
+  try { c = (await get(ref(db, qpath('chars/' + sid)))).val(); if (c) migrateChar(c); } catch (e) {}
+  if (!c) c = JSON.parse(JSON.stringify(ch));
+  delete c.guest; return c;
+}
 async function finish() {
-  if (ended) return; ended = true; clearInterval(loopId);
-  S.phase = 'saving'; await update(ref(db, 'rooms/' + pin + '/state'), { phase: 'saving' });
-  var up = {}, res = {}, firstBoss = false, cls = CLS || {}, areas = cls.areas || {};
+  if (ended) return; ended = true; clearInterval(loopId); clearTimeout(R_END);
+  var cls = CLS || {}, areas = cls.areas || {}, stage0 = cls.stage != null ? cls.stage : townStart(S.g);
+  /* 町が育つのは、その単元のボスをクラスで最初の1班が倒したとき */
+  var firstBoss = !O && !(areas[U.id] && areas[U.id].done) && Object.keys(GR).some(function (n) { return GR[n].bossLaps.some(function (l) { return l === 0; }); });
+  var stage1 = firstBoss ? Math.min(TOWN_MAX, stage0 + 1) : stage0;
+  S.phase = 'saving'; S.tw = { n: cls.town || TOWN_DEFAULT, st: stage1 };   /* tw＝生徒の結果画面の物語に使う（町の名前・段階） */
+  await update(ref(db, 'rooms/' + pin + '/state'), { phase: 'saving', tw: S.tw, story: null });
+  if (O) return finishOb();
+  var up = {}, res = {};
   for (var n of Object.keys(GR)) {
     var R = GR[n], G = R.G, out = E.results(G), snap = E.snapshot(G);
     G.order.forEach(function (u) { if (players[u]) R.who[players[u].sid] = true; });
     up[progPath(n)] = { fl: snap.fl, keys: snap.keys, wins: snap.wins, lap: snap.lap, lead: players[R.lead] ? players[R.lead].sid : '', snap: snap, who: R.who, t: TS };
-    if (R.bossLaps.some(function (l) { return l === 0; }) && !(areas[U.id] && areas[U.id].done)) firstBoss = true;
     for (var u of G.order) {
       var p = players[u], ch = CH[u], o = out[u]; if (!p || !ch || !o) continue;
       var r = { exp: o.exp, gold: o.gold, ok: o.ok, ans: o.ans, fl: snap.fl, keys: snap.keys, boss: R.bossLaps.length ? 1 : 0 };
       if (!ch.guest && (await owns(u, p.sid))) {
-        var c2 = JSON.parse(JSON.stringify(ch)); delete c2.guest;
+        var c2 = await freshChar(p.sid, ch);
         var lv0 = c2.lv || 1; r.up = addExp(c2, o.exp); r.lv = c2.lv; r.sp = r.up;
         c2.gold = (c2.gold || 0) + o.gold;
         R.bossLaps.forEach(function (l) { var b = bossSp(l); c2.sp = (c2.sp || 0) + b; c2.spt = (c2.spt || 0) + b; r.sp += b; });
@@ -362,13 +553,63 @@ async function finish() {
       res[u] = r;
     }
   }
-  if (firstBoss) { up[qpath('classes/' + S.g + '-' + S.c + '/stage')] = Math.min(5, (cls.stage || 0) + 1); up[qpath('classes/' + S.g + '-' + S.c + '/areas/' + U.id + '/done')] = true; }
+  if (firstBoss) { up[qpath('classes/' + S.g + '-' + S.c + '/stage')] = stage1; up[qpath('classes/' + S.g + '-' + S.c + '/areas/' + U.id + '/done')] = true; }
   if (!cls.town) up[qpath('classes/' + S.g + '-' + S.c + '/town')] = TOWN_DEFAULT;
+  if (!firstBoss && cls.stage == null) up[qpath('classes/' + S.g + '-' + S.c + '/stage')] = townStart(S.g);   /* クラス替えのあとは学年の4月の段階から */
   var saveErr = '';
   try { await update(ref(db), up); } catch (e) { saveErr = '記録を保存できませんでした（' + e.message + '）'; }
   await set(ref(db, 'rooms/' + pin + '/res'), res);
   await update(ref(db, 'rooms/' + pin + '/state'), { phase: 'end' });
   bgm(null); showEnd(firstBoss, saveErr);
+  if (firstBoss) story([storyBoss(U, S.tw.n, stage1)]);   /* 単元ボスの場面＋町の様子 */
+}
+/* オブリオン戦の保存：クラスの「次の形態・残りHP・参加した人」。倒したら、その形態に一度でも参加した人全員にごほうび */
+function obReward(c2, r) {
+  var lvUp = addExp(c2, REWARD.ob.exp), gd = goldOf('ob', S.g); c2.gold = (c2.gold || 0) + gd;   /* 学年の倍率（1年100・2年190・3年300）。クラスの学年で決まる */
+  c2.sp = (c2.sp || 0) + REWARD.ob.sp; c2.spt = (c2.spt || 0) + REWARD.ob.sp;
+  c2.ttl = Object.assign({}, c2.ttl || {}); c2.ttl['ob' + O.k] = obTitle(O.k);
+  if (r) { r.ttl = obTitle(O.k); r.sp = (r.sp || 0) + REWARD.ob.sp + lvUp; r.up = (r.up || 0) + lvUp; r.lv = c2.lv; r.exp += REWARD.ob.exp; r.gold += gd; }
+}
+async function finishOb() {
+  var up = {}, res = {}, ck = qpath('classes/' + S.g + '-' + S.c), done = O.hp <= 0, today = {};
+  Object.keys(GR).forEach(function (n) { GR[n].G.order.forEach(function (u) { if (players[u]) { OBW[players[u].sid] = true; today[players[u].sid] = true; } }); });
+  up[ck + '/ob'] = done ? { k: obNext(O.k, S.sem), hp: 0, mx: 0, who: {}, sem: S.sem, t: TS } : { k: O.k, hp: Math.max(1, Math.round(O.hp)), mx: O.mx, who: OBW, sem: S.sem, t: TS };
+  if (done) up[ck + '/obDone/' + O.k] = true;
+  if (!(CLS || {}).town) up[ck + '/town'] = TOWN_DEFAULT;
+  for (var n of Object.keys(GR)) {
+    var G = GR[n].G, out = E.results(G);
+    for (var u of G.order) {
+      var p = players[u], ch = CH[u], o = out[u]; if (!p || !ch || !o) continue;
+      var r = { exp: o.exp, gold: o.gold, ok: o.ok, ans: o.ans, dmg: o.dmg, ob: O.k, obWin: done ? 1 : 0, obHp: Math.ceil(100 * Math.max(0, O.hp) / O.mx) };
+      if (!ch.guest && (await owns(u, p.sid))) {
+        var c2 = await freshChar(p.sid, ch);
+        r.up = addExp(c2, o.exp); r.lv = c2.lv; r.sp = r.up; c2.gold = (c2.gold || 0) + o.gold;
+        if (done) obReward(c2, r);
+        c2.u = TS; up[qpath('chars/' + p.sid)] = c2;
+      }
+      res[u] = r;
+    }
+  }
+  var saveErr = '';
+  if (done) {   /* 今日来ていない人（前の授業で参加した人）にも */
+    for (var sid of Object.keys(OBW)) {
+      if (today[sid]) continue;
+      try { var c3 = (await get(ref(db, qpath('chars/' + sid)))).val(); if (!c3) continue; migrateChar(c3); obReward(c3, null); c3.u = TS; up[qpath('chars/' + sid)] = c3; } catch (e) { saveErr = '一部の人のごほうびを保存できませんでした'; }
+    }
+  }
+  try { await update(ref(db), up); } catch (e) { saveErr = '記録を保存できませんでした（' + e.message + '）'; }
+  await set(ref(db, 'rooms/' + pin + '/res'), res);
+  await update(ref(db, 'rooms/' + pin + '/state'), { phase: 'end' });
+  bgm(null);
+  var box = $('endGroups'); box.textContent = '';
+  $('endTitle').textContent = done ? O.n + ' を封じた！' : '今日の戦いおわり';
+  if (done) confetti($('conf'), 60);
+  var c = el('div', 'gp-card'); c.appendChild(el('b', '', done ? '🎉 クラスでたおした！　参加した ' + Object.keys(OBW).length + '人に ごほうび（' + goldOf('ob', S.g) + 'G・SP +' + REWARD.ob.sp + '・称号「' + obTitle(O.k) + '」）' : '残りHP ' + Math.ceil(100 * O.hp / O.mx) + '%　次の授業で続きから'));
+  box.appendChild(c);
+  $('endNote').textContent = saveErr || (done ? '次の学期末は「' + (obNext(O.k, S.sem) ? OBLION[obNext(O.k, S.sem) - 1].n : '（全部たおした）') + '」です。' : 'オブリオンのHPと、参加した人を保存しました。');
+  showScreen('s-end');
+  /* 倒した日だけ「倒したあと」の場面。形態9（最後）のあとはエンディング */
+  if (done) story([storyOb(O.k, 'a', S.tw.n)].concat(O.k === 9 ? storyEnding(S.tw.n) : []));
 }
 function showEnd(firstBoss, saveErr) {
   var box = $('endGroups'); box.textContent = '';

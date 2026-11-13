@@ -6,7 +6,7 @@
 <title>リカリア</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261113093608">
+<link rel="stylesheet" href="theme.css?v=20261113134143">
 <style>
   /* リカリア：トップ（クイズ）とは別の世界。タイトル画面 → えらぶ（チーム戦／ひとりで）→ チーム戦（参加／開く）
      ボタンは「ゲームのタイトル画面」風：文字だけのメニュー＋光の帯＋点滅するカーソル。えらぶ画面は、紺の窓に白い枠のゲームのウィンドウ。
@@ -142,14 +142,14 @@
   <section class="screen center" id="v-team" style="gap:.2em">
     <div class="win">
       <div class="wtitle">チーム戦</div>
-      <a class="ritem mcard sel" href="quest-play.html" data-item><span class="cur"></span><span class="ic"><img src="img/quest/hero-mage-a.webp" alt=""></span><span class="txt"><b>みんなで参加</b><small>PINと出席番号・合言葉で入る</small></span></a>
-      <a class="ritem mcard" href="quest-host.html" data-item><span class="cur"></span><span class="ic"><img src="img/robot/acc-crown.webp" alt=""></span><span class="txt"><b>ゲームを開く</b><small>先生用：部屋をつくる</small></span></a>
+      <a class="ritem mcard sel" href="rikaria-play.html" data-item><span class="cur"></span><span class="ic"><img src="img/quest/hero-mage-a.webp" alt=""></span><span class="txt"><b>みんなで参加</b><small>PINと出席番号・合言葉で入る</small></span></a>
+      <a class="ritem mcard" href="rikaria-host.html" data-item><span class="cur"></span><span class="ic"><img src="img/robot/acc-crown.webp" alt=""></span><span class="txt"><b>ゲームを開く</b><small>先生用：部屋をつくる</small></span></a>
       <button class="ritem back" id="goBackMenu" type="button" data-item><span class="cur"></span><b>もどる</b></button>
     </div>
   </section>
 </div>
 <script type="module">
-  import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261113093608b';
+  import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261113134143b';
   wireSoundButtons(); preload(['top']); bgm('top');
   addEventListener('pagehide', function () { bgm(null); });
   addEventListener('pageshow', function (e) { if (e.persisted) bgm('top'); });

@@ -174,7 +174,7 @@
 #s-clear .clbox { background:rgba(14,8,40,.82); border:.15em solid rgba(255,210,63,.6); border-radius:1.4em; padding:1.2em 2em; display:flex; flex-direction:column; align-items:center; gap:.9em; box-shadow:0 .4em 1.5em rgba(0,0,0,.5); }
 #s-clear .lvup { -webkit-text-stroke:0; text-shadow:0 .08em 0 #2a1280; font-size:2.2em; }
 #s-clear .story { background:none; box-shadow:none; padding:0; }
-#s-clear .reward .card { min-width:10em; background:rgba(14,8,40,.78); color:#fff; padding:.8em 1em; border-radius:1em; }
+#s-clear .reward .card, #s-result .reward .card { min-width:10em; background:rgba(14,8,40,.78); color:#fff; padding:.8em 1em; border-radius:1em; }
 #s-clear .reward .card small { display:block; opacity:.7; font-weight:800; }
 .tm .mfoe.final { flex:2.4; }
 .tm .mfoe.barrier img { filter:drop-shadow(0 0 .5em #7cc8ff) drop-shadow(0 0 .2em #7cc8ff); }
@@ -210,3 +210,106 @@
 .fd-pad { position:absolute; right:1em; bottom:1em; display:grid; grid-template-columns:repeat(3, 3em); grid-template-rows:repeat(2, 3em); gap:.3em; z-index:50; }
 .fd-pad button { font:inherit; font-size:1.3em; border:0; border-radius:.6em; background:rgba(14,8,40,.7); color:#fff; cursor:pointer; }
 @media (prefers-reduced-motion: reduce) { .fximg, .cutin, .ring, .pt, .quake, .quake.big { animation-duration:.01s !important; } }
+
+/* ---- ボスの技（2026-11-13）：予兆・守り・怒り・じゃま */
+@keyframes castpulse { from { transform:scale(1); filter:brightness(1) drop-shadow(0 0 .4em #fff); } to { transform:scale(1.05); filter:brightness(1.45) drop-shadow(0 0 1.8em #ffe680); } }
+.foes .enemy.cast img { animation:castpulse .45s ease-in-out infinite alternate; }
+.foes .enemy.rage img { filter:drop-shadow(0 0 .8em #ff3b3b) saturate(1.5); }
+.foes .enemy.ward::after { content:'🛡'; position:absolute; top:12%; right:12%; font-size:2.2em; filter:drop-shadow(0 0 .4em #6cf); }
+.mystat .bad { font-size:.8em; font-weight:800; color:#ffb3c0; }
+
+/* ---- オブリオン戦：体が光る色＝いまのタイプ */
+.foes .enemy.obl img { filter:drop-shadow(0 0 .7em var(--obc, #fff)) drop-shadow(0 0 1.8em var(--obc, #fff)); }
+.foes .enemy.obl.cast img { animation:castpulse .45s ease-in-out infinite alternate; }
+.ob-stage { position:relative; overflow:hidden; border-radius:1em; display:flex; align-items:center; justify-content:center; min-height:0; }
+.ob-stage .ob-bg { position:absolute; inset:-1em; background:url(img/rikaria/bg/castle.webp) center/cover; filter:blur(3px) brightness(.5); }
+.ob-stage #obImg { position:relative; max-height:76%; max-width:60%; margin-top:4%; object-fit:contain; animation:bob 3s ease-in-out infinite; filter:drop-shadow(0 0 1em var(--obc, #fff)) drop-shadow(0 0 2.4em var(--obc, #fff)); }
+.ob-stage #obImg.cast { animation:castpulse .45s ease-in-out infinite alternate; }
+.ob-stage #obImg.dead { opacity:0; transition:opacity 2.5s; }
+.ob-hud { position:absolute; left:2%; right:2%; top:3%; z-index:3; display:flex; align-items:center; gap:1em; background:rgba(14,8,40,.78); border-radius:999px; padding:.4em 1.2em; font-weight:900; font-size:1.15em; }
+.ob-hud .obbar { flex:1; height:1.1em; position:relative; }
+.ob-hud .obbar b { position:absolute; inset:0; text-align:center; font-size:.7em; line-height:1.6; }
+.ob-hud .ob-st { color:#ffe680; white-space:nowrap; }
+.ob-gps { display:grid; gap:.5em; }
+.ob-gp { position:relative; overflow:hidden; font-size:.9em; }
+.ob-gp .dot { display:inline-block; width:.8em; height:.8em; border-radius:50%; vertical-align:middle; box-shadow:0 0 .4em currentColor; }
+.ob-gp .hpb { display:inline-block; width:2.2em; height:.4em; margin:0 .2em; background:rgba(255,255,255,.2); border-radius:9px; overflow:hidden; vertical-align:middle; }
+.ob-gp .hpb i { display:block; height:100%; background:#5bd36b; }
+.ob-gp.rest { opacity:.6; }
+.ob-gp.cg { outline:.15em solid #ff3b5c; }
+
+/* ------------------------------------------------------------ 2026-11-13 追加：たいまつ・光る扉・一列の班員・精霊・持ち物・物語の場面・冒険の地図 */
+/* 壁のたいまつ（CSSの炎。絵が届いたら .pic で絵に切りかわる）。まわりがゆらゆら明るい */
+.torch { position:absolute; z-index:6; pointer-events:none; }
+.torch i { position:absolute; left:50%; top:38%; width:26%; height:40%; transform:translate(-50%, -50%); border-radius:50% 50% 45% 45% / 62% 62% 38% 38%;
+  background:radial-gradient(ellipse at 50% 72%, #fff6c8 0 22%, #ffc23f 45%, #ff7a1c 72%, transparent 76%); animation:flame .5s ease-in-out infinite alternate; }
+.torch::before { content:""; position:absolute; left:50%; top:60%; width:10%; height:34%; transform:translateX(-50%); background:#5a3a1c; border-radius:.1em; }
+.torch.pic i, .torch.pic::before { display:none; }
+.torch img { position:absolute; left:10%; top:5%; width:80%; height:90%; object-fit:contain; }
+.torch::after { content:""; position:absolute; left:50%; top:45%; width:520%; height:520%; transform:translate(-50%, -50%); border-radius:50%; mix-blend-mode:screen;
+  background:radial-gradient(circle, rgba(255,190,90,.42) 0, rgba(255,150,60,.18) 38%, transparent 68%); animation:torchglow 1.7s ease-in-out infinite; }
+@keyframes flame { from { transform:translate(-50%, -50%) scale(1, 1) rotate(-3deg); } to { transform:translate(-50%, -54%) scale(.86, 1.14) rotate(3deg); } }
+@keyframes torchglow { 0%, 100% { opacity:.85; transform:translate(-50%, -50%) scale(1); } 27% { opacity:1; transform:translate(-50%, -50%) scale(1.06); } 46% { opacity:.72; transform:translate(-50%, -50%) scale(.95); } 71% { opacity:.95; transform:translate(-50%, -50%) scale(1.03); } }
+/* 鍵の開いた扉：光って、行き先を知らせる */
+.door-glow { position:absolute; z-index:7; pointer-events:none; border-radius:.2em; box-shadow:0 0 .5em .15em #ffe680, 0 0 1.6em .5em rgba(255,210,63,.65), inset 0 0 .6em rgba(255,255,220,.9); animation:doorglow 1.1s ease-in-out infinite alternate; }
+.door-glow::after { content:"▶"; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#fff8c8; font-size:.9em; text-shadow:0 0 .4em #ffb300; }
+@keyframes doorglow { from { opacity:.55; } to { opacity:1; } }
+/* リーダーの後ろを歩く班員 */
+.unit.fol .hero { height:132%; opacity:.96; }
+/* 精霊使いの横に浮かぶ精霊 */
+.spirit { position:absolute; pointer-events:none; animation:spiritfloat 1.8s ease-in-out infinite; filter:drop-shadow(0 0 .3em rgba(255,255,255,.8)); }
+.chip .spirit { right:-.2em; top:-.2em; height:1.5em !important; width:auto; }
+.tm .mparty span, .mem-mini span { position:relative; }
+.tm .mparty .spirit { right:4%; top:-.4em; height:1.8em !important; }
+.mem-mini .spirit { right:-.5em; top:-.3em; height:1.5em !important; }
+.arena .spirit.big { left:3%; bottom:6%; height:22%; z-index:5; }
+@keyframes spiritfloat { 50% { transform:translateY(-.3em); } }
+/* 持っていく持ち物（準備画面）・戦闘中に使うボタン */
+.it-row { display:flex; gap:.5em; flex-wrap:wrap; }
+.it-row button { font:inherit; font-weight:900; color:#fff; background:rgba(255,255,255,.08); border:.15em solid rgba(255,255,255,.18); border-radius:.8em; padding:.4em .8em; cursor:pointer; display:flex; flex-direction:column; align-items:flex-start; gap:.1em; }
+.it-row button.on { border-color:var(--q-gold); background:rgba(255,210,63,.16); }
+.it-row button small { opacity:.75; font-weight:700; }
+.it-row button:disabled { cursor:default; opacity:.6; }
+.skillrow .act.item { background:linear-gradient(#3fae6a, #2a8a50); }
+/* 物語の場面（先生の大きい画面：絵＋2〜3文＋つぎへ。生徒は短い帯） */
+.story-ov { position:fixed; inset:0; z-index:900; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.8em; padding:1.2em; background:linear-gradient(rgba(8,5,26,.86), rgba(8,5,26,.92)), url(img/rikaria/title-bg.webp) center/cover no-repeat #0a0720; animation:storyin .5s ease-out; }
+.story-ov.hide { display:none; }
+.story-ov .st-pic { max-height:46%; max-width:min(60em, 92%); border-radius:1em; box-shadow:0 .4em 1.6em rgba(0,0,0,.6); object-fit:contain; }
+.story-ov .st-pic.ob { filter:drop-shadow(0 0 1.2em rgba(170,120,255,.8)); box-shadow:none; }
+.story-ov h2 { font-size:1.9em; font-weight:900; color:var(--q-gold); text-shadow:0 .1em 0 rgba(0,0,0,.5); text-align:center; }
+.story-ov p { max-width:32em; font-size:1.5em; line-height:1.8; font-weight:800; text-align:center; }
+.story-ov .st-n { opacity:.6; font-weight:800; }
+.story-mini { position:fixed; left:50%; top:1em; transform:translateX(-50%); z-index:900; width:min(34em, 92%); background:rgba(14,8,40,.94); border:.15em solid var(--q-gold); border-radius:1em; padding:.7em 1em; font-weight:800; line-height:1.6; text-align:center; pointer-events:none; animation:storyin .5s ease-out; }
+.story-mini b { display:block; color:var(--q-gold); }
+.story-mini.hide { display:none; }
+@keyframes storyin { from { opacity:0; } }
+/* 冒険の地図（先生の準備画面で単元をえらぶ） */
+.am-wrap { display:flex; flex-direction:column; gap:.5em; }
+.am-map { position:relative; width:100%; max-width:52em; margin:0 auto; border-radius:1em; overflow:hidden; background-size:100% 100%; background-color:#2a5aa8; box-shadow:0 .3em 1em rgba(0,0,0,.4); }
+.am-fog { position:absolute; transform:translate(-50%, -50%); width:27%; aspect-ratio:1.35; border-radius:50%; pointer-events:none; z-index:1;
+  background:radial-gradient(ellipse, rgba(232,228,246,.97) 0 40%, rgba(220,215,240,.82) 58%, transparent 74%); filter:blur(3px); animation:amfog 5s ease-in-out infinite alternate; }
+@keyframes amfog { to { transform:translate(-48%, -52%) scale(1.05); } }
+.am-node { position:absolute; transform:translate(-50%, -50%); z-index:2; display:flex; flex-direction:column; align-items:center; gap:.15em; border:0; background:none; font:inherit; color:#fff; padding:.2em; cursor:pointer; }
+.am-node .pin { font-size:1em; padding:0; margin:0; letter-spacing:0; line-height:1; min-width:0; display:block; width:1.5em; height:1.5em; border-radius:50%; background:#9a96aa; box-shadow:0 0 0 .22em rgba(40,24,10,.85), 0 .2em .4em rgba(0,0,0,.5); }
+.am-node.clear .pin { background:var(--ok, #3fae6a); }
+.am-node.on .pin { background:var(--q-gold); animation:doorglow .8s ease-in-out infinite alternate; }
+.am-node b { font-size:.95em; background:rgba(30,18,8,.88); padding:.12em .8em; border-radius:999px; white-space:nowrap; box-shadow:0 .12em 0 rgba(0,0,0,.35); }
+.am-node.on b { outline:.18em solid #fff; background:#6a35e8; }
+.am-node small { font-size:.7em; font-weight:900; padding:0 .6em; border-radius:999px; background:#6d6a7a; }
+.am-node.clear small { background:var(--ok, #3fae6a); }
+.am-node:focus-visible { outline:.2em solid #fff; outline-offset:.1em; border-radius:.6em; }
+.am-node .flag { position:absolute; left:50%; top:-1.5em; font-size:1.7em; filter:drop-shadow(0 .1em 0 rgba(0,0,0,.5)); transform-origin:bottom left; animation:spiritfloat 2.2s ease-in-out infinite; }
+.am-mark { position:absolute; transform:translate(-50%, -50%); z-index:2; font-size:.8em; font-weight:900; background:rgba(30,18,8,.8); padding:.1em .7em; border-radius:999px; white-space:nowrap; pointer-events:none; }
+.am-list { display:flex; align-items:center; gap:.5em; flex-wrap:wrap; }
+.am-list select { font-size:1em; padding:.3em .5em; border-radius:.5em; }
+#townEdit input { font-size:1em; padding:.3em .5em; border-radius:.5em; width:13em; }
+.iconbtn { font:inherit; border:0; background:rgba(255,255,255,.14); color:#fff; border-radius:.5em; padding:.15em .45em; cursor:pointer; }
+@media (prefers-reduced-motion: reduce) {
+  .torch i, .torch::after, .door-glow, .spirit, .am-fog, .am-node.on .pin, .am-node .flag, .story-ov, .story-mini { animation:none !important; }
+}
+
+/* 単元ごとの床・壁の絵（rikaria-view.js の tileBg）。壁は暗くして、歩ける床と見分けやすくする */
+.tile.tx { box-shadow:none; }
+.tile.tx.t-wall { filter:brightness(.7); box-shadow:inset 0 -.14em 0 rgba(10,6,30,.55); }
+.tile.tx.t-wall.top { filter:brightness(.34) saturate(.75); box-shadow:none; }
+.tile.tx.t-floor { filter:brightness(1.08); }

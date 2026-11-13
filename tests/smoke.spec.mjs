@@ -16,10 +16,10 @@ const PAGES = [
   { path: 'play.html', name: 'ゲームに参加（生徒）' },
   { path: 'home.html', name: 'おうちで練習' },
   { path: 'quest.html', name: 'クエスト（ひとりで冒険）' },
-  { path: 'quest-play.html', name: 'クエスト（チーム・生徒）' },
+  { path: 'rikaria-play.html', name: 'リカリア・チーム戦（生徒）' },
   { path: 'host.html', name: 'クラシック（先生）', teacher: true },
   { path: 'chase-host.html', name: 'ジェットチェイス（先生）', teacher: true },
-  { path: 'quest-host.html', name: 'クエスト（先生）', teacher: true },
+  { path: 'rikaria-host.html', name: 'リカリア・チーム戦（先生）', teacher: true },
   { path: 'records.html', name: '記録画面（先生）', teacher: true, noScreen: true },
 ];
 const DB = 'http://127.0.0.1:9000', NS = 'qraft-e4345-default-rtdb';
