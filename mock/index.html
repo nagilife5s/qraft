@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex">
 <title>Qraft モックと見本の一覧</title>
 <!-- モック・見本・検証用のページの一覧（2026-11-13 整理）。どれが最新で、どれが古いかをここに書く。モックを足したら、ここにも足す。
-     設計メモ側の一覧は qraft/01_設計/00_いまの状態.md の「モックと見本」 -->
+     このフォルダ（web/mock/）のページは、<base href="../"> で web/ の絵とプログラムを使う。設計メモ側の一覧は qraft/01_設計/00_いまの状態.md の「モックと見本」 -->
 <style>
 :root { --bg:#12142a; --card:#1c1f3d; --ink:#f3f5ff; --mut:#b8bfe0; --line:#353a66; --new:#2f9e5b; --try:#3b6fd4; --old:#7a7f9c; --tool:#9a6a1c; }
 @media (prefers-color-scheme: light) { :root { --bg:#f4f5fb; --card:#fff; --ink:#1b1d33; --mut:#565c7e; --line:#d5d8ea; } }
@@ -27,13 +27,13 @@ a:focus-visible { outline:3px solid #ffd23f; outline-offset:2px; border-radius:.
 <body>
 <main>
 <h1>モックと見本の一覧</h1>
-<p>本番のアプリは <a href="index.html" style="color:inherit">トップ</a> から。ここにあるのは、形を決めるために作ったモックと、確かめるための見本です。どれも通信をしないので、本番のデータは変わりません。</p>
+<p>本番のアプリは <a href="../index.html" style="color:inherit">トップ</a> から。ここにあるのは、形を決めるために作ったモックと、確かめるための見本です。どれも通信をしないので、本番のデータは変わりません。</p>
 
 <h2>リカリア（旧クエスト）</h2>
 <ul>
 <li><span class="tag new">見本・最新</span><a href="rikaria-mock.html">リカリア 単元の見本</a><small>12単元の戦闘背景・ワスレモノ・番人・ボス・ダンジョン（床と壁・小物・たいまつ）を並べて見る。今のアプリと同じ絵と描き方を使うので、絵を足したらここで確かめる。<code>?u=weather</code> のように単元をしぼれる。</small></li>
-<li><span class="tag old">古い・役目を終えた</span><a href="quest-battle-mock.html">チーム戦のモック 第3版</a><small>2026-11-12。チーム戦の作り直しを決めたときのモック（投影・リーダー・班員の3画面）。中身は本番（<a href="rikaria-host.html" style="color:inherit">先生</a>／<a href="rikaria-play.html" style="color:inherit">生徒</a>）に入った。本番はここから変わっている（時計・単元ごとの床と壁・問題の箱の広さ など）。画面の部品は <code>quest-team-view.html</code>。</small></li>
-<li><span class="tag old">古い・役目を終えた</span><a href="quest-mock.html">クエストのモック（最初の版）</a><small>2026-10。クエスト全体の形を決めたときのモック（先生の画面・参加・キャラ作成・班の準備・冒険の地図・フィールド・スキル・戦闘・結果）。3職業・古いチーム戦のころのもの。下のボタンで画面を切りかえる。今の形は本番（<a href="quest.html" style="color:inherit">ひとりで冒険</a>・チーム戦）。</small></li>
+<li><span class="tag old">古い・役目を終えた</span><a href="quest-battle-mock.html">チーム戦のモック 第3版</a><small>2026-11-12。チーム戦の作り直しを決めたときのモック（投影・リーダー・班員の3画面）。中身は本番（<a href="../rikaria-host.html" style="color:inherit">先生</a>／<a href="../rikaria-play.html" style="color:inherit">生徒</a>）に入った。本番はここから変わっている（時計・単元ごとの床と壁・問題の箱の広さ など）。画面の部品は <code>quest-team-view.html</code>。</small></li>
+<li><span class="tag old">古い・役目を終えた</span><a href="quest-mock.html">クエストのモック（最初の版）</a><small>2026-10。クエスト全体の形を決めたときのモック（先生の画面・参加・キャラ作成・班の準備・冒険の地図・フィールド・スキル・戦闘・結果）。3職業・古いチーム戦のころのもの。下のボタンで画面を切りかえる。今の形は本番（<a href="../quest.html" style="color:inherit">ひとりで冒険</a>・チーム戦）。</small></li>
 </ul>
 
 <h2>ミニゲーム（ジェットチェイスの中のゲームを、1つだけ試す用）</h2>
@@ -42,7 +42,7 @@ a:focus-visible { outline:3px solid #ffd23f; outline-offset:2px; border-radius:.
 <li><span class="tag try">試す用</span><a href="dig-mock.html">ほりほりトレジャー</a><small>本番と同じプログラム（<code>dig.js</code>）で動く。</small></li>
 <li><span class="tag try">試す用</span><a href="skyrace-mock.html">スカイレース</a><small>本番と同じプログラム（<code>skyrace.js</code>）で動く。</small></li>
 <li><span class="tag try">試す用</span><a href="tug-mock.html">チーム綱引き</a><small>本番と同じプログラム（<code>tug.js</code>）で動く。</small></li>
-<li><span class="tag try">試す用</span><a href="robot-mock.html">ロボットラン</a><small>走る画面のモック。本番はジェットチェイス（<a href="chase-host.html" style="color:inherit">先生</a>）。</small></li>
+<li><span class="tag try">試す用</span><a href="robot-mock.html">ロボットラン</a><small>走る画面のモック。本番はジェットチェイス（<a href="../chase-host.html" style="color:inherit">先生</a>）。</small></li>
 </ul>
 
 <h2>検証の道具</h2>

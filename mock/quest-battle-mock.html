@@ -2,6 +2,8 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
+<!-- このページは web/mock/ にある。絵・プログラム・デザインは1つ上（web/）のものを使うので、読み込み先の基準を1つ上にする（2026-11-13 整理） -->
+<base href="../">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>（古い）クエスト戦闘モック 第3版</title>
 <!-- モック 第3版（2026-11-12）：クエスト・チーム戦の作り直し。方向性は ../クエスト・チーム戦の作り直し｜方向性.md
@@ -26,7 +28,7 @@ header b{color:#fff}
 </style>
 </head>
 <body>
-<div style="position:fixed;left:0;right:0;top:0;z-index:99999;background:#7a4b00;color:#fff;font:700 13px/1.5 system-ui,sans-serif;padding:4px 12px;text-align:center">古いモックです（2026-11-12 の第3版）。今のチーム戦は本番のアプリに入っていて、ここから変わっています。　<a href="mocks.html" style="color:#ffe9a8">モックの一覧</a></div>
+<div style="position:fixed;left:0;right:0;top:0;z-index:99999;background:#7a4b00;color:#fff;font:700 13px/1.5 system-ui,sans-serif;padding:4px 12px;text-align:center">古いモックです（2026-11-12 の第3版）。今のチーム戦は本番のアプリに入っていて、ここから変わっています。　<a href="mock/" style="color:#ffe9a8">モックの一覧</a></div>
 <header style="margin-top:28px"><b>クエスト・チーム戦 モック 第3版</b>　見た目はソロモードの部品（フィールド・戦闘画面）を使っています。<br>
 リーダーのPCでダンジョンを歩き（矢印キー・WASD・クリック）、見えている魔物に<b>ぶつかる</b>と戦闘。戦闘は時間で進み、各自のペースで答えて、<b>敵をクリックしてねらいを決める</b>。HPが半分を切った敵は強い攻撃をためる（倒すか、班で3問正解でガード）。群れを2回倒すと番人の部屋が開き、番人を倒すと鍵。<br>
 動くのは2班だけ。リーダーとあなた以外の3人は自動で答えます。リーダーも戦闘中は自動で答えます。キー操作は、リーダーの画面を一度クリックしてから。</header>
@@ -37,10 +39,10 @@ header b{color:#fff}
   <button id="cFast">（試験用）答える速さ：<span id="fast">ふつう（6〜14秒）</span></button>
   <button id="cRate">（試験用）ほかの人の正解率：<span id="rate">70</span>%</button>
 </div>
-<div class="row"><div class="dev" style="flex-basis:100%"><p class="lbl">① 投影画面（先生のPC）：全班を分割表示</p><div class="frame proj"><iframe src="quest-team-view.html?v=proj" title="投影画面"></iframe></div></div></div>
+<div class="row"><div class="dev" style="flex-basis:100%"><p class="lbl">① 投影画面（先生のPC）：全班を分割表示</p><div class="frame proj"><iframe src="mock/quest-team-view.html?v=proj" title="投影画面"></iframe></div></div></div>
 <div class="row">
-  <div class="dev"><p class="lbl">② リーダーのPC（2班）</p><div class="frame pc"><iframe src="quest-team-view.html?v=lead" title="リーダーの画面"></iframe></div></div>
-  <div class="dev"><p class="lbl">③ あなたのPC（2班 5番）</p><div class="frame pc"><iframe src="quest-team-view.html?v=mem" title="あなたの画面"></iframe></div></div>
+  <div class="dev"><p class="lbl">② リーダーのPC（2班）</p><div class="frame pc"><iframe src="mock/quest-team-view.html?v=lead" title="リーダーの画面"></iframe></div></div>
+  <div class="dev"><p class="lbl">③ あなたのPC（2班 5番）</p><div class="frame pc"><iframe src="mock/quest-team-view.html?v=mem" title="あなたの画面"></iframe></div></div>
 </div>
 <div class="log" id="log"></div>
 
