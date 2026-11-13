@@ -7,10 +7,10 @@
  *   スカイレースの b ＝ ブースト回数×10 ＋ 2つ目の向き（ななめ用）
  *   綱引きの b ＝ かけ声の番号×4 ＋ 判定（1=PERFECT 2=GOOD 3=MISS）。判定は生徒の端末で行う
  */
-import * as B from './bomb.js?v=20261113142456';
-import * as S from './skyrace.js?v=20261113142456';
-import * as D from './dig.js?v=20261113142456';
-import * as T from './tug.js?v=20261113142456';
+import * as B from './bomb.js?v=20261113160628';
+import * as S from './skyrace.js?v=20261113160628';
+import * as D from './dig.js?v=20261113160628';
+import * as T from './tug.js?v=20261113160628';
 
 export var KINDS = ['blast', 'sky', 'dig', 'tug'];
 export var INFO = {

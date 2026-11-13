@@ -6,8 +6,8 @@
 <title>Qraft クエスト（ひとりで冒険）</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261113142456">
-<link rel="stylesheet" href="quest.css?v=20261113142456">
+<link rel="stylesheet" href="theme.css?v=20261113160628">
+<link rel="stylesheet" href="quest.css?v=20261113160628">
 <style>
   .hud-btns { display:flex; gap:.4em; }
   .hud-btns .btn { font-size:.85em; padding:.35em .9em; }
@@ -16,7 +16,13 @@
   .inv span { background:rgba(255,255,255,.15); border-radius:999px; padding:.15em .7em; font-weight:800; font-size:.85em; }
   .shop-items button:disabled { opacity:.45; cursor:default; }
   .itembar { display:flex; gap:.4em; justify-content:center; flex-wrap:wrap; }
-  .itembar button { font:inherit; font-weight:800; font-size:.85em; border:0; border-radius:999px; padding:.25em .8em; background:#fff; color:var(--ink-dark); cursor:pointer; }
+  .itembar button { font:inherit; font-weight:800; font-size:.85em; border:0; border-radius:999px; padding:.25em .9em; min-height:44px; background:#fff; color:var(--ink-dark); cursor:pointer; }
+  #s-battle .arena { min-height:8.5em; }
+  /* まちがえたあと：選択肢を低くして、「つぎへ」「町へもどる」がいつも見えるように */
+  #cmd.res-on .choices button { padding-top:.3em; padding-bottom:.3em; }
+  #cmd.res-on .banner { padding:.25em .5em; }
+  #cmd > .btn.next { font-size:1.2em; padding:.4em 2em; position:sticky; bottom:0; z-index:2; justify-self:center; }
+  #cmd.res-on.has-img > .cmd-img { max-height:min(28cqh, 20em); }   /* 問題の箱が大きくなっても、キャラが場所の名前に重ならない */
   .itembar button:disabled { opacity:.4; cursor:default; }
   #s-battle .bt-bg { background-image:url(img/bg/lab.webp); }
   .tin { font:inherit; font-size:1.1em; font-weight:800; padding:.5em .8em; border-radius:.6em; border:0; width:100%; }
@@ -130,14 +136,14 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261113142456"></script>
+<script src="firebase-config.js?v=20261113160628"></script>
 <script type="module">
-import { signIn, db, ref, set, get, $, el, showScreen, shuffle, prepareQuestion, maskOf, isTextCorrect } from './lib.js?v=20261113142456';
+import { signIn, db, ref, set, get, $, el, showScreen, shuffle, prepareQuestion, maskOf, isTextCorrect } from './lib.js?v=20261113160628';
 import { addExp, expToNext, migrateChar, newChar, JOBS as RJOBS, JOB_KEYS, LEARN, RANK_POW, RANK_SEC, LOAD_N, ELEMS, ELEM, UNITS,
-         heroImg, fieldImg, skillName, rankOf, rankCost, canRankUp, rankUp, spUsed, loadoutOf, weakOf, statsOf } from './rikaria-data.js?v=20261113142456';
+         heroImg, fieldImg, skillName, rankOf, rankCost, canRankUp, rankUp, spUsed, loadoutOf, weakOf, statsOf } from './rikaria-data.js?v=20261113160628';
 import { fiscalYear, ENEMIES, TOWN, TOWN_DEFAULT,
          weaponList, armorList, weaponName, armorName, TOWN_MAX, soloDayCap, dayNo, ITEMS, ITEM_KEYS, FACS, RESPEC_COST, ensureOwner, battleGuide,
-         soloMult, soloReward, soloEnemyHp, soloEnemyAtkX, BOSS, cmdImg } from './quest.js?v=20261113142456';
+         soloMult, soloReward, soloEnemyHp, soloEnemyAtkX, BOSS, cmdImg } from './quest.js?v=20261113160628';
 
 var Y = fiscalYear(), me = { g: 0, c: 0, n: 0 }, sid = '', ch = null, CLS = {}, SETS = [], AREAS = [], look = 'a', job = 'mage';
 var curArea = null, HP = 0, MP = 0;
@@ -634,7 +640,7 @@ function shop(fi) {
     var tl = el('div', 'titles'); t.forEach(function (x) { tl.appendChild(el('span', 'pill', '🏅 ' + x)); }); m.appendChild(tl);
   }
   if (list.children.length) m.appendChild(list);
-  var out = el('button', 'btn sub', fi >= 1 && fi <= 3 ? '店を出る' : '外へ出る'); out.style.fontSize = '1em'; out.onclick = function () { m.classList.add('hide'); }; m.appendChild(out);
+  var out = el('button', 'btn sub', fi >= 1 && fi <= 3 ? '店を出る' : '外へ出る'); out.style.fontSize = '1em'; out.onclick = function () { m.classList.add('hide'); }; var ft = el('div', 'fd-foot'); ft.appendChild(out); m.appendChild(ft);
   m.classList.remove('hide');
 }
 
@@ -821,7 +827,7 @@ function itemBar(box) {
 function askQ() {
   var P = B.P; if (!P.queue.length) P.queue = shuffle(P.q.map(function (_, i) { return i; }));
   var qi = P.queue.pop(), q = prepareQuestion(P.q[qi], true); q.qi = qi; B.q = q;
-  var box = $('cmd'); box.textContent = '';
+  var box = $('cmd'); box.textContent = ''; box.classList.remove('res-on');
   var qb = el('div', 'qbox'); qb.appendChild(el('span', 'qnum', B.e.n + 'の問題' + (q.multi ? '（あてはまるものを すべて）' : '')));
   qb.appendChild(document.createTextNode(q.text));
   box.appendChild(qb);
@@ -836,7 +842,7 @@ function askQ() {
     var chs = el('div', 'choices'), sel = 0;
     q.choices.forEach(function (c, i) {
       var b = el('button'); b.type = 'button';
-      if (c.image) { var ci = el('img'); ci.src = c.image; ci.alt = c.alt || ''; ci.style.maxHeight = '3em'; b.appendChild(ci); }
+      if (c.image) { var ci = el('img'); ci.src = c.image; ci.alt = c.alt || ''; b.appendChild(ci); }
       b.appendChild(document.createTextNode(c.t || ''));
       b.onclick = function () { if (q.multi) { sel ^= (1 << i); b.classList.toggle('sel', !!(sel & (1 << i))); b.setAttribute('aria-pressed', sel & (1 << i) ? 'true' : 'false'); sub.disabled = !sel; } else judge(maskOf([i]), null); };
       chs.appendChild(b);
@@ -856,7 +862,7 @@ function judge(mask, text) {
     /* 正解：連続が1つ増え、MPがたまる（魔法使いは1.5ずつ）。そのあと、こうげきか技をえらぶ */
     B.streak = Math.min(J.streakMax || 99, B.streak + 1); MP = Math.min(st.mmp, MP + (J.mpGain || 1) + (f.mpRate > 0 ? .5 : 0)); drawMe();
     setTimeout(function () {
-      box.textContent = ''; box.appendChild(el('div', 'banner ok', '✓ せいかい！ 技をえらぼう'));
+      box.textContent = ''; box.classList.remove('has-img'); box.appendChild(el('div', 'banner ok', '✓ せいかい！ 技をえらぼう'));
       if (q.ex) box.appendChild(el('div', 'qex', '💡 ' + q.ex));   /* 解説 */
       showActs();
     }, 500);
@@ -874,9 +880,11 @@ function judge(mask, text) {
     var pos = Math.min(B.P.queue.length, 3 + Math.floor(Math.random() * 4)); B.P.queue.splice(B.P.queue.length - pos, 0, q.qi);
     setTimeout(function () {
       drawMe();
+      box.querySelectorAll(':scope > .btn, :scope > .itembar').forEach(function (x) { x.remove(); });   /* 「答える」と持ち物の行は片づける（「つぎへ」が画面の下に切れた） */
+      box.classList.add('res-on');
       box.appendChild(el('div', 'banner ng', msg));
       if (q.ex) box.appendChild(el('div', 'qex', '💡 ' + q.ex));   /* 解説 */
-      var nx = el('button', 'btn', HP ? 'つぎへ' : '町へもどる'); nx.style.alignSelf = 'center';
+      var nx = el('button', 'btn next', HP ? 'つぎへ' : '町へもどる'); nx.style.alignSelf = 'center';
       nx.onclick = function () { if (HP) nextTurn(); else faint(); };
       box.appendChild(nx);
     }, 400);
@@ -961,7 +969,7 @@ function act(i) {
     var dd = el('div', 'dmg' + (s.ult || anyCrit ? ' crit' : ''), String(total)); document.querySelector('#s-battle .arena').appendChild(dd); setTimeout(function () { dd.remove(); }, 1000);
   }
   if (notes.length) msg += '　' + notes.join('・');
-  drawMe(); box.textContent = ''; box.appendChild(el('div', 'banner ok', msg));
+  drawMe(); box.textContent = ''; box.classList.remove('has-img'); box.appendChild(el('div', 'banner ok', msg));
   setTimeout(nextTurn, 1000);
 }
 async function win() {
@@ -971,7 +979,7 @@ async function win() {
   var gg = ch.gd === today ? (ch.gg || 0) : 0; rw.gold = Math.max(0, Math.min(rw.gold, soloDayCap(me.g) - gg));
   ch.gd = today; ch.gg = gg + rw.gold;
   ch.gold = (ch.gold || 0) + rw.gold; var up = addExp(ch, rw.exp);
-  var box = $('cmd'); box.textContent = '';
+  var box = $('cmd'); box.textContent = ''; box.classList.remove('has-img');   /* 図つきの問題のあとは、右半分に寄ってしまっていた */
   box.appendChild(el('div', 'banner ok', B.e.n + 'を たおした！　記録しています…'));   /* 前の記録から20秒たつまで待つことがある */
   var saved = await saveChar(true);
   box.textContent = '';

@@ -313,3 +313,70 @@
 .tile.tx.t-wall { filter:brightness(.7); box-shadow:inset 0 -.14em 0 rgba(10,6,30,.55); }
 .tile.tx.t-wall.top { filter:brightness(.34) saturate(.75); box-shadow:none; }
 .tile.tx.t-floor { filter:brightness(1.08); }
+
+/* ==================================================================
+   テストプレイ（2026-11-13）で見つけた、切れる・読めない・押せない の直し
+   ================================================================== */
+/* 準備：「準備OK！」をいつも画面の下に出す（技が10個・持ち物が多いと、スクロールしないと押せなかった） */
+#s-prep .pp-foot { position:sticky; bottom:-1em; z-index:6; margin:0 -1.4em -1em; padding:.55em 1.4em .7em; background:rgba(14,8,40,.94); box-shadow:0 -.3em .8em rgba(0,0,0,.35); }
+/* 準備：班のなかまは横長の小さいカードに（場所を取りすぎて、技が下に追いやられていた） */
+#s-prep .mem-row .pp-mem { display:grid; grid-template-columns:auto auto; grid-template-rows:auto auto; column-gap:.6em; row-gap:.1em; align-items:center; justify-items:start; padding:.4em .9em .4em .6em; min-width:0; }
+#s-prep .mem-row .pp-mem .hero { grid-row:1 / span 2; height:3.2em; }
+#s-prep .mem-row .pp-mem b { font-size:1em; grid-column:2; }
+#s-prep .mem-row .pp-mem small { grid-column:2; }
+#s-prep .mem-row .pp-mem .st { grid-column:1 / -1; justify-self:center; }
+/* 「上げる」は指で押せる大きさに */
+.sk .up { padding:.5em 1em; min-height:44px; min-width:44px; }
+.it-row button { min-height:44px; }
+/* 戦闘：ねらい・精霊・技の行（技5つ＋持ち物、精霊使いで、右や下にはみ出して字がたてに割れた）
+   ・1段目＝ねらい（＋精霊／僧侶の切りかえ）、2段目＝技と持ち物。入りきらないときは折り返す
+   ・この行は問題の箱のいちばん下にいつも見える（問題が長いときは、問題のほうが箱の中でスクロールする） */
+.skillrow { flex-wrap:wrap; row-gap:.3em; }
+.skillrow .actrow { display:flex; flex-wrap:wrap; gap:.35em; align-items:stretch; justify-content:flex-end; margin-left:auto; }
+.skillrow .actrow .lbl2 { align-self:center; }
+.skillrow .act, .tgtrow button, .elemrow button, .skillrow .lbl2 { white-space:nowrap; flex:none; }
+.skillrow .act { flex-direction:column; gap:0; padding:.2em .7em; min-height:2.6em; justify-content:center; font-size:.92em; line-height:1.2; }
+.skillrow .act .mp { font-size:.72em; }
+.tgtrow, .elemrow { flex:none; }
+.tgtrow button, .elemrow button { min-height:2.4em; }
+.elemrow button { padding:.1em .7em; }
+#s-battle { overflow:clip; }   /* 床のかざりが左右にはみ出していて、画面ごと横にずれることがあった */
+#s-battle .cmd { flex:0 1 auto; max-height:none; overflow:hidden auto; gap:.45em; }   /* 敵の場所（22%）を残して、のこりの高さに収める */
+#s-battle .cmd > #skills { position:sticky; bottom:-.75em; z-index:3; margin:0 -1em -.7em; padding:.4em 1em .6em; background:rgb(20,12,48); border-radius:0 0 .8em .8em; }
+#s-battle .cmd:not(.has-img) > #skills { margin-top:auto; }
+#s-battle .cmd:not(.has-img) .qbox { font-size:1.2em; }
+#s-battle .cmd:not(.has-img) .choices button { font-size:1.1em; padding:.55em .8em; }
+#s-battle .cmd > .btn { font-size:1.15em; padding:.4em 2em; align-self:center; justify-self:center; }
+/* 図つきの問題：左に図、右に 問題文・選択肢・（答える／結果）を上から順に、いちばん下に技の行。高さは中身に合わせる */
+#s-battle .cmd.has-img { flex:0 1 auto; grid-template-rows:none; grid-auto-rows:auto; align-content:start; row-gap:.45em; }
+#s-battle .cmd.has-img > .cmd-img { grid-column:1; grid-row:1 / span 3; height:auto; max-height:34cqh; align-self:start; }
+#s-battle .cmd.has-img > .qbox { grid-row:1; font-size:1em; line-height:1.4; }
+#s-battle .cmd.has-img > .choices { grid-row:2; }
+#s-battle .cmd.has-img > .btn, #s-battle .cmd.has-img > .res { grid-column:2; grid-row:3; }
+#s-battle .cmd.has-img > #skills { grid-row:4; }
+#s-battle .cmd.has-img .choices button { padding:.4em .7em; font-size:.95em; line-height:1.3; }
+#s-battle .cmd.has-img .choices button img { max-height:3.4em; }
+#s-battle .cmd.res-on .choices button { padding-top:.25em; padding-bottom:.25em; }
+#s-battle .cmd.res-on .choices button img { max-height:2.2em; }
+#s-battle .cmd .res .banner { padding:.2em; }
+/* 戦闘：上の帯の班員の名前を少し大きく（11pxで読みにくかった） */
+#s-battle .chip { width:5em; font-size:.78em; line-height:1.15; text-align:center; word-break:break-all; }
+/* 練習問題：自分のHP・MPの箱の案内が、変なところで折り返していた */
+#s-prac .mystat { width:13em; }
+/* 先生の投影：班員の名前が3段に折れて、下の帯の後ろにかくれた */
+.tm .mparty { bottom:2.3em; }
+.tm .mparty span { min-width:0; }
+.tm .mparty .nm { max-width:100%; line-height:1.15; text-align:center; word-break:break-all; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; overflow:hidden; }
+/* 戦闘：まん中の「強い攻撃まで…」は、入りきらないときに2行に折り返す（時計の後ろにかくれて読めなかった） */
+.midbar .st { min-width:0; white-space:normal; line-height:1.25; border-radius:.8em; padding:.1em .7em; }
+#s-battle .cmd:not(.has-img) .choices button img { max-height:4.2em; }
+/* オブリオン戦（先生）：班の箱は低く（班員は横1列・名前は2行まで）。6班より多いと2段になり、オブリオンの絵が上下に切れた */
+.ob-gp .mem-mini span { min-width:0; }
+.ob-gp .mem-mini .nm { font-weight:900; max-width:100%; }
+.ob-gps.many .ob-gp { padding:.4em .7em; gap:.15em; display:grid; grid-template-columns:auto 1fr; align-items:center; column-gap:.8em; }
+.ob-gps.many .ob-gp > small { justify-self:end; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
+.ob-gps.many .ob-gp .mem-mini { grid-column:1 / -1; flex-wrap:nowrap; gap:.2em; align-items:flex-start; }
+.ob-gps.many .ob-gp .mem-mini span { flex:1 1 0; margin:0; }
+.ob-gps.many .ob-gp .mem-mini img { height:2.2em; }
+.ob-gps.many .ob-gp .mem-mini .nm { font-size:.9em; line-height:1.15; text-align:center; word-break:break-all; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; overflow:hidden; }
+.ob-stage #obImg { max-height:calc(100% - 4.6em); margin-top:3.6em; }

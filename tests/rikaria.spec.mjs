@@ -112,6 +112,10 @@ test('リカリア・チーム戦：通しで動き、続きから始められ�
   await expect(a.locator('#s-battle')).toBeVisible();
   await expect(b.locator('#foes .enemy').first()).toBeVisible();
   await b.waitForTimeout(1500); await shot(b, '5-battle'); await shot(host, '6-host-battle');
+  if (SHOT) {   // 図つきの問題のときの並び（モックと見比べる用）：今の問題に図を付けて写す
+    const q0 = await rest('GET', `rooms/${pin}/qs/${uidOf(2)}`);
+    if (q0) { await rest('PATCH', `rooms/${pin}/qs/${uidOf(2)}`, { img: 'img/q/007292690c3481.webp' }); await b.waitForTimeout(800); await shot(b, '5b-battle-img'); await rest('PUT', `rooms/${pin}/qs/${uidOf(2)}`, q0); await b.waitForTimeout(300); }
+  }
   // 答える（どれかを押す）→ 採点の結果が出る
   await b.locator('#cmd .choices button').first().click();
   await expect(b.locator('#cmd .banner')).toBeVisible({ timeout: 8000 });

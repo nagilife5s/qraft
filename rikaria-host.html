@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>リカリア チーム戦（先生）</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
-<link rel="stylesheet" href="theme.css?v=20261113142456">
-<link rel="stylesheet" href="quest.css?v=20261113142456">
-<link rel="stylesheet" href="rikaria.css?v=20261113142456">
+<link rel="stylesheet" href="theme.css?v=20261113160628">
+<link rel="stylesheet" href="quest.css?v=20261113160628">
+<link rel="stylesheet" href="rikaria.css?v=20261113160628">
 <style>
   #app { background:url(img/rikaria/title-bg.webp) center/cover no-repeat, #1d1648; }
   .q-bg-r { background:rgba(10,6,36,.6); }
@@ -20,6 +20,20 @@
   .gp-card .prog { font-size:.85em; opacity:.85; }
   .tm .lead { position:absolute; right:.6em; bottom:2em; z-index:41; font-size:.75em; }
   #obRow select { font-size:1em; padding:.3em .5em; border-radius:.5em; }
+  /* テストプレイ（2026-11-13）の直し */
+  #s-setup .qp-white { max-height:none; }                       /* 問題セットの一覧が2行しか見えなかった（二重のスクロール） */
+  #s-setup .selbar { color:#fff; } #s-setup .chip2 { color:var(--ink-dark); } #s-setup .selbar .linkbtn { color:var(--q-gold); }   /* 白い字・赤い字が背景にとけていた */
+  #pw { width:17em; max-width:100%; }
+  #s-lobby { padding:2em 2.6em; }
+  #s-lobby .tc-grid { flex:1 1 0; min-height:0; align-content:start; grid-template-columns:repeat(auto-fill, minmax(14em, 1fr)) !important; }   /* 4班より先が画面の下に切れて見えなかった */
+  #s-lobby { gap:.7em !important; }
+  #s-lobby .gp-card { position:relative; padding:.45em .8em .5em; gap:.15em; }   /* 40人・8班が1画面に入る低さに */
+  #s-lobby .gp-card > small { position:absolute; right:.9em; top:.6em; font-size:.72em; }
+  #s-lobby .gp-card .mem-mini { gap:0 .5em; align-items:center; }
+  #s-lobby .gp-card .mem-mini span { flex-direction:row; font-size:.7em; margin:0; white-space:nowrap; line-height:1.2; }
+  #s-lobby .gp-card .mem-mini img { height:1.75em; }
+  #s-lobby .chip-x { min-width:1.7em; min-height:1.7em; padding:0; }
+  #s-end .tc-grid { max-height:52%; }
 </style>
 </head>
 <body>
@@ -28,7 +42,7 @@
 <!-- ① 準備 -->
 <section class="screen q-bg-r" id="s-setup" style="overflow:auto">
   <div class="wrap">
-    <div class="row"><a class="backlink" href="rikaria.html" style="color:#fff">← リカリアへ</a><div class="grow"></div></div>
+    <div class="row"><a class="backlink" href="rikaria.html">← リカリアへ</a><div class="grow"></div></div>
     <div class="row" style="gap:.8em"><img src="img/rikaria/logo.webp" alt="Rikaria" style="height:3.6em"><div class="q-title">チーム戦（先生）</div></div>
     <div class="panel" style="display:flex;flex-direction:column;gap:.8em">
       <div class="form-row"><b>クラス</b>
@@ -99,18 +113,18 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261113142456"></script>
+<script src="firebase-config.js?v=20261113160628"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script type="module">
 import { signIn, db, ref, set, get, update, remove, onValue, serverNow, shuffle, mountSetPicker,
-         decryptSet, prepareQuestion, maskOf, $, showScreen, confetti, qrSvg } from './lib.js?v=20261113142456';
+         decryptSet, prepareQuestion, maskOf, $, showScreen, confetti, qrSvg } from './lib.js?v=20261113160628';
 import { onChildAdded, onChildChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-import { fiscalYear } from './quest.js?v=20261113142456';
+import { fiscalYear } from './quest.js?v=20261113160628';
 import { TOWN, TOWN_DEFAULT, TOWN_MAX, townStart, JOBS, heroImg, statsOf, unitOf, addExp, bossSp, bossTitle, migrateChar, battleBg, LV_MAX, OBLION, OB_FORMS, obNext, obFirst, obTitle, oblionImg, REWARD, ELEM,
-         unitById, unitsOf, advMap, townName, goldOf, isCarry, storyOpen, storyBoss, storyOb, storyEnding } from './rikaria-data.js?v=20261113142456';
-import * as E from './rikaria-engine.js?v=20261113142456';
-import { el, esc, drawField, moveField, cameraOf, ovban, MAP, spiritHtml } from './rikaria-view.js?v=20261113142456';
-import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261113142456b';
+         unitById, unitsOf, advMap, townName, goldOf, isCarry, storyOpen, storyBoss, storyOb, storyEnding } from './rikaria-data.js?v=20261113160628';
+import * as E from './rikaria-engine.js?v=20261113160628';
+import { el, esc, drawField, moveField, cameraOf, ovban, MAP, spiritHtml } from './rikaria-view.js?v=20261113160628';
+import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261113160628b';
 
 wireSoundButtons(); preload(['top']); bgm('top');
 var TS = { '.sv': 'timestamp' };
@@ -481,7 +495,7 @@ function drawTile(n, v, q0) {
       e.querySelector('.bar i').style.width = (100 * f.hp / f.mx) + '%'; e.classList.toggle('dead', f.hp <= 0); e.classList.toggle('chg', f.chg > 0 && f.hp > 0); e.classList.toggle('barrier', !!f.br);
       var cg = e.querySelector('.cgt'); if (f.chg > 0 && f.hp > 0) { if (!cg) { cg = el('span', 'cgt'); e.prepend(cg); } cg.textContent = 'ため ' + f.chg; } else if (cg) cg.remove();
     });
-    c.querySelector('.mparty').innerHTML = Object.keys(v.mem).map(function (id) { var o = v.mem[id]; return '<span class="' + (o.dn ? 'ko' : '') + '"><img alt="" src="' + heroImg(o.j, o.lk) + '">' + spiritHtml(o) + '<div class="bar hp"><i style="width:' + (100 * o.hp / o.mx) + '%"></i></div>' + esc(o.n) + '</span>'; }).join('');
+    c.querySelector('.mparty').innerHTML = Object.keys(v.mem).map(function (id) { var o = v.mem[id]; return '<span class="' + (o.dn ? 'ko' : '') + '"><img alt="" src="' + heroImg(o.j, o.lk) + '">' + spiritHtml(o) + '<div class="bar hp"><i style="width:' + (100 * o.hp / o.mx) + '%"></i></div><b class="nm">' + esc(o.n) + '</b></span>'; }).join('');
     var ch = v.foes.filter(function (f) { return f.chg > 0 && f.hp > 0; })[0];
     c.querySelector('.status').textContent = v.ph === 'result' ? '' : v.kind === 'boss' && !ch ? (v.foes[0] && v.foes[0].br ? '👑 ボス戦　バリア中：手下をねらえ' : '👑 ボス戦！') : ch ? '⚠ ' + ch.n + 'が力をためている！' : v.kind === 'guard' ? '番人と戦闘中！' : '戦闘中';
     (v.ev || []).forEach(function (e) { if (e.q > q0 && e.t === 'hit' && e.d) { var en = c.querySelector('.mfoe[data-i="' + e.i + '"]'); if (en) { var d = el('div', 'pdmg', String(e.d)); en.appendChild(d); setTimeout(function () { d.remove(); }, 1000); } } });
@@ -495,7 +509,7 @@ function buildObGrid() {
   g.style.gridTemplateColumns = '1fr'; g.style.gridTemplateRows = '1fr auto';
   g.innerHTML = '<div class="ob-stage" id="obStage"><div class="ob-bg"></div><img id="obImg" alt="" src="' + oblionImg(O.k) + '">' +
     '<div class="ob-hud"><b id="obName"></b><div class="bar hp obbar"><i></i><b id="obPct"></b></div><span class="ob-st" id="obSt"></span></div></div>' +
-    '<div class="ob-gps" style="grid-template-columns:repeat(' + Math.min(ns.length, 5) + ',1fr)">' + ns.map(function (n) { return '<div class="gp-card ob-gp" id="tm' + n + '"></div>'; }).join('') + '</div>';
+    '<div class="ob-gps many" style="grid-template-columns:repeat(' + (ns.length > 5 ? Math.ceil(ns.length / 2) : ns.length) + ',1fr)">' + ns.map(function (n) { return '<div class="gp-card ob-gp" id="tm' + n + '"></div>'; }).join('') + '</div>';
 }
 function drawObStage(evs) {
   var st = $('obStage'); if (!st) return;
@@ -508,7 +522,7 @@ function drawObStage(evs) {
 }
 function drawObTile(n, v, q0) {
   var c = $('tm' + n); if (!c) return;
-  var mem = Object.keys(v.mem).map(function (id) { var o = v.mem[id]; return '<span class="' + (o.dn ? 'ko' : '') + '"><img alt="" src="' + heroImg(o.j, o.lk) + '">' + spiritHtml(o) + '<i class="hpb"><i style="width:' + (100 * o.hp / o.mx) + '%"></i></i>' + (o.sl ? '🔒' : '') + (o.ps ? '☠' : '') + esc(o.n) + '</span>'; }).join('');
+  var mem = Object.keys(v.mem).map(function (id) { var o = v.mem[id]; return '<span class="' + (o.dn ? 'ko' : '') + '"><img alt="" src="' + heroImg(o.j, o.lk) + '">' + spiritHtml(o) + '<i class="hpb"><i style="width:' + (100 * o.hp / o.mx) + '%"></i></i><b class="nm">' + (o.sl ? '🔒' : '') + (o.ps ? '☠' : '') + esc(o.n) + '</b></span>'; }).join('');
   var f = v.foes[0] || {}, st = v.ph === 'rest' ? '💤 全滅… あと' + v.rt + '秒で立ち上がる' : f.chg > 0 ? '⚠ 強い攻撃まで ' + f.chg + '秒（ガード ' + (v.gc || 0) + '/4）' : v.ph === 'result' ? '🎉 勝利！' : '戦闘中';
   var col = f.t && ELEM[f.t] ? ELEM[f.t].col : '#fff';
   c.className = 'gp-card ob-gp' + (v.ph === 'rest' ? ' rest' : '') + (f.chg > 0 ? ' cg' : '');
@@ -606,7 +620,8 @@ async function finishOb() {
   if (done) confetti($('conf'), 60);
   var c = el('div', 'gp-card'); c.appendChild(el('b', '', done ? '🎉 クラスでたおした！　参加した ' + Object.keys(OBW).length + '人に ごほうび（' + goldOf('ob', S.g) + 'G・SP +' + REWARD.ob.sp + '・称号「' + obTitle(O.k) + '」）' : '残りHP ' + Math.ceil(100 * O.hp / O.mx) + '%　次の授業で続きから'));
   box.appendChild(c);
-  $('endNote').textContent = saveErr || (done ? '次の学期末は「' + (obNext(O.k, S.sem) ? OBLION[obNext(O.k, S.sem) - 1].n : '（全部たおした）') + '」です。' : 'オブリオンのHPと、参加した人を保存しました。');
+  box.style.gridTemplateColumns = 'minmax(0, 44em)'; box.style.justifyContent = 'center';   /* 1枚だけなので、まん中に */
+  $('endNote').textContent = saveErr || (done ? (obNext(O.k, S.sem) ? '次の学期末は「' + OBLION[obNext(O.k, S.sem) - 1].n + '」です。' : '9つの形態を、すべて封じました。') : 'オブリオンのHPと、参加した人を保存しました。');
   showScreen('s-end');
   /* 倒した日だけ「倒したあと」の場面。形態9（最後）のあとはエンディング */
   if (done) story([storyOb(O.k, 'a', S.tw.n)].concat(O.k === 9 ? storyEnding(S.tw.n) : []));

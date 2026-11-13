@@ -6,9 +6,9 @@
 <title>リカリア チーム戦</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261113142456">
-<link rel="stylesheet" href="quest.css?v=20261113142456">
-<link rel="stylesheet" href="rikaria.css?v=20261113142456">
+<link rel="stylesheet" href="theme.css?v=20261113160628">
+<link rel="stylesheet" href="quest.css?v=20261113160628">
+<link rel="stylesheet" href="rikaria.css?v=20261113160628">
 <style>
   #app { background:url(img/rikaria/title-bg.webp) center/cover no-repeat, #1d1648; }
   .q-bg-r { background:rgba(10,6,36,.55); }
@@ -78,7 +78,7 @@
     <div class="row" style="flex-wrap:wrap"><b class="grow">持っていく持ち物（回復のどうぐを1つ）</b><span class="mut" style="font-size:.85em">戦闘中に1回だけ使える。使うと持ち物から1つ減る</span></div>
     <div class="it-row" id="ppItems" role="group" aria-label="持っていく持ち物"></div>
   </div>
-  <div class="row" style="justify-content:center;gap:1em;flex-wrap:wrap">
+  <div class="row pp-foot" style="justify-content:center;gap:1em;flex-wrap:wrap">
     <button class="btn" id="ppReady" type="button">準備OK！</button>
     <div class="pp-wait" id="ppWait"></div>
   </div>
@@ -141,13 +141,13 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261113142456"></script>
+<script src="firebase-config.js?v=20261113160628"></script>
 <script type="module">
-import { signIn, db, ref, set, get, update, onValue, serverNow, $, showScreen, confetti } from './lib.js?v=20261113142456';
-import { fiscalYear, ensureOwner, cmdImg } from './quest.js?v=20261113142456';
+import { signIn, db, ref, set, get, update, onValue, serverNow, $, showScreen, confetti } from './lib.js?v=20261113160628';
+import { fiscalYear, ensureOwner, cmdImg } from './quest.js?v=20261113160628';
 import { JOBS, JOB_KEYS, MP_MAX, LEARN, ELEMS, ELEM, heroImg, skillName, rankOf, rankCost, canRankUp, rankUp, loadoutOf, learned, migrateChar, expToNext, unitById, battleBg, weakOf, LOAD_N, OBLION,
-         newChar, ITEMS, carryList, spiritImg, storyBoss, storyOb, TOWN_DEFAULT } from './rikaria-data.js?v=20261113142456';
-import { el, esc, drawField, moveField, cameraOf, cellAt, dmgFx, supportFx, ovban, redflash, MAP, spiritHtml } from './rikaria-view.js?v=20261113142456';
+         newChar, ITEMS, carryList, spiritImg, storyBoss, storyOb, TOWN_DEFAULT } from './rikaria-data.js?v=20261113160628';
+import { el, esc, drawField, moveField, cameraOf, cellAt, dmgFx, supportFx, ovban, redflash, MAP, spiritHtml } from './rikaria-view.js?v=20261113160628';
 
 var TS = { '.sv': 'timestamp' };
 var uid = null, pin = null, state = null, sid = '', ch = null, look = 'a', job = 'warrior', gp = 0;
@@ -404,7 +404,7 @@ function drawQ() {
   var box = qBox(); if (!box || !qs) return;
   if (qs.r && qs.r.n === qs.n) return drawResult(box);
   if (box.dataset.n === String(qs.n) && box.firstChild) { if (view === 's-battle') drawBattleCtl(); return; }
-  box.dataset.n = qs.n; sel = 0; qn = qs.n; box.textContent = '';
+  box.dataset.n = qs.n; sel = 0; qn = qs.n; box.textContent = ''; box.classList.remove('res-on');
   var me = gv && gv.mem && gv.mem[uid];
   if (view === 's-battle' && me && me.dn) box.appendChild(el('div', 'downbox', '💤 たおれてしまった…　あと ' + (3 - me.dn) + '問 正解で復活'));
   var qb = el('div', 'qbox'); qb.appendChild(el('span', 'qnum', (view === 's-battle' ? (me && me.dn ? '復活の問題' : 'ねらい：' + tgtName()) : '練習問題（正解でMP +1）') + (qs.mu ? '（あてはまるものを すべて）' : '')));
@@ -414,7 +414,7 @@ function drawQ() {
   var chs = el('div', 'choices'), sub = el('button', 'btn hide', '答える'); sub.type = 'button'; sub.disabled = true;
   (qs.ch || []).forEach(function (c, i) {
     var b = el('button'); b.type = 'button';
-    if (c.image) { var ci = el('img'); ci.src = c.image; ci.alt = c.alt || ''; ci.style.maxHeight = '3em'; b.appendChild(ci); }
+    if (c.image) { var ci = el('img'); ci.src = c.image; ci.alt = c.alt || ''; b.appendChild(ci); }
     b.appendChild(document.createTextNode(c.t || ''));
     b.onclick = function () {
       if (qs.mu) { sel ^= (1 << i); b.classList.toggle('sel', !!(sel & (1 << i))); b.setAttribute('aria-pressed', sel & (1 << i) ? 'true' : 'false'); sub.disabled = !sel; }
@@ -434,8 +434,12 @@ function answer(a) {
 function drawResult(box) {
   var r = qs.r, key = 'r' + r.n; if (box.dataset.n === key) return; box.dataset.n = key;
   box.querySelectorAll('.choices button').forEach(function (b, i) { b.classList.remove('sel'); if (r.cor & (1 << i)) b.classList.add('right', 'ans-ok'); else { b.classList.add('dim'); if (myPick & (1 << i)) b.classList.add('ans-ng'); } });
-  box.appendChild(el('div', 'banner ' + (r.ok ? 'ok' : 'ng'), r.ok ? (view === 's-battle' ? '✓ せいかい！ ' + (r.rv ? '復活に近づいた' : r.cu ? 'じゃまが治った' : gv && gv.rt ? 'MP +1' : tgtName() + 'に攻撃！') : '✓ せいかい！ MP +1') : '✕ ざんねん…'));
-  if (r.ex && !r.ok) box.appendChild(el('div', 'qex', '💡 ' + r.ex));
+  /* 結果と解説は1つの箱に入れて、技の行の上に置く（図つきの問題で、解説が技の行の下に切れた） */
+  var res = el('div', 'res'); box.classList.add('res-on');
+  box.querySelectorAll(':scope > .btn').forEach(function (x) { x.remove(); });   /* 「答える」は片づける（結果と重なる） */
+  res.appendChild(el('div', 'banner ' + (r.ok ? 'ok' : 'ng'), r.ok ? (view === 's-battle' ? '✓ せいかい！ ' + (r.rv ? '復活に近づいた' : r.cu ? 'じゃまが治った' : gv && gv.rt ? 'MP +1' : tgtName() + 'に攻撃！') : '✓ せいかい！ MP +1') : '✕ ざんねん…'));
+  if (r.ex && !r.ok) res.appendChild(el('div', 'qex', '💡 ' + r.ex));
+  var sr = box.querySelector('#skills'); if (sr) box.insertBefore(res, sr); else box.appendChild(res);
 }
 
 /* ------------------------------------------------------------ 戦闘 */
@@ -504,7 +508,8 @@ function midBar() {
   if (gv.rt) { st.textContent = '💤 全滅…　あと ' + gv.rt + '秒で立ち上がる（その間も正解でMP）'; return; }
   if (boss && f.cs) { st.textContent = '✨ 「' + f.cs + '」のかまえ！'; return; }
   if (boss && !chg && (f.wd || f.rg)) { st.className = 'st br'; st.textContent = f.wd ? '🛡 守りを固めている（ダメージ半分）' : '💢 怒っている（攻撃が強い）'; return; }
-  st.textContent = chg ? '⚠ ' + chg.n + ' 強い攻撃まで ' + chg.chg + '秒（班で正解 ' + (gv.gc || 0) + '/' + need + 'でガード）' : boss && f.br ? '🛡 バリア：手下を倒すと消える' : groupStatus();
+  /* ボス・オブリオンのときは名前を省く（長い名前だと時計の後ろにかくれた） */
+  st.textContent = chg ? '⚠ ' + (boss ? '' : chg.n + ' ') + '強い攻撃まで ' + chg.chg + '秒（班で正解 ' + (gv.gc || 0) + '/' + need + 'でガード）' : boss && f.br ? '🛡 バリア：手下を倒すと消える' : groupStatus();
 }
 function groupStatus() { var g = gv.grp || {}, a = []; if (g.sh) a.push('🛡 守り'); if (g.bf) a.push('⚔ 攻撃アップ'); if (g.rg) a.push('💚 じわじわ回復'); if (g.eb) a.push(ELEM[g.eb].ic + '精霊の力'); if (g.tr) a.push('🪤 わな'); if (g.mr) a.push('🌪 MPアップ'); return a.join('　'); }
 function tgtName() { var me = gv && gv.mem && gv.mem[uid], f = me && gv.foes && gv.foes[me.tg]; return f ? f.n : '-'; }
@@ -532,20 +537,21 @@ function drawBattleCtl() {
     [['atk', '⚔ 攻撃'], ['heal', '💚 回復']].forEach(function (x) { var b = el('button', me.md === x[0] ? 'on' : '', x[1]); b.type = 'button'; b.style.setProperty('--ec', '#5b9c6b'); b.onclick = function () { update(ref(db, 'rooms/' + pin + '/ctl/' + uid), { md: x[0] }).catch(function () {}); }; pr.appendChild(b); });
     row.appendChild(pr);
   }
-  row.appendChild(el('span', 'lbl2', '技'));
+  var ar = el('div', 'actrow'); row.appendChild(ar);   /* 技と持ち物は1つのまとまりにして、入りきらないときは下の段へ */
+  ar.appendChild(el('span', 'lbl2', '技'));
   var ld = loadoutOf(ch);
   ld.a.concat(ld.u >= 0 ? [ld.u] : []).forEach(function (i) {
     var s = JOBS[ch.j].sk[i], b = el('button', 'act' + (s.ult ? ' ult' : '')); b.type = 'button';
     b.appendChild(el('b', '', skillName(ch.j, i, rankOf(ch, i), me.el))); b.appendChild(el('span', 'mp', 'MP ' + s.mp));
     b.title = me.sl ? '封じられている（正解すると治る）' : s.d; b.disabled = me.mp < s.mp || !!me.dn || !!me.sl;
     b.onclick = function () { b.disabled = true; actN++; set(ref(db, 'rooms/' + pin + '/act/' + uid), { n: actN, a: i }).catch(function () {}); };
-    row.appendChild(b);
+    ar.appendChild(b);
   });
   if (me.it && ITEMS[me.it]) {   /* 持ってきた持ち物（1回だけ） */
     var it = ITEMS[me.it], ib = el('button', 'act item'); ib.type = 'button'; ib.id = 'btnItem';
     ib.appendChild(el('b', '', it.ic + ' ' + it.n)); ib.appendChild(el('span', 'mp', '1回だけ'));
     ib.title = it.d; ib.disabled = itemUsed || !!me.dn || gv.ph !== 'battle'; ib.onclick = useItem;
-    row.appendChild(ib);
+    ar.appendChild(ib);
   }
 }
 /* 持ち物を使う：先生のPCに合図（players/<uid>/it の頭に「!」）→ 効果は先生のPCのエンジンがかける。自分のキャラの持ち物を1つ減らす */

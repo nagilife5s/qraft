@@ -495,3 +495,35 @@ img.slot:not(.ok) { visibility:hidden; }
 /* 金色の大きな見出し：ふちの線が太くて字がつぶれた。線は字の後ろに描く */
 .lvup { paint-order:stroke fill; }
 #s-end .lvup { -webkit-text-stroke:0; text-shadow:0 .08em 0 #2a1280, 0 0 .5em rgba(0,0,0,.45); }
+
+/* ==================================================================
+   テストプレイ（2026-11-13）で見つけた、切れる・読めない・押せない の直し
+   Chromebook（1366×657・1366×768）と電子黒板（1920×950・1920×1080）で確かめた
+   ================================================================== */
+/* 職業えらび：6枚を3列×2段の横長カードにして、スクロールしなくても「この職業にする」まで見える */
+#s-make { padding-top:1.3em; padding-bottom:1.3em; gap:.65em; }
+#s-make .jobcards.six { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); max-width:62em; gap:.6em; }
+#s-make .jobcards.six .jobcard { width:auto; display:grid; grid-template-columns:auto minmax(0, 1fr); grid-template-rows:auto 1fr; column-gap:.8em; row-gap:.1em; align-items:center; padding:.5em .9em; text-align:left; }
+#s-make .jobcards.six .jobcard .hero { grid-row:1 / span 2; height:5em; }
+#s-make .jobcards.six .jobcard h3 { align-self:end; font-size:1.2em; }
+#s-make .jobcards.six .jobcard p { align-self:start; text-align:left; font-size:.8em; line-height:1.4; }
+@media (max-width: 640px) { #s-make .jobcards.six { grid-template-columns:1fr; } }
+/* 選択肢の図：小さすぎて見分けられなかった（波形・グラフ・天気図など） */
+.choices button img { max-height:6.5em; max-width:100%; min-width:0; object-fit:contain; background:#fff; border-radius:.35em; }
+.cmd.has-img .choices button img { max-height:4.6em; }
+/* 答えたあとの「せいかい／ざんねん」と解説をひとまとめに（図つきの問題で解説が下に切れた） */
+.cmd .res { display:flex; flex-direction:column; gap:.4em; min-height:0; }
+/* ひとりで冒険：店・施設の箱は画面の高さに収める（町が育つと武器・防具が12個並び、上が画面の外に切れて届かなかった） */
+.fd-msg { max-height:calc(100% - 9.5em); overflow-y:auto; overscroll-behavior:contain; }
+.fd-msg .fd-foot { position:sticky; bottom:-1em; margin:.4em -1.4em -1em; padding:.5em 1.4em .8em; background:rgb(20,12,48); border-radius:0 0 .8em .8em; }   /* 「店を出る」はいつも下に見える */
+/* 歩くキャラの名前：絵の後ろにかくれていたので、足もとに出す */
+.unit .nm { top:auto; bottom:-1.25em; z-index:2; background:rgba(14,8,40,.62); border-radius:999px; padding:0 .5em; line-height:1.4; }
+/* ステータス：左の箱が画面の下に切れて、装備と持ち物が見えなかった */
+#s-stat { padding-top:1.6em; padding-bottom:1.4em; gap:.7em; }
+#s-stat > .row > .panel { overflow-y:auto; min-height:0; gap:.5em !important; }
+#s-stat .stat-hero { height:6em; }
+#s-stat .stat-grid { grid-template-columns:auto auto auto auto; gap:.25em .9em; }
+.skill button.up { min-height:44px; min-width:44px; padding:.3em 1em; }
+.hud-btns .btn { min-height:44px; }
+/* 冒険の地図：説明の箱は地図の横に置く（地図の上に重なって、右がわの場所や城が押せなかった） */
+.wm-side { position:static; flex:0 0 19em; align-self:flex-start; max-height:100%; }
