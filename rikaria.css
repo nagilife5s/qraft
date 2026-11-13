@@ -380,3 +380,17 @@
 .ob-gps.many .ob-gp .mem-mini img { height:2.2em; }
 .ob-gps.many .ob-gp .mem-mini .nm { font-size:.9em; line-height:1.15; text-align:center; word-break:break-all; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; overflow:hidden; }
 .ob-stage #obImg { max-height:calc(100% - 4.6em); margin-top:3.6em; }
+/* 戦闘：敵の名前・HP・「ねらう」は絵の横に出す（2026-11-13 本人の案）。
+   上に積むと絵に使える高さが減り、問題の箱を広げたときに敵が豆つぶになった。横に出して、絵は敵の場所の高さいっぱいに */
+#s-battle .arena { min-height:15%; margin-top:.9em !important; }
+.foes .enemy { display:grid; grid-template-columns:auto auto; grid-template-rows:1fr auto auto auto auto 1fr; justify-content:center; align-items:center; column-gap:.6em; }
+.foes .enemy img { grid-column:1; grid-row:1 / -1; height:100%; max-height:100%; min-height:0; width:auto; max-width:100%; justify-self:end; flex:none; }
+.foes .enemy .windmark { position:static; grid-column:2; grid-row:2; justify-self:start; margin-bottom:.15em; }
+.foes .enemy .aim { position:static; grid-column:2; grid-row:3; justify-self:start; font-size:.85em; line-height:1.2; }
+.foes .enemy .etag { grid-column:2; grid-row:4; align-items:flex-start; margin:0; gap:.2em; }
+.foes .enemy .weak { position:static; grid-column:2; grid-row:5; justify-self:start; margin-top:.2em; }
+.foes .enemy .eshadow { position:absolute; left:10%; bottom:0; width:45%; margin:0; z-index:0; }
+.foes .enemy.final { grid-template-columns:auto; }
+.foes .enemy.final img { justify-self:center; }
+.foes .enemy.final .aim, .foes .enemy.final .weak, .foes .enemy.final .windmark { position:absolute; grid-column:auto; grid-row:auto; left:calc(50% + 7.5em); }   /* ボス・オブリオン：絵のすぐ右に */
+.foes .enemy.final .aim { top:8%; } .foes .enemy.final .windmark { top:38%; } .foes .enemy.final .weak { top:66%; }
