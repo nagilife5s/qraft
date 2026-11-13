@@ -23,13 +23,14 @@ export var RULE = {
   itemLife: 120,   /* 落ちてから消えるまで 12秒 */
   rangeMax: 5,     /* 火力アップの上限（マス） */
   bombsMax: 4,     /* ボムアップの上限（個） */
-  moveFast: 1      /* スピードアップ後、1マス進むのに 0.1秒 */
+  moveFast: 1,     /* スピードアップ中は 0.1秒と0.2秒を交互に（平均0.15秒。2026-11-13 授業で「速すぎる」） */
+  speedLen: 60     /* スピードアップが続く 6秒。巻き込まれたら消える */
 };
 /* f＝火力アップ、b＝ボムアップ、s＝スピードアップ。絵は img/robot/item-*.webp */
 export var ITEM = { f: { n: '火力アップ', img: 'item-fire', ic: '🔥' }, b: { n: 'ボムアップ', img: 'item-bomb', ic: '💣' }, s: { n: 'スピードアップ', img: 'item-speed', ic: '👟' } };
 function rangeOf(p) { return Math.min(RULE.rangeMax, RULE.range + (p.rg || 0)); }
 function bombsOf(p) { return Math.min(RULE.bombsMax, RULE.maxBombs + (p.mb || 0)); }
-function moveOf(p) { return p.sp ? RULE.moveFast : RULE.move; }
+function moveOf(p) { return p.sp ? (p.sp % 2 ? RULE.moveFast : RULE.move) : RULE.move; }
 var SPAWN = [[0, 0], [W - 1, H - 1], [W - 1, 0], [0, H - 1], [Math.floor(W / 2), 0], [Math.floor(W / 2), H - 1]];
 var DX = [0, 0, 0, -1, 1], DY = [0, -1, 1, 0, 0];   /* 0:なし 1:上 2:下 3:左 4:右 */
 
@@ -68,6 +69,7 @@ export function step(g, inputs) {
   g.players.forEach(function (p, i) {
     var inp = inputs[i] || { d: 0, b: false };
     if (p.invul > 0) p.invul--;
+    if (p.sp > 0) p.sp--;
     if (p.down > 0) { p.down--; if (p.down === 0) { p.x = p.sx; p.y = p.sy; p.invul = RULE.invul; } return; }
     if (p.mc > 0) p.mc--;
     if (inp.d && p.mc === 0) {
@@ -80,7 +82,7 @@ export function step(g, inputs) {
       if (it.x !== p.x || it.y !== p.y) return true;
       if (it.k === 'f') p.rg = Math.min(RULE.rangeMax - RULE.range, (p.rg || 0) + 1);
       else if (it.k === 'b') p.mb = Math.min(RULE.bombsMax - RULE.maxBombs, (p.mb || 0) + 1);
-      else p.sp = 1;
+      else p.sp = RULE.speedLen;
       emit(g, { k: 'get', i: i, it: it.k }); return false;
     });
     if (inp.b && !bombAt(g, p.x, p.y) && g.bombs.filter(function (b) { return b.o === i; }).length < bombsOf(p)) {
@@ -111,7 +113,7 @@ export function step(g, inputs) {
   g.flames.forEach(function (f) {
     g.players.forEach(function (p, i) {
       if (p.down === 0 && p.invul === 0 && p.x === f.x && p.y === f.y) {
-        p.down = RULE.down; p.score = Math.max(0, p.score - RULE.hitPenalty); emit(g, { k: 'hit', i: i, o: f.o });
+        p.down = RULE.down; p.sp = 0; p.score = Math.max(0, p.score - RULE.hitPenalty); emit(g, { k: 'hit', i: i, o: f.o });
       }
     });
     g.robots = g.robots.filter(function (r) {

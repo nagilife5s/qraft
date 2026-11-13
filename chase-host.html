@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Qraft ジェットチェイス（先生）</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
-<link rel="stylesheet" href="theme.css?v=20261113093608">
+<link rel="stylesheet" href="theme.css?v=20261113122914">
 </head>
 <body>
 <div id="app">
@@ -76,16 +76,16 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261113093608"></script>
+<script src="firebase-config.js?v=20261113122914"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script type="module">
-import { mountSetPicker } from './lib.js?v=20261113093608';
-import { INFO as MG, KINDS as MG_KINDS, pickKind, aspect as mgAspect, hostCreate, hostMarkInputs, hostStep, hostLeft, hostScores, hostLabel, hostLine, hostDraw } from './minigame.js?v=20261112230000';
+import { mountSetPicker } from './lib.js?v=20261113122914';
+import { INFO as MG, KINDS as MG_KINDS, pickKind, aspect as mgAspect, hostCreate, hostMarkInputs, hostStep, hostLeft, hostScores, hostLabel, hostLine, hostDraw } from './minigame.js?v=20261113122914';
 import { shuffle, signIn, db, ref, set, get, update, remove, onValue, serverNow,
          avatarEl, ROBOT, ROBOT_LEVELS, setRobot, robotTarget, robotFrac, mountScene, parseAv,
          $, el, showScreen, confetti, qrSvg,
-         loadBackgrounds, applyBg, buildBgPickers, mountStage } from './lib.js?v=20261113093608';
-import { bgm, bgmRate, sfx, preload, wireSoundButtons } from './sound.js?v=20261113093608b';
+         loadBackgrounds, applyBg, buildBgPickers, mountStage } from './lib.js?v=20261113122914';
+import { bgm, bgmRate, sfx, preload, wireSoundButtons } from './sound.js?v=20261113122914b';
 
 mountStage();
 wireSoundButtons(); preload(['top']); bgm('top');   /* 部屋を作る前の設定画面も、トップの曲を続けて鳴らす */
@@ -292,7 +292,13 @@ function bombTick() {
   if (S.phase !== 'bomb' || !mg) return;
   var now = serverNow(), left = (S.bstart - now) / 1000;
   if (left > 0) { $('hTime').textContent = '開始まで ' + Math.ceil(left); return; }
-  var r = hostStep(mg, binMap, now - S.bstart); mg.stepAt = performance.now();
+  /* 先生のタブが裏に回ると、タイマーが1秒に1回まで遅くなる（2026-11-13 授業で空が流れなかった）。
+     遅れた分は、何ステップかまとめて進めて追いつく */
+  var due = Math.floor((now - S.bstart) / 100), g0 = mg.boards[0] && mg.boards[0].g, n = 1;
+  if (mg.kind !== 'tug' && g0) n = Math.max(1, Math.min(30, due - g0.t));
+  var r = { upd: {}, over: false, ev: [] };
+  for (var k = 0; k < n && !r.over; k++) { var r1 = hostStep(mg, binMap, now - S.bstart); Object.assign(r.upd, r1.upd); r.ev = r.ev.concat(r1.ev); r.over = r1.over; }
+  mg.stepAt = performance.now();
   r.ev.forEach(function (e) { if (SFX_OF[e]) sfx(SFX_OF[e]); });
   mg.boards.forEach(function (bd, gi) { bcoreEls[gi].textContent = hostLine(mg, gi, nickOf); });
   update(ref(db, 'rooms/' + pin + '/bd'), r.upd).catch(function () {});
