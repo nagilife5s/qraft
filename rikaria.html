@@ -6,7 +6,7 @@
 <title>リカリア</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261113174720">
+<link rel="stylesheet" href="theme.css?v=20261113175219">
 <style>
   /* リカリア：トップ（クイズ）とは別の世界。タイトル画面 → えらぶ（チーム戦／ひとりで）→ チーム戦（参加／開く）
      ボタンは「ゲームのタイトル画面」風：文字だけのメニュー＋光の帯＋点滅するカーソル。えらぶ画面は、紺の窓に白い枠のゲームのウィンドウ。
@@ -149,7 +149,7 @@
   </section>
 </div>
 <script type="module">
-  import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261113174720b';
+  import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261113175219b';
   wireSoundButtons(); preload(['top']); bgm('top');
   addEventListener('pagehide', function () { bgm(null); });
   addEventListener('pageshow', function (e) { if (e.persisted) bgm('top'); });

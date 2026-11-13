@@ -6,8 +6,8 @@
 <title>Qraft クエスト（ひとりで冒険）</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261113174720">
-<link rel="stylesheet" href="quest.css?v=20261113174720">
+<link rel="stylesheet" href="theme.css?v=20261113175219">
+<link rel="stylesheet" href="quest.css?v=20261113175219">
 <style>
   .hud-btns { display:flex; gap:.4em; }
   .hud-btns .btn { font-size:.85em; padding:.35em .9em; }
@@ -136,14 +136,14 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261113174720"></script>
+<script src="firebase-config.js?v=20261113175219"></script>
 <script type="module">
-import { signIn, db, ref, set, get, $, el, showScreen, shuffle, prepareQuestion, maskOf, isTextCorrect } from './lib.js?v=20261113174720';
+import { signIn, db, ref, set, get, $, el, showScreen, shuffle, prepareQuestion, maskOf, isTextCorrect } from './lib.js?v=20261113175219';
 import { addExp, expToNext, migrateChar, newChar, JOBS as RJOBS, JOB_KEYS, LEARN, RANK_POW, RANK_SEC, LOAD_N, ELEMS, ELEM, UNITS,
-         heroImg, fieldImg, skillName, rankOf, rankCost, canRankUp, rankUp, spUsed, loadoutOf, weakOf, statsOf } from './rikaria-data.js?v=20261113174720';
+         heroImg, fieldImg, skillName, rankOf, rankCost, canRankUp, rankUp, spUsed, loadoutOf, weakOf, statsOf } from './rikaria-data.js?v=20261113175219';
 import { fiscalYear, ENEMIES, TOWN, TOWN_DEFAULT,
          weaponList, armorList, weaponName, armorName, TOWN_MAX, soloDayCap, dayNo, ITEMS, ITEM_KEYS, FACS, RESPEC_COST, ensureOwner, battleGuide,
-         soloMult, soloReward, soloEnemyHp, soloEnemyAtkX, BOSS, cmdImg } from './quest.js?v=20261113174720';
+         soloMult, soloReward, soloEnemyHp, soloEnemyAtkX, BOSS, cmdImg } from './quest.js?v=20261113175219';
 
 var Y = fiscalYear(), me = { g: 0, c: 0, n: 0 }, sid = '', ch = null, CLS = {}, SETS = [], AREAS = [], look = 'a', job = 'mage';
 var curArea = null, HP = 0, MP = 0;
@@ -263,7 +263,8 @@ async function saveChar(gain) {
 var WM_POS = [[30, 44], [52, 60], [58, 27], [81, 63], [40, 22], [70, 45], [24, 62], [64, 80]];
 function buildAreas() {
   var seen = {}, list = [];
-  SETS.filter(function (s) { return s.grade === me.g; }).forEach(function (s) {
+  /* エリアにするのは、チーム戦の単元の表（rikaria-data.js）にある単元だけ。3年の「自然と人間」は組み込まない（本人 2026-11-13）。家庭練習では今までどおり練習できる */
+  SETS.filter(function (s) { return s.grade === me.g && UNITS.some(function (u) { return u.g === me.g && u.unit === s.unit; }); }).forEach(function (s) {
     if (!seen[s.unit]) { seen[s.unit] = { id: me.g + '-' + s.unit, unit: s.unit, uo: s.uo, sets: [] }; list.push(seen[s.unit]); }
     seen[s.unit].sets.push(s);
   });
