@@ -1,6 +1,6 @@
 /*
  * リカリア（チーム戦の作り直し・第2版）の決まりごと。数値と名前はここだけに置く。
- * 出どころ：職業と技｜案.md（技60個・ランク）・ワスレモノの苦手な精霊｜案.md（タイプと苦手）・
+ * 出どころ：職業と技.md（技60個・ランク）・ワスレモノの苦手な精霊.md（タイプと苦手）・
  *           依頼文/済み/番人48体の設計と画像依頼文.md（番人）・クエスト・チーム戦の作り直し｜方向性.md（8.5 数値）
  * 画面も通信も持たない。rikaria-engine.js・rikaria-host.html・rikaria-play.html・quest.html（ソロ）が読む。
  */
@@ -421,7 +421,7 @@ export var REWARD = { zako: { exp: 30, gold: 5 }, guard: { exp: 80, gold: 15 }, 
 /* 称号（ルールで20文字まで） */
 export function bossTitle(u, lap) { return u.unit + 'の霧を晴らす者' + (lap > 0 ? '★' + (lap + 1) : ''); }
 
-/* ------------------------------------------------------------ ボスの技（2026-11-13 決定。ボスの技｜案.md）
+/* ------------------------------------------------------------ ボスの技（2026-11-13 決定。ボスの技.md）
  * k＝型：all 全体攻撃 / big 強い全体攻撃 / multi 連続攻撃 / seal 封印 / poison 毒 / drain MP吸い / heal 回復 / ward 守り / rage 怒り
  * late＝HPが半分を切ってから使う。n2＝封印する人数。mask＝双面の仮面（0 光・1 影）のときだけ使う */
 function B(n, k, x) { return Object.assign({ n: n, k: k }, x || {}); }
@@ -477,7 +477,7 @@ export var ADV_MAP = [null,
 export function advMap(grade) { return ADV_MAP[Math.max(1, Math.min(3, Number(grade) || 1))]; }
 export function unitsOf(grade) { return UNITS.filter(function (u) { return u.g === Number(grade); }); }
 
-/* ------------------------------------------------------------ 物語の場面（2026-11-13 確定。正本は 物語の場面｜下書き.md）
+/* ------------------------------------------------------------ 物語の場面（2026-11-13 確定。正本は 物語の場面.md）
  * {町}＝クラスで決めた町の名前、{単元}＝単元の名前、{町の様子}＝TOWN[段階].d。1場面は2〜3文 */
 export var STORY = {
   open: [null,
