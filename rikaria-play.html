@@ -6,9 +6,9 @@
 <title>リカリア チーム戦</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261115160114">
-<link rel="stylesheet" href="quest.css?v=20261115160114">
-<link rel="stylesheet" href="rikaria.css?v=20261115160114">
+<link rel="stylesheet" href="theme.css?v=20261115185857">
+<link rel="stylesheet" href="quest.css?v=20261115185857">
+<link rel="stylesheet" href="rikaria.css?v=20261115185857">
 <style>
   #app { background:url(img/rikaria/title-bg.webp) center/cover no-repeat, #1d1648; }
   .q-bg-r { background:rgba(10,6,36,.55); }
@@ -142,13 +142,13 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261115160114"></script>
+<script src="firebase-config.js?v=20261115185857"></script>
 <script type="module">
-import { signIn, db, ref, set, get, update, onValue, serverNow, $, showScreen, confetti } from './lib.js?v=20261115160114';
-import { fiscalYear, ensureOwner, cmdImg } from './quest.js?v=20261115160114';
+import { signIn, db, ref, set, get, update, onValue, serverNow, $, showScreen, confetti } from './lib.js?v=20261115185857';
+import { fiscalYear, ensureOwner, cmdImg } from './quest.js?v=20261115185857';
 import { JOBS, JOB_KEYS, MP_MAX, LEARN, ELEMS, ELEM, heroImg, skillName, rankOf, rankCost, canRankUp, rankUp, loadoutOf, learned, migrateChar, expToNext, unitById, battleBg, weakOf, LOAD_N, OBLION,
-         newChar, ITEMS, carryList, spiritImg, storyBoss, storyOb, TOWN_DEFAULT , itemImg, iconHtml } from './rikaria-data.js?v=20261115160114';
-import { el, esc, drawField, moveField, cameraOf, cellAt, dmgFx, supportFx, ovban, redflash, MAP, spiritHtml } from './rikaria-view.js?v=20261115160114';
+         newChar, ITEMS, carryList, spiritImg, storyBoss, storyOb, TOWN_DEFAULT , itemImg, iconHtml } from './rikaria-data.js?v=20261115185857';
+import { el, esc, drawField, moveField, cameraOf, cellAt, dmgFx, supportFx, ovban, redflash, MAP, spiritHtml } from './rikaria-view.js?v=20261115185857';
 
 var TS = { '.sv': 'timestamp' };
 var uid = null, pin = null, state = null, sid = '', ch = null, look = 'a', job = 'warrior', gp = 0;
@@ -408,6 +408,7 @@ function drawQ() {
   box.dataset.n = qs.n; sel = 0; qn = qs.n; box.textContent = ''; box.classList.remove('res-on');
   var me = gv && gv.mem && gv.mem[uid];
   if (view === 's-battle' && me && me.dn) box.appendChild(el('div', 'downbox', '💤 たおれてしまった…　あと ' + (3 - me.dn) + '問 正解で復活'));
+  box.classList.toggle('isdown', !!(view === 's-battle' && me && me.dn));   /* 倒れている間：図つきの問題では、技の行の場所に案内を出す（rikaria.css） */
   var qb = el('div', 'qbox'); qb.appendChild(el('span', 'qnum', (view === 's-battle' ? (me && me.dn ? '復活の問題' : 'ねらい：' + tgtName()) : '練習問題（正解でMP +1）') + (qs.mu ? '（あてはまるものを すべて）' : '')));
   qb.appendChild(document.createTextNode(qs.t)); box.appendChild(qb);
   box.classList.toggle('has-img', !!qs.img);
@@ -433,7 +434,7 @@ function drawQ() {
 function fitBox(box, res) {
   box.classList.remove('fit1', 'fit2'); box.scrollTop = 0;
   var over = function () {
-    var sk = box.querySelector('#skills'), br = box.getBoundingClientRect(), lim = Math.min(br.bottom - 4, sk ? sk.getBoundingClientRect().top : 1e9);
+    var sk = (box.classList.contains('has-img') && box.classList.contains('isdown') && box.querySelector('.downbox')) || box.querySelector('#skills'), br = box.getBoundingClientRect(), lim = Math.min(br.bottom - 4, sk ? sk.getBoundingClientRect().top : 1e9);
     var last = res || box.querySelector(':scope > .btn:not(.hide)') || box.querySelector('.choices');
     return last ? last.getBoundingClientRect().bottom - lim : 0;
   };
@@ -471,6 +472,17 @@ function battle() {
   drawTeam(); mySpirit(me);
   midBar();
   if (first) { $('cmd').dataset.n = ''; drawQ(); } else drawBattleCtl();
+  syncDown(me);
+}
+/* 倒れた・復活したら、いま出ている問題のままでも、すぐに案内を出す・消す（2026-11-15 テストプレイ：前は次の問題に変わるまで出ず、倒れたことと戻り方が分からなかった） */
+function syncDown(me) {
+  var box = $('cmd'); if (!box.firstChild || !box.querySelector('.qbox')) return;
+  var d = box.querySelector('.downbox'), dn = me && me.dn, t = dn ? '💤 たおれてしまった…　あと ' + (3 - dn) + '問 正解で復活' : '';
+  if (dn && d && d.textContent === t) return; if (!dn && !d) return;
+  if (dn) { if (!d) { d = el('div', 'downbox'); box.insertBefore(d, box.firstChild); } d.textContent = t; } else d.remove();
+  box.classList.toggle('isdown', !!dn);
+  var qn = box.querySelector('.qnum'); if (qn && qs) qn.textContent = (dn ? '復活の問題' : 'ねらい：' + tgtName()) + (qs.mu ? '（あてはまるものを すべて）' : '');
+  fitBox(box, box.querySelector('.res'));
 }
 function buildFoes() {
   var box = $('foes'); box.innerHTML = '';
