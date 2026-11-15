@@ -373,6 +373,8 @@
 .wm-node.now small { background:var(--q-gold); color:var(--ink-dark); }
 .wm-node.lock small { background:#6d6a7a; }
 .wm-node.sel b { outline:.18em solid #fff; }
+/* 町の名札：長い名前（12文字まで）は2行に折り返す。1行だと、横の説明の箱を開いたとき（1366×768）に地図の左はしから19pxはみ出して切れた（2026-11-15） */
+.wm-node.town b { white-space:normal; max-width:7.6em; line-height:1.25; text-align:center; border-radius:.9em; text-wrap:balance; }
 .wm-fog { position:absolute; transform:translate(-50%, -50%); width:26%; aspect-ratio:1.4; border-radius:50%; pointer-events:none; z-index:1;
   background:radial-gradient(ellipse, rgba(232,228,246,1) 0 42%, rgba(220,215,240,.85) 58%, transparent 74%); filter:blur(3px); animation:fog 5s ease-in-out infinite alternate; }
 .wm-flag { position:absolute; transform:translate(-50%, -110%); z-index:4; pointer-events:none; }
