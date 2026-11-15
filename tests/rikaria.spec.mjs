@@ -8,6 +8,8 @@ async function rest(method, path, value) {
   if (!r.ok) throw new Error(method + ' ' + path + ' ' + r.status);
   return r.json();
 }
+/* 歩いて行けるワスレモノ（鍵のかかった番人の部屋の中＝x>26 にいるものは、扉が開くまで着けない。それを目ざすと戦闘に入れず、たまにテストが落ちた。2026-11-15） */
+const reach = (mobs) => (mobs || []).filter((m) => m[0] <= 26);
 const SHOT = process.env.SHOTS;   // 画面の写真を撮る（目で確かめる用）
 async function shot(p, name) { if (SHOT) await p.screenshot({ path: SHOT + '/' + name + '.png' }); }
 const Y = (() => { const d = new Date(); return d.getMonth() >= 3 ? d.getFullYear() : d.getFullYear() - 1; })();
@@ -101,11 +103,11 @@ test('リカリア・チーム戦：通しで動き、続きから始められ�
   await expect(a.locator('#map .torch').first()).toBeAttached();
   // 見えているワスレモノに向かって歩く → 戦闘
   const gv = await rest('GET', `rooms/${pin}/gv/1`);
-  const m = gv.mobs[0];
+  const m = reach(gv.mobs)[0];
   await rest('PATCH', `rooms/${pin}/ctl/${uidOf(1)}`, { x: m[0], y: m[1], n: 900 });
   for (let i = 0; i < 6 && !(await b.locator('#s-battle').isVisible()); i++) {   // 魔物は歩くので、何度か追いかける
-    const g2 = await rest('GET', `rooms/${pin}/gv/1`); if (g2.ph !== 'explore' || !g2.mobs.length) break;
-    await rest('PATCH', `rooms/${pin}/ctl/${uidOf(1)}`, { x: g2.mobs[0][0], y: g2.mobs[0][1], n: 901 + i });
+    const g2 = await rest('GET', `rooms/${pin}/gv/1`); if (g2.ph !== 'explore' || !reach(g2.mobs).length) break;
+    await rest('PATCH', `rooms/${pin}/ctl/${uidOf(1)}`, { x: reach(g2.mobs)[0][0], y: reach(g2.mobs)[0][1], n: 901 + i });
     await b.waitForTimeout(2500);
   }
   await expect(b.locator('#s-battle')).toBeVisible({ timeout: 20000 });
@@ -295,8 +297,8 @@ test('町の名前と冒険の地図、持ち物と精霊（2年）', async ({ b
   // ワスレモノにぶつかって戦闘へ
   await expect(a.locator('#s-field')).toBeVisible({ timeout: 10000 });
   for (let i = 0; i < 8 && !(await a.locator('#s-battle').isVisible()); i++) {
-    const g = await rest('GET', `rooms/${pin}/gv/1`); if (g.ph !== 'explore' || !g.mobs.length) { await a.waitForTimeout(1500); continue; }
-    await rest('PATCH', `rooms/${pin}/ctl/${uidOf(1)}`, { x: g.mobs[0][0], y: g.mobs[0][1], n: 900 + i });
+    const g = await rest('GET', `rooms/${pin}/gv/1`); if (g.ph !== 'explore' || !reach(g.mobs).length) { await a.waitForTimeout(1500); continue; }
+    await rest('PATCH', `rooms/${pin}/ctl/${uidOf(1)}`, { x: reach(g.mobs)[0][0], y: reach(g.mobs)[0][1], n: 900 + i });
     await a.waitForTimeout(2500);
   }
   await expect(a.locator('#s-battle')).toBeVisible({ timeout: 20000 });
