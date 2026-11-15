@@ -6,8 +6,8 @@
 <title>Qraft クエスト（ひとりで冒険）</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261113184052">
-<link rel="stylesheet" href="quest.css?v=20261113184052">
+<link rel="stylesheet" href="theme.css?v=20261115141434">
+<link rel="stylesheet" href="quest.css?v=20261115141434">
 <style>
   .hud-btns { display:flex; gap:.4em; }
   .hud-btns .btn { font-size:.85em; padding:.35em .9em; }
@@ -51,9 +51,10 @@
   <div class="jobcards six" id="jobcards"></div>
   <div class="row" style="flex-wrap:wrap;justify-content:center"><b>見た目</b><div class="seg" id="typeSeg"><button type="button" data-v="a" class="on">タイプA<small>（短い髪）</small></button><button type="button" data-v="b">タイプB<small>（長い髪）</small></button></div></div>
   <div class="row"><b>キャラの名前</b><input class="namebox" id="cname" maxlength="8" placeholder="8文字まで"></div>
-  <div class="mut" style="font-size:.85em">画面には本名ではなく、この名前が出ます。職業と名前は、あとから変えられません。</div>
+  <!-- 注意は名前の欄のすぐ下に出す（ボタンの下だと 1366×657 で画面の下に切れた。2026-11-15） -->
+  <div id="makeErr" class="err hide" style="margin-top:0"></div>
+  <div class="mut" id="makeNote" style="font-size:.85em">画面には本名ではなく、この名前が出ます。職業と名前は、あとから変えられません。</div>
   <button class="btn" id="btnMake">この職業にする</button>
-  <div id="makeErr" class="err hide"></div>
 </section>
 
 <!-- フィールド（町・エリア） -->
@@ -136,14 +137,14 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261113184052"></script>
+<script src="firebase-config.js?v=20261115141434"></script>
 <script type="module">
-import { signIn, db, ref, set, get, $, el, showScreen, shuffle, prepareQuestion, maskOf, isTextCorrect } from './lib.js?v=20261113184052';
+import { signIn, db, ref, set, get, $, el, showScreen, shuffle, prepareQuestion, maskOf, isTextCorrect } from './lib.js?v=20261115141434';
 import { addExp, expToNext, migrateChar, newChar, JOBS as RJOBS, JOB_KEYS, LEARN, RANK_POW, RANK_SEC, LOAD_N, ELEMS, ELEM, UNITS,
-         heroImg, fieldImg, skillName, rankOf, rankCost, canRankUp, rankUp, spUsed, loadoutOf, weakOf, statsOf, unitOf, zakoImg, battleBg, gearImg, itemImg, iconHtml } from './rikaria-data.js?v=20261113184052';
+         heroImg, fieldImg, skillName, rankOf, rankCost, canRankUp, rankUp, spUsed, loadoutOf, weakOf, statsOf, unitOf, zakoImg, battleBg, gearImg, itemImg, iconHtml } from './rikaria-data.js?v=20261115141434';
 import { fiscalYear, ENEMIES, TOWN, TOWN_DEFAULT,
          weaponList, armorList, weaponName, armorName, TOWN_MAX, soloDayCap, dayNo, ITEMS, ITEM_KEYS, FACS, RESPEC_COST, ensureOwner, battleGuide,
-         soloMult, soloReward, soloEnemyHp, soloEnemyAtkX, BOSS, cmdImg } from './quest.js?v=20261113184052';
+         soloMult, soloReward, soloEnemyHp, soloEnemyAtkX, BOSS, cmdImg } from './quest.js?v=20261115141434';
 
 var Y = fiscalYear(), me = { g: 0, c: 0, n: 0 }, sid = '', ch = null, CLS = {}, SETS = [], AREAS = [], look = 'a', job = 'mage';
 var curArea = null, HP = 0, MP = 0;

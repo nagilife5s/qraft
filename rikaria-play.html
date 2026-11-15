@@ -6,9 +6,9 @@
 <title>リカリア チーム戦</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261113184052">
-<link rel="stylesheet" href="quest.css?v=20261113184052">
-<link rel="stylesheet" href="rikaria.css?v=20261113184052">
+<link rel="stylesheet" href="theme.css?v=20261115141434">
+<link rel="stylesheet" href="quest.css?v=20261115141434">
+<link rel="stylesheet" href="rikaria.css?v=20261115141434">
 <style>
   #app { background:url(img/rikaria/title-bg.webp) center/cover no-repeat, #1d1648; }
   .q-bg-r { background:rgba(10,6,36,.55); }
@@ -46,9 +46,10 @@
   <div class="jobcards six" id="jobcards"></div>
   <div class="row" style="flex-wrap:wrap;justify-content:center"><b>見た目</b><div class="seg" id="typeSeg"><button type="button" data-v="a" class="on">タイプA</button><button type="button" data-v="b">タイプB</button></div></div>
   <div class="row"><label for="cname"><b>キャラの名前</b></label><input class="namebox" id="cname" maxlength="8" placeholder="8文字まで"></div>
-  <div class="mut" style="font-size:.85em">画面には本名ではなく、この名前が出ます。職業と名前は、あとから変えられません。</div>
+  <!-- 注意は名前の欄のすぐ下に出す（ボタンの下だと 1366×657 で画面の下に切れた。2026-11-15） -->
+  <div id="makeErr" class="err hide" style="margin-top:0" role="alert"></div>
+  <div class="mut" id="makeNote" style="font-size:.85em">画面には本名ではなく、この名前が出ます。職業と名前は、あとから変えられません。</div>
   <button class="btn" id="btnMake" type="button">この職業にする</button>
-  <div id="makeErr" class="err hide" role="alert"></div>
 </section>
 
 <!-- 班をえらぶ -->
@@ -141,13 +142,13 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261113184052"></script>
+<script src="firebase-config.js?v=20261115141434"></script>
 <script type="module">
-import { signIn, db, ref, set, get, update, onValue, serverNow, $, showScreen, confetti } from './lib.js?v=20261113184052';
-import { fiscalYear, ensureOwner, cmdImg } from './quest.js?v=20261113184052';
+import { signIn, db, ref, set, get, update, onValue, serverNow, $, showScreen, confetti } from './lib.js?v=20261115141434';
+import { fiscalYear, ensureOwner, cmdImg } from './quest.js?v=20261115141434';
 import { JOBS, JOB_KEYS, MP_MAX, LEARN, ELEMS, ELEM, heroImg, skillName, rankOf, rankCost, canRankUp, rankUp, loadoutOf, learned, migrateChar, expToNext, unitById, battleBg, weakOf, LOAD_N, OBLION,
-         newChar, ITEMS, carryList, spiritImg, storyBoss, storyOb, TOWN_DEFAULT , itemImg, iconHtml } from './rikaria-data.js?v=20261113184052';
-import { el, esc, drawField, moveField, cameraOf, cellAt, dmgFx, supportFx, ovban, redflash, MAP, spiritHtml } from './rikaria-view.js?v=20261113184052';
+         newChar, ITEMS, carryList, spiritImg, storyBoss, storyOb, TOWN_DEFAULT , itemImg, iconHtml } from './rikaria-data.js?v=20261115141434';
+import { el, esc, drawField, moveField, cameraOf, cellAt, dmgFx, supportFx, ovban, redflash, MAP, spiritHtml } from './rikaria-view.js?v=20261115141434';
 
 var TS = { '.sv': 'timestamp' };
 var uid = null, pin = null, state = null, sid = '', ch = null, look = 'a', job = 'warrior', gp = 0;
@@ -185,7 +186,7 @@ async function openRoom(p, silent) {
   $('numBox').classList.remove('hide'); $('btnPin').classList.add('hide'); $('pin').disabled = true;
   return true;
 }
-function msg(t) { $('msgT').textContent = t; showScreen('s-msg'); }
+function msg(t) { $('msgT').textContent = t; try { localStorage.removeItem('qraft.rikaria'); } catch (e) {} showScreen('s-msg'); }   /* 覚えていた部屋を消す（残っていると「参加画面へ」を押しても同じ文にもどった。2026-11-15） */
 
 async function pickNum(n, silent) {
   sid = state.g + '-' + state.c + '-' + n;
@@ -424,7 +425,21 @@ function drawQ() {
   });
   box.appendChild(chs);
   if (qs.mu) { sub.classList.remove('hide'); sub.onclick = function () { if (sel) answer({ m: sel }); }; box.appendChild(sub); }
-  if (view === 's-battle') drawBattleCtl();
+  if (view === 's-battle') drawBattleCtl();  fitBox(box, null);
+  var qi = box.querySelector('.cmd-img'); if (qi && !qi.complete) qi.addEventListener('load', function () { if (box.contains(qi)) fitBox(box, box.querySelector('.res')); });   /* 図が出ると高さが変わる */
+}
+/* 問題の箱に入りきらないとき（2026-11-15 テストプレイ：図つき・長い選択肢・技の行が2段のとき、選択肢や解説が技の行の後ろにかくれた）。
+   まず字と余白を2段階つめる。結果と解説（res）がそれでも入らないときは、解説が見える所まで箱の中を送る（指やホイールで戻せる） */
+function fitBox(box, res) {
+  box.classList.remove('fit1', 'fit2'); box.scrollTop = 0;
+  var over = function () {
+    var sk = box.querySelector('#skills'), br = box.getBoundingClientRect(), lim = Math.min(br.bottom - 4, sk ? sk.getBoundingClientRect().top : 1e9);
+    var last = res || box.querySelector(':scope > .btn:not(.hide)') || box.querySelector('.choices');
+    return last ? last.getBoundingClientRect().bottom - lim : 0;
+  };
+  if (over() > 1) box.classList.add('fit1');
+  if (over() > 1) box.classList.add('fit2');
+  var o = over(); if (res && o > 1) box.scrollTop = o + 4;
 }
 function answer(a) {
   myPick = a.c != null ? (1 << a.c) : (a.m || 0);
@@ -439,7 +454,7 @@ function drawResult(box) {
   box.querySelectorAll(':scope > .btn').forEach(function (x) { x.remove(); });   /* 「答える」は片づける（結果と重なる） */
   res.appendChild(el('div', 'banner ' + (r.ok ? 'ok' : 'ng'), r.ok ? (view === 's-battle' ? '✓ せいかい！ ' + (r.rv ? '復活に近づいた' : r.cu ? 'じゃまが治った' : gv && gv.rt ? 'MP +1' : tgtName() + 'に攻撃！') : '✓ せいかい！ MP +1') : '✕ ざんねん…'));
   if (r.ex && !r.ok) res.appendChild(el('div', 'qex', '💡 ' + r.ex));
-  var sr = box.querySelector('#skills'); if (sr) box.insertBefore(res, sr); else box.appendChild(res);
+  var sr = box.querySelector('#skills'); if (sr) box.insertBefore(res, sr); else box.appendChild(res);  fitBox(box, res);
 }
 
 /* ------------------------------------------------------------ 戦闘 */

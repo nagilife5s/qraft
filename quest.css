@@ -126,6 +126,10 @@
 .choices button:nth-child(2) { background:var(--c-blue); }   .choices button:nth-child(2)::before { clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%); }
 .choices button:nth-child(3) { background:var(--c-yellow); } .choices button:nth-child(3)::before { border-radius:50%; }
 .choices button:nth-child(4) { background:var(--c-green); }
+/* 5つ目・6つ目（2026-11-15 テストプレイ：色が決まっていなくて、白い箱に白い字で読めなかった。色はクラシックの5〜6択と同じ） */
+.choices button:nth-child(5) { background:#8e44ad; }         .choices button:nth-child(5)::before { clip-path:polygon(0 0,100% 0,50% 100%); }
+.choices button:nth-child(6) { background:#c2570c; }         .choices button:nth-child(6)::before { clip-path:polygon(50% 0,100% 38%,81% 100%,19% 100%,0 38%); }
+.choices button:nth-child(n+7) { background:#4a5568; }
 .choices button.dim { opacity:.3; }
 .choices button.right { outline:.25em solid #fff; }
 .actions { display:grid; grid-template-columns:repeat(4,1fr); gap:.6em; }
@@ -449,6 +453,7 @@
 .tag.team { background:#ffe3e3; color:#b3261e; }
 /* 戦闘：技のボタン（こうげき＋技4つ＋必殺技）・精霊・効果の表示 */
 .actions.solo { grid-template-columns:repeat(3,1fr); }
+.actions.solo:has(> :nth-child(7)) { grid-template-columns:repeat(4,1fr); }   /* 7つ以上（僧侶は「いのり」があるので Lv16 から7つ）は4列。3列だと3段目が 1366×657 で箱の下に切れた（2026-11-15） */
 .actwrap { display:flex; flex-direction:column; gap:.5em; }
 .elems { display:flex; gap:.4em; justify-content:center; align-items:center; font-weight:800; font-size:.9em; }
 .elems button { font:inherit; font-weight:900; border:.15em solid transparent; border-radius:999px; padding:.15em .8em; background:#fff; color:var(--ink-dark); cursor:pointer; }
@@ -491,6 +496,7 @@ img.slot:not(.ok) { visibility:hidden; }
 
 /* 職業えらび（6職業）：横1列だと左はしの戦士が画面の外に切れた（2026-11-13 授業前の確認）。折り返して、はみ出すときは上から見せる */
 #s-make { justify-content:safe center; }
+#makeErr:not(.hide) + #makeNote { display:none; }   /* 注意が出ているあいだは、説明の1行をかくして高さを変えない */
 #s-make .jobcards.six { flex:0 0 auto; width:100%; }
 /* 金色の大きな見出し：ふちの線が太くて字がつぶれた。線は字の後ろに描く */
 .lvup { paint-order:stroke fill; }

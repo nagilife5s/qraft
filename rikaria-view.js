@@ -107,6 +107,14 @@ var COL = { '01': '#cfeaff', '02': '#ff7a2a', '03': '#9fe4ff', '04': '#fff36a', 
   '11': '#9fd8ff', '12': '#ffe9a0', '13': '#ffe9a0', '14': '#ffb36a', '15': '#a8f0ff', '16': '#b07cff', '17': '#a07cff', '18': '#fff3b8', '19': '#ff8a3c', '20': '#ffd23f',
   '21': '#fffbe0', '22': '#e8ecff', '23': '#7cffd8', '24': '#ffd23f', '25': '#ffffff' };
 /* ダメージ（ev: {d, crit, weak, n, fx, ult, guard, dot}）。who＝技を使った人の呼び名 */
+/* エフェクト画像（黒い背景）の黒を透明にするフィルター。画面に1つだけ置く。
+   前は mix-blend-mode:screen だけで黒を消していたが、戦いの場がゆれている間（.quake の transform）は重ね方が効かず、絵の後ろに黒い四角が見えた（2026-11-15 テストプレイ） */
+function fxFilter() {
+  if (document.getElementById('fxLum')) return;
+  var d = document.createElement('div'); d.style.cssText = 'position:absolute;width:0;height:0;overflow:hidden';
+  d.innerHTML = '<svg width="0" height="0" aria-hidden="true"><filter id="fxLum" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  1.4 1.4 1.4 0 0"/></filter></svg>';
+  document.body.appendChild(d);
+}
 export function dmgFx(enemyEl, arenaEl, rootEl, ev, who) {
   if (!enemyEl) return;
   var d = el('div', 'dmg' + (ev.guard ? ' guard' : ev.crit ? ' crit' : ''));
@@ -115,7 +123,7 @@ export function dmgFx(enemyEl, arenaEl, rootEl, ev, who) {
   if (ev.guard) return;
   var skill = !!ev.n && ev.n !== 'カウンター', fx = ev.fx || (ev.dot ? '16' : '01'), c = COL[fx] || '#fff';
   if (skill || ev.crit) {   /* 採用したエフェクト画像を、黒を消して重ねる */
-    var im = el('img', 'fximg' + (ev.ult ? ' ult' : '')); im.src = effectImg(fx); im.alt = '';
+    fxFilter(); var im = el('img', 'fximg' + (ev.ult ? ' ult' : '')); im.style.filter = 'url(#fxLum)'; im.src = effectImg(fx); im.alt = '';
     enemyEl.appendChild(im); setTimeout(function () { im.remove(); }, 900);
   }
   var hf = el('div', 'hitflash'); enemyEl.appendChild(hf); setTimeout(function () { hf.remove(); }, 400);
@@ -134,8 +142,8 @@ export function dmgFx(enemyEl, arenaEl, rootEl, ev, who) {
 /* 回復・強化など、敵に当たらない技（自分たちの上に光） */
 export function supportFx(hostEl, fx, name, who, ult) {
   if (!hostEl) return;
-  var im = el('img', 'fximg team' + (ult ? ' ult' : '')); im.src = effectImg(fx || '10'); im.alt = ''; hostEl.appendChild(im); setTimeout(function () { im.remove(); }, 1000);
+  fxFilter(); var im = el('img', 'fximg team' + (ult ? ' ult' : '')); im.style.filter = 'url(#fxLum)'; im.src = effectImg(fx || '10'); im.alt = ''; hostEl.appendChild(im); setTimeout(function () { im.remove(); }, 1000);
   var cu = el('div', 'cutin' + (ult ? ' ult' : '')); cu.innerHTML = '<small>' + esc(who || '') + 'の</small>' + esc(name) + '！'; cu.style.setProperty('--cg', COL[fx] || '#9dffb8'); hostEl.appendChild(cu); setTimeout(function () { cu.remove(); }, 1000);
 }
-export function ovban(host, s, big) { if (!host || !s) return; host.querySelectorAll(':scope > .ovban').forEach(function (o) { o.remove(); }); var b = el('div', 'ovban' + (big ? ' big' : ''), s); host.appendChild(b); setTimeout(function () { b.remove(); }, 2000); }
+export function ovban(host, s, big) { if (!host || !s) return; host.querySelectorAll(':scope > .ovban').forEach(function (o) { o.remove(); }); var b = el('div', 'ovban' + (big ? ' big' : ''), s), ms = s.length > 18 ? 3500 : 2000; b.style.animationDuration = ms + 'ms'; host.appendChild(b); setTimeout(function () { b.remove(); }, ms); }   /* 19文字より長い文は3.5秒（2秒では読みきれない） */
 export function redflash(host) { var f = el('div', 'redflash'); host.appendChild(f); setTimeout(function () { f.remove(); }, 500); }
