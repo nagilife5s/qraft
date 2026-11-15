@@ -93,6 +93,19 @@ test('止めて続きから：戦闘の途中の敵のHPが残る', () => {
   assert.equal(H.ph, 'battle'); assert.equal(H.foes[0].hp, 33); assert.equal(H.fl, 3); assert.equal(H.keys, 2);
 });
 
+test('ボス戦：ねらっていた手下を倒したら、ねらいはもう1体の手下へ（バリア中のボスには向かない）', () => {
+  const G = E.newGroup({ unit: D.UNITS[4], mem: team(), fl: 5, keys: 4 }); E.startBattle(G, 'boss'); G.foes[0].hp = Math.round(G.foes[0].mx * .6);
+  for (let i = 0; i < 4 && G.foes.length < 3; i++) E.step(G, .5);
+  assert.equal(G.foes.length, 3); assert.equal(G.foes[0].barrier, true);
+  const m = G.mem.u0; m.tg = 1; G.foes[1].hp = 0;   // ねらっていた手下が、ほかの人の攻撃で倒れた
+  const boss0 = G.foes[0].hp, z0 = G.foes[2].hp;
+  E.answer(G, 'u0', true);
+  assert.equal(m.tg, 2, 'ねらいは、のこった手下'); assert.ok(G.foes[2].hp < z0, 'のこった手下にダメージ'); assert.equal(G.foes[0].hp, boss0);
+  assert.ok(!G.ev.some(e => e.t === 'hit' && e.guard), '「バリア！」は出ない');
+  G.foes[2].hp = 1; E.answer(G, 'u0', true);   // 2体とも倒すとバリアが消えて、次の正解はボスへ
+  assert.equal(G.foes[0].barrier, false); E.answer(G, 'u0', true); assert.equal(m.tg, 0); assert.ok(G.foes[0].hp < boss0);
+});
+
 test('止めて続きから：続きのボスも技を使う（手下とバリアは残る）', () => {
   const G = E.newGroup({ unit: D.UNITS[4], mem: team(), fl: 5, keys: 4 }); E.startBattle(G, 'boss'); G.foes[0].hp = Math.round(G.foes[0].mx * .6);
   for (let i = 0; i < 4 && G.foes.length < 3; i++) E.step(G, .5);   // HP70%を切っているので、手下をよんでバリア

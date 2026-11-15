@@ -259,7 +259,8 @@ function healOne(G, m, pct) {
 function hit(G, m, s, P, k, name, fx) {
   P = P || 1;
   var list = aliveFoes(G); if (!list.length) return;
-  var tg = G.foes[m.tg]; if (!tg || tg.hp <= 0) { tg = list[0]; m.tg = G.foes.indexOf(tg); }
+  /* ねらっていた敵が倒れたら、次の敵へ。バリア中のボスは後回し（前は生きている敵の先頭＝ボスに移り、手下が残っているのにダメージ0の「バリア！」が続いた。2026-11-15 テストプレイ） */
+  var tg = G.foes[m.tg]; if (!tg || tg.hp <= 0) { tg = list.filter(function (f) { return !f.barrier; })[0] || list[0]; m.tg = G.foes.indexOf(tg); }
   var targets = s.all ? list : s.multi ? [tg].concat(list.filter(function (f) { return f !== tg; }).slice(0, s.multi - 1)) : [tg];
   var J = JOBS[m.j], buff = G.grp.buff ? G.grp.buff.x : 1;
   targets.forEach(function (f) {
