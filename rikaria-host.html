@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>リカリア チーム戦（先生）</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
-<link rel="stylesheet" href="theme.css?v=20261115141434">
-<link rel="stylesheet" href="quest.css?v=20261115141434">
-<link rel="stylesheet" href="rikaria.css?v=20261115141434">
+<link rel="stylesheet" href="theme.css?v=20261115160114">
+<link rel="stylesheet" href="quest.css?v=20261115160114">
+<link rel="stylesheet" href="rikaria.css?v=20261115160114">
 <style>
   #app { background:url(img/rikaria/title-bg.webp) center/cover no-repeat, #1d1648; }
   .q-bg-r { background:rgba(10,6,36,.6); }
@@ -113,18 +113,18 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261115141434"></script>
+<script src="firebase-config.js?v=20261115160114"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script type="module">
 import { signIn, db, ref, set, get, update, remove, onValue, serverNow, shuffle, mountSetPicker,
-         decryptSet, prepareQuestion, maskOf, $, showScreen, confetti, qrSvg } from './lib.js?v=20261115141434';
+         decryptSet, prepareQuestion, maskOf, $, showScreen, confetti, qrSvg } from './lib.js?v=20261115160114';
 import { onChildAdded, onChildChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-import { fiscalYear } from './quest.js?v=20261115141434';
+import { fiscalYear } from './quest.js?v=20261115160114';
 import { TOWN, TOWN_DEFAULT, TOWN_MAX, townStart, JOBS, heroImg, statsOf, unitOf, addExp, bossSp, bossTitle, migrateChar, battleBg, LV_MAX, OBLION, OB_FORMS, obNext, obFirst, obTitle, oblionImg, REWARD, ELEM,
-         unitById, unitsOf, advMap, townName, goldOf, isCarry, storyOpen, storyBoss, storyOb, storyEnding } from './rikaria-data.js?v=20261115141434';
-import * as E from './rikaria-engine.js?v=20261115141434';
-import { el, esc, drawField, moveField, cameraOf, ovban, MAP, spiritHtml } from './rikaria-view.js?v=20261115141434';
-import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261115141434b';
+         unitById, unitsOf, advMap, townName, goldOf, isCarry, storyOpen, storyBoss, storyOb, storyEnding } from './rikaria-data.js?v=20261115160114';
+import * as E from './rikaria-engine.js?v=20261115160114';
+import { el, esc, drawField, moveField, cameraOf, ovban, MAP, spiritHtml } from './rikaria-view.js?v=20261115160114';
+import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261115160114b';
 
 wireSoundButtons(); preload(['top']); bgm('top');
 var TS = { '.sv': 'timestamp' };
@@ -293,7 +293,10 @@ function renderLobby() {
       var sp = el('span', p.rd ? '' : 'ko'); var im = el('img'); im.src = heroImg(p.j, p.lk); im.alt = ''; sp.appendChild(im);
       sp.appendChild(document.createTextNode(num(p.sid) + '番 ' + p.nick));
       var x = el('button', 'chip-x', '×'); x.type = 'button'; x.title = '退出させる'; x.setAttribute('aria-label', p.nick + 'を退出させる');
-      x.onclick = function () { var up = {}; up['kicked/' + u] = true; up['players/' + u] = null; update(ref(db, 'rooms/' + pin), up); };
+      x.onclick = function () {
+        /* まちがえて押しても取り消せるように確かめる（退出になると、同じ部屋にはもう入れない。2026-11-15 テストプレイ） */
+        if (!confirm(num(p.sid) + '番 ' + p.nick + ' さんを退出させますか？\n退出させると、この部屋にはもう入れません。')) return;
+        var up = {}; up['kicked/' + u] = true; up['players/' + u] = null; update(ref(db, 'rooms/' + pin), up); };
       sp.appendChild(x); mm.appendChild(sp);
     });
     c.appendChild(mm); c.appendChild(el('small', '', all ? '✅ 全員準備OK' : '準備中（うすい人がまだ）'));
