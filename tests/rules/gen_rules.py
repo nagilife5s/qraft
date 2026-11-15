@@ -86,7 +86,8 @@ ch = q['chars']
 ch.pop('.read', None)
 c = ch['$sid']
 c['.read'] = "auth != null && (%s || %s)" % (A, O)
-c['.write'] = "auth != null && %s && newData.exists() && (%s || (%s && %s && %s))" % (SID, A, O, sr_ok, OR(create, migrate, update))
+# 先生はキャラを消せる（作り直し。記録画面から。2026-11-16）。生徒は消せない
+c['.write'] = "auth != null && %s && (%s || (newData.exists() && %s && %s && %s))" % (SID, A, O, sr_ok, OR(create, migrate, update))
 c['.validate'] = ("newData.hasChildren(['n','j','lv','exp','gold','sp','spt']) && newData.child('n').isString() && newData.child('n').val().length >= 1 && newData.child('n').val().length <= 8"
                   " && newData.child('lv').isNumber() && newData.child('lv').val() >= 1 && newData.child('lv').val() <= %d" % LV_MAX +
                   " && newData.child('exp').isNumber() && newData.child('exp').val() >= 0 && newData.child('exp').val() <= 100000"

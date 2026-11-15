@@ -50,7 +50,8 @@
     <div class="row">年度 <b id="qy"></b>　学年 <select id="kg"><option>1</option><option>2</option><option>3</option></select>
       組 <select id="kc"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option></select>
       番号 1〜<input id="kn" type="number" min="1" max="40" value="40" style="width:4.5em">
-      <button id="btnKeys">一覧を見る</button> <button class="main" id="btnMakeKeys">合言葉を作る</button> <button id="btnPrintKeys">印刷用に開く</button> <span id="keyMsg"></span></div>
+      <button id="btnKeys">一覧を見る</button> <button class="main" id="btnMakeKeys">合言葉を作る</button> <button id="btnPrintKeys">印刷用に開く</button> <button id="btnDelChars" style="color:#b3261e">この組のキャラをすべて消す</button> <span id="keyMsg"></span></div>
+    キャラを消すと、その生徒は次にひらいたとき、キャラ作りから始めます（作り直し）。レベル・技・装備・ゴールド・称号も消え、元に戻せません。合言葉はそのまま使えます。
     <div style="overflow:auto"><table id="tblKeys"></table></div></div>
   <h2>前年度から移す（進級・クラス替え）</h2>
   <div class="note">4月に、前の年度のキャラ（レベル・技・装備・ゴールド・称号）を新しい番号へまとめて移します。生徒は何もしません。<br>
@@ -185,29 +186,38 @@ $('btnCsv').onclick = function () {
   a.download = 'qraft-practice.csv'; a.click();
 };
 /* ------------------------------------------------------------ クエストの合言葉（quest/<年度>/keys/<学年-組-番号>） */
-var QY = fiscalYear(), KEYS = {}, OWNERS = {};
+var QY = fiscalYear(), KEYS = {}, OWNERS = {}, CHARS = {};
 $('qy').textContent = QY;
 function kcls() { return $('kg').value + '-' + $('kc').value; }
 function knum() { return Math.max(1, Math.min(40, +$('kn').value || 40)); }
 async function loadKeys() {
-  KEYS = {}; OWNERS = {}; $('keyMsg').textContent = '読み込み中…';
+  KEYS = {}; OWNERS = {}; CHARS = {}; $('keyMsg').textContent = '読み込み中…';
   var c = kcls(), n = knum(), jobs = [];
   for (var i = 1; i <= n; i++) (function (sid) {
-    jobs.push(Promise.all([get(ref(db, 'quest/' + QY + '/keys/' + sid)), get(ref(db, 'quest/' + QY + '/owners/' + sid))]).then(function (r) {
-      if (r[0].exists()) KEYS[sid] = r[0].val(); OWNERS[sid] = r[1].exists() ? Object.keys(r[1].val()).length : 0;
+    jobs.push(Promise.all([get(ref(db, 'quest/' + QY + '/keys/' + sid)), get(ref(db, 'quest/' + QY + '/owners/' + sid)), get(ref(db, 'quest/' + QY + '/chars/' + sid))]).then(function (r) {
+      if (r[0].exists()) KEYS[sid] = r[0].val(); if (r[2].exists()) CHARS[sid] = r[2].val(); OWNERS[sid] = r[1].exists() ? Object.keys(r[1].val()).length : 0;
     }));
   })(c + '-' + i);
   try { await Promise.all(jobs); $('keyMsg').textContent = ''; } catch (e) { $('keyMsg').textContent = '読みこめませんでした：' + e.message; }
   drawKeys();
 }
 function drawKeys() {
-  var c = kcls(), n = knum(), h = '<tr><th>番号</th><th>合言葉</th><th>使っている端末</th><th></th></tr>';
+  var c = kcls(), n = knum(), h = '<tr><th>番号</th><th>合言葉</th><th>使っている端末</th><th></th><th>キャラ</th><th></th></tr>';
   for (var i = 1; i <= n; i++) {
     var sid = c + '-' + i;
     h += '<tr><td>' + i + '番</td><td><code style="font-size:1.1em;letter-spacing:.1em">' + (KEYS[sid] || '－') + '</code></td><td>' + (OWNERS[sid] || 0) + '台</td><td>' +
-      (KEYS[sid] ? '<button data-re="' + sid + '">作り直す</button>' : '') + '</td></tr>';
+      (KEYS[sid] ? '<button data-re="' + sid + '">作り直す</button>' : '') + '</td><td>' + (CHARS[sid] ? esc(CHARS[sid].n) + '（' + (JOB_N[CHARS[sid].j] || CHARS[sid].j) + ' Lv.' + CHARS[sid].lv + '）' : '－') + '</td><td>' +
+      (CHARS[sid] ? '<button data-dc="' + sid + '" style="color:#b3261e">キャラを消す</button>' : '') + '</td></tr>';
   }
   $('tblKeys').innerHTML = h;
+  document.querySelectorAll('[data-dc]').forEach(function (b) {
+    b.onclick = async function () {
+      var sid = b.dataset.dc, c = CHARS[sid];
+      if (!confirm(sidName(sid) + 'のキャラ「' + c.n + '」（Lv.' + c.lv + '）を消します。\nレベル・技・装備・ゴールド・称号も消え、元に戻せません。\nこの生徒は次にひらいたとき、キャラ作りから始めます。')) return;
+      try { await remove(ref(db, 'quest/' + QY + '/chars/' + sid)); delete CHARS[sid]; $('keyMsg').textContent = sidName(sid) + 'のキャラを消しました'; drawKeys(); }
+      catch (e) { alert('消せませんでした（新しいルールが公開されているか確かめてください）：' + e.message); }
+    };
+  });
   document.querySelectorAll('[data-re]').forEach(function (b) {
     b.onclick = async function () {
       var sid = b.dataset.re;
@@ -218,6 +228,18 @@ function drawKeys() {
   });
 }
 $('btnKeys').onclick = loadKeys;
+/* 組のキャラをまとめて消す（作り直し。2026-11-16）。消せるのは先生だけ（ルール） */
+$('btnDelChars').onclick = async function () {
+  await loadKeys();
+  var ids = Object.keys(CHARS), cls = kcls().replace('-', '年') + '組';
+  if (!ids.length) { $('keyMsg').textContent = cls + 'には消すキャラがありません'; return; }
+  if (!confirm(cls + 'の ' + ids.length + ' 人のキャラを消します。\nレベル・技・装備・ゴールド・称号も消え、元に戻せません。\n生徒は次にひらいたとき、キャラ作りから始めます。')) return;
+  if ((prompt('本当に消すときは「けす」と入力してください。') || '').trim() !== 'けす') { $('keyMsg').textContent = '消しませんでした'; return; }
+  var done = 0;
+  try { for (var i = 0; i < ids.length; i++) { await remove(ref(db, 'quest/' + QY + '/chars/' + ids[i])); delete CHARS[ids[i]]; done++; } $('keyMsg').textContent = cls + 'の ' + done + ' 人のキャラを消しました'; }
+  catch (e) { $('keyMsg').textContent = done + ' 人まで消して止まりました（新しいルールが公開されているか確かめてください）：' + e.message; }
+  drawKeys();
+};
 $('btnMakeKeys').onclick = async function () {
   await loadKeys();
   var c = kcls(), n = knum(), made = 0;

@@ -325,3 +325,29 @@ test('町の名前と冒険の地図、持ち物と精霊（2年）', async ({ b
   expect(ch.inv.potion).toBe(1); expect(ch.inv.wing).toBe(1);   // 先生のPCの保存でも、減った数のまま
   expect(await rest('GET', `quest/${Y}/classes/2-3/town`)).toBe('ひかりの町');
 });
+
+test('記録画面：先生がキャラを消すと、生徒はキャラ作りから始める（作り直し。2026-11-16）', async ({ browser }) => {
+  const host = await (await browser.newContext({ viewport: { width: 1366, height: 800 } })).newPage();
+  await host.goto('records.html?emu=1');
+  const id = host.locator('#myUid'); await expect(id).not.toBeEmpty({ timeout: 15000 });
+  await rest('PUT', 'admins/' + (await id.textContent()).trim(), true);
+  await host.reload(); await expect(host.locator('#body')).toBeVisible({ timeout: 15000 });
+  for (const n of [1, 2]) {
+    await rest('PUT', `quest/${Y}/keys/3-9-${n}`, 'del' + n + '23');
+    await rest('PUT', `quest/${Y}/chars/3-9-${n}`, { n: 'けす' + n, j: 'warrior', lk: 'a', lv: 30, exp: 0, gold: 0, sp: 29, spt: 29 });
+  }
+  await host.locator('#kg').selectOption('3'); await host.locator('#kc').selectOption('9'); await host.locator('#kn').fill('3');
+  await host.locator('#btnKeys').click();
+  await expect(host.locator('#tblKeys')).toContainText('けす1（戦士 Lv.30）');
+  host.once('dialog', (d) => d.accept());
+  await host.locator('[data-dc="3-9-1"]').click();
+  await expect(host.locator('#keyMsg')).toContainText('3年9組 1番のキャラを消しました');
+  expect(await rest('GET', `quest/${Y}/chars/3-9-1`)).toBeNull();
+  expect((await rest('GET', `quest/${Y}/chars/3-9-2`)).n).toBe('けす2');
+  // 組まとめて（確かめ2回）
+  host.on('dialog', (d) => d.type() === 'prompt' ? d.accept('けす') : d.accept());
+  await host.locator('#btnDelChars').click();
+  await expect(host.locator('#keyMsg')).toContainText('1 人のキャラを消しました');
+  expect(await rest('GET', `quest/${Y}/chars/3-9-2`)).toBeNull();
+  expect(await rest('GET', `quest/${Y}/keys/3-9-2`)).toBe('del223');   // 合言葉は残る
+});
