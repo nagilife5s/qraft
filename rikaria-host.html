@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>リカリア チーム戦（先生）</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
-<link rel="stylesheet" href="theme.css?v=20261116085229">
-<link rel="stylesheet" href="quest.css?v=20261116085229">
-<link rel="stylesheet" href="rikaria.css?v=20261116085229">
+<link rel="stylesheet" href="theme.css?v=20261116085845">
+<link rel="stylesheet" href="quest.css?v=20261116085845">
+<link rel="stylesheet" href="rikaria.css?v=20261116085845">
 <style>
   #app { background:url(img/rikaria/title-bg.webp) center/cover no-repeat, #1d1648; }
   .q-bg-r { background:rgba(10,6,36,.6); }
@@ -113,20 +113,20 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261116085229"></script>
+<script src="firebase-config.js?v=20261116085845"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script type="module">
 import { signIn, db, ref, set, get, update, remove, onValue, serverNow, shuffle, mountSetPicker,
-         decryptSet, prepareQuestion, maskOf, $, showScreen, confetti, qrSvg } from './lib.js?v=20261116085229';
+         decryptSet, prepareQuestion, maskOf, $, showScreen, confetti, qrSvg } from './lib.js?v=20261116085845';
 import { onChildAdded, onChildChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-import { fiscalYear } from './quest.js?v=20261116085229';
+import { fiscalYear } from './quest.js?v=20261116085845';
 import { TOWN, TOWN_DEFAULT, TOWN_MAX, townStart, JOBS, heroImg, statsOf, unitOf, addExp, bossSp, bossTitle, migrateChar, battleBg, LV_MAX, OBLION, OB_FORMS, obNext, obFirst, obTitle, oblionImg, REWARD, ELEM,
-         unitById, unitsOf, advMap, townName, goldOf, isCarry, storyOpen, storyBoss, storyOb, storyEnding } from './rikaria-data.js?v=20261116085229';
-import * as E from './rikaria-engine.js?v=20261116085229';
-import { el, esc, drawField, moveField, cameraOf, ovban, MAP, spiritHtml } from './rikaria-view.js?v=20261116085229';
-import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261116085229b';
+         unitById, unitsOf, advMap, townName, goldOf, isCarry, storyOpen, storyBoss, storyOb, storyEnding } from './rikaria-data.js?v=20261116085845';
+import * as E from './rikaria-engine.js?v=20261116085845';
+import { el, esc, drawField, moveField, cameraOf, ovban, MAP, spiritHtml } from './rikaria-view.js?v=20261116085845';
+import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261116085845b';
 
-wireSoundButtons(); preload(['top']); bgm('top');
+wireSoundButtons(); preload(['r-title']); bgm('r-title');   /* リカリアの曲（2026-11-16）。部屋作りと待機は r-title、冒険中は r-battle */
 var TS = { '.sv': 'timestamp' };
 var uid = null, pin = null, YEAR = fiscalYear(), SETS = [], picked = {}, picker = null, POOL = [];
 var S = null, U = null, CLS = null, players = {}, GR = {}, P = {}, ended = false, loopId = null, endsAt = 0;
@@ -273,7 +273,7 @@ $('btnCreate').onclick = async function () {
     $('lbSub').textContent = S.g + '年' + S.c + '組 ・ ' + (S.tl / 60) + '分';
     $('lbTitle').textContent = S.kind === 'ob' ? '忘却の城：' + OBLION[S.ob - 1].n : U.area + '（' + U.unit + '）';
     var svg = qrSvg(base + 'rikaria-play.html?pin=' + pin); if (svg) $('qr').innerHTML = svg; else $('qrcard').classList.add('hide');
-    showScreen('s-lobby'); preload(['lobby', 'quiz']); bgm('lobby');
+    showScreen('s-lobby'); preload(['r-battle']); bgm('r-title');
     window.addEventListener('beforeunload', function (e) { if (!ended && S.phase === 'run') { e.preventDefault(); e.returnValue = ''; } });
   } catch (e) { setupErr('部屋を作れませんでした: ' + e.message); $('btnCreate').disabled = false; }
 };
@@ -370,7 +370,7 @@ $('btnStart').onclick = async function () {
   onChildAdded(ref(db, 'rooms/' + pin + '/act'), onAct); onChildChanged(ref(db, 'rooms/' + pin + '/act'), onAct);
   onChildAdded(ref(db, 'rooms/' + pin + '/ctl'), onCtl); onChildChanged(ref(db, 'rooms/' + pin + '/ctl'), onCtl);
   $('runSub').textContent = S.g + '年' + S.c + '組'; $('runTitle').textContent = O ? '忘却の城' : U.area;
-  buildGrid(); showScreen('s-run'); sfx('go'); bgm('quiz');
+  buildGrid(); showScreen('s-run'); sfx('go'); bgm('r-battle');
   ids.forEach(function (u) { if (GR[players[u].gp]) sendQ(u); });
   loopId = setInterval(loop, 500);
 };
