@@ -93,6 +93,18 @@ test('止めて続きから：戦闘の途中の敵のHPが残る', () => {
   assert.equal(H.ph, 'battle'); assert.equal(H.foes[0].hp, 33); assert.equal(H.fl, 3); assert.equal(H.keys, 2);
 });
 
+test('止めて続きから：続きのボスも技を使う（手下とバリアは残る）', () => {
+  const G = E.newGroup({ unit: D.UNITS[4], mem: team(), fl: 5, keys: 4 }); E.startBattle(G, 'boss'); G.foes[0].hp = Math.round(G.foes[0].mx * .6);
+  for (let i = 0; i < 4 && G.foes.length < 3; i++) E.step(G, .5);   // HP70%を切っているので、手下をよんでバリア
+  assert.equal(G.foes.length, 3); assert.equal(G.foes[0].barrier, true);
+  const s = JSON.parse(JSON.stringify(E.snapshot(G)));
+  const H = E.newGroup({ unit: D.UNITS[4], mem: team(), snap: s }), f = H.foes[0];
+  assert.equal(H.kind, 'boss'); assert.equal(f.barrier, true, 'バリアは残る'); assert.equal(H.foes.length, 3);
+  assert.equal(f.sk.length, 3, '技の表がもどる'); assert.equal(H.foes[1].sk, undefined, '手下は技を持たない');
+  let casts = 0; for (let i = 0; i < 120; i++) { const q = H.seq; E.step(H, .5); casts += H.ev.filter(e => e.q > q && e.t === 'cast').length; H.order.forEach(id => { H.mem[id].hp = H.mem[id].mx; H.mem[id].dn = 0; }); }
+  assert.ok(casts >= 1, '60秒のあいだに1回は技を使う（' + casts + '回）');
+});
+
 test('ボスの技：12体とも3つ、予兆のあとに効果。封印は正解1回で治り、その正解は攻撃にならない', () => {
   D.UNITS.forEach(u => assert.equal(D.BOSS_SK[u.id].length, 3, u.id));
   D.OBLION.forEach((o, i) => { assert.ok(o.sk.length >= 2, '形態' + (i + 1)); o.sk.forEach(s => assert.ok(D.BSK_SAY[s.k], s.n)); assert.ok(D.obTitle(i + 1).length <= 20); });

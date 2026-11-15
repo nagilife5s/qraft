@@ -505,6 +505,8 @@ function restore(G, s) {
     if (s.foes && s.foes.length) {
       G.ph = 'battle'; G.kind = s.kind; G.summoned = !!s.sum; G.bt = 0; G.guardCnt = 0;
       G.foes = s.foes.map(function (f) { return { n: f.n, t: f.t, img: f.img, hp: f.hp, mx: f.mx, fin: f.fin, gd: f.gd, barrier: !!f.br, charged: !!f.ch, chg: 0, atk: 3 + Math.random() * 3, aim: null, stun: 0, dots: [] }; });
+      /* 続きから始めた単元のボスにも、技を持たせる（前は技の表を戻していなくて、続きのボスは技を1回も使わなかった。2026-11-15 テストプレイ） */
+      if (s.kind === 'boss') G.foes.forEach(function (f) { if (f.fin) { var br = f.barrier; Object.assign(f, bossExtra(BOSS_SK[G.unit.id])); f.barrier = br; } });
       emit(G, { t: 'start', kind: G.kind, s: '前回の戦闘の続きから！' });
     } else startBattle(G, s.kind);
   }
