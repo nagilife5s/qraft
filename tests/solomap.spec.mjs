@@ -30,7 +30,20 @@ for (const vp of [{ width: 1366, height: 657 }, { width: 1920, height: 950 }]) {
     await expect(p.locator('#s-make')).toBeVisible({ timeout: 15000 });
     await p.locator('.jobcard[data-job="warrior"]').click(); await p.locator('#cname').fill('さんねん'); await p.locator('#btnMake').click();
     await expect(p.locator('#s-town')).toBeVisible({ timeout: 15000 }); await p.waitForTimeout(800);
-    await expect(p.locator('#goTitle')).toBeVisible();
+    await expect(p.locator('#goMenu')).toBeVisible();
+    await expect(p.locator('#units .nm')).toHaveCount(0);
+    await p.keyboard.press('m'); await expect(p.locator('.gm-bg .win')).toBeVisible();
+    await p.keyboard.press('ArrowDown'); await p.screenshot({ path: `${SHOT}/q1b-menu-${W}.png` });
+    await p.getByRole('button', { name: 'タイトルへもどる' }).click(); await expect(p.locator('.gm-confirm')).toBeVisible();
+    await p.screenshot({ path: `${SHOT}/q1c-menu-confirm-${W}.png` });
+    await p.getByRole('button', { name: 'いいえ' }).click(); await p.getByRole('button', { name: 'ステータス' }).click();
+    await expect(p.locator('#s-stat')).toBeVisible(); await p.waitForTimeout(400);
+    await expect(p.locator('#skMore')).not.toHaveClass(/off/);
+    await p.screenshot({ path: `${SHOT}/q1d-stat-${W}.png` });
+    await p.locator('#skills').hover(); await p.mouse.wheel(0, 3000); await p.waitForTimeout(400);
+    await expect(p.locator('#skMore')).toHaveClass(/off/);
+    await p.screenshot({ path: `${SHOT}/q1e-stat-scrolled-${W}.png` });
+    await p.locator('#statBack').click(); await p.waitForTimeout(500);
     await p.screenshot({ path: `${SHOT}/q1-town-${W}.png` });
     // 門へ歩く → 行き先の地図
     for (let i = 0; i < 40 && !(await p.locator('#s-world').isVisible()); i++) {
@@ -46,14 +59,14 @@ for (const vp of [{ width: 1366, height: 657 }, { width: 1920, height: 950 }]) {
     await p.locator('.wm-node[data-wm="1-物質"]').click();
     await p.locator('.src input[value="range"]').check(); await p.waitForTimeout(300);
     await p.screenshot({ path: `${SHOT}/q3-src-${W}.png` });
-    await p.locator('.src input[value="pick"]').check();
-    await expect(p.locator('.pk')).toBeVisible(); await expect(p.locator('.pk-list label').first()).toBeVisible({ timeout: 15000 });
-    await p.locator('.pk-list input').nth(0).check(); await p.locator('.pk-list input').nth(2).check();
-    await p.screenshot({ path: `${SHOT}/q4-pick-${W}.png` });
+    await p.locator('.src input[value="sets"]').check();
+    await expect(p.locator('.pk .pkr')).toBeVisible();
+    await p.locator('.pk .pcard').nth(0).click(); await p.locator('.pk .pcard').nth(1).click(); await expect(p.locator('.pk .pill')).toContainText('2');
+    await p.screenshot({ path: `${SHOT}/q4-sets-${W}.png` });
     await p.getByRole('button', { name: 'これで決める' }).click();
     await p.locator('#wmGo').click();
     await expect(p.locator('#fdSub')).toContainText('1年 物質');
-    await expect(p.locator('#fdSub')).toContainText('えらんだ2問');
+    await expect(p.locator('#fdSub')).toContainText('問題セット');
     await p.waitForTimeout(800); await p.screenshot({ path: `${SHOT}/q5-area-${W}.png` });
     // 敵の強さは自分のレベル（Lv30）に合わせる
     const hp = await p.evaluate(async () => (await import('./quest.js')).soloEnemyHp(1, 30));

@@ -6,8 +6,8 @@
 <title>Qraft クエスト（ひとりで冒険）</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261116135100">
-<link rel="stylesheet" href="quest.css?v=20261116135100">
+<link rel="stylesheet" href="theme.css?v=20261116150000">
+<link rel="stylesheet" href="quest.css?v=20261116150000">
 <style>
   .hud-btns { display:flex; gap:.4em; }
   .hud-btns .btn { font-size:.85em; padding:.35em .9em; }
@@ -28,16 +28,52 @@
   .tin { font:inherit; font-size:1.1em; font-weight:800; padding:.5em .8em; border-radius:.6em; border:0; width:100%; }
   .wm-side { max-height:calc(100% - 1.6em); overflow:auto; }
   .titles { display:flex; flex-direction:column; gap:.3em; }
+  /* 技の一覧：スクロールできることが分かるように（スクロールバーを見せる・下に「まだあります」。2026-11-16） */
+  .sk-wrap { position:relative; min-width:18em; min-height:0; overflow:hidden; display:flex; flex-direction:column; align-self:stretch; }
+  .sk-wrap .skills { flex:1; min-height:0; overflow-y:scroll; align-content:start; padding-right:.5em; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; scrollbar-width:auto; scrollbar-color:#ffd23f rgba(255,255,255,.15); }
+  .sk-wrap .skills::-webkit-scrollbar { width:12px; } .sk-wrap .skills::-webkit-scrollbar-thumb { background:#ffd23f; border-radius:6px; } .sk-wrap .skills::-webkit-scrollbar-track { background:rgba(255,255,255,.15); border-radius:6px; }
+  .sk-wrap .skills:focus-visible { outline:.15em solid #ffd23f; outline-offset:.2em; }
+  .sk-more { position:absolute; left:0; right:1em; bottom:0; padding:2.2em 0 .3em; text-align:center; font-weight:900; color:#ffe27a; pointer-events:none; background:linear-gradient(transparent, rgba(20,12,50,.95) 60%); transition:opacity .2s; }
+  .sk-more.off { opacity:0; }
+  /* rikaria.css の窓・メニューの行（quest.css と混ぜないよう .gm-bg の中だけ） */
+.gm-bg .cur { position:absolute; top:50%; width:.62em; height:.95em; margin-top:-.475em; opacity:0; pointer-events:none;
+  background:linear-gradient(135deg, #ffffff, #7ff0ff 40%, #1fb6e8 75%, #1a6fc0); clip-path:polygon(50% 0, 100% 50%, 50% 100%, 0 50%); filter:drop-shadow(0 0 .3em #35e0ff) drop-shadow(0 0 .15em #fff); }
+.gm-bg .win { position:relative; width:min(34em, 94%); margin-top:1.4em; background:rgba(10,12,44,.86); border:.18em solid #fff; border-radius:.7em; box-shadow:0 0 0 .22em rgba(10,12,44,.86), 0 .8em 2em rgba(0,0,0,.55); padding:1.5em .9em .8em; }
+.gm-bg .wtitle { position:absolute; left:1em; top:-.95em; background:rgba(10,12,44,1); border:.14em solid #fff; border-radius:.45em; padding:.15em .9em; font-weight:900; font-size:1.15em; letter-spacing:.2em; }
+.gm-bg .ritem { position:relative; display:grid; grid-template-columns:1.4em 4.2em 1fr; align-items:center; gap:.7em; width:100%; font:inherit; color:#fff; background:none; border:0; border-radius:.4em; padding:.55em .5em; text-align:left; text-decoration:none; cursor:pointer; transition:background .15s; }
+.gm-bg .ritem.sel { background:linear-gradient(90deg, rgba(255,226,122,.18), rgba(255,226,122,.04)); }
+.gm-bg .ritem .cur { position:static; margin:0; justify-self:center; width:.85em; height:1.3em; }
+.gm-bg .ritem .ic { height:3.6em; display:flex; align-items:flex-end; justify-content:center; }
+.gm-bg .ritem .ic img { height:100%; width:auto; max-width:2.4em; object-fit:contain; filter:drop-shadow(0 .1em .15em rgba(0,0,0,.5)); }
+.gm-bg .ritem .ic img + img { margin-left:-.5em; }
+.gm-bg .ritem .txt { display:flex; flex-direction:column; gap:.15em; }
+.gm-bg .ritem b { font-size:1.35em; font-weight:900; letter-spacing:.08em; }
+.gm-bg .ritem small { font-size:.88em; font-weight:700; opacity:.75; }
+.gm-bg .ritem.sel b { color:#ffe27a; }
+.gm-bg .ritem.back { grid-template-columns:1.4em 1fr; margin-top:.5em; border-top:.08em dashed rgba(255,255,255,.3); border-radius:0 0 .4em .4em; padding:.7em .5em .45em; }
+.gm-bg .ritem.back b { font-size:1.05em; }
+.gm-bg .ritem:focus-visible { outline:.16em solid #ffd23f; outline-offset:.1em; border-radius:.3em; }
+.gm-bg .sel > .cur { opacity:1; }
+@media (prefers-reduced-motion: no-preference) { .gm-bg .sel > .cur { animation:gmblink 1s steps(1) infinite; } @keyframes gmblink { 60% { opacity:.15; } } }
+  /* メニュー（タイトル画面と同じ紺の窓・白い二重枠・クリスタルのカーソル） */
+  .gm-bg { position:fixed; inset:0; z-index:800; background:rgba(10,6,36,.55); display:flex; align-items:center; justify-content:center; }
+  .gm-bg .win { width:min(24em, 92%); margin:0; font-size:clamp(14px, 2.4vh, 22px); }
+  .gm-bg .ritem { grid-template-columns:1.4em 1fr; padding:.6em .5em; }
+  .gm-bg .ritem b { font-size:1.25em; }
+  .gm-confirm { display:flex; flex-direction:column; gap:.6em; padding:.4em .5em; }
+  .gm-confirm .row { gap:.6em; }
   /* タイトルへもどる（町の右上に、目立つ色で。2026-11-16） */
   .btn.totitle { text-decoration:none; background:rgba(255,226,122,.95); color:#2a1280; }
   .wm-tabs { display:flex; gap:.4em; }
   #wmGo { font-size:1.15em; padding:.45em 1.2em; }
-  .wm-hint { background:rgba(255,226,122,.95); color:#2a1280; font-weight:900; border-radius:999px; padding:.3em 1em; }
+  .wm-hint { width:100%; box-sizing:border-box; background:rgba(255,226,122,.95); color:#2a1280; font-weight:900; font-size:1.1em; text-align:center; border-radius:.6em; padding:.35em 1em; white-space:normal; }
   .src { display:flex; flex-direction:column; gap:.3em; }
   .src label { display:flex; align-items:center; gap:.4em; font-weight:800; font-size:.92em; flex-wrap:wrap; }
   .src select { font:inherit; font-size:.9em; border-radius:.4em; padding:.15em .3em; max-width:11em; }
   .pk-bg { position:fixed; inset:0; z-index:900; background:rgba(10,8,30,.8); display:flex; align-items:center; justify-content:center; padding:16px; }
   .pk { background:#fff; color:#241c4a; border-radius:16px; width:min(52em, 100%); max-height:100%; display:flex; flex-direction:column; gap:.6em; padding:1em 1.2em; }
+  .pk-sets { overflow:auto; flex:1; min-height:0; }
+  .pk-sets .plist { max-height:none; }
   .pk-list { overflow:auto; flex:1; min-height:6em; border:1px solid #ddd8ee; border-radius:.6em; }
   .pk-list label { display:flex; gap:.5em; align-items:flex-start; padding:.45em .7em; border-bottom:1px solid #eee; font-size:.92em; cursor:pointer; }
   .pk-list label small { color:#6a6488; }
@@ -89,7 +125,7 @@
         <div class="row" style="gap:.4em;margin-top:.2em"><span class="lbl">HP</span><div class="bar hp" style="width:7em"><i id="hudHp"></i><b id="hudHpT"></b></div></div></div>
       <span class="pill" id="hudGold"></span>
     </div>
-    <div class="hud-btns"><a class="btn totitle" id="goTitle" href="rikaria.html">🏠 タイトルへもどる</a><button class="btn ghost hide" id="goHome">町へもどる</button><button class="btn ghost" id="goMus" type="button" aria-pressed="false">🔇 音楽</button><button class="btn ghost" id="goWorld">地図</button><button class="btn ghost" id="goStat">ステータス</button></div>
+    <div class="hud-btns"><button class="btn ghost hide" id="goHome">町へもどる</button><button class="btn totitle" id="goMenu" type="button" aria-haspopup="dialog">☰ メニュー</button></div>
   </div>
   <div class="fd-wrap"><div class="fd-map" id="map"></div></div>
   <div class="fd-help" id="fdHelp">矢印キー（WASD）か、行きたい場所をクリックで移動。</div>
@@ -100,11 +136,12 @@
 <!-- 冒険の地図 -->
 <section class="screen" id="s-world" style="padding:1.2em 1.6em;gap:.8em;background:#1a1238">
   <div class="row">
-    <div class="grow"><div class="q-sub" id="wmSub"></div><div class="row" style="gap:.8em"><div class="q-title" style="white-space:nowrap">冒険の地図</div><span class="wm-hint hide" id="wmHint">行きたいダンジョンを押してね（1年〜3年のどれでも行ける）</span></div></div>
+    <div class="grow"><div class="q-sub" id="wmSub"></div><div class="q-title" style="white-space:nowrap">冒険の地図</div></div>
     <div class="wm-tabs seg" id="wmTabs"><button type="button" data-v="1">1年</button><button type="button" data-v="2">2年</button><button type="button" data-v="3">3年</button></div>
     <div class="panel" style="width:22em;padding:.6em 1em"><div class="wm-year" id="wmYear"></div></div>
     <button class="btn ghost" id="wmBack">町へもどる</button>
   </div>
+  <div class="wm-hint hide" id="wmHint">🗺 行きたいダンジョンを押してね。1年〜3年の、どの単元にも行けるよ。</div>
   <div class="wm-body">
     <div class="wm-box"><div class="wm-map" id="wmMap"></div></div>
     <div class="wm-side hide" id="wmSide"></div>
@@ -115,8 +152,8 @@
 <!-- ステータス・スキル -->
 <section class="screen q-bg-town" id="s-stat" style="gap:1em">
   <div class="row"><div class="q-title grow">ステータス・スキル</div><span class="pill" id="spLeft"></span><button class="btn ghost" id="statBack">もどる</button></div>
-  <div class="row" style="align-items:stretch;flex:1;min-height:0;flex-wrap:wrap">
-    <div class="panel" style="width:17em;display:flex;flex-direction:column;gap:.7em;align-items:center">
+  <div class="row" style="align-items:stretch;flex:1;min-height:0;flex-wrap:nowrap;overflow:hidden">
+    <div class="panel" style="width:17em;flex:none;display:flex;flex-direction:column;gap:.7em;align-items:center;overflow-y:auto;min-height:0">
       <img class="hero stat-hero" id="stHero" alt="">
       <div style="text-align:center"><b style="font-size:1.4em" id="stName"></b><br><span class="mut" id="stJob"></span></div>
       <div class="stat-grid" id="stGrid"></div>
@@ -124,7 +161,7 @@
       <div style="width:100%" id="stEq"></div>
       <div class="inv" id="stInv"></div>
     </div>
-    <div class="skills grow" id="skills" style="align-content:start;min-width:18em;overflow:auto"></div>
+    <div class="sk-wrap grow"><div class="skills" id="skills" tabindex="0" aria-label="技の一覧（スクロールできます）"></div><div class="sk-more" id="skMore" aria-hidden="true">▼ まだあります（下へスクロール）</div></div>
   </div>
 </section>
 
@@ -154,15 +191,15 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261116135100"></script>
+<script src="firebase-config.js?v=20261116150000"></script>
 <script type="module">
-import { bgm, preload } from './sound.js?v=20261116135100b';
-import { signIn, db, ref, set, get, $, el, showScreen, shuffle, prepareQuestion, maskOf, isTextCorrect } from './lib.js?v=20261116135100';
+import { bgm, preload } from './sound.js?v=20261116150000b';
+import { signIn, db, ref, set, get, $, el, showScreen, shuffle, prepareQuestion, maskOf, isTextCorrect, mountSetPicker } from './lib.js?v=20261116150000';
 import { addExp, expToNext, migrateChar, newChar, JOBS as RJOBS, JOB_KEYS, LEARN, RANK_POW, RANK_SEC, LOAD_N, ELEMS, ELEM, UNITS,
-         heroImg, fieldImg, skillName, rankOf, rankCost, canRankUp, rankUp, spUsed, loadoutOf, weakOf, statsOf, unitOf, zakoImg, battleBg, gearImg, itemImg, iconHtml } from './rikaria-data.js?v=20261116135100';
+         heroImg, fieldImg, skillName, rankOf, rankCost, canRankUp, rankUp, spUsed, loadoutOf, weakOf, statsOf, unitOf, zakoImg, battleBg, gearImg, itemImg, iconHtml } from './rikaria-data.js?v=20261116150000';
 import { fiscalYear, ENEMIES, TOWN, TOWN_DEFAULT,
          weaponList, armorList, weaponName, armorName, TOWN_MAX, soloDayCap, dayNo, ITEMS, ITEM_KEYS, FACS, RESPEC_COST, ensureOwner, battleGuide,
-         soloMult, soloReward, soloEnemyHp, soloEnemyAtkX, BOSS, cmdImg } from './quest.js?v=20261116135100';
+         soloMult, soloReward, soloEnemyHp, soloEnemyAtkX, BOSS, cmdImg } from './quest.js?v=20261116150000';
 
 var Y = fiscalYear(), me = { g: 0, c: 0, n: 0 }, sid = '', ch = null, CLS = {}, SETS = [], AREAS = [], look = 'a', job = 'mage';
 var curArea = null, HP = 0, MP = 0, RANGES = {};
@@ -170,11 +207,9 @@ var curArea = null, HP = 0, MP = 0, RANGES = {};
 var MUS = null, MUS_ON = false;
 try { MUS_ON = localStorage.getItem('qraft.quest.bgm') === 'on'; } catch (e) {}
 function music(n) { if (n === MUS) return; MUS = n; if (!MUS_ON) return; if (n) preload([n]); bgm(n); }
-function paintMus() { $('goMus').textContent = MUS_ON ? '🔊 音楽' : '🔇 音楽'; $('goMus').setAttribute('aria-pressed', MUS_ON ? 'true' : 'false'); }
-$('goMus').onclick = function () { MUS_ON = !MUS_ON; try { localStorage.setItem('qraft.quest.bgm', MUS_ON ? 'on' : 'off'); } catch (e) {} paintMus(); var n = MUS; MUS = null; if (MUS_ON) music(n); else bgm(null); };
-paintMus();
+function toggleMus() { MUS_ON = !MUS_ON; try { localStorage.setItem('qraft.quest.bgm', MUS_ON ? 'on' : 'off'); } catch (e) {} var n = MUS; MUS = null; if (MUS_ON) music(n); else bgm(null); }
 /* 出す問題（冒険の前にえらぶ）：unit＝その単元・range＝先生が決めたテスト範囲・pick＝1問ずつえらぶ */
-var SRC = { k: 'unit' }, PICK = {};
+var SRC = { k: 'unit' }, PICKS = {};   /* PICKS＝えらんだ問題セット（id → true） */
 var UID = null, lastWrite = 0;
 function err(id, m) { $(id).textContent = m; $(id).classList.toggle('hide', !m); }
 function stage() { return CLS.stage != null ? Math.min(TOWN_MAX, CLS.stage) : [0, 0, 4, 8][me.g] || 0; }   /* まだ町がないクラスは、学年の4月の段階 */
@@ -516,7 +551,7 @@ function drawMap() {
   if (FD.key === 'town') NPCS.forEach(function (n) { h += '<div class="npc" style="' + box(n.x, n.y) + ';z-index:' + (n.y * 10 + 5) + '"><img src="img/quest/' + n.img + '.webp" alt=""></div>'; });
   if (FD.key === 'area') h += '<div class="mob boss" style="' + box(35, 11, 3, 3) + ';z-index:135"><img src="' + BOSS.img + '" style="scale:-1 1"></div>';
   h += '<div id="mobs">' + (FD.key === 'area' ? FD.mobs : []).map(function (mo, i) { return '<div class="mob" data-i="' + i + '" style="' + box(mo.x, mo.y) + ';z-index:' + (mo.y * 10 + 5) + '"><img src="' + foeOf(curArea, mo.id).img + '"></div>'; }).join('') + '</div>';
-  h += '<div id="units"><div class="unit leader" style="' + box(FD.pos[0], FD.pos[1]) + ';z-index:' + (FD.pos[1] * 10 + 9) + '"><span class="nm">' + ch.n + '</span><img class="hero" src="' + fieldImg(ch.j, ch.lk, FD.dir === 'left' ? 'right' : FD.dir) + '" alt=""></div></div>';
+  h += '<div id="units"><div class="unit leader" style="' + box(FD.pos[0], FD.pos[1]) + ';z-index:' + (FD.pos[1] * 10 + 9) + '"><img class="hero" src="' + fieldImg(ch.j, ch.lk, FD.dir === 'left' ? 'right' : FD.dir) + '" alt=""></div></div>';
   map.innerHTML = h;
   var lu = map.querySelector('#units .unit'); if (lu) { lu.dataset.x = FD.pos[0]; lu.classList.toggle('left', FD.dir === 'left'); }
   camera(true);
@@ -686,7 +721,7 @@ function shop(fi) {
 
 /* ------------------------------------------------------------ 冒険の地図 */
 var wmSel = null, wmG = 0, wmPick = false;
-$('goWorld').onclick = function () { wmPick = false; wmG = wmG || me.g; drawWorld(); showScreen('s-world'); };
+function openWorld() { wmPick = false; wmG = wmG || me.g; drawWorld(); showScreen('s-world'); }
 $('wmTabs').onclick = function (e) { var b = e.target.closest('button'); if (!b) return; wmG = Number(b.dataset.v); wmSel = null; drawWorld(); };
 $('goHome').onclick = function () { if (FD.key === 'area' && !FD.busy) enterTown([32, 11]); };
 $('wmBack').onclick = function () { if (FD.key === 'area') { enterTown([31, 11]); return; } showScreen('s-town'); setTimeout(drawMap); };
@@ -729,8 +764,8 @@ function drawWorld() {
     p.appendChild(srcBox(a));
     p.appendChild(el('div', 'mut', (a.st === 'clear' ? 'クリアしたエリア。経験値は半分。' : '') + '敵の強さは、あなたのレベル（Lv.' + ch.lv + '）に合わせる。'));
     var g2 = el('button', 'btn', 'このダンジョンへ'); g2.id = 'wmGo'; g2.onclick = function () {
-      if (SRC.k === 'pick' && !Object.keys(PICK).length) { pickDialog(a); return; }
-      goArea(a, clone(SRC.k === 'pick' ? { k: 'pick', ids: Object.keys(PICK) } : SRC));
+      if (SRC.k === 'sets' && !Object.keys(PICKS).length) { setDialog(a); return; }
+      goArea(a, clone(SRC.k === 'sets' ? { k: 'sets', ids: Object.keys(PICKS) } : SRC));
     }; p.appendChild(g2);
   }
   side.textContent = ''; side.appendChild(p);
@@ -740,7 +775,7 @@ function rangeUnits(id) { var r = RANGES[id]; return r ? Object.keys(r.u || {}) 
 function srcName(src) {
   src = src || { k: 'unit' };
   if (src.k === 'range') return (RANGES[src.id] || {}).n || 'テスト範囲';
-  if (src.k === 'pick') return 'えらんだ' + (src.ids || []).length + '問';
+  if (src.k === 'sets') return '問題セット' + (src.ids || []).length + 'つ';
   return 'この単元';
 }
 function srcBox(a) {
@@ -748,7 +783,7 @@ function srcBox(a) {
   box.appendChild(el('b', '', '出る問題'));
   function opt(k, label, extra) {
     var l = el('label'), r = el('input'); r.type = 'radio'; r.name = 'src'; r.value = k; r.checked = SRC.k === k; r.disabled = k === 'range' && !rk.length;
-    r.onchange = function () { SRC = k === 'range' ? { k: 'range', id: SRC.id && RANGES[SRC.id] ? SRC.id : rk[0] } : { k: k }; if (k === 'pick') pickDialog(a); else drawWorld(); };
+    r.onchange = function () { SRC = k === 'range' ? { k: 'range', id: SRC.id && RANGES[SRC.id] ? SRC.id : rk[0] } : { k: k }; if (k === 'sets') setDialog(a); else drawWorld(); };
     l.appendChild(r); l.appendChild(document.createTextNode(label)); if (extra) l.appendChild(extra); box.appendChild(l);
   }
   opt('unit', 'この単元の問題');
@@ -759,51 +794,75 @@ function srcBox(a) {
     sel.onchange = function () { SRC = { k: 'range', id: sel.value }; drawWorld(); };
   }
   opt('range', rk.length ? 'テスト範囲 ' : 'テスト範囲（まだ無い）', sel);
-  var n = Object.keys(PICK).length, ed = null;
-  if (SRC.k === 'pick') { ed = el('button', 'btn sub', n ? n + '問 ・ えらびなおす' : 'えらぶ'); ed.type = 'button'; ed.style.cssText = 'font-size:.8em;padding:.15em .7em'; ed.onclick = function (e) { e.preventDefault(); pickDialog(a); }; }
-  opt('pick', '1問ずつえらぶ ', ed);
+  var n = Object.keys(PICKS).length, ed = null;
+  if (SRC.k === 'sets') { ed = el('button', 'btn sub', n ? n + 'セット ・ えらびなおす' : 'えらぶ'); ed.type = 'button'; ed.style.cssText = 'font-size:.8em;padding:.15em .7em'; ed.onclick = function (e) { e.preventDefault(); setDialog(a); }; }
+  opt('sets', '問題セットをえらぶ ', ed);
   return box;
 }
-/* 1問ずつえらぶ画面。単元でしぼりこむ。えらんだ問題は「セットのid:番号」で PICK に入れる */
-async function pickDialog(a) {
-  var bg = el('div', 'pk-bg'), box = el('div', 'pk'); bg.appendChild(box); bg.setAttribute('role', 'dialog'); bg.setAttribute('aria-modal', 'true'); bg.setAttribute('aria-label', '問題をえらぶ');
-  var top = el('div', 'row'); top.appendChild(el('b', 'grow', '問題を1つずつえらぶ'));
+/* 問題セットをえらぶ画面。先生の準備画面（rikaria-host.html）と同じ選び方（lib.js の mountSetPicker：学年→題名でさがす→単元ごとの一覧）。2026-11-16 */
+function setDialog(a) {
+  var bg = el('div', 'pk-bg'), box = el('div', 'pk'); bg.appendChild(box); bg.setAttribute('role', 'dialog'); bg.setAttribute('aria-modal', 'true'); bg.setAttribute('aria-label', '問題セットをえらぶ');
+  var top = el('div', 'row'); top.appendChild(el('b', 'grow', '問題セットをえらぶ（いくつでも）'));
   var cnt = el('span', 'pill'); top.appendChild(cnt); box.appendChild(top);
-  var bar = el('div', 'row'), us = el('select'); us.setAttribute('aria-label', '単元');
-  AREAS.forEach(function (x) { var o = el('option', '', x.g + '年 ' + x.unit); o.value = x.id; o.selected = x.id === a.id; us.appendChild(o); });
-  bar.appendChild(el('span', '', '単元')); bar.appendChild(us);
-  var all = el('button', '', 'この単元をぜんぶ'), none = el('button', '', 'この単元をはずす'); bar.appendChild(all); bar.appendChild(none); box.appendChild(bar);
-  var list = el('div', 'pk-list'); box.appendChild(list);
-  var ft = el('div', 'row'), back = el('button', '', 'もどる'), ok = el('button', 'main', 'これで決める'); ft.appendChild(el('div', 'grow')); ft.appendChild(back); ft.appendChild(ok); box.appendChild(ft);
-  function count() { var n = Object.keys(PICK).length; cnt.textContent = 'えらんだ問題 ' + n + '問'; ok.disabled = !n; }
-  async function show() {
-    list.textContent = '読みこみ中…';
-    var ar = AREAS.filter(function (x) { return x.id === us.value; })[0], rows = [];
-    for (var i = 0; ar && i < ar.sets.length; i++) {
-      var st = ar.sets[i], qs = await qsOf(st.id);
-      qs.forEach(function (q, k) { rows.push({ key: st.id + ':' + k, set: st.title, text: String(q.text || q.q || '') }); });
-    }
-    list.textContent = '';
-    if (!rows.length) list.appendChild(el('div', 'mut', 'この単元の問題はありません'));
-    rows.forEach(function (r) {
-      var l = el('label'), c = el('input'); c.type = 'checkbox'; c.checked = !!PICK[r.key];
-      c.onchange = function () { if (c.checked) PICK[r.key] = 1; else delete PICK[r.key]; count(); };
-      var t = el('span'); t.appendChild(el('small', '', r.set)); t.appendChild(el('br')); t.appendChild(document.createTextNode(r.text.length > 70 ? r.text.slice(0, 70) + '…' : r.text));
-      l.appendChild(c); l.appendChild(t); list.appendChild(l);
-    });
-    all.onclick = function () { rows.forEach(function (r) { PICK[r.key] = 1; }); list.querySelectorAll('input').forEach(function (c) { c.checked = true; }); count(); };
-    none.onclick = function () { rows.forEach(function (r) { delete PICK[r.key]; }); list.querySelectorAll('input').forEach(function (c) { c.checked = false; }); count(); };
-  }
-  us.onchange = show;
-  back.onclick = function () { bg.remove(); if (!Object.keys(PICK).length) SRC = { k: 'unit' }; drawWorld(); };
-  ok.onclick = function () { bg.remove(); SRC = { k: 'pick' }; drawWorld(); };
-  document.body.appendChild(bg); count(); await show(); us.focus();
+  var pk = el('div', 'pk-sets'); box.appendChild(pk);
+  var ft = el('div', 'row'), clr = el('button', '', 'ぜんぶはずす'), back = el('button', '', 'もどる'), ok = el('button', 'main', 'これで決める');
+  ft.appendChild(clr); ft.appendChild(el('div', 'grow')); ft.appendChild(back); ft.appendChild(ok); box.appendChild(ft);
+  function count() { var n = Object.keys(PICKS).length; cnt.textContent = 'えらんだセット ' + n; ok.disabled = !n; }
+  var picker = mountSetPicker(pk, { sets: SETS, key: function (x) { return x.id; }, picked: PICKS, onChange: count });
+  clr.onclick = function () { Object.keys(PICKS).forEach(function (k) { delete PICKS[k]; }); picker.render(); count(); };
+  back.onclick = function () { bg.remove(); if (!Object.keys(PICKS).length) SRC = { k: 'unit' }; drawWorld(); };
+  ok.onclick = function () { bg.remove(); SRC = { k: 'sets' }; drawWorld(); };
+  document.body.appendChild(bg); count();
 }
 $('wmMap').addEventListener('click', function (e) { var n = e.target.closest('[data-wm]'); if (n) { wmSel = n.dataset.wm; drawWorld(); } });
 
 /* ------------------------------------------------------------ ステータス・スキル */
-$('goStat').onclick = function () { drawStat(); showScreen('s-stat'); };
+function openStat() { drawStat(); showScreen('s-stat'); $('skills').scrollTop = 0; setTimeout(skMore, 50); }
+/* ------------------------------------------------------------ メニュー（ステータス・地図・音楽・タイトルへもどる。Esc か M で開く／閉じる。2026-11-16） */
+var GM = null;
+function closeMenu() { if (GM) { GM.remove(); GM = null; $('goMenu').focus(); } }
+function openMenu() {
+  if (GM) return closeMenu();
+  GM = el('div', 'gm-bg'); GM.setAttribute('role', 'dialog'); GM.setAttribute('aria-modal', 'true'); GM.setAttribute('aria-label', 'メニュー');
+  var w = el('div', 'win'); w.appendChild(el('div', 'wtitle', 'メニュー')); GM.appendChild(w);
+  function item(label, fn, back) {
+    var b = el('button', 'ritem' + (back ? ' back' : '')); b.type = 'button'; b.dataset.item = '1';
+    b.appendChild(el('span', 'cur')); b.appendChild(el('b', '', label)); b.onclick = fn;
+    b.addEventListener('pointerenter', function () { selItem(b); }); b.addEventListener('focus', function () { selItem(b); });
+    w.appendChild(b); return b;
+  }
+  item('ステータス', function () { closeMenu(); openStat(); });
+  item('地図', function () { closeMenu(); openWorld(); });
+  var mb = item('音楽：' + (MUS_ON ? 'ON' : 'OFF'), function () { toggleMus(); mb.querySelector('b').textContent = '音楽：' + (MUS_ON ? 'ON' : 'OFF'); });
+  item('タイトルへもどる', function () {
+    w.querySelectorAll('[data-item]').forEach(function (x) { x.remove(); });
+    var c = el('div', 'gm-confirm'); c.appendChild(el('div', '', 'タイトルにもどりますか？（キャラと持ち物は保存されています）')); w.appendChild(c);
+    item('はい、もどる', function () { location.href = 'rikaria.html'; });
+    item('いいえ', function () { closeMenu(); openMenu(); }, true);
+    w.querySelector('[data-item]').focus();
+  });
+  item('とじる', closeMenu, true);
+  GM.addEventListener('click', function (e) { if (e.target === GM) closeMenu(); });
+  document.body.appendChild(GM); w.querySelector('[data-item]').focus();
+}
+function selItem(b) { GM && GM.querySelectorAll('[data-item]').forEach(function (x) { x.classList.toggle('sel', x === b); }); }
+$('goMenu').onclick = openMenu;
+document.addEventListener('keydown', function (e) {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || document.querySelector('.pk-bg')) return;
+  if (GM) {
+    if (e.key === 'Escape' || e.key === 'm' || e.key === 'M') { e.preventDefault(); closeMenu(); return; }
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      var l = Array.prototype.slice.call(GM.querySelectorAll('[data-item]')), i = l.indexOf(document.activeElement);
+      i = (i + (e.key === 'ArrowDown' ? 1 : l.length - 1)) % l.length; l[i].focus(); e.preventDefault();
+    }
+    e.stopImmediatePropagation(); return;
+  }
+  if ((e.key === 'Escape' || e.key === 'm' || e.key === 'M') && $('s-town').classList.contains('on')) { e.preventDefault(); openMenu(); }
+}, true);
+
 $('statBack').onclick = function () { showScreen('s-town'); setTimeout(drawMap); };
+function skMore() { var b = $('skills'); $('skMore').classList.toggle('off', b.scrollTop + b.clientHeight >= b.scrollHeight - 8); }
+$('skills').addEventListener('scroll', skMore); window.addEventListener('resize', function () { if ($('s-stat').classList.contains('on')) skMore(); });
 function drawStat() {
   var s = statsOf(ch), eq = ch.eq || {};
   $('stHero').src = heroImg(ch.j, ch.lk); $('stName').textContent = ch.n; $('stJob').textContent = jobName() + ' Lv.' + ch.lv;
@@ -889,9 +948,8 @@ async function poolOf(a) {
     var us = rangeUnits(src.id);
     sets = AREAS.filter(function (x) { return us.indexOf(unitOf(x.g, x.unit).id) >= 0; }).reduce(function (o, x) { return o.concat(x.sets); }, []);
   }
-  if (src.k === 'pick') {
-    for (var j = 0; j < (src.ids || []).length; j++) { var p = src.ids[j].split(':'), q = (await qsOf(p[0]))[Number(p[1])]; if (q) pool.push(q); }
-  } else for (var i = 0; i < sets.length; i++) pool = pool.concat(await qsOf(sets[i].id));
+  if (src.k === 'sets') sets = SETS.filter(function (x) { return (src.ids || []).indexOf(x.id) >= 0; });
+  for (var i = 0; i < sets.length; i++) pool = pool.concat(await qsOf(sets[i].id));
   POOLS[key] = { q: pool, queue: [] }; return POOLS[key];
 }
 async function startBattle(mob) {
