@@ -6,7 +6,8 @@
 <title>リカリア</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261116085845">
+<link rel="stylesheet" href="theme.css?v=20261116135100">
+<link rel="stylesheet" href="rikaria.css?v=20261116135100">
 <style>
   /* リカリア：トップ（クイズ）とは別の世界。タイトル画面 → えらぶ（チーム戦／ひとりで）→ チーム戦（参加／開く）
      ボタンは「ゲームのタイトル画面」風：文字だけのメニュー＋光の帯＋点滅するカーソル。えらぶ画面は、紺の窓に白い枠のゲームのウィンドウ。
@@ -16,18 +17,6 @@
   .screen { color:#fff; }
   #v-title, #v-menu, #v-team { overflow-y:auto; justify-content:safe center; }
 
-  /* 漂う光の粒（飾り。押せない） */
-  .motes { position:absolute; inset:0; pointer-events:none; overflow:hidden; z-index:0; }
-  .motes i { position:absolute; bottom:-1em; width:.35em; height:.35em; border-radius:50%; background:#fff6c8; box-shadow:0 0 .6em .2em rgba(255,226,122,.7); opacity:0; }
-  .motes i:nth-child(1) { left:12%; } .motes i:nth-child(2) { left:27%; width:.25em; height:.25em; } .motes i:nth-child(3) { left:41%; }
-  .motes i:nth-child(4) { left:58%; width:.25em; height:.25em; } .motes i:nth-child(5) { left:71%; } .motes i:nth-child(6) { left:86%; width:.28em; height:.28em; }
-  .motes i:nth-child(7) { left:6%; width:.2em; height:.2em; } .motes i:nth-child(8) { left:94%; width:.22em; height:.22em; }
-  @media (prefers-reduced-motion: no-preference) {
-    .motes i { animation:rise 9s linear infinite; }
-    .motes i:nth-child(2) { animation-delay:1.5s; animation-duration:11s; } .motes i:nth-child(3) { animation-delay:3s; } .motes i:nth-child(4) { animation-delay:4.5s; animation-duration:12s; }
-    .motes i:nth-child(5) { animation-delay:6s; } .motes i:nth-child(6) { animation-delay:2.2s; animation-duration:10s; } .motes i:nth-child(7) { animation-delay:5.2s; } .motes i:nth-child(8) { animation-delay:7.4s; animation-duration:13s; }
-    @keyframes rise { 0% { transform:translate(0,0); opacity:0; } 15% { opacity:.9; } 50% { transform:translate(1.2em,-50vh); } 85% { opacity:.7; } 100% { transform:translate(-.6em,-100vh); opacity:0; } }
-  }
   .screen > * { position:relative; z-index:1; }
 
   /* ---- タイトル */
@@ -52,9 +41,6 @@
     border-top:.06em solid; border-bottom:.06em solid; border-image:linear-gradient(90deg, transparent, rgba(255,226,122,.9), transparent) 1; }
   .titem.sel { color:#fff; text-shadow:0 0 .5em rgba(255,226,122,.9), 0 .08em .3em rgba(20,8,60,.9); }
   .titem.sel::before { opacity:1; }
-  /* カーソル：光るクリスタル */
-  .cur { position:absolute; top:50%; width:.62em; height:.95em; margin-top:-.475em; opacity:0; pointer-events:none;
-    background:linear-gradient(135deg, #ffffff, #7ff0ff 40%, #1fb6e8 75%, #1a6fc0); clip-path:polygon(50% 0, 100% 50%, 50% 100%, 0 50%); filter:drop-shadow(0 0 .3em #35e0ff) drop-shadow(0 0 .15em #fff); }
   .titem .cur { left:calc(50% - 5.5em); } .titem.small .cur { left:calc(50% - 5.4em); width:.5em; height:.75em; margin-top:-.375em; }
   /* 選んでいる帯に、ときどき光が走る */
   .titem::after { content:""; position:absolute; left:0; right:0; top:12%; bottom:12%; z-index:-1; opacity:0; pointer-events:none;
@@ -62,7 +48,7 @@
   @media (prefers-reduced-motion: no-preference) { .titem.sel::after { opacity:1; animation:shine 3.2s ease-in-out infinite; } @keyframes shine { 0%, 45% { background-position:150% 0; } 100% { background-position:-50% 0; } } }
   .sel > .cur { opacity:1; }
   @media (prefers-reduced-motion: no-preference) { .sel > .cur { animation:blink 1s steps(1) infinite; } @keyframes blink { 60% { opacity:.15; } } }
-  .titem:focus-visible, .ritem:focus-visible { outline:.16em solid #ffd23f; outline-offset:.1em; border-radius:.3em; }
+  .titem:focus-visible { outline:.16em solid #ffd23f; outline-offset:.1em; border-radius:.3em; }
   .copy { position:absolute; bottom:1.1em; left:0; right:0; text-align:center; font-size:.8em; font-weight:700; letter-spacing:.1em; opacity:.55; text-shadow:0 .1em .3em rgba(20,8,60,.9); }
 
   /* 最初の登場：ロゴが光りながら降りてきて、少し遅れてメニュー */
@@ -74,23 +60,8 @@
     @keyframes fadeIn { 0% { opacity:0; } 100% { opacity:1; } }
   }
 
-  /* ---- えらぶ画面：ゲームのウィンドウ（紺の窓・白い二重枠） */
+  /* ---- えらぶ画面：ゲームのウィンドウ（紺の窓・白い二重枠。.win・.ritem は rikaria.css） */
   #v-menu, #v-team { background:rgba(10,6,36,.35); }
-  .win { position:relative; width:min(34em, 94%); margin-top:1.4em; background:rgba(10,12,44,.86); border:.18em solid #fff; border-radius:.7em; box-shadow:0 0 0 .22em rgba(10,12,44,.86), 0 .8em 2em rgba(0,0,0,.55); padding:1.5em .9em .8em; }
-  .wtitle { position:absolute; left:1em; top:-.95em; background:rgba(10,12,44,1); border:.14em solid #fff; border-radius:.45em; padding:.15em .9em; font-weight:900; font-size:1.15em; letter-spacing:.2em; }
-  .ritem { position:relative; display:grid; grid-template-columns:1.4em 4.2em 1fr; align-items:center; gap:.7em; width:100%; font:inherit; color:#fff; background:none; border:0; border-radius:.4em; padding:.55em .5em; text-align:left; text-decoration:none; cursor:pointer; transition:background .15s; }
-  .ritem.sel { background:linear-gradient(90deg, rgba(255,226,122,.18), rgba(255,226,122,.04)); }
-  .ritem .cur { position:static; margin:0; justify-self:center; width:.85em; height:1.3em; }
-  .ritem .ic { height:3.6em; display:flex; align-items:flex-end; justify-content:center; }
-  .ritem .ic img { height:100%; width:auto; max-width:2.4em; object-fit:contain; filter:drop-shadow(0 .1em .15em rgba(0,0,0,.5)); }
-  .ritem .ic img + img { margin-left:-.5em; }
-  .ritem .txt { display:flex; flex-direction:column; gap:.15em; }
-  .ritem b { font-size:1.35em; font-weight:900; letter-spacing:.08em; }
-  .ritem small { font-size:.88em; font-weight:700; opacity:.75; }
-  .ritem.sel b { color:#ffe27a; }
-  .ritem.back { grid-template-columns:1.4em 1fr; margin-top:.5em; border-top:.08em dashed rgba(255,255,255,.3); border-radius:0 0 .4em .4em; padding:.7em .5em .45em; }
-  .ritem.back b { font-size:1.05em; }
-  @media (prefers-reduced-motion: no-preference) { .screen.on .win { animation:winIn .28s ease-out both; } @keyframes winIn { 0% { opacity:0; clip-path:inset(50% 0 50% 0); } 100% { opacity:1; clip-path:inset(-2em -2em -2em -2em); } } }
 
   /* 決定したときの白い光 */
   .flash { position:absolute; inset:0; background:#fff; opacity:0; pointer-events:none; z-index:20; }
@@ -132,8 +103,8 @@
   <section class="screen center" id="v-menu" style="gap:.2em">
     <div class="win">
       <div class="wtitle">あそびかた</div>
-      <button class="ritem mcard sel" id="goTeam" type="button" data-item><span class="cur"></span><span class="ic"><img src="img/quest/hero-warrior-a.webp" alt=""><img src="img/quest/hero-priest-a.webp" alt=""></span><span class="txt"><b>チーム戦</b><small>クラスで班をつくって冒険</small></span></button>
-      <a class="ritem mcard" href="quest.html" data-item><span class="cur"></span><span class="ic"><img src="img/quest/hero-mage-a.webp" alt=""></span><span class="txt"><b>ひとりで冒険</b><small>キャラを育てて町を発展させる</small></span></a>
+      <button class="ritem mcard sel" id="goTeam" type="button" data-item><span class="cur"></span><span class="ic"><img src="img/rikaria/chara/warrior-a.webp" alt=""><img src="img/rikaria/chara/priest-b.webp" alt=""></span><span class="txt"><b>チーム戦</b><small>クラスで班をつくって冒険</small></span></button>
+      <a class="ritem mcard" href="quest.html" data-item><span class="cur"></span><span class="ic"><img src="img/rikaria/chara/mage-a.webp" alt=""></span><span class="txt"><b>ひとりで冒険</b><small>キャラを育てて町を発展させる</small></span></a>
       <button class="ritem back" id="goBackTitle" type="button" data-item><span class="cur"></span><b>もどる</b></button>
     </div>
   </section>
@@ -142,14 +113,14 @@
   <section class="screen center" id="v-team" style="gap:.2em">
     <div class="win">
       <div class="wtitle">チーム戦</div>
-      <a class="ritem mcard sel" href="rikaria-play.html" data-item><span class="cur"></span><span class="ic"><img src="img/quest/hero-mage-a.webp" alt=""></span><span class="txt"><b>みんなで参加</b><small>PINと出席番号・合言葉で入る</small></span></a>
-      <a class="ritem mcard" href="rikaria-host.html" data-item><span class="cur"></span><span class="ic"><img src="img/robot/acc-crown.webp" alt=""></span><span class="txt"><b>ゲームを開く</b><small>先生用：部屋をつくる</small></span></a>
+      <a class="ritem mcard sel" href="rikaria-play.html" data-item><span class="cur"></span><span class="ic"><img src="img/rikaria/chara/hunter-a.webp" alt=""><img src="img/rikaria/chara/monk-b.webp" alt=""></span><span class="txt"><b>みんなで参加</b><small>PINと出席番号・合言葉で入る</small></span></a>
+      <a class="ritem mcard" href="rikaria-host.html" data-item><span class="cur"></span><span class="ic"><img src="img/rikaria/chara/summoner-a.webp" alt=""></span><span class="txt"><b>ゲームを開く</b><small>先生用：部屋をつくる</small></span></a>
       <button class="ritem back" id="goBackMenu" type="button" data-item><span class="cur"></span><b>もどる</b></button>
     </div>
   </section>
 </div>
 <script type="module">
-  import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261116085845b';
+  import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261116135100b';
   wireSoundButtons(); preload(['r-title']); bgm('r-title');
   addEventListener('pagehide', function () { bgm(null); });
   addEventListener('pageshow', function (e) { if (e.persisted) bgm('r-title'); });

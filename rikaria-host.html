@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>リカリア チーム戦（先生）</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
-<link rel="stylesheet" href="theme.css?v=20261116085845">
-<link rel="stylesheet" href="quest.css?v=20261116085845">
-<link rel="stylesheet" href="rikaria.css?v=20261116085845">
+<link rel="stylesheet" href="theme.css?v=20261116135100">
+<link rel="stylesheet" href="quest.css?v=20261116135100">
+<link rel="stylesheet" href="rikaria.css?v=20261116135100">
 <style>
   #app { background:url(img/rikaria/title-bg.webp) center/cover no-repeat, #1d1648; }
   .q-bg-r { background:rgba(10,6,36,.6); }
@@ -38,9 +38,10 @@
 </head>
 <body>
 <div id="app">
+<div class="motes" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
 
 <!-- ① 準備 -->
-<section class="screen q-bg-r" id="s-setup" style="overflow:auto">
+<section class="screen q-bg-r rk-skin" id="s-setup" style="overflow:auto">
   <div class="wrap">
     <div class="row"><a class="backlink" href="rikaria.html">← リカリアへ</a><div class="grow"></div></div>
     <div class="row" style="gap:.8em"><img src="img/rikaria/logo.webp" alt="Rikaria" style="height:3.6em"><div class="q-title">チーム戦（先生）</div></div>
@@ -56,7 +57,7 @@
       <div class="form-row hide" id="obRow"><b>オブリオン</b><select id="selOb" aria-label="戦う形態"></select>
         <div class="seg" id="segSem"><button type="button" data-v="3" class="on">3学期制</button><button type="button" data-v="2">2学期制</button></div>
         <span class="q-sub" id="obInfo"></span></div>
-      <div class="form-row"><b>時間</b><div class="seg" id="segTime"><button type="button" data-v="300">5分</button><button type="button" data-v="600" class="on">10分</button><button type="button" data-v="900">15分</button></div></div>
+      <div class="form-row"><b>時間</b><div class="seg" id="segTime"><button type="button" data-v="300">5分</button><button type="button" data-v="600" class="on">10分</button><button type="button" data-v="900">15分</button><button type="button" data-v="1200">20分</button><button type="button" data-v="1800">30分</button><button type="button" data-v="3000">50分</button></div></div>
       <div class="form-row"><b>パスワード</b><input type="password" id="pw" autocomplete="off" placeholder="問題ファイルのパスワード"></div>
       <div class="tc-note" id="setupNote">地図でえらんだ単元が、冒険するダンジョンになります。どこで終わっても、班ごとに続きから始まります。</div>
     </div>
@@ -75,7 +76,7 @@
 </section>
 
 <!-- ② 待機室（班ごと） -->
-<section class="screen q-bg-r" id="s-lobby" style="gap:1em">
+<section class="screen q-bg-r rk-skin" id="s-lobby" style="gap:1em">
   <div class="tc-head">
     <div class="grow"><div class="q-sub" id="lbSub"></div><div class="q-title" id="lbTitle"></div></div>
     <div class="panel row" style="padding:.5em 1em"><span class="q-sub">参加コード</span><span class="tc-pin" id="pin"></span></div>
@@ -96,7 +97,7 @@
 </section>
 
 <!-- ④ 結果 -->
-<section class="screen center q-bg-r" id="s-end" style="gap:1em">
+<section class="screen center q-bg-r rk-skin" id="s-end" style="gap:1em">
   <div class="confetti" id="conf"></div>
   <div class="lvup" id="endTitle" style="font-size:2.4em">今日の冒険おわり</div>
   <div class="tc-grid" id="endGroups" style="width:min(70em,94%);grid-template-columns:repeat(auto-fill,minmax(16em,1fr))"></div>
@@ -113,20 +114,20 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261116085845"></script>
+<script src="firebase-config.js?v=20261116135100"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script type="module">
 import { signIn, db, ref, set, get, update, remove, onValue, serverNow, shuffle, mountSetPicker,
-         decryptSet, prepareQuestion, maskOf, $, showScreen, confetti, qrSvg } from './lib.js?v=20261116085845';
+         decryptSet, prepareQuestion, maskOf, $, showScreen, confetti, qrSvg } from './lib.js?v=20261116135100';
 import { onChildAdded, onChildChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-import { fiscalYear } from './quest.js?v=20261116085845';
+import { fiscalYear } from './quest.js?v=20261116135100';
 import { TOWN, TOWN_DEFAULT, TOWN_MAX, townStart, JOBS, heroImg, statsOf, unitOf, addExp, bossSp, bossTitle, migrateChar, battleBg, LV_MAX, OBLION, OB_FORMS, obNext, obFirst, obTitle, oblionImg, REWARD, ELEM,
-         unitById, unitsOf, advMap, townName, goldOf, isCarry, storyOpen, storyBoss, storyOb, storyEnding } from './rikaria-data.js?v=20261116085845';
-import * as E from './rikaria-engine.js?v=20261116085845';
-import { el, esc, drawField, moveField, cameraOf, ovban, MAP, spiritHtml } from './rikaria-view.js?v=20261116085845';
-import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261116085845b';
+         unitById, unitsOf, advMap, townName, goldOf, isCarry, storyOpen, storyBoss, storyOb, storyEnding } from './rikaria-data.js?v=20261116135100';
+import * as E from './rikaria-engine.js?v=20261116135100';
+import { el, esc, drawField, moveField, cameraOf, ovban, MAP, spiritHtml } from './rikaria-view.js?v=20261116135100';
+import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261116135100b';
 
-wireSoundButtons(); preload(['r-title']); bgm('r-title');   /* リカリアの曲（2026-11-16）。部屋作りと待機は r-title、冒険中は r-battle */
+wireSoundButtons(); preload(['r-title']); MUS = 'r-title'; bgm('r-title');   /* リカリアの曲（2026-11-16）。部屋作りと待機は r-title、冒険中は r-battle */
 var TS = { '.sv': 'timestamp' };
 var uid = null, pin = null, YEAR = fiscalYear(), SETS = [], picked = {}, picker = null, POOL = [];
 var S = null, U = null, CLS = null, players = {}, GR = {}, P = {}, ended = false, loopId = null, endsAt = 0;
@@ -273,7 +274,7 @@ $('btnCreate').onclick = async function () {
     $('lbSub').textContent = S.g + '年' + S.c + '組 ・ ' + (S.tl / 60) + '分';
     $('lbTitle').textContent = S.kind === 'ob' ? '忘却の城：' + OBLION[S.ob - 1].n : U.area + '（' + U.unit + '）';
     var svg = qrSvg(base + 'rikaria-play.html?pin=' + pin); if (svg) $('qr').innerHTML = svg; else $('qrcard').classList.add('hide');
-    showScreen('s-lobby'); preload(['r-battle']); bgm('r-title');
+    showScreen('s-lobby'); music('r-title');
     window.addEventListener('beforeunload', function (e) { if (!ended && S.phase === 'run') { e.preventDefault(); e.returnValue = ''; } });
   } catch (e) { setupErr('部屋を作れませんでした: ' + e.message); $('btnCreate').disabled = false; }
 };
@@ -370,13 +371,14 @@ $('btnStart').onclick = async function () {
   onChildAdded(ref(db, 'rooms/' + pin + '/act'), onAct); onChildChanged(ref(db, 'rooms/' + pin + '/act'), onAct);
   onChildAdded(ref(db, 'rooms/' + pin + '/ctl'), onCtl); onChildChanged(ref(db, 'rooms/' + pin + '/ctl'), onCtl);
   $('runSub').textContent = S.g + '年' + S.c + '組'; $('runTitle').textContent = O ? '忘却の城' : U.area;
-  buildGrid(); showScreen('s-run'); sfx('go'); bgm('r-battle');
+  buildGrid(); showScreen('s-run'); sfx('go'); runMusic();
   ids.forEach(function (u) { if (GR[players[u].gp]) sendQ(u); });
   loopId = setInterval(loop, 500);
 };
 /* 物語の場面を順に出す（絵＋2〜3文）。「つぎへ」を最後まで押すと終わる。push＝生徒の端末にも短く出す（rooms/<pin>/state/story） */
-function story(pages, push) {
+function story(pages, push, mus) {
   pages = (pages || []).filter(Boolean); if (!pages.length) return Promise.resolve();
+  var back = MUS; music(mus || 'r-story');   /* 物語の曲。閉じたら前の曲にもどす */
   return new Promise(function (ok) {
     var i = 0, pic = $('stPic');
     function show() {
@@ -389,7 +391,7 @@ function story(pages, push) {
     }
     $('stNext').onclick = function () {
       if (++i < pages.length) return show();
-      $('story').classList.add('hide'); $('stNext').onclick = null;
+      $('story').classList.add('hide'); $('stNext').onclick = null; music(back);
       if (push && pin) update(ref(db, 'rooms/' + pin + '/state'), { story: null }).catch(function () {});
       ok();
     };
@@ -446,8 +448,20 @@ function onCtl(snap) {
 
 /* ------------------------------------------------------------ 0.5秒ごとに全班を進める */
 var R_END = null;
+/* 曲（先生の画面だけ。生徒の端末は鳴らさない。2026-11-16）。場面が変わったときだけ切りかえる */
+var MUS = null;
+function music(n) { if (n === MUS) return; MUS = n; if (n) preload([n]); bgm(n); }
+/* 冒険中：どこかの班がボス戦なら r-boss、戦闘なら r-battle、みんな探索中なら その単元のダンジョンの曲 */
+function runMusic() {
+  if (!$('story').classList.contains('hide')) return;
+  if (O) return music('r-oblion');
+  var boss = false, fight = false;
+  Object.keys(GR).forEach(function (n) { var v = GR[n].G; if (!v || v.ph === 'explore' || v.ph === 'enc') return; if (v.kind === 'boss') boss = true; else fight = true; });
+  music(boss ? 'r-boss' : fight ? 'r-battle' : U && U.id ? 'r-d-' + U.id : 'r-explore');
+}
 function loop() {
   if (ended) return;
+  runMusic();
   var left = Math.max(0, (endsAt - serverNow()) / 1000);
   $('clock').textContent = Math.floor(left / 60) + ':' + String(Math.floor(left % 60)).padStart(2, '0');
   if (O) E.obTick(O, .5);
@@ -578,7 +592,7 @@ async function finish() {
   try { await update(ref(db), up); } catch (e) { saveErr = '記録を保存できませんでした（' + e.message + '）'; }
   await set(ref(db, 'rooms/' + pin + '/res'), res);
   await update(ref(db, 'rooms/' + pin + '/state'), { phase: 'end' });
-  bgm(null); showEnd(firstBoss, saveErr);
+  music('r-victory'); showEnd(firstBoss, saveErr);
   if (firstBoss) story([storyBoss(U, S.tw.n, stage1)]);   /* 単元ボスの場面＋町の様子 */
 }
 /* オブリオン戦の保存：クラスの「次の形態・残りHP・参加した人」。倒したら、その形態に一度でも参加した人全員にごほうび */
@@ -618,7 +632,7 @@ async function finishOb() {
   try { await update(ref(db), up); } catch (e) { saveErr = '記録を保存できませんでした（' + e.message + '）'; }
   await set(ref(db, 'rooms/' + pin + '/res'), res);
   await update(ref(db, 'rooms/' + pin + '/state'), { phase: 'end' });
-  bgm(null);
+  music('r-victory');
   var box = $('endGroups'); box.textContent = '';
   $('endTitle').textContent = done ? O.n + ' を封じた！' : '今日の戦いおわり';
   if (done) confetti($('conf'), 60);
@@ -628,7 +642,7 @@ async function finishOb() {
   $('endNote').textContent = saveErr || (done ? (obNext(O.k, S.sem) ? '次の学期末は「' + OBLION[obNext(O.k, S.sem) - 1].n + '」です。' : '9つの形態を、すべて封じました。') : 'オブリオンのHPと、参加した人を保存しました。');
   showScreen('s-end');
   /* 倒した日だけ「倒したあと」の場面。形態9（最後）のあとはエンディング */
-  if (done) story([storyOb(O.k, 'a', S.tw.n)].concat(O.k === 9 ? storyEnding(S.tw.n) : []));
+  if (done) story([storyOb(O.k, 'a', S.tw.n)].concat(O.k === 9 ? storyEnding(S.tw.n) : []), false, O.k === 9 ? 'r-ending' : null);
 }
 function showEnd(firstBoss, saveErr) {
   var box = $('endGroups'); box.textContent = '';

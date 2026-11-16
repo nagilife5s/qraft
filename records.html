@@ -53,6 +53,13 @@
       <button id="btnKeys">一覧を見る</button> <button class="main" id="btnMakeKeys">合言葉を作る</button> <button id="btnPrintKeys">印刷用に開く</button> <button id="btnDelChars" style="color:#b3261e">この組のキャラをすべて消す</button> <span id="keyMsg"></span></div>
     キャラを消すと、その生徒は次にひらいたとき、キャラ作りから始めます（作り直し）。レベル・技・装備・ゴールド・称号も消え、元に戻せません。合言葉はそのまま使えます。
     <div style="overflow:auto"><table id="tblKeys"></table></div></div>
+  <h2>テスト範囲（ひとりで冒険）</h2>
+  <div class="note">「2学期期末」のように、名前と単元を決めておくと、生徒が「ひとりで冒険」で、その範囲の問題で冒険できます。学年ごと・この年度だけです。ほかの学年の単元も入れられます。
+    <div class="row">学年 <select id="rg"><option>1</option><option>2</option><option>3</option></select>
+      名前 <input id="rn" maxlength="20" placeholder="例：2学期期末" style="width:12em"></div>
+    <div class="row" id="ru"></div>
+    <div class="row"><button class="main" id="btnRange">この範囲を保存</button> <span id="rMsg" role="status"></span></div>
+    <div style="overflow:auto"><table id="tblRange"></table></div></div>
   <h2>前年度から移す（進級・クラス替え）</h2>
   <div class="note">4月に、前の年度のキャラ（レベル・技・装備・ゴールド・称号）を新しい番号へまとめて移します。生徒は何もしません。<br>
     名簿のExcelから<b>「前の年度の番号」「新しい番号」の2列</b>（<code>1-2-3</code> のように 学年-組-番号）をコピーして、下に貼ってください。1行に1人です。<br>
@@ -75,6 +82,7 @@
 <script type="module">
 import { signIn, db, ref, set, get, remove } from './lib.js';
 import { fiscalYear, makeCode } from './quest.js';
+import { UNITS } from './rikaria-data.js';
 var $ = function (id) { return document.getElementById(id); };
 var uid = null, rows = [], titles = {}, open = {};
 
@@ -89,7 +97,7 @@ function gate(html) { $('gate').innerHTML = html; }
 async function check() {
   var admin = false;
   try { admin = (await get(ref(db, 'admins/' + uid))).val() === true; } catch (e) {}
-  if (admin) { gate(''); $('body').hidden = false; load(); return; }
+  if (admin) { gate(''); $('body').hidden = false; load(); loadRanges(); return; }
   gate('<div class="note">この端末は、まだ先生として登録されていません。<br>' +
     '<b>最初の1回だけ</b>、このボタンで登録できます（登録できるのは最初の1台。2台目以降は、登録済みの端末から追加します）。<br>' +
     '<button class="main" id="btnClaim" style="margin-top:.6em">この端末を先生として登録する</button> <span id="claimMsg"></span></div>');
@@ -354,6 +362,34 @@ $('btnCvGo').onclick = async function () {
 $('btnAdd').onclick = async function () {
   var u = $('addUid').value.trim(); if (!u) return;
   try { await set(ref(db, 'admins/' + u), true); $('addMsg').textContent = '追加しました'; } catch (e) { $('addMsg').textContent = '追加できませんでした'; }
+};
+
+/* ------------------------------------------------------------ テスト範囲（quest/<年度>/ranges/<学年>/<id> = { n, u: { 単元id: true } }） */
+$('ru').innerHTML = UNITS.map(function (u) { return '<label><input type="checkbox" value="' + u.id + '"> ' + u.g + '年 ' + esc(u.unit) + '</label>'; }).join('');
+async function loadRanges() {
+  var g = $('rg').value, v = {};
+  try { v = (await get(ref(db, 'quest/' + QY + '/ranges/' + g))).val() || {}; } catch (e) { $('rMsg').textContent = '読めませんでした: ' + e.message; }
+  var h = '<tr><th>名前</th><th>単元</th><th></th></tr>';
+  Object.keys(v).forEach(function (id) {
+    var us = Object.keys(v[id].u || {}).map(function (k) { var u = UNITS.filter(function (x) { return x.id === k; })[0]; return u ? u.g + '年 ' + u.unit : k; });
+    h += '<tr><td>' + esc(v[id].n) + '</td><td>' + esc(us.join('、')) + '</td><td><button data-rdel="' + id + '" style="color:#b3261e">消す</button></td></tr>';
+  });
+  $('tblRange').innerHTML = h;
+  document.querySelectorAll('[data-rdel]').forEach(function (b) { b.onclick = async function () {
+    if (!confirm('このテスト範囲を消しますか？')) return;
+    try { await remove(ref(db, 'quest/' + QY + '/ranges/' + g + '/' + b.dataset.rdel)); loadRanges(); } catch (e) { $('rMsg').textContent = '消せませんでした: ' + e.message; }
+  }; });
+}
+$('rg').onchange = loadRanges;
+$('btnRange').onclick = async function () {
+  var n = $('rn').value.trim(), u = {};
+  document.querySelectorAll('#ru input:checked').forEach(function (x) { u[x.value] = true; });
+  if (!n) { $('rMsg').textContent = '名前を入れてください'; return; }
+  if (!Object.keys(u).length) { $('rMsg').textContent = '単元を1つ以上えらんでください'; return; }
+  try {
+    await set(ref(db, 'quest/' + QY + '/ranges/' + $('rg').value + '/r' + Date.now().toString(36)), { n: n, u: u });
+    $('rMsg').textContent = '保存しました'; $('rn').value = ''; document.querySelectorAll('#ru input').forEach(function (x) { x.checked = false; }); loadRanges();
+  } catch (e) { $('rMsg').textContent = '保存できませんでした（新しいルールがFirebaseに貼られているか確かめてください）: ' + e.message; }
 };
 </script>
 </body>

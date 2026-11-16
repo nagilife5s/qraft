@@ -417,3 +417,49 @@
    前は技の行のさらに下に置かれて、解説が出ている間は箱の下に切れた（2026-11-15） */
 #s-battle .cmd.has-img.isdown > #skills { display:none; }
 #s-battle .cmd.has-img.isdown > .downbox { grid-row:4; position:sticky; bottom:-.75em; z-index:3; margin:0 -1em -.7em; padding:.5em 1em .7em; border-radius:0 0 .8em .8em; }
+
+/* ================================================================ タイトル画面の見た目（rikaria.html から移した。2026-11-16）
+   チーム戦の先生の準備・待機室、生徒の参加画面も、タイトルと同じ「紺の窓・白い二重枠」で続ける（.rk-skin） */
+/* 漂う光の粒（飾り。押せない） */
+.motes { position:absolute; inset:0; pointer-events:none; overflow:hidden; z-index:0; }
+.motes i { position:absolute; bottom:-1em; width:.35em; height:.35em; border-radius:50%; background:#fff6c8; box-shadow:0 0 .6em .2em rgba(255,226,122,.7); opacity:0; }
+.motes i:nth-child(1) { left:12%; } .motes i:nth-child(2) { left:27%; width:.25em; height:.25em; } .motes i:nth-child(3) { left:41%; }
+.motes i:nth-child(4) { left:58%; width:.25em; height:.25em; } .motes i:nth-child(5) { left:71%; } .motes i:nth-child(6) { left:86%; width:.28em; height:.28em; }
+.motes i:nth-child(7) { left:6%; width:.2em; height:.2em; } .motes i:nth-child(8) { left:94%; width:.22em; height:.22em; }
+@media (prefers-reduced-motion: no-preference) {
+  .motes i { animation:rise 9s linear infinite; }
+  .motes i:nth-child(2) { animation-delay:1.5s; animation-duration:11s; } .motes i:nth-child(3) { animation-delay:3s; } .motes i:nth-child(4) { animation-delay:4.5s; animation-duration:12s; }
+  .motes i:nth-child(5) { animation-delay:6s; } .motes i:nth-child(6) { animation-delay:2.2s; animation-duration:10s; } .motes i:nth-child(7) { animation-delay:5.2s; } .motes i:nth-child(8) { animation-delay:7.4s; animation-duration:13s; }
+  @keyframes rise { 0% { transform:translate(0,0); opacity:0; } 15% { opacity:.9; } 50% { transform:translate(1.2em,-50vh); } 85% { opacity:.7; } 100% { transform:translate(-.6em,-100vh); opacity:0; } }
+}
+/* カーソル：光るクリスタル */
+.cur { position:absolute; top:50%; width:.62em; height:.95em; margin-top:-.475em; opacity:0; pointer-events:none;
+  background:linear-gradient(135deg, #ffffff, #7ff0ff 40%, #1fb6e8 75%, #1a6fc0); clip-path:polygon(50% 0, 100% 50%, 50% 100%, 0 50%); filter:drop-shadow(0 0 .3em #35e0ff) drop-shadow(0 0 .15em #fff); }
+.win { position:relative; width:min(34em, 94%); margin-top:1.4em; background:rgba(10,12,44,.86); border:.18em solid #fff; border-radius:.7em; box-shadow:0 0 0 .22em rgba(10,12,44,.86), 0 .8em 2em rgba(0,0,0,.55); padding:1.5em .9em .8em; }
+.wtitle { position:absolute; left:1em; top:-.95em; background:rgba(10,12,44,1); border:.14em solid #fff; border-radius:.45em; padding:.15em .9em; font-weight:900; font-size:1.15em; letter-spacing:.2em; }
+.ritem { position:relative; display:grid; grid-template-columns:1.4em 4.2em 1fr; align-items:center; gap:.7em; width:100%; font:inherit; color:#fff; background:none; border:0; border-radius:.4em; padding:.55em .5em; text-align:left; text-decoration:none; cursor:pointer; transition:background .15s; }
+.ritem.sel { background:linear-gradient(90deg, rgba(255,226,122,.18), rgba(255,226,122,.04)); }
+.ritem .cur { position:static; margin:0; justify-self:center; width:.85em; height:1.3em; }
+.ritem .ic { height:3.6em; display:flex; align-items:flex-end; justify-content:center; }
+.ritem .ic img { height:100%; width:auto; max-width:2.4em; object-fit:contain; filter:drop-shadow(0 .1em .15em rgba(0,0,0,.5)); }
+.ritem .ic img + img { margin-left:-.5em; }
+.ritem .txt { display:flex; flex-direction:column; gap:.15em; }
+.ritem b { font-size:1.35em; font-weight:900; letter-spacing:.08em; }
+.ritem small { font-size:.88em; font-weight:700; opacity:.75; }
+.ritem.sel b { color:#ffe27a; }
+.ritem.back { grid-template-columns:1.4em 1fr; margin-top:.5em; border-top:.08em dashed rgba(255,255,255,.3); border-radius:0 0 .4em .4em; padding:.7em .5em .45em; }
+.ritem.back b { font-size:1.05em; }
+@media (prefers-reduced-motion: no-preference) { .screen.on .win { animation:winIn .28s ease-out both; } @keyframes winIn { 0% { opacity:0; clip-path:inset(50% 0 50% 0); } 100% { opacity:1; clip-path:inset(-2em -2em -2em -2em); } } }
+.ritem:focus-visible { outline:.16em solid #ffd23f; outline-offset:.1em; border-radius:.3em; }
+@media (max-width: 560px) { .ritem { grid-template-columns:1.2em 3.4em 1fr; gap:.5em; } .ritem .ic { height:3em; } }
+/* ---- 準備・待機・参加の画面（.rk-skin）。戦闘の画面には付けない */
+.rk-skin { background:rgba(10,6,36,.35) !important; color:#fff; }
+.rk-skin .panel, .rk-skin .card { background:rgba(10,12,44,.86); color:#fff; border:.18em solid #fff; border-radius:.7em; box-shadow:0 0 0 .22em rgba(10,12,44,.86), 0 .8em 2em rgba(0,0,0,.55); }
+.rk-skin .q-title { color:#ffe27a; letter-spacing:.12em; text-shadow:0 0 .4em rgba(255,226,122,.5), 0 .1em .3em rgba(20,8,60,.9); }
+.rk-skin .q-sub { color:#fff; text-shadow:0 .1em .3em rgba(20,8,60,.9); }
+.rk-skin .btn:not(.ghost):not(.sub):not(.quit) { background:linear-gradient(180deg, #fff6c8, #ffd23f); color:#2a1280; box-shadow:0 0 0 .14em #fff, 0 0 1em rgba(255,226,122,.55); }
+.rk-skin .btn:disabled { filter:grayscale(.7); opacity:.6; }
+.rk-skin .card .flabel, .rk-skin .card b { color:#fff; }
+.rk-skin .toplink, .rk-skin .backlink { color:#fff; text-shadow:0 .1em .3em rgba(20,8,60,.9); }
+.rk-skin .wtitle { z-index:2; }
+@media (prefers-reduced-motion: no-preference) { .rk-skin.on .card, .rk-skin.on > .wrap > .panel:first-of-type { animation:winIn .28s ease-out both; } }

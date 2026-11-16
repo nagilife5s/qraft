@@ -6,9 +6,9 @@
 <title>リカリア チーム戦</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261116085845">
-<link rel="stylesheet" href="quest.css?v=20261116085845">
-<link rel="stylesheet" href="rikaria.css?v=20261116085845">
+<link rel="stylesheet" href="theme.css?v=20261116135100">
+<link rel="stylesheet" href="quest.css?v=20261116135100">
+<link rel="stylesheet" href="rikaria.css?v=20261116135100">
 <style>
   #app { background:url(img/rikaria/title-bg.webp) center/cover no-repeat, #1d1648; }
   .q-bg-r { background:rgba(10,6,36,.55); }
@@ -23,9 +23,10 @@
 </head>
 <body>
 <div id="app">
+<div class="motes" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
 
 <!-- 参加：PIN → 出席番号 → 合言葉 -->
-<section class="screen center q-bg-r" id="s-join" style="gap:1em">
+<section class="screen center q-bg-r rk-skin" id="s-join" style="gap:1em">
   <a class="toplink" href="rikaria.html">← リカリアへ</a>
   <img src="img/rikaria/logo.webp" alt="Rikaria" style="height:6em">
   <div class="q-sub" style="font-size:1.2em">チーム戦に参加</div>
@@ -41,7 +42,7 @@
 </section>
 
 <!-- キャラ作成（初回だけ） -->
-<section class="screen center q-bg-r" id="s-make" style="gap:1em;overflow:auto">
+<section class="screen center q-bg-r rk-skin" id="s-make" style="gap:1em;overflow:auto">
   <div class="q-title">職業をえらぼう</div>
   <div class="jobcards six" id="jobcards"></div>
   <div class="row" style="flex-wrap:wrap;justify-content:center"><b>見た目</b><div class="seg" id="typeSeg"><button type="button" data-v="a" class="on">タイプA</button><button type="button" data-v="b">タイプB</button></div></div>
@@ -53,7 +54,7 @@
 </section>
 
 <!-- 班をえらぶ -->
-<section class="screen center q-bg-r" id="s-group" style="gap:1em">
+<section class="screen center q-bg-r rk-skin" id="s-group" style="gap:1em">
   <div class="q-title">何班？</div>
   <div class="q-sub" id="gpNote">単元のあいだは同じ班。進み具合は班ごとに残ります</div>
   <div class="gpgrid" id="gpgrid"></div>
@@ -126,7 +127,7 @@
 </section>
 
 <!-- 結果 -->
-<section class="screen center q-bg-r" id="s-result" style="gap:1em">
+<section class="screen center q-bg-r rk-skin" id="s-result" style="gap:1em">
   <div class="confetti" id="conf"></div>
   <div class="q-title" id="rTitle">今日の冒険おわり！</div>
   <div class="story panel hide" id="rStory"></div>
@@ -136,19 +137,19 @@
   <a class="linkbtn" href="rikaria.html" style="color:#fff;font-weight:800">リカリアのトップへ</a>
 </section>
 
-<section class="screen center q-bg-r" id="s-wait" style="gap:1em"><div class="q-title" id="waitT">先生が始めるのを待っています</div><div class="dots"><span></span><span></span><span></span></div></section>
+<section class="screen center q-bg-r rk-skin" id="s-wait" style="gap:1em"><div class="q-title" id="waitT">先生が始めるのを待っています</div><div class="dots"><span></span><span></span><span></span></div></section>
 <div class="story-mini hide" id="storyMini" role="status"></div>
-<section class="screen center q-bg-r" id="s-msg"><div class="q-title" id="msgT"></div><a class="btn" href="rikaria-play.html" style="text-decoration:none">参加画面へ</a></section>
+<section class="screen center q-bg-r rk-skin" id="s-msg"><div class="q-title" id="msgT"></div><a class="btn" href="rikaria-play.html" style="text-decoration:none">参加画面へ</a></section>
 
 </div>
 
-<script src="firebase-config.js?v=20261116085845"></script>
+<script src="firebase-config.js?v=20261116135100"></script>
 <script type="module">
-import { signIn, db, ref, set, get, update, onValue, serverNow, $, showScreen, confetti } from './lib.js?v=20261116085845';
-import { fiscalYear, ensureOwner, cmdImg } from './quest.js?v=20261116085845';
+import { signIn, db, ref, set, get, update, onValue, serverNow, $, showScreen, confetti } from './lib.js?v=20261116135100';
+import { fiscalYear, ensureOwner, cmdImg } from './quest.js?v=20261116135100';
 import { JOBS, JOB_KEYS, MP_MAX, LEARN, ELEMS, ELEM, heroImg, skillName, rankOf, rankCost, canRankUp, rankUp, loadoutOf, learned, migrateChar, expToNext, unitById, battleBg, weakOf, LOAD_N, OBLION,
-         newChar, ITEMS, carryList, spiritImg, storyBoss, storyOb, TOWN_DEFAULT , itemImg, iconHtml } from './rikaria-data.js?v=20261116085845';
-import { el, esc, drawField, moveField, cameraOf, cellAt, dmgFx, supportFx, ovban, redflash, MAP, spiritHtml } from './rikaria-view.js?v=20261116085845';
+         newChar, ITEMS, carryList, spiritImg, storyBoss, storyOb, TOWN_DEFAULT , itemImg, iconHtml } from './rikaria-data.js?v=20261116135100';
+import { el, esc, drawField, moveField, cameraOf, cellAt, dmgFx, supportFx, ovban, redflash, MAP, spiritHtml } from './rikaria-view.js?v=20261116135100';
 
 var TS = { '.sv': 'timestamp' };
 var uid = null, pin = null, state = null, sid = '', ch = null, look = 'a', job = 'warrior', gp = 0;

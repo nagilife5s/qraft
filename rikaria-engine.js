@@ -307,7 +307,7 @@ function afterHit(G, f) {
 export function step(G, dt) {
   G.t += dt;
   if (G.ph === 'explore') {
-    G.stepT -= dt; if (G.stepT <= 0) { G.stepT = .22; walk(G); }
+    G.stepT -= dt; if (G.stepT <= 0) { G.stepT = .15; walk(G); }
     G.mobT -= dt; if (G.mobT <= 0) { G.mobT = 1.1; mobsWalk(G); }
   } else if (G.ph === 'enc') {
     G.encT -= dt; if (G.encT <= 0) startBattle(G, G.encKind, G.encMob);

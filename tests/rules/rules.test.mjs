@@ -247,6 +247,17 @@ await t('生徒はクラスの記録を読める', () => assertSucceeds(alice.re
 await t('生徒はクラスの記録を書けない（町の名前）', () => assertFails(alice.ref(P('classes/1-2/town')).set('いたずら')));
 await t('生徒はクラスの記録に項目を足せない（オープニングを見た）', () => assertFails(alice.ref(P('classes/1-2/op')).set(true)));
 
+console.log('テスト範囲');
+await t('先生はテスト範囲を作れる', () => assertSucceeds(teacher.ref(P('ranges/2/r1')).set({ n: '2学期期末', u: { matter: true, life: true } })));
+await t('生徒はテスト範囲を読める', () => assertSucceeds(alice.ref(P('ranges/2')).get()));
+await t('未ログインはテスト範囲を読めない', () => assertFails(db(null).ref(P('ranges/2')).get()));
+await t('生徒はテスト範囲を書けない', () => assertFails(alice.ref(P('ranges/2/r2')).set({ n: 'いたずら', u: { matter: true } })));
+await t('生徒はテスト範囲を消せない', () => assertFails(alice.ref(P('ranges/2/r1')).remove()));
+await t('学年が1〜3でないと書けない', () => assertFails(teacher.ref(P('ranges/4/r1')).set({ n: 'x', u: { matter: true } })));
+await t('名前のないテスト範囲は書けない', () => assertFails(teacher.ref(P('ranges/1/r1')).set({ u: { matter: true } })));
+await t('単元の値が true でないと書けない', () => assertFails(teacher.ref(P('ranges/1/r1')).set({ n: 'x', u: { matter: 1 } })));
+await t('先生はテスト範囲を消せる', () => assertSucceeds(teacher.ref(P('ranges/2/r1')).remove()));
+
 console.log(`\n${pass} 件成功 / ${fail} 件失敗`);
 await env.cleanup();
 process.exit(fail ? 1 : 0);
