@@ -5,22 +5,25 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>リカリア なかまと冒険</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
-<link rel="stylesheet" href="theme.css?v=20261116190000">
-<link rel="stylesheet" href="quest.css?v=20261116190000">
-<link rel="stylesheet" href="rikaria.css?v=20261116190000">
+<link rel="stylesheet" href="theme.css?v=20261117060000">
+<link rel="stylesheet" href="quest.css?v=20261117060000">
+<link rel="stylesheet" href="rikaria.css?v=20261117060000">
 <style>
   /* なかまと冒険（2026-11-16）：生徒が部屋を開く。この端末がエンジンを動かし（見えない）、自分もふつうの参加者として遊ぶ。2〜5人 */
   #app { background:url(img/rikaria/title-bg.webp) center/cover no-repeat, #1d1648; }
-  .qp-white { background:#fff; color:var(--ink-dark); border-radius:1em; padding:1em; max-height:40vh; overflow:auto; }
+  .qp-white { background:#fff; color:var(--ink-dark); border-radius:1em; padding:1em; }   /* 画面ぜんたいが縦に動く。一覧の中の二重スクロールにしない */
+  #s-entry { overflow:auto; justify-content:safe center; }
+  #s-entry .card { font-size:.95em; }
+  .sticky-go { position:sticky; bottom:0; z-index:3; text-align:center; padding:.6em 0 .3em; background:linear-gradient(transparent, rgba(10,6,36,.85) 40%); }
   .frm { display:flex; align-items:center; gap:.8em; flex-wrap:wrap; }
   .frm > b { min-width:5em; }
   .frm select { font:inherit; font-size:1em; padding:.35em .6em; border-radius:.5em; }
   .pcode { width:9em; font:inherit; font-size:1.6em; letter-spacing:.2em; text-align:center; padding:.3em; border-radius:.5em; border:0; }
   #s-setup { overflow:auto; }
   #s-room { padding:0; gap:0; }
-  #rbar { display:flex; align-items:center; gap:.8em; flex-wrap:wrap; padding:.5em 1em; background:rgba(10,12,44,.95); border-bottom:.15em solid #fff; }
-  #rbar .pin { font-weight:900; font-size:1.6em; letter-spacing:.12em; color:#ffe27a; }
-  #rbar .warn { flex-basis:100%; font-weight:900; color:#2a1280; background:#ffe27a; border-radius:.5em; padding:.25em .8em; }
+  #rbar { display:flex; align-items:center; gap:.6em .8em; flex-wrap:wrap; padding:.3em 1em .4em; background:rgba(10,12,44,.95); border-bottom:.15em solid #fff; }
+  #rbar .pin { font-weight:900; font-size:1.35em; letter-spacing:.12em; color:#ffe27a; }
+  #rbar .warn { flex-basis:100%; font-weight:900; font-size:.85em; color:#2a1280; background:#ffe27a; border-radius:.5em; padding:.1em .8em; }
   #rbar .btn { font-size:1em; padding:.3em 1.2em; }
   #roster { display:flex; gap:.4em; flex-wrap:wrap; }
   #roster span { background:rgba(255,255,255,.15); border-radius:999px; padding:.1em .3em .1em .8em; font-weight:800; font-size:.9em; }
@@ -35,7 +38,7 @@
 <!-- 入口：部屋をつくる／コードで入る -->
 <section class="screen center rk-skin" id="s-entry" style="gap:1em">
   <a class="toplink" href="quest.html" id="backQ">← ひとりで冒険にもどる</a>
-  <img src="img/rikaria/logo.webp" alt="Rikaria" style="height:6em">
+  <img src="img/rikaria/logo.webp" alt="Rikaria" style="height:4.2em">
   <div class="q-title">なかまと冒険</div>
   <div class="q-sub">2〜5人で、学年がちがっても いっしょに冒険できる。ごほうびは、自分のキャラに入ります。</div>
   <div class="card" style="display:flex;flex-direction:column;gap:.8em;align-items:center">
@@ -58,7 +61,7 @@
     </div>
     <div class="qp-white"><div id="picker"></div></div>
     <div class="q-sub" id="selInfo"></div>
-    <div style="text-align:center"><button class="btn" id="btnCreate" type="button">部屋をつくる</button></div>
+    <div class="sticky-go"><button class="btn" id="btnCreate" type="button">部屋をつくる</button></div>
     <div id="setupErr" class="err hide" role="alert"></div>
   </div>
 </section>
@@ -79,14 +82,14 @@
 </section>
 </div>
 
-<script src="firebase-config.js?v=20261116190000"></script>
+<script src="firebase-config.js?v=20261117060000"></script>
 <script type="module">
-import { signIn, db, ref, set, get, update, remove, onValue, serverNow, mountSetPicker, $, showScreen } from './lib.js?v=20261116190000';
+import { signIn, db, ref, set, get, update, remove, onValue, serverNow, mountSetPicker, $, showScreen } from './lib.js?v=20261117060000';
 import { onDisconnect } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-import { fiscalYear } from './quest.js?v=20261116190000';
-import { UNITS, unitById } from './rikaria-data.js?v=20261116190000';
-import * as E from './rikaria-engine.js?v=20261116190000';
-import { makeRoomDriver } from './rikaria-room.js?v=20261116190000';
+import { fiscalYear } from './quest.js?v=20261117060000';
+import { UNITS, unitById } from './rikaria-data.js?v=20261117060000';
+import * as E from './rikaria-engine.js?v=20261117060000';
+import { makeRoomDriver } from './rikaria-room.js?v=20261117060000';
 
 var Y = fiscalYear(), uid = null, me = null, SETS = [], picked = {}, picker = null, selUnit = '';
 var pin = null, S = null, U = null, players = {}, GR = {}, P = {}, CH = {}, POOL = [], ended = false, started = false, loopId = null, endsAt = 0;
@@ -188,7 +191,7 @@ $('btnStart').onclick = async function () {
   endsAt = serverNow() + S.tl * 1000; started = true;
   S.phase = 'run'; S.gp = { 1: { lead: lead } }; S.ends = endsAt;
   await update(ref(db, 'rooms/' + pin + '/state'), { phase: 'run', gp: S.gp, ends: endsAt });
-  D.listen(); drawBar(); $('btnQuit').textContent = '終了して保存'; $('clock').classList.remove('hide');
+  D.listen(); drawBar(); $('btnQuit').textContent = '終了して保存'; $('clock').classList.remove('hide'); $('btnStart').classList.add('hide');
   ids.forEach(function (u) { D.sendQ(u); });
   loopId = setInterval(loop, 500);
 };

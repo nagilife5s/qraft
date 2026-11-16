@@ -50,6 +50,7 @@ test('なかまと冒険：1年のホストと2年の参加者で、部屋づく
   await expect(B.p.locator('#ppPlace')).toContainText('なかまと冒険');
   await expect(A.p.locator('#roster')).toContainText('なかま');
   await expect(A.p.locator('#btnStart')).toBeEnabled({ timeout: 15000 });
+  await expect(fa.locator('#ppMates')).toContainText('なかま', { timeout: 15000 });   // ホストの準備画面の「班のなかま」に、あとから来た人が出る
   // 参加者の端末が、自分の強さの写し m を部屋に出している
   const pls = await rest('GET', `rooms/${pin}/players`);
   const ms = Object.values(pls).map(p => JSON.parse(p.m));
