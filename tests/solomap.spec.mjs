@@ -68,6 +68,16 @@ for (const vp of [{ width: 1366, height: 657 }, { width: 1920, height: 950 }]) {
     await expect(p.locator('#fdSub')).toContainText('1年 物質');
     await expect(p.locator('#fdSub')).toContainText('問題セット');
     await p.waitForTimeout(800); await p.screenshot({ path: `${SHOT}/q5-area-${W}.png` });
+    // 奥の霧に入ると、ボスにひとりでちょうせんできる
+    await p.evaluate(() => { document.getElementById('fdMsg').classList.add('hide'); });
+    await p.evaluate(() => window.__bossAsk());
+    await expect(p.getByRole('button', { name: 'ちょうせんする' })).toBeVisible({ timeout: 30000 });
+    await p.screenshot({ path: `${SHOT}/q6-boss-ask-${W}.png` });
+    await p.getByRole('button', { name: 'ちょうせんする' }).click();
+    await expect(p.locator('#s-battle')).toBeVisible({ timeout: 10000 });
+    await p.locator('#cmd .qbox, #cmd .btn').first().waitFor({ timeout: 15000 }).catch(() => {});
+    await expect(p.locator('#ename')).toContainText('アルケミラ');
+    await p.screenshot({ path: `${SHOT}/q7-boss-battle-${W}.png` });
     // 敵の強さは自分のレベル（Lv30）に合わせる
     const hp = await p.evaluate(async () => (await import('./quest.js')).soloEnemyHp(1, 30));
     expect(hp).toBeGreaterThan(100);

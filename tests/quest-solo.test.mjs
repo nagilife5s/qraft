@@ -15,3 +15,16 @@ test('レベルが上がるほど強く、上限は1.5倍で止まる', () => {
   assert.equal(soloHpX(50), 1.5);
   assert.equal(soloEnemyHp(1, 0), soloEnemyHp(1, 1));
 });
+
+import { soloBossHp, soloReward, soloGold, soloDayCap } from '../quest.js';
+test('ゴールド：敵1体＝学年×2G、1日の上限＝学年×50G、ボスは3倍・復習は半分', () => {
+  assert.deepEqual([1, 2, 3].map(soloGold), [2, 4, 6]);
+  assert.deepEqual([1, 2, 3].map(soloDayCap), [50, 100, 150]);
+  assert.equal(soloReward(100, false, 2).gold, 4);
+  assert.equal(soloReward(100, true, 2).gold, 2);
+  assert.equal(soloReward(100, false, 2, true).gold, 12);
+  assert.ok(soloReward(100, false, 3, true).gold <= soloDayCap(3));
+});
+test('ひとりで冒険のボス：自分のレベルの敵の3倍のHP', () => {
+  for (const lv of [1, 16, 30]) assert.equal(soloBossHp(2, lv), 3 * soloEnemyHp(2, lv));
+});

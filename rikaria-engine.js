@@ -49,13 +49,15 @@ var SPOTS = [[15, 4], [19, 3], [14, 16], [19, 17], [4, 9], [30, 7], [13, 8], [20
 export function newGroup(opt) {
   var G = { unit: opt.unit, lap: opt.lap || 0, fl: opt.fl || 1, keys: opt.keys || 0, wins: opt.wins || 0, map: buildMap(),
     ph: 'explore', t: 0, seq: 0, ev: [], mobs: [], foes: [], kind: null, mem: {}, order: [], guardCnt: 0, grp: {}, target: null, path: [], dir: 'right',
-    stepT: 0, mobT: 0, encT: 0, resT: 0, cleared: false, bossDown: false, trail: [] };   /* trail＝リーダーが通ったマス（班員が一列でついて歩く） */
+    stepT: 0, mobT: 0, encT: 0, resT: 0, cleared: false, bossDown: false, trail: [], hpX: opt.hpX || 1 };   /* hpX＝敵のHPの倍率（なかまと冒険：参加者の平均レベルで強くする） */   /* trail＝リーダーが通ったマス（班員が一列でついて歩く） */
   G.pos = G.map.start.slice();
   opt.mem.forEach(function (m) { addMember(G, m); });
   spawnMobs(G);
   if (opt.snap) restore(G, opt.snap);
   return G;
 }
+/* なかまと冒険：敵のHPの倍率＝参加者の平均レベルの攻撃倍率 lvMult（技のダメージの伸びと合わせて、どのレベルの集まりでも同じくらいの手ごたえ） */
+export function partyHpX(avgLv) { return lvMult(avgLv || 1); }
 export function addMember(G, m) {
   var J = JOBS[m.j] || JOBS.warrior;
   G.mem[m.id] = { id: m.id, name: m.name, j: JOBS[m.j] ? m.j : 'warrior', lk: m.lk, lv: m.lv || 1, atk: m.atk || J.atk, def: m.def != null ? m.def : J.def,
@@ -124,7 +126,7 @@ function encounter(G, kind, mob) { G.ph = 'enc'; G.encT = .9; G.encKind = kind; 
 
 /* ------------------------------------------------------------ 戦闘のはじまり */
 function foe(G, kind, n, t, img, hpBase, extra) {
-  var hp = Math.round(hpBase * people(G) * (G.lap > 0 ? N.lapHp : 1));
+  var hp = Math.round(hpBase * people(G) * (G.lap > 0 ? N.lapHp : 1) * (G.hpX || 1));
   return Object.assign({ n: n, t: t, img: img, hp: hp, mx: hp, chg: 0, charged: false, atk: 3 + Math.random() * 3, aim: null, stun: 0, dots: [], kind: kind }, extra || {});
 }
 export function startBattle(G, kind, mob) {

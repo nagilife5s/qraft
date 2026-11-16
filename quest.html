@@ -6,8 +6,8 @@
 <title>Qraft クエスト（ひとりで冒険）</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261116150000">
-<link rel="stylesheet" href="quest.css?v=20261116150000">
+<link rel="stylesheet" href="theme.css?v=20261116190000">
+<link rel="stylesheet" href="quest.css?v=20261116190000">
 <style>
   .hud-btns { display:flex; gap:.4em; }
   .hud-btns .btn { font-size:.85em; padding:.35em .9em; }
@@ -191,15 +191,15 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261116150000"></script>
+<script src="firebase-config.js?v=20261116190000"></script>
 <script type="module">
-import { bgm, preload } from './sound.js?v=20261116150000b';
-import { signIn, db, ref, set, get, $, el, showScreen, shuffle, prepareQuestion, maskOf, isTextCorrect, mountSetPicker } from './lib.js?v=20261116150000';
+import { bgm, preload } from './sound.js?v=20261116190000b';
+import { signIn, db, ref, set, get, $, el, showScreen, shuffle, prepareQuestion, maskOf, isTextCorrect, mountSetPicker } from './lib.js?v=20261116190000';
 import { addExp, expToNext, migrateChar, newChar, JOBS as RJOBS, JOB_KEYS, LEARN, RANK_POW, RANK_SEC, LOAD_N, ELEMS, ELEM, UNITS,
-         heroImg, fieldImg, skillName, rankOf, rankCost, canRankUp, rankUp, spUsed, loadoutOf, weakOf, statsOf, unitOf, zakoImg, battleBg, gearImg, itemImg, iconHtml } from './rikaria-data.js?v=20261116150000';
+         heroImg, fieldImg, skillName, rankOf, rankCost, canRankUp, rankUp, spUsed, loadoutOf, weakOf, statsOf, unitOf, zakoImg, bossImg, battleBg, gearImg, itemImg, iconHtml } from './rikaria-data.js?v=20261116190000';
 import { fiscalYear, ENEMIES, TOWN, TOWN_DEFAULT,
          weaponList, armorList, weaponName, armorName, TOWN_MAX, soloDayCap, dayNo, ITEMS, ITEM_KEYS, FACS, RESPEC_COST, ensureOwner, battleGuide,
-         soloMult, soloReward, soloEnemyHp, soloEnemyAtkX, BOSS, cmdImg } from './quest.js?v=20261116150000';
+         soloMult, soloReward, soloEnemyHp, soloBossHp, soloEnemyAtkX, BOSS, cmdImg } from './quest.js?v=20261116190000';
 
 var Y = fiscalYear(), me = { g: 0, c: 0, n: 0 }, sid = '', ch = null, CLS = {}, SETS = [], AREAS = [], look = 'a', job = 'mage';
 var curArea = null, HP = 0, MP = 0, RANGES = {};
@@ -358,7 +358,7 @@ var NPCS = [
   { x: 10, y: 14, img: 'npc-child', nm: '村の子ども', say: '魔物は、封印された知識が姿を変えたものなんだって。正解すると、知識が元にもどるんだよ！' },
   { x: 21, y: 16, img: 'npc-scholar', nm: '物知りじいさん', say: 'まちがえた問題こそ宝じゃ。同じ問題がまた出てきたら、こんどは必ず倒せるぞ。' },
   { x: 8, y: 10, img: 'npc-shop', nm: '道具屋のミナ', say: 'エリアに行くなら回復のしずくを持っていきな。帰還の羽があれば、すぐ町にもどれるよ。' },
-  { x: 31, y: 10, img: 'npc-merchant', nm: '旅の商人', say: 'この門の先がエリアさ。地図で行き先を選んでから門を通るといい。霧の奥のボスは、授業でみんなと倒すんだ。' }
+  { x: 31, y: 10, img: 'npc-merchant', nm: '旅の商人', say: 'この門の先がエリアさ。門を出ると行き先の地図が出るよ。エリアの奥の霧には、ボスがいる。ひとりでも倒せるぞ。' }
 ];
 /*
  * 町の地図。段階 st（0＝廃墟の村 〜 12＝城下町）で、直る・増える（町の絵とNPC.md 4.）。
@@ -502,7 +502,7 @@ function openField(key, start) {
   $('fdHelp').innerHTML = key === 'town'
     ? '矢印キー（WASD）か、行きたい場所をクリックで移動。<b>右の門</b>から出ると、行くダンジョンをえらべる。<br>' +
       '🛒 建物に入ると<b>買い物</b>ができる（ゴールドを使う）。授業のボスを倒して町が発展すると、<b>品ぞろえが増える</b>。'
-    : '<b>魔物にぶつかると戦闘</b>。町へもどるには、<b>左はしの出口</b>へ歩くか、右上の「町へもどる」。町にもどるとHPが全回復する。';
+    : '<b>魔物にぶつかると戦闘</b>。右の奥の<b>霧</b>に入ると、ボスにちょうせんできる。町へもどるには、<b>左はしの出口</b>へ歩くか、右上の「町へもどる」。町にもどるとHPが全回復する。';
   var fh = $('fdHelp'); fh.style.animation = 'none'; void fh.offsetWidth; fh.style.animation = '';   /* 場所が変わるたびに出し直す */
   if (key === 'area') {
     if (!FD.mobs.length) FD.mobs = [[18, 10], [23, 15], [8, 4], [20, 19], [25, 9], [8, 21], [6, 14]].map(function (p, i) { return { id: (i + curArea.i) % 6, x: p[0], y: p[1] }; });
@@ -586,7 +586,7 @@ function move(dx, dy) {
   if (FD.busy || Date.now() - (FD.last || 0) < STEP - 40) return false;
   var nx = FD.pos[0] + dx, ny = FD.pos[1] + dy, c = cell(nx, ny);
   FD.dir = dx < 0 ? 'left' : dx > 0 ? 'right' : dy < 0 ? 'up' : 'down';
-  if (c === 'f') { FD.path = []; say('<h3>霧が濃くて進めない…</h3>ボスは、授業のチームモードで、クラスのみんなと倒す。'); return false; }
+  if (c === 'f') { FD.path = []; bossAsk(); return false; }
   if (c === 'B') { FD.path = []; enter(MAPS.town.blds.filter(function (b) { return nx >= b.x && nx < b.x + b.w && ny >= b.y && ny < b.y + b.h; })[0]); return false; }
   if (c === 'N') { FD.path = []; var np = NPCS.filter(function (q) { return q.x === nx && q.y === ny; })[0]; say('<div class="who"><img src="img/quest/' + np.img + '.webp" alt=""><div><h3>' + np.nm + '</h3>' + np.say + '</div></div>'); return false; }
   if (c === 'O') { FD.path = []; plaza(); return false; }
@@ -623,7 +623,7 @@ function route(tx, ty) {
     var p = q.shift(); if (p[0] === tx && p[1] === ty) break;
     [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(function (d) {
       var nx = p[0] + d[0], ny = p[1] + d[1];
-      if (prev.has(k(nx, ny)) || cell(nx, ny) === undefined || cell(nx, ny) === 'f') return;
+      if (prev.has(k(nx, ny)) || cell(nx, ny) === undefined || (cell(nx, ny) === 'f' && !(nx === tx && ny === ty))) return;
       if (blocked(nx, ny) && !(nx === tx && ny === ty)) return;
       prev.set(k(nx, ny), p); q.push([nx, ny]);
     });
@@ -759,6 +759,7 @@ function drawWorld() {
   } else if (a) {
     head.appendChild(el('h3', 'grow', a.name)); head.appendChild(x); p.appendChild(head);
     rowx('単元', a.g + '年 ' + a.unit);
+    rowx('ボス（ひとりで）', ch.bc && ch.bc[unitOf(a.g, a.unit).id] ? '👑 たおした' : 'まだ');
     var zk = el('div', 'wm-zako'); [0, 1, 2, 3, 4, 5].forEach(function (k) { var im = el('img'); im.src = foeOf(a, k).img; zk.appendChild(im); }); p.appendChild(zk);
     if (a.ar.max) { var bar = el('div', 'bar boss'); var bi = el('i'); bi.style.width = (a.ar.hp / a.ar.max * 100) + '%'; bar.appendChild(bi); bar.appendChild(el('b', '', 'ボスのこりHP ' + Math.round(a.ar.hp / a.ar.max * 100) + '%')); p.appendChild(bar); }
     p.appendChild(srcBox(a));
@@ -833,6 +834,7 @@ function openMenu() {
   }
   item('ステータス', function () { closeMenu(); openStat(); });
   item('地図', function () { closeMenu(); openWorld(); });
+  item('なかまと冒険', function () { location.href = 'quest-party.html' + (/emu=1/.test(location.search) ? '?emu=1' : ''); });
   var mb = item('音楽：' + (MUS_ON ? 'ON' : 'OFF'), function () { toggleMus(); mb.querySelector('b').textContent = '音楽：' + (MUS_ON ? 'ON' : 'OFF'); });
   item('タイトルへもどる', function () {
     w.querySelectorAll('[data-item]').forEach(function (x) { x.remove(); });
@@ -952,18 +954,31 @@ async function poolOf(a) {
   for (var i = 0; i < sets.length; i++) pool = pool.concat(await qsOf(sets[i].id));
   POOLS[key] = { q: pool, queue: [] }; return POOLS[key];
 }
-async function startBattle(mob) {
+/* エリアのボスにひとりでちょうせん（霧に入ったとき）。たおすと、その単元は自分のキャラの「ボスをたおした」記録になる */
+if (/emu=1/.test(location.search)) window.__bossAsk = function () { bossAsk(); };   /* 画面テスト用 */
+function bossAsk() {
+  var u = unitOfArea(curArea), m = $('fdMsg'); m.textContent = '';
+  m.appendChild(el('h3', '', '👑 ' + u.boss.n));
+  var d = el('div', 'who'), im = el('img', 'npc6'); im.src = bossImg(u); im.alt = ''; d.appendChild(im);
+  d.appendChild(el('div', 'line', 'この霧の奥の主だ。ひとりで倒せる強さ（あなたのレベルに合わせてある）。HPがなくなると町にもどされる。' + (ch.bc && ch.bc[u.id] ? '（もう倒した。もう一度なら経験値・ゴールドは半分）' : '')));
+  m.appendChild(d);
+  var ft = el('div', 'fd-foot'), go = el('button', 'btn', 'ちょうせんする'), no = el('button', 'btn sub', 'やめる'); go.type = no.type = 'button'; go.style.fontSize = no.style.fontSize = '1em';
+  go.onclick = function () { m.classList.add('hide'); FD.busy = true; FD.path = []; FD.hold = null; var fl = $('fdFlash'); fl.classList.remove('on'); void fl.offsetWidth; fl.classList.add('on'); setTimeout(function () { startBattle(null, true); }, 900); };
+  no.onclick = function () { m.classList.add('hide'); };
+  ft.appendChild(go); ft.appendChild(no); m.appendChild(ft); m.classList.remove('hide');
+}
+async function startBattle(mob, boss) {
   var P = await poolOf(curArea);
   if (!P.q.length) { FD.busy = false; say('<h3>問題が読めない</h3>通信を確かめて、もう一度ためしてください。'); return; }
-  var max = soloEnemyHp(curArea.i, ch.lv);   /* 敵の強さは自分のレベルに合わせる（単元の学年ではない） */
+  var max = boss ? soloBossHp(curArea.i, ch.lv) : soloEnemyHp(curArea.i, ch.lv);   /* 敵の強さは自分のレベルに合わせる（単元の学年ではない） */
   /* fx＝続いている効果。t は「あと何問」。stun・slow は敵の攻撃の回数 */
-  var foe = foeOf(curArea, mob.id);
-  B = { mob: mob, e: foe, hp: max, max: max, streak: 0, P: P, t: foe.t || 'earth',
+  var foe = boss ? { n: unitOfArea(curArea).boss.n, t: unitOfArea(curArea).boss.t, img: bossImg(unitOfArea(curArea)) } : foeOf(curArea, mob.id);
+  B = { mob: mob, boss: !!boss, e: foe, hp: max, max: max, streak: 0, P: P, t: foe.t || 'earth',
         fx: { guard: null, buff: null, regen: null, counter: null, dot: null, mpRate: 0, stun: 0, slow: 0, nextCrit: 0, keep: 0, reveal: 0 } };
   $('bArea').textContent = curArea.name;
   document.querySelector('#s-battle .bt-bg').style.backgroundImage = "url('" + battleBg(unitOfArea(curArea)) + "')";   /* 背景もその単元の絵 */ $('eimg').src = B.e.img; $('ename').textContent = B.e.n; $('enemy').className = 'enemy';
   $('party').innerHTML = '<div class="mate me"><span class="you">あなた</span><img class="hero" src="' + heroImg(ch.j, ch.lk) + '" alt="">' + ch.n + '</div>';
-  showScreen('s-battle'); music('r-battle'); drawMe(); await battleGuide('solo'); askQ();   /* はじめての戦闘だけ、たたかい方の案内 */
+  showScreen('s-battle'); music(boss ? 'r-boss' : 'r-battle'); drawMe(); await battleGuide('solo'); askQ();   /* はじめての戦闘だけ、たたかい方の案内 */
 }
 function drawMe() {
   var s = statsOf(ch), f = B.fx, a = [], e = [];
@@ -1053,7 +1068,7 @@ function judge(mask, text) {
     var d = 0, msg;
     if (f.stun > 0) { f.stun--; msg = '✕ ざんねん… でも ' + B.e.n + 'は動けない！'; }
     else {
-      d = Math.max(4, 10 - J.def) * soloEnemyAtkX(ch.lv) * st.cut; if (f.guard) d *= 1 - f.guard.cut; if (f.slow > 0) { d *= .5; f.slow--; }
+      d = Math.max(4, (B.boss ? 13 : 10) - J.def) * soloEnemyAtkX(ch.lv) * st.cut; if (f.guard) d *= 1 - f.guard.cut; if (f.slow > 0) { d *= .5; f.slow--; }
       d = Math.max(1, Math.round(d)); HP = Math.max(0, HP - d);
       msg = '✕ ざんねん… ' + B.e.n + 'の攻撃！ ' + d + 'のダメージ';
       if (f.counter && HP > 0) { var cd = Math.max(1, Math.round(st.atk * soloMult(ch.lv) * f.counter.pow)); B.hp = Math.max(0, B.hp - cd); msg += '　カウンター！ ' + cd + 'のダメージ'; }
@@ -1156,7 +1171,9 @@ function act(i) {
 }
 async function win() {
   $('enemy').classList.add('down'); music('r-victory');
-  var rw = soloReward(B.max, curArea.st === 'clear', me.g), lv0 = ch.lv, today = dayNo();
+  var uid0 = unitOfArea(curArea).id, again = !!(ch.bc && ch.bc[uid0]);   /* ボスは、自分がもう倒したことがあれば復習（半分） */
+  var rw = soloReward(B.max, B.boss ? again : curArea.st === 'clear', me.g, B.boss), lv0 = ch.lv, today = dayNo();
+  if (B.boss) ch.bc = Object.assign({}, ch.bc || {}, (function (o) { o[uid0] = true; return o; })({}));
   /* 1日に稼げるゴールドの上限（gd＝日の番号・gg＝その日に稼いだ額。ルールでも同じ計算で止める） */
   var gg = ch.gd === today ? (ch.gg || 0) : 0; rw.gold = Math.max(0, Math.min(rw.gold, soloDayCap(me.g) - gg));
   ch.gd = today; ch.gg = gg + rw.gold;
@@ -1165,12 +1182,12 @@ async function win() {
   box.appendChild(el('div', 'banner ok', B.e.n + 'を たおした！　記録しています…'));   /* 前の記録から20秒たつまで待つことがある */
   var saved = await saveChar(true);
   box.textContent = '';
-  box.appendChild(el('div', 'banner ok', B.e.n + 'を たおした！　けいけんち +' + rw.exp + (rw.gold ? '　💰 +' + rw.gold : '　💰 今日の上限に達しました') + (up ? '　LEVEL UP! Lv.' + lv0 + '→' + ch.lv + '（スキルポイント +' + up + '）' : '') + (saved ? '' : '（保存できませんでした）')));
+  box.appendChild(el('div', 'banner ok', B.e.n + 'を たおした！' + (B.boss ? '　👑 ボスをたおした！' : '') + '　けいけんち +' + rw.exp + (rw.gold ? '　💰 +' + rw.gold : '　💰 今日の上限に達しました') + (up ? '　LEVEL UP! Lv.' + lv0 + '→' + ch.lv + '（スキルポイント +' + up + '）' : '') + (saved ? '' : '（保存できませんでした）')));
   if (up) HP = statsOf(ch).mhp;
   var nx = el('button', 'btn', 'フィールドにもどる'); nx.style.alignSelf = 'center';
   nx.onclick = function () {
     FD.mobs = FD.mobs.filter(function (m) { return m !== B.mob; });
-    showScreen('s-town'); setTimeout(function () { openField('area', FD.pos); if (!FD.mobs.length) say('<h3>エリアの魔物をすべて倒した！</h3>町にもどると、また魔物があらわれる。'); });
+    showScreen('s-town'); setTimeout(function () { openField('area', B.boss ? [31, 12] : FD.pos); if (B.boss) say('<h3>👑 ボスをたおした！</h3>' + unitOfArea(curArea).unit + 'の霧は、あなたの力で晴れた。'); else if (!FD.mobs.length) say('<h3>エリアの魔物をすべて倒した！</h3>町にもどると、また魔物があらわれる。'); });
   };
   box.appendChild(nx);
 }

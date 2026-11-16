@@ -289,3 +289,11 @@ test('試算（表示だけ。方向性 8.5 と比べる）', () => {
   for (const k of ['zako', 'guard', 'boss']) for (const r of [.5, .7, .9]) out[k + ' ' + r * 100 + '%'] = sim(k, r, k === 'boss' ? 120 : 200);
   console.table(out);
 });
+
+test('なかまと冒険：hpX で敵のHPが平均レベルに合わせて増える', () => {
+  const hp = (hpX) => { const G = E.newGroup({ unit: D.UNITS[0], mem: team(2), hpX }); G.mobs = []; E.startBattle(G, 'boss'); return G.foes[0].mx; };
+  assert.equal(hp(undefined), hp(1));
+  assert.equal(E.partyHpX(1), 1);
+  assert.ok(Math.abs(hp(E.partyHpX(30)) - hp(1) * E.partyHpX(30)) <= 1);
+  assert.ok(hp(E.partyHpX(16)) > hp(E.partyHpX(1)));
+});

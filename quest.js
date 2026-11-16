@@ -7,7 +7,7 @@
  *   ・シングルモードの書き込み上限：経験値＋300・ゴールド＋200（firebase-rules.json）
  */
 
-import { TOWN, TOWN_DEFAULT, TOWN_MAX, ITEMS, ITEM_KEYS, weaponName, armorName, weaponList, armorList, gearOf, goldOf, soloGold, soloDayCap, dayNo } from './rikaria-data.js?v=20261116150000';
+import { TOWN, TOWN_DEFAULT, TOWN_MAX, ITEMS, ITEM_KEYS, weaponName, armorName, weaponList, armorList, gearOf, goldOf, soloGold, soloDayCap, dayNo } from './rikaria-data.js?v=20261116190000';
 /* 町・装備・道具は rikaria-data.js が正本（2026-11-13 確定の数値の表） */
 export { goldOf, TOWN, TOWN_DEFAULT, TOWN_MAX, ITEMS, ITEM_KEYS, weaponName, armorName, weaponList, armorList, soloGold, soloDayCap, dayNo };
 
@@ -173,14 +173,16 @@ export function statsOf(ch, team) {
 /* ひとりで冒険の攻撃倍率（上限なし。育てた分だけ強くなる） */
 export function soloMult(lv) { return 1 + 0.05 * (Math.max(1, lv) - 1); }
 /* ひとりで冒険の報酬（1回の書き込みは 経験値300・ゴールド200 まで。ルールでも弾く） */
-/* ゴールドは学年の値（soloGold）。1日の上限（soloDayCap）は呼ぶ側とルールで止める */
-export function soloReward(enemyMax, review, grade) { var r = review ? 0.5 : 1; return { exp: Math.min(300, Math.round(enemyMax * 0.8 * r)), gold: Math.max(1, Math.round(soloGold(grade) * r)) }; }
+/* ゴールドは学年の値（soloGold＝学年×2G）。1日の上限（soloDayCap＝学年×50G）は呼ぶ側とルールで止める。復習は半分。ボスはゴールド3倍 */
+export function soloReward(enemyMax, review, grade, boss) { var r = review ? 0.5 : 1; return { exp: Math.min(300, Math.round(enemyMax * 0.8 * r)), gold: Math.max(1, Math.round(soloGold(grade) * (boss ? 3 : 1) * r)) }; }
 /* 敵の強さは、その子のレベルに合わせる（2026-11-16）。どの学年の単元に入っても、自分のレベルに合った強さ。
    前は単元の学年で決めていた（2年はLv16・3年はLv30から始まるため）。数値はその時の値をレベルでつないだもの：
    HP：(30＋8×エリアの番号) × レベルの攻撃倍率 × (1 → Lv30で1.5)。攻撃：1＋0.07×(Lv−1)（キャラのHPの伸びに合わせる）。
    Lv1・Lv16・Lv30 では、前の1年・2年・3年の値とほぼ同じ */
 export function soloHpX(lv) { return 1 + 0.5 * Math.min(1, Math.max(0, (Number(lv) || 1) - 1) / 29); }
 export function soloEnemyHp(areaIndex, lv) { lv = Math.max(1, Number(lv) || 1); return Math.round((30 + 8 * areaIndex) * soloMult(lv) * soloHpX(lv)); }
+/* ひとりで冒険のボス（エリアの奥の霧。2026-11-16）：ひとりで倒せるように、HPは自分のレベルの敵の3倍。授業のチーム戦のボス（クラス全員で削る）とは別 */
+export function soloBossHp(areaIndex, lv) { return 3 * soloEnemyHp(areaIndex, lv); }
 export function soloEnemyAtkX(lv) { return 1 + 0.07 * (Math.max(1, Number(lv) || 1) - 1); }
 
 /* ====================================================================

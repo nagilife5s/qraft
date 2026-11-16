@@ -6,9 +6,9 @@
 <title>リカリア チーム戦</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261116150000">
-<link rel="stylesheet" href="quest.css?v=20261116150000">
-<link rel="stylesheet" href="rikaria.css?v=20261116150000">
+<link rel="stylesheet" href="theme.css?v=20261116190000">
+<link rel="stylesheet" href="quest.css?v=20261116190000">
+<link rel="stylesheet" href="rikaria.css?v=20261116190000">
 <style>
   #app { background:url(img/rikaria/title-bg.webp) center/cover no-repeat, #1d1648; }
   .q-bg-r { background:rgba(10,6,36,.55); }
@@ -143,28 +143,42 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261116150000"></script>
+<script src="firebase-config.js?v=20261116190000"></script>
 <script type="module">
-import { signIn, db, ref, set, get, update, onValue, serverNow, $, showScreen, confetti } from './lib.js?v=20261116150000';
-import { fiscalYear, ensureOwner, cmdImg } from './quest.js?v=20261116150000';
+import { signIn, db, ref, set, get, update, onValue, serverNow, $, showScreen, confetti } from './lib.js?v=20261116190000';
+import { fiscalYear, ensureOwner, cmdImg } from './quest.js?v=20261116190000';
 import { JOBS, JOB_KEYS, MP_MAX, LEARN, ELEMS, ELEM, heroImg, skillName, rankOf, rankCost, canRankUp, rankUp, loadoutOf, learned, migrateChar, expToNext, unitById, battleBg, weakOf, LOAD_N, OBLION,
-         newChar, ITEMS, carryList, spiritImg, storyBoss, storyOb, TOWN_DEFAULT , itemImg, iconHtml } from './rikaria-data.js?v=20261116150000';
-import { el, esc, drawField, moveField, cameraOf, cellAt, dmgFx, supportFx, ovban, redflash, MAP, spiritHtml } from './rikaria-view.js?v=20261116150000';
+         newChar, ITEMS, carryList, spiritImg, storyBoss, storyOb, TOWN_DEFAULT , itemImg, iconHtml, statsOf, addExp, dayNo, soloDayCap } from './rikaria-data.js?v=20261116190000';
+import { el, esc, drawField, moveField, cameraOf, cellAt, dmgFx, supportFx, ovban, redflash, MAP, spiritHtml } from './rikaria-view.js?v=20261116190000';
 
 var TS = { '.sv': 'timestamp' };
 var uid = null, pin = null, state = null, sid = '', ch = null, look = 'a', job = 'warrior', gp = 0;
 var item = '', itemUsed = false;   /* 持っていく持ち物（回復系を1つ）・もう使ったか */
 var players = {}, gv = null, qs = null, U = null, ready = false, done = false, actN = 0, ctlN = 0, lastQ = 0, view = '';
+/* なかまと冒険（生徒が開く部屋。?party=1）：ひとりで冒険のログインの番号をそのまま使い、班は1つ。強さの写し m を部屋に出し、ごほうびは自分のキャラに自分で書く（2026-11-16） */
+var PARTY = new URLSearchParams(location.search).get('party') === '1', MYQ = null, lastWrite = Date.now();
+if (PARTY) { try { MYQ = JSON.parse(localStorage.getItem('qraft.quest.me') || 'null'); } catch (e) {} }
 
 (async function boot() {
   showScreen('s-join');
   try { uid = (await signIn()).uid; } catch (e) { err('joinErr', e.message); return; }
   var qp = new URLSearchParams(location.search).get('pin'), saved = null;
   try { saved = JSON.parse(localStorage.getItem('qraft.rikaria') || 'null'); } catch (e) {}
+  if (PARTY) return partyBoot(qp);
   if (qp) $('pin').value = qp; else if (saved) $('pin').value = saved.pin;
   if (saved && (!qp || qp === saved.pin)) { if (await openRoom(saved.pin, true)) pickNum(saved.n, true); }
   else if (qp) openRoom(qp, false);
 })();
+async function partyBoot(qp) {
+  var emu = /emu=1/.test(location.search) ? '?emu=1' : '', ma = document.querySelector('#s-msg a.btn'), rl = document.querySelector('#s-result a.linkbtn');
+  ma.href = 'quest-party.html' + emu; ma.target = '_top'; ma.textContent = 'なかまと冒険へ';
+  rl.href = 'quest.html' + emu; rl.target = '_top'; rl.textContent = 'ひとりで冒険にもどる';
+  if (!MYQ || !MYQ.g || !MYQ.c || !MYQ.n) return msg('先に「ひとりで冒険」で、学年・組・出席番号を入れてログインして、キャラをつくってね。');
+  if (!/^\d{6}$/.test(qp || '')) return msg('参加コードがありません。');
+  if (!(await openRoom(qp, false))) { if (view !== 's-msg') msg($('joinErr').textContent || '部屋に入れませんでした。'); return; }
+  if (!state.party) return msg('これは「なかまと冒険」の部屋ではありません。');
+  pickNum(MYQ.n, true);
+}
 function err(id, m) { $(id).textContent = m || ''; $(id).classList.toggle('hide', !m); }
 
 /* ------------------------------------------------------------ 参加 */
@@ -190,16 +204,17 @@ async function openRoom(p, silent) {
 function msg(t) { $('msgT').textContent = t; try { localStorage.removeItem('qraft.rikaria'); } catch (e) {} showScreen('s-msg'); }   /* 覚えていた部屋を消す（残っていると「参加画面へ」を押しても同じ文にもどった。2026-11-15） */
 
 async function pickNum(n, silent) {
-  sid = state.g + '-' + state.c + '-' + n;
+  sid = PARTY ? MYQ.g + '-' + MYQ.c + '-' + MYQ.n : state.g + '-' + state.c + '-' + n;
   document.querySelectorAll('#nums button').forEach(function (b) { b.classList.toggle('on', Number(b.textContent) === n); });
-  if (!(await ensureOwner({ db: db, ref: ref, get: get, set: set }, state.y, sid, uid, state.g + '年' + state.c + '組' + n + '番'))) return;
+  if (!(await ensureOwner({ db: db, ref: ref, get: get, set: set }, state.y, sid, uid, PARTY ? MYQ.g + '年' + MYQ.c + '組' + MYQ.n + '番' : state.g + '年' + state.c + '組' + n + '番'))) return;
   try {
     ch = (await get(ref(db, 'quest/' + state.y + '/chars/' + sid))).val();
     try { localStorage.setItem('qraft.rikaria', JSON.stringify({ pin: pin, n: n })); } catch (e) {}
-    if (!ch) return makeScreen();
+    if (!ch) return PARTY ? msg('キャラがまだありません。先に「ひとりで冒険」でキャラをつくってね。') : makeScreen();
     if (migrateChar(ch)) {   /* 第1版のキャラ：振っていたポイントを返して第2版に */
-      ch.u = TS; await set(ref(db, 'quest/' + state.y + '/chars/' + sid), ch);
+      ch.u = TS; await set(ref(db, 'quest/' + state.y + '/chars/' + sid), ch); lastWrite = Date.now();
     }
+    if (PARTY) { gp = 1; return joinRoom(); }
     groupScreen();
   } catch (e) { err('joinErr', '読みこめませんでした: ' + e.message); }
 }
@@ -259,8 +274,10 @@ async function joinRoom() {
   onValue(ref(db, 'rooms/' + pin + '/kicked/' + uid), function (s) { if (s.val()) msg('この部屋から退出になりました'); });
 }
 /* it＝持っていく持ち物。使ったら「!」を頭に付ける（先生のPCへの合図） */
-function writePlayer() { var p = { nick: ch.n, sid: sid, j: ch.j, lk: ch.lk || 'a', lv: ch.lv || 1, gp: gp, rd: ready }; if (item) p.it = (itemUsed ? '!' : '') + item; return set(ref(db, 'rooms/' + pin + '/players/' + uid), p); }
-function saveChar() { ch.u = TS; return set(ref(db, 'quest/' + state.y + '/chars/' + sid), ch); }
+function writePlayer() { var p = { nick: ch.n, sid: sid, j: ch.j, lk: ch.lk || 'a', lv: ch.lv || 1, gp: gp, rd: ready }; if (item) p.it = (itemUsed ? '!' : '') + item; if (PARTY) p.m = JSON.stringify(partyMem()); return set(ref(db, 'rooms/' + pin + '/players/' + uid), p); }
+/* なかまと冒険：進行役の端末は、ほかの人のキャラを読めない。自分の強さを、部屋に写しておく */
+function partyMem() { var st = statsOf(ch, true); return { name: ch.n, j: ch.j, lk: ch.lk || 'a', lv: ch.lv || 1, atk: st.atk, def: st.def, mhp: st.mhp, cut: st.cut, healX: st.healX, crit: st.crit, mmp: st.mmp, sr: ch.sr || {}, ld: ch.ld || null, it: carryList(ch).indexOf(item) >= 0 ? item : '' }; }
+function saveChar() { ch.u = TS; lastWrite = Date.now(); return set(ref(db, 'quest/' + state.y + '/chars/' + sid), ch); }
 
 /* ------------------------------------------------------------ 画面の切りかえ */
 function isOb() { return state && state.kind === 'ob'; }
@@ -269,6 +286,7 @@ function go(id) { if (view !== id) { view = id; showScreen(id); return true; } r
 function render() {
   var sm = $('storyMini'), st = state && state.story;   /* 先生の画面に物語の場面が出ているあいだ、短く出す */
   sm.classList.toggle('hide', !st); if (st) sm.innerHTML = '<b>' + esc(st.h || '') + '</b>' + esc(st.s || '');
+  if (state && state.closed) { if (!done) { done = true; msg('ホストが画面を閉じたので、冒険はおわりました。'); } return; }
   if (!state) { if (!done) msg('ゲームは終了しました'); return; }
   if (state.phase === 'end' || state.phase === 'saving') { if (!done) showResult(); return; }
   if (state.phase === 'lobby' || state.phase === 'prep') { if (go('s-prep')) drawPrep(); else drawPrep(); return; }
@@ -282,7 +300,7 @@ function render() {
 function drawPrep() {
   var J = JOBS[ch.j], ld = loadoutOf(ch);
   $('ppHero').src = heroImg(ch.j, ch.lk);
-  $('ppPlace').textContent = state.g + '年' + state.c + '組 ・ ' + (isOb() ? '忘却の城：' + OBLION[state.ob - 1].n + '（クラス全員で戦う）' : U.area + '（' + U.unit + '）');
+  $('ppPlace').textContent = PARTY ? 'なかまと冒険 ・ ' + U.area + '（' + U.unit + '）' : state.g + '年' + state.c + '組 ・ ' + (isOb() ? '忘却の城：' + OBLION[state.ob - 1].n + '（クラス全員で戦う）' : U.area + '（' + U.unit + '）');
   $('ppTitle').textContent = ch.n + '　' + J.n + ' Lv.' + ch.lv + '　' + gp + '班';
   $('ppSp').textContent = 'SP ' + (ch.sp || 0) + '　つぎのレベルまで ' + Math.max(0, expToNext(ch.lv) - (ch.exp || 0));
   var mates = Object.keys(players).filter(function (u) { return players[u].gp === gp; });
@@ -331,7 +349,7 @@ function drawPrep() {
   });
   $('ppReady').textContent = ready ? '✓ 準備OK（押すと取り消し）' : '準備OK！'; $('ppReady').classList.toggle('done', ready);
   var n = mates.filter(function (u) { return players[u].rd; }).length;
-  $('ppWait').textContent = (state.phase === 'prep' ? '先生の「出発！」を待っています…　' : '') + gp + '班の準備OK ' + n + '/' + mates.length + '人';
+  $('ppWait').textContent = PARTY ? (state.phase === 'lobby' ? 'ホストの「出発！」を待っています…　' : '') + '準備OK ' + n + '/' + mates.length + '人' : (state.phase === 'prep' ? '先生の「出発！」を待っています…　' : '') + gp + '班の準備OK ' + n + '/' + mates.length + '人';
 }
 $('ppReady').onclick = function () { ready = !ready; writePlayer().catch(function () {}); drawPrep(); };
 
@@ -594,6 +612,25 @@ function useItem() {
 }
 
 /* ------------------------------------------------------------ 結果 */
+/* なかまと冒険のごほうび：自分の端末で、自分のキャラに足す（ひとりで冒険と同じ決まり：経験値は1回300まで・1日のゴールドの上限・前の書き込みから20秒あける）。ボスのSP・称号はなし */
+async function applyPartyReward(r) {
+  var key = 'qraft.party.paid.' + pin + '.' + sid, out = { exp: 0, gold: 0, up: 0, capped: false, saved: true, lv: 0 };
+  try { if (localStorage.getItem(key)) return out; } catch (e) {}
+  var c = null; try { c = (await get(ref(db, 'quest/' + state.y + '/chars/' + sid))).val(); } catch (e) {}
+  if (!c) { out.saved = false; return out; }
+  migrateChar(c);
+  var g = Number(sid.charAt(0)) || 1, want = Math.max(0, Number(r.gold) || 0), exp = Math.min(300, Math.max(0, Number(r.exp) || 0)), today = dayNo(), gg = c.gd === today ? (c.gg || 0) : 0;
+  var gold = Math.max(0, Math.min(want, soloDayCap(g) - gg, 200));
+  if (gold > 0) { c.gd = today; c.gg = gg + gold; c.gold = (c.gold || 0) + gold; }   /* ゴールドが増えるときだけ、その日の記録（gd・gg）を書く（ルールの決まり） */
+  out.up = addExp(c, exp); out.exp = exp; out.gold = gold; out.capped = gold < want; out.lv = c.lv;
+  out.saved = false;
+  for (var i = 0; i < 3 && !out.saved; i++) {
+    var w = lastWrite + 21000 - Date.now(); if (w > 0) await new Promise(function (ok) { setTimeout(ok, w); });
+    try { c.u = TS; await set(ref(db, 'quest/' + state.y + '/chars/' + sid), c); lastWrite = Date.now(); out.saved = true; ch = c; try { localStorage.setItem(key, '1'); } catch (e) {} }
+    catch (e) { lastWrite = Date.now(); }
+  }
+  return out;
+}
 async function showResult() {
   done = true; view = 's-result';
   var tw = (state && state.tw) || { n: TOWN_DEFAULT, st: 0 };   /* 町の名前と段階（先生のPCが終了のときに送る） */
@@ -609,6 +646,12 @@ async function showResult() {
     [['けいけんち', '+' + r.exp], ['ゴールド', '+' + r.gold], ['正解', r.ok + '/' + r.ans], ['与えたダメージ', r.dmg || 0]].forEach(function (x) { var c = el('div', 'card'); c.appendChild(el('span', 'mut', x[0])); c.appendChild(el('b', '', x[1])); box.appendChild(c); });
     if (r.up) { $('rLv').textContent = 'LEVEL UP! Lv.' + r.lv; $('rLv').classList.remove('hide'); }
     $('rNote').textContent = (r.ttl ? '称号「' + r.ttl + '」を手に入れた！　' : '') + (r.sp ? 'スキルポイント +' + r.sp + '　' : '');
+  } else if (r && r.party) {
+    var mine = await applyPartyReward(r);
+    if (r.boss) { $('rTitle').textContent = U.boss.n + ' を たおした！'; confetti($('conf'), 40); }
+    [['けいけんち', '+' + mine.exp], ['ゴールド', '+' + mine.gold + (mine.capped ? '（今日の上限）' : '')], ['正解', r.ok + '/' + r.ans], ['班の進み', r.fl > 4 ? 'ボスの間' : r.fl + '階 🔑' + r.keys]].forEach(function (x) { var c = el('div', 'card'); c.appendChild(el('span', 'mut', x[0])); c.appendChild(el('b', '', x[1])); box.appendChild(c); });
+    if (mine.up) { $('rLv').textContent = 'LEVEL UP! Lv.' + mine.lv; $('rLv').classList.remove('hide'); }
+    $('rNote').textContent = mine.saved ? 'ごほうびは自分のキャラに保存しました。' : 'ごほうびを保存できませんでした。通信を確かめて、もう一度ひらいてください。';
   } else if (r) {
     if (r.boss) { $('rTitle').textContent = U.boss.n + ' を たおした！'; $('rStory').textContent = storyBoss(U, tw.n, tw.st).s; $('rStory').classList.remove('hide'); confetti($('conf'), 40); }
     [['けいけんち', '+' + r.exp], ['ゴールド', '+' + r.gold], ['正解', r.ok + '/' + r.ans], ['班の進み', r.fl > 4 ? 'ボスの間' : r.fl + '階 🔑' + r.keys]].forEach(function (x) { var c = el('div', 'card'); c.appendChild(el('span', 'mut', x[0])); c.appendChild(el('b', '', x[1])); box.appendChild(c); });

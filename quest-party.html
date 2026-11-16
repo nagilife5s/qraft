@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ja" data-bg="lab">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>リカリア なかまと冒険</title>
+<link rel="icon" type="image/png" href="img/favicon-32.png">
+<link rel="stylesheet" href="theme.css?v=20261116190000">
+<link rel="stylesheet" href="quest.css?v=20261116190000">
+<link rel="stylesheet" href="rikaria.css?v=20261116190000">
+<style>
+  /* なかまと冒険（2026-11-16）：生徒が部屋を開く。この端末がエンジンを動かし（見えない）、自分もふつうの参加者として遊ぶ。2〜5人 */
+  #app { background:url(img/rikaria/title-bg.webp) center/cover no-repeat, #1d1648; }
+  .qp-white { background:#fff; color:var(--ink-dark); border-radius:1em; padding:1em; max-height:40vh; overflow:auto; }
+  .frm { display:flex; align-items:center; gap:.8em; flex-wrap:wrap; }
+  .frm > b { min-width:5em; }
+  .frm select { font:inherit; font-size:1em; padding:.35em .6em; border-radius:.5em; }
+  .pcode { width:9em; font:inherit; font-size:1.6em; letter-spacing:.2em; text-align:center; padding:.3em; border-radius:.5em; border:0; }
+  #s-setup { overflow:auto; }
+  #s-room { padding:0; gap:0; }
+  #rbar { display:flex; align-items:center; gap:.8em; flex-wrap:wrap; padding:.5em 1em; background:rgba(10,12,44,.95); border-bottom:.15em solid #fff; }
+  #rbar .pin { font-weight:900; font-size:1.6em; letter-spacing:.12em; color:#ffe27a; }
+  #rbar .warn { flex-basis:100%; font-weight:900; color:#2a1280; background:#ffe27a; border-radius:.5em; padding:.25em .8em; }
+  #rbar .btn { font-size:1em; padding:.3em 1.2em; }
+  #roster { display:flex; gap:.4em; flex-wrap:wrap; }
+  #roster span { background:rgba(255,255,255,.15); border-radius:999px; padding:.1em .3em .1em .8em; font-weight:800; font-size:.9em; }
+  #roster button { font:inherit; border:0; background:none; color:#fff; cursor:pointer; padding:0 .5em; }
+  #pf { flex:1; min-height:0; width:100%; border:0; background:#0a0720; }
+</style>
+</head>
+<body>
+<div id="app">
+<div class="motes" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+
+<!-- 入口：部屋をつくる／コードで入る -->
+<section class="screen center rk-skin" id="s-entry" style="gap:1em">
+  <a class="toplink" href="quest.html" id="backQ">← ひとりで冒険にもどる</a>
+  <img src="img/rikaria/logo.webp" alt="Rikaria" style="height:6em">
+  <div class="q-title">なかまと冒険</div>
+  <div class="q-sub">2〜5人で、学年がちがっても いっしょに冒険できる。ごほうびは、自分のキャラに入ります。</div>
+  <div class="card" style="display:flex;flex-direction:column;gap:.8em;align-items:center">
+    <button class="btn" id="btnNew" type="button">部屋をつくる</button>
+    <div class="q-sub">または、友だちの参加コード（6けた）で入る</div>
+    <input class="pcode" id="joinPin" inputmode="numeric" autocomplete="off" maxlength="6" placeholder="123456" aria-label="参加コード">
+    <button class="btn sub" id="btnJoin" type="button">コードで入る</button>
+    <div id="entryErr" class="err hide" role="alert"></div>
+  </div>
+</section>
+
+<!-- 部屋をつくる：行き先・問題セット・時間 -->
+<section class="screen rk-skin" id="s-setup">
+  <div class="wrap" style="display:flex;flex-direction:column;gap:.8em">
+    <div class="frm"><a class="backlink" href="#" id="setupBack" style="color:#fff">← もどる</a><div class="q-title" style="font-size:1.8em">部屋をつくる</div></div>
+    <div class="panel" style="display:flex;flex-direction:column;gap:.7em">
+      <div class="frm"><b>行き先</b><select id="selUnit" aria-label="ダンジョン（単元）。ほかの学年のもえらべます"></select><span class="q-sub" id="unitNote"></span></div>
+      <div class="frm"><b>時間</b><div class="seg" id="segTime"><button type="button" data-v="300">5分</button><button type="button" data-v="600" class="on">10分</button><button type="button" data-v="900">15分</button><button type="button" data-v="1200">20分</button><button type="button" data-v="1800">30分</button></div></div>
+      <div class="q-sub">問題セットは、先生の画面と同じえらび方です。えらんだセットから出題されます（選択式の問題だけ）。</div>
+    </div>
+    <div class="qp-white"><div id="picker"></div></div>
+    <div class="q-sub" id="selInfo"></div>
+    <div style="text-align:center"><button class="btn" id="btnCreate" type="button">部屋をつくる</button></div>
+    <div id="setupErr" class="err hide" role="alert"></div>
+  </div>
+</section>
+
+<!-- 部屋：上に進行役の帯、下に ふつうの参加者の画面（rikaria-play.html） -->
+<section class="screen" id="s-room">
+  <div id="rbar">
+    <span class="q-sub">参加コード</span><span class="pin" id="pin"></span>
+    <span id="roster" aria-live="polite"></span>
+    <span class="q-sub" id="stat"></span>
+    <span class="grow" style="flex:1"></span>
+    <b id="clock" class="hide" style="color:#ffe27a"></b>
+    <button class="btn" id="btnStart" type="button" disabled>出発！</button>
+    <button class="btn quit" id="btnQuit" type="button">やめる</button>
+    <div class="warn" id="warn">⚠ このページを閉じないでね。閉じるとみんなの冒険が止まります。</div>
+  </div>
+  <iframe id="pf" title="あなたの冒険の画面"></iframe>
+</section>
+</div>
+
+<script src="firebase-config.js?v=20261116190000"></script>
+<script type="module">
+import { signIn, db, ref, set, get, update, remove, onValue, serverNow, mountSetPicker, $, showScreen } from './lib.js?v=20261116190000';
+import { onDisconnect } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { fiscalYear } from './quest.js?v=20261116190000';
+import { UNITS, unitById } from './rikaria-data.js?v=20261116190000';
+import * as E from './rikaria-engine.js?v=20261116190000';
+import { makeRoomDriver } from './rikaria-room.js?v=20261116190000';
+
+var Y = fiscalYear(), uid = null, me = null, SETS = [], picked = {}, picker = null, selUnit = '';
+var pin = null, S = null, U = null, players = {}, GR = {}, P = {}, CH = {}, POOL = [], ended = false, started = false, loopId = null, endsAt = 0;
+var EMU = /emu=1/.test(location.search) ? '?emu=1' : '';
+var MAXP = 5, MINP = 2;
+try { me = JSON.parse(localStorage.getItem('qraft.quest.me') || 'null'); } catch (e) {}
+if (me && !(me.g && me.c && me.n)) me = null;
+function err(id, m) { $(id).textContent = m || ''; $(id).classList.toggle('hide', !m); }
+$('backQ').href = 'quest.html' + EMU;
+function segVal(id) { return document.querySelector('#' + id + ' button.on').dataset.v; }
+document.querySelectorAll('.seg').forEach(function (s) { s.addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; s.querySelectorAll('button').forEach(function (x) { x.classList.toggle('on', x === b); }); }); });
+
+var D = makeRoomDriver({ pin: function () { return pin; }, players: function () { return players; }, GR: GR, P: P, CH: CH, pool: function () { return POOL; }, ended: function () { return ended; }, phase: function () { return S ? S.phase : ''; } });
+
+(async function boot() {
+  showScreen('s-entry');
+  try { uid = (await signIn()).uid; } catch (e) { err('entryErr', e.message); return; }
+  try { var all = await (await fetch('home/index.json', { cache: 'no-cache' })).json(); SETS = all.filter(function (s) { return UNITS.some(function (u) { return u.g === s.grade && u.unit === s.unit; }); }); }
+  catch (e) { err('entryErr', '問題の一覧を読めませんでした'); }
+  if (!me) { err('entryErr', '先に「ひとりで冒険」で、学年・組・出席番号を入れてログインして、キャラをつくってね。'); $('btnNew').disabled = $('btnJoin').disabled = true; }
+})();
+
+/* ---- 入口 */
+$('btnJoin').onclick = function () {
+  var v = $('joinPin').value.trim(); if (!/^\d{6}$/.test(v)) { err('entryErr', '参加コードは6けたの数字です'); return; }
+  location.href = 'rikaria-play.html?party=1&pin=' + v + (EMU ? '&emu=1' : '');
+};
+$('joinPin').onkeydown = function (e) { if (e.key === 'Enter') $('btnJoin').click(); };
+$('btnNew').onclick = function () {
+  var sel = $('selUnit'); sel.textContent = '';
+  UNITS.forEach(function (u) { if (!SETS.some(function (s) { return s.grade === u.g && s.unit === u.unit; })) return; var o = document.createElement('option'); o.value = u.id; o.textContent = u.g + '年 ' + u.unit + '：' + u.area; sel.appendChild(o); });
+  var mine = UNITS.filter(function (u) { return u.g === me.g; })[0]; selUnit = (mine && mine.id) || sel.options[0].value; sel.value = selUnit;
+  pickUnit(selUnit); showScreen('s-setup');
+};
+$('setupBack').onclick = function (e) { e.preventDefault(); showScreen('s-entry'); };
+$('selUnit').onchange = function () { pickUnit($('selUnit').value); };
+
+/* ---- 行き先と問題セット（先生の画面と同じ選び方。単元のセットを、はじめは全部えらんでおく） */
+function unitSets() { var u = unitById(selUnit); return SETS.filter(function (x) { return x.unit === u.unit && x.grade === u.g; }); }
+function pickUnit(id) {
+  selUnit = id; var u = unitById(id), sets = unitSets();
+  Object.keys(picked).forEach(function (k) { delete picked[k]; }); sets.forEach(function (s) { picked[s.id] = true; });
+  $('unitNote').textContent = u.g !== me.g ? '（' + u.g + '年の単元。敵の強さは、参加者のレベルに合わせます）' : '敵の強さは、参加者のレベルに合わせます';
+  picker = mountSetPicker($('picker'), { sets: sets, key: function (x) { return x.id; }, picked: picked, onChange: updateSel }); updateSel();
+}
+function updateSel() {
+  var n = 0, ids = Object.keys(picked); ids.forEach(function (k) { var s = SETS.filter(function (x) { return x.id === k; })[0]; if (s) n += s.count; });
+  $('selInfo').textContent = '選んだセット：' + ids.length + ' つ・合計 ' + n + ' 問';
+}
+
+/* ---- 部屋をつくる */
+$('btnCreate').onclick = async function () {
+  err('setupErr', ''); $('btnCreate').disabled = true;
+  try {
+    var ids = Object.keys(picked); if (!ids.length) throw new Error('問題セットを1つ以上えらんでください');
+    POOL = [];
+    for (var i = 0; i < ids.length; i++) { var d = await (await fetch('home/' + ids[i] + '.json')).json(); (d.questions || []).forEach(function (q) { if (q.type !== 'text') POOL.push(q); }); }
+    if (!POOL.length) throw new Error('選択式の問題がありません');
+    U = unitById(selUnit);
+    for (var k = 0; k < 20; k++) { pin = String(Math.floor(100000 + Math.random() * 900000)); if (!(await get(ref(db, 'rooms/' + pin + '/hostUid'))).exists()) break; }
+    await set(ref(db, 'rooms/' + pin + '/hostUid'), uid);
+    S = { mode: 'rikaria', phase: 'lobby', party: 1, bg: 'lab', y: Y, g: me.g, c: me.c, unit: U.id, tl: Number(segVal('segTime')), kind: 'dg' };
+    await set(ref(db, 'rooms/' + pin + '/state'), S);
+    /* この画面が閉じる・つながりが切れたら、部屋を終わらせて みんなに知らせる（サーバー側で実行される） */
+    onDisconnect(ref(db, 'rooms/' + pin + '/state')).update({ phase: 'end', closed: 1 });
+    onValue(ref(db, 'rooms/' + pin + '/players'), function (s) { players = s.val() || {}; drawBar(); if (S.phase === 'run') lateJoin(); });
+    $('pin').textContent = pin.slice(0, 3) + ' ' + pin.slice(3);
+    $('pf').src = 'rikaria-play.html?party=1&pin=' + pin + (EMU ? '&emu=1' : '');
+    showScreen('s-room'); drawBar();
+    window.addEventListener('beforeunload', function (e) { if (!ended) { e.preventDefault(); e.returnValue = ''; } });
+  } catch (e) { err('setupErr', '部屋を作れませんでした: ' + e.message); $('btnCreate').disabled = false; }
+};
+
+/* ---- 参加者の帯 */
+function memOf(p) { try { var m = JSON.parse(p.m); return m && m.j ? m : null; } catch (e) { return null; } }
+function who() { return Object.keys(players).filter(function (u) { return players[u].gp === 1; }); }
+function drawBar() {
+  var ids = who(), box = $('roster'); box.textContent = '';
+  ids.forEach(function (u) {
+    var p = players[u], sp = document.createElement('span'); sp.textContent = p.nick + ' ' + (String(p.sid || '').charAt(0)) + '年 Lv.' + (p.lv || 1) + (p.rd ? ' ✓' : '');
+    if (u !== uid && !started) { var x = document.createElement('button'); x.type = 'button'; x.textContent = '×'; x.title = '退出させる'; x.setAttribute('aria-label', p.nick + 'を退出させる');
+      x.onclick = function () { if (!confirm(p.nick + ' さんを退出させますか？')) return; var up = {}; up['kicked/' + u] = true; up['players/' + u] = null; update(ref(db, 'rooms/' + pin), up); }; sp.appendChild(x); }
+    box.appendChild(sp);
+  });
+  var okN = ids.filter(function (u) { return memOf(players[u]); }).length;
+  $('stat').textContent = started ? '冒険中（' + ids.length + '人）' : ids.length + ' / ' + MAXP + '人' + (ids.length > MAXP ? '　多すぎます。退出させてください' : ids.length < MINP ? '　（2人から出発できます）' : '');
+  $('btnStart').disabled = started || ended || okN < MINP || ids.length > MAXP;
+}
+
+/* ---- 出発：参加者の「写し」からエンジンを作る（敵のHPは平均レベルで増える） */
+$('btnStart').onclick = async function () {
+  $('btnStart').disabled = true;
+  var ids = who().filter(function (u) { return memOf(players[u]); }).slice(0, MAXP);
+  var mem = ids.map(function (u) { return Object.assign({ id: u }, memOf(players[u])); });
+  var avg = mem.reduce(function (a, m) { return a + (m.lv || 1); }, 0) / Math.max(1, mem.length);
+  ids.forEach(function (u) { P[u] = { n: 0, queue: [] }; CH[u] = {}; });
+  var lead = ids.indexOf(uid) >= 0 ? uid : ids[0];
+  GR[1] = { G: E.newGroup({ unit: U, mem: mem, hpX: E.partyHpX(avg) }), lead: lead, prog: {}, bossLaps: [], who: {} };
+  endsAt = serverNow() + S.tl * 1000; started = true;
+  S.phase = 'run'; S.gp = { 1: { lead: lead } }; S.ends = endsAt;
+  await update(ref(db, 'rooms/' + pin + '/state'), { phase: 'run', gp: S.gp, ends: endsAt });
+  D.listen(); drawBar(); $('btnQuit').textContent = '終了して保存'; $('clock').classList.remove('hide');
+  ids.forEach(function (u) { D.sendQ(u); });
+  loopId = setInterval(loop, 500);
+};
+function lateJoin() {
+  var R = GR[1]; if (!R) return;
+  who().forEach(function (u) {
+    var m = memOf(players[u]); if (!m || R.G.mem[u] || P[u]) return;
+    if (R.G.order.length >= MAXP) { var up = {}; up['kicked/' + u] = true; up['players/' + u] = null; update(ref(db, 'rooms/' + pin), up); return; }
+    P[u] = { n: 0, queue: [] }; CH[u] = {}; E.addMember(R.G, Object.assign({ id: u }, m)); D.sendQ(u);
+  });
+}
+function loop() {
+  if (ended) return;
+  var left = Math.max(0, (endsAt - serverNow()) / 1000);
+  $('clock').textContent = '⏱ ' + Math.floor(left / 60) + ':' + String(Math.floor(left % 60)).padStart(2, '0');
+  D.itemCheck(); D.stepGroup(1, .5);
+  if (left <= 0) finish();
+}
+
+/* ---- 終了：結果を部屋に書く。ごほうびは、各自の端末が自分のキャラに書く（rikaria-play.html の applyPartyReward） */
+async function finish() {
+  if (ended) return; ended = true; clearInterval(loopId);
+  $('btnQuit').disabled = true;
+  try { await onDisconnect(ref(db, 'rooms/' + pin + '/state')).cancel(); } catch (e) {}
+  await update(ref(db, 'rooms/' + pin + '/state'), { phase: 'saving', story: null });
+  var R = GR[1], G = R.G, out = E.results(G), snap = E.snapshot(G), res = {};
+  G.order.forEach(function (u) { var o = out[u]; if (!o) return; res[u] = { exp: Math.min(300, o.exp), gold: o.gold, ok: o.ok, ans: o.ans, fl: snap.fl, keys: snap.keys, boss: (R.bossLaps || []).length ? 1 : 0, party: 1 }; });
+  await set(ref(db, 'rooms/' + pin + '/res'), res);
+  await update(ref(db, 'rooms/' + pin + '/state'), { phase: 'end' });
+  $('stat').textContent = 'おわり！　ごほうびは、みんなの画面で それぞれのキャラに保存されます。'; $('warn').textContent = 'みんなの画面が「結果」になったら、このページを閉じてもOKです。';
+  $('btnStart').classList.add('hide'); $('clock').classList.add('hide'); $('btnQuit').classList.add('hide');
+}
+$('btnQuit').onclick = async function () {
+  if (started) { if (!confirm('いま終わらせて、結果を保存しますか？')) return; return finish(); }
+  if (!confirm('部屋をやめますか？（参加している人は、部屋がなくなります）')) return;
+  ended = true;
+  try { await onDisconnect(ref(db, 'rooms/' + pin + '/state')).cancel(); await update(ref(db, 'rooms/' + pin + '/state'), { phase: 'end', closed: 1 }); await remove(ref(db, 'rooms/' + pin + '/players')); } catch (e) {}
+  location.href = 'quest-party.html' + EMU;
+};
+</script>
+</body>
+</html>

@@ -334,8 +334,9 @@ export function townStart(grade) { return [0, 0, 4, 8][Number(grade) || 1] || 0;
 export var GOLD = { zako: [5, 10, 15], guard: [15, 28, 45], boss: [60, 115, 180], ob: [100, 190, 300] };   /* ob＝オブリオンの形態を倒したとき（クラスの学年で決まる） */
 export function goldOf(kind, grade) { var t = GOLD[kind]; return t ? t[Math.max(1, Math.min(3, Number(grade) || 1)) - 1] : 0; }
 /* ひとりで冒険のゴールド：敵1体・1日の上限（学年で倍） */
+/* ひとりで冒険のゴールド：敵1体＝学年×2G（そのまま）、1日の上限＝学年×50G（2026-11-16 に5倍へ。前は 学年×10）。ルール（gen_rules.py）の CAP と同じ */
 export function soloGold(grade) { return 2 * Math.max(1, Math.min(3, Number(grade) || 1)); }
-export function soloDayCap(grade) { return 10 * Math.max(1, Math.min(3, Number(grade) || 1)); }
+export function soloDayCap(grade) { return 50 * Math.max(1, Math.min(3, Number(grade) || 1)); }
 /* 日本時間の日の番号（ルールと同じ計算） */
 export function dayNo(ms) { return Math.floor(((ms == null ? Date.now() : ms) + 9 * 3600000) / 86400000); }
 

@@ -21,10 +21,10 @@ ITEMS = {'potion': 30, 'ether': 40, 'wing': 20, 'potion2': 55, 'ether2': 70, 'po
 GEAR_PRICE = [150, 220, 300, 400, 500, 600]
 WEAP = {'w%d' % (i + 1): p for i, p in enumerate(GEAR_PRICE)}
 ARMO = {'a%d' % (i + 1): p for i, p in enumerate(GEAR_PRICE)}
-# ひとりで冒険の1日の上限（学年×10G）。gd＝日本時間の日の番号・gg＝その日に稼いだ額
+# ひとりで冒険の1日の上限（学年×50G。2026-11-16 に 学年×10G から5倍）。gd＝日本時間の日の番号・gg＝その日に稼いだ額
 DAY = 86400000
 JST = 32400000
-CAP = "($sid.beginsWith('1-') ? 10 : $sid.beginsWith('2-') ? 20 : 30)"
+CAP = "($sid.beginsWith('1-') ? 50 : $sid.beginsWith('2-') ? 100 : 150)"
 # ---------------------------------------------------------------- キャラ第2版（リカリア・2026-11-13）
 # 6職業・技10個（ランク sr/<i> は 1 か 2）・もらったSPの合計 spt。数値は rikaria-data.js と同じ
 JOBS = ['warrior', 'mage', 'priest', 'hunter', 'monk', 'summoner']
@@ -96,7 +96,9 @@ c['.validate'] = ("newData.hasChildren(['n','j','lv','exp','gold','sp','spt']) &
                   " && newData.child('spt').isNumber() && newData.child('spt').val() >= 0 && newData.child('spt').val() <= 300")
 c['spt'] = {".validate": True}
 c['gd'] = {".validate": "newData.isNumber() && newData.val() >= 0"}
-c['gg'] = {".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 30"}
+c['gg'] = {".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 150"}
+# ひとりで冒険のボスを倒した単元（単元の id → true）。2026-11-16
+c['bc'] = {"$k": {".validate": "$k.matches(/^[a-z]{2,12}$/) && newData.val() === true"}}
 c['eq'] = {"w": {".validate": " || ".join("newData.val() === '%s'" % k for k in WEAP)},
            "a": {".validate": " || ".join("newData.val() === '%s'" % k for k in ARMO)}, "$other": {".validate": False}}
 c['inv'] = {"$k": {".validate": "(" + " || ".join("$k === '%s'" % k for k in ITEMS) + ") && newData.isNumber() && newData.val() >= 0 && newData.val() <= 9"}}
@@ -122,6 +124,9 @@ pl = rm['players']['$uid']
 pl['j'] = {".validate": " || ".join("newData.val() === '%s'" % j for j in JOBS)}
 pl['gp'] = {".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 9"}
 HOST = "root.child('rooms').child($pin).child('hostUid').val() === auth.uid"
+# なかまと冒険（生徒が開く部屋）：参加者が自分の強さの写し m を部屋に出す（進行役の端末はほかの人のキャラを読めないため）。JSON文字列で800字まで。
+# 部屋の作り・進行は先生と同じ道（rooms/<参加コード>。hostUid を最初に書いた人が持ち主）で、ルールは変えていない。ごほうびは各自の端末が自分のキャラに書く（ひとりで冒険と同じ reward のルール）
+pl['m'] = {".validate": "newData.isString() && newData.val().length <= 800"}
 rm['act']['$uid']['.validate'] = "newData.hasChildren(['n','a']) && newData.child('n').isNumber() && newData.child('a').isNumber() && newData.child('a').val() >= 0 && newData.child('a').val() <= 9"
 rm['ctl'] = {".read": "auth != null && " + HOST, "$uid": {
     ".write": "auth != null && auth.uid === $uid && root.child('rooms').child($pin).child('players').child($uid).exists()",

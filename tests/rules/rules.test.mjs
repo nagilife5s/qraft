@@ -79,15 +79,21 @@ await t('ゴールド+201は弾く', () => assertFails(save(alice, { gold: 211 }
 await t('その日の記録なしでゴールドは増やせない', () => assertFails(save(alice, { gold: 4 })));
 await t('その日の稼ぎをごまかせない（gg が足りない）', () => assertFails(save(alice, { gold: 4, gd: DAYNO(), gg: 2 })));
 await t('ほかの日の番号ではゴールドを増やせない', () => assertFails(save(alice, { gold: 4, gd: DAYNO() + 1, gg: 2 })));
-await t('1年は1日10Gをこえられない', () => assertFails(save(alice, { gold: 11, gd: DAYNO(), gg: 11 })));
-await t('1年は1日10Gまでなら保存できる', () => assertSucceeds(save(alice, { gold: 10, gd: DAYNO(), gg: 10 })));
+await t('1年は1日50Gをこえられない', () => assertFails(save(alice, { gold: 51, gd: DAYNO(), gg: 51 })));
+await t('1年は1日50Gまでなら保存できる', () => assertSucceeds(save(alice, { gold: 50, gd: DAYNO(), gg: 50 })));
 await age(SID);
-await t('上限に達したあとはゴールドを増やせない', () => assertFails(save(alice, { gold: 12, gd: DAYNO(), gg: 12 })));
+await t('上限に達したあとはゴールドを増やせない', () => assertFails(save(alice, { gold: 52, gd: DAYNO(), gg: 52 })));
 await t('上限に達しても経験値はもらえる', () => assertSucceeds(save(alice, { exp: 40 })));
 await age(SID);
-await t('次の日は gg を数え直せる', async () => { await seed(async (d) => d.ref(P('chars/' + SID)).update({ gd: DAYNO() - 1 })); await assertSucceeds(save(alice, { gold: 16, gd: DAYNO(), gg: 6 })); });
-await t('3年は1日30Gまで', async () => { await seed(async (d) => { await d.ref(P('keys/3-2-3')).set('abc333'); await d.ref(P('chars/3-2-3')).set(Object.assign({}, base, { gold: 0, gd: DAYNO(), gg: 25, u: Date.now() - 60000 })); }); await claim(alice, 'alice', '3-2-3', 'abc333');
-  await assertSucceeds(alice.ref(P('chars/3-2-3')).set(Object.assign({}, base, { gold: 5, gd: DAYNO(), gg: 30 }))); });
+await t('次の日は gg を数え直せる', async () => { await seed(async (d) => d.ref(P('chars/' + SID)).update({ gd: DAYNO() - 1 })); await assertSucceeds(save(alice, { gold: 56, gd: DAYNO(), gg: 6 })); });
+await t('3年は1日150Gまで', async () => { await seed(async (d) => { await d.ref(P('keys/3-2-3')).set('abc333'); await d.ref(P('chars/3-2-3')).set(Object.assign({}, base, { gold: 0, gd: DAYNO(), gg: 145, u: Date.now() - 60000 })); }); await claim(alice, 'alice', '3-2-3', 'abc333');
+  await assertFails(alice.ref(P('chars/3-2-3')).set(Object.assign({}, base, { gold: 6, gd: DAYNO(), gg: 151 })));
+  await assertSucceeds(alice.ref(P('chars/3-2-3')).set(Object.assign({}, base, { gold: 5, gd: DAYNO(), gg: 150 }))); });
+await age(SID);
+await t('ボスをたおした記録（bc）つきの報酬（ゴールド3倍＝1年6G）は保存できる', () => assertSucceeds(save(alice, { exp: 40, gold: 56 + 6, gd: DAYNO(), gg: 12, bc: { matter: true } })));
+await age(SID);
+await t('bc に true 以外は書けない', () => assertFails(save(alice, { exp: 50, bc: { matter: 1 } })));
+await t('bc の単元名が変なものは書けない', () => assertFails(save(alice, { exp: 50, bc: { 'A B': true } })));
 await seed(async (d) => d.ref(P('chars/' + SID)).update({ exp: 0, lv: 1, sp: 0, spt: 0 }));
 await age(SID);
 await t('経験値+301は弾く', async () => { await assertFails(save(alice, { exp: 331 })); });
@@ -228,7 +234,7 @@ await t('先生は上書きもできる（上書きにチェックしたとき�
 await t('前年度の持ち主でも、今年度の新しい番号は合言葉なしでは読めない', () => assertFails(alice.ref(P('chars/2-1-7')).get()));
 await t('生徒は自分で前年度のキャラを今年度へ写せない', async () => { await claim(alice, 'alice', '2-1-7', 'new777'); await seed(async (d) => d.ref(P('chars/2-1-7')).remove()); await assertFails(alice.ref(P('chars/2-1-7')).set(moved)); await seed(async (d) => d.ref(P('chars/2-1-7')).set(Object.assign({}, moved, { u: Date.now() - 60000 }))); });
 await t('新しい合言葉を入れれば、移したキャラを読める', () => assertSucceeds(alice.ref(P('chars/2-1-7')).get()));
-await t('移したキャラで報酬を保存できる（2年は1日20Gまで）', () => assertSucceeds(alice.ref(P('chars/2-1-7')).set(Object.assign({}, moved, { exp: 150, gold: 850, gd: DAYNO(), gg: 20 }))));
+await t('移したキャラで報酬を保存できる（2年は1日100Gまで）', () => assertSucceeds(alice.ref(P('chars/2-1-7')).set(Object.assign({}, moved, { exp: 150, gold: 850, gd: DAYNO(), gg: 20 }))));
 await t('生徒は前年度のキャラを書き換えられない（今年度の持ち主というだけでは）', () => assertFails(bob.ref(`quest/${OLDY}/chars/${SID}`).set(Object.assign({}, old, { gold: 9999, u: TS }))));
 await t('先生でも決まった形でないキャラは写せない（第1版の sk つき）', () => assertFails(teacher.ref(P('chars/2-1-8')).set({ n: '古い', j: 'mage', lk: 'a', lv: 4, exp: 5, gold: 50, sp: 1, sk: { 0: 0 }, u: TS })));
 
@@ -257,6 +263,20 @@ await t('学年が1〜3でないと書けない', () => assertFails(teacher.ref(
 await t('名前のないテスト範囲は書けない', () => assertFails(teacher.ref(P('ranges/1/r1')).set({ u: { matter: true } })));
 await t('単元の値が true でないと書けない', () => assertFails(teacher.ref(P('ranges/1/r1')).set({ n: 'x', u: { matter: 1 } })));
 await t('先生はテスト範囲を消せる', () => assertSucceeds(teacher.ref(P('ranges/2/r1')).remove()));
+
+console.log('なかまと冒険（生徒が開く部屋）');
+await t('生徒（先生でない）が自分で部屋の持ち主になれる', () => assertSucceeds(alice.ref('rooms/654321/hostUid').set('alice')));
+await t('ほかの生徒は持ち主を乗っとれない', () => assertFails(bob.ref('rooms/654321/hostUid').set('bob')));
+await t('持ち主は部屋の状態・班の表示・出題を書ける', () => assertSucceeds(alice.ref('rooms/654321').update({ state: { mode: 'rikaria', phase: 'lobby', party: 1 }, 'gv/1': { ph: 'explore' }, 'qs/alice': { n: 1, t: 'q' } })));
+await t('ほかの生徒は部屋の状態を書き換えられない', () => assertFails(bob.ref('rooms/654321/state/phase').set('end')));
+await t('ほかの生徒は班の表示・出題を書けない', async () => { await assertFails(bob.ref('rooms/654321/gv/1').set({ ph: 'x' })); await assertFails(bob.ref('rooms/654321/qs/alice').set({ n: 9 })); });
+await t('参加者は自分の強さの写し m（JSON文字列）を出せる', () => assertSucceeds(bob.ref('rooms/654321/players/bob').set({ nick: 'ボブ', sid: '2-1-5', gp: 1, m: JSON.stringify({ j: 'mage', lv: 16, atk: 9, mhp: 28 }) })));
+await t('m は800字までの文字列だけ', async () => { await assertFails(bob.ref('rooms/654321/players/bob').set({ nick: 'ボブ', m: 'x'.repeat(801) })); await assertFails(bob.ref('rooms/654321/players/bob').set({ nick: 'ボブ', m: { j: 'mage' } })); });
+await t('持ち主でない人は、他人の参加情報を書けない', () => assertFails(alice2.ref('rooms/654321/players/bob').set({ nick: 'のっとり', m: '{}' })));
+await t('持ち主は参加者を退出させられる（参加情報を消せる）', async () => { await assertSucceeds(alice.ref('rooms/654321/players/zed').set(null)); });
+await t('持ち主はごほうびの結果を書け、本人だけが読める', async () => { await assertSucceeds(alice.ref('rooms/654321/res/bob').set({ exp: 50, gold: 6 })); await assertSucceeds(bob.ref('rooms/654321/res/bob').get()); await assertFails(alice.ref('rooms/654321/res/bob').get()); });
+await t('参加者はごほうびの結果を書き換えられない', () => assertFails(bob.ref('rooms/654321/res/bob').set({ exp: 9999, gold: 9999 })));
+await t('参加者の答え・技・操作は、持ち主しか読めない', async () => { await assertSucceeds(bob.ref('rooms/654321/act/bob').set({ n: 1, a: 2 })); await assertFails(bob.ref('rooms/654321/act').get()); await assertSucceeds(alice.ref('rooms/654321/act').get()); });
 
 console.log(`\n${pass} 件成功 / ${fail} 件失敗`);
 await env.cleanup();
