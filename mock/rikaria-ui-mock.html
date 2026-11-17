@@ -145,8 +145,15 @@ button, input, select { font:inherit; }
 .sp { display:grid; grid-template-columns:1.5em 1fr; gap:.55em; align-items:center; position:relative; background:linear-gradient(90deg, color-mix(in srgb, var(--c) 62%, transparent), color-mix(in srgb, var(--c) 26%, transparent)); border:.12em solid var(--c); border-left:.7em solid var(--c); border-radius:.5em; color:#fff; font-weight:900; font-size:1.2em; text-align:left; padding:.6em .6em .6em .45em; cursor:pointer; }
 .sp img { height:1.5em; width:1.5em; object-fit:contain; filter:drop-shadow(0 .1em .15em rgba(0,0,0,.6)); }
 .sp:hover { box-shadow:0 0 .8em var(--c); background:linear-gradient(90deg, color-mix(in srgb, var(--c) 85%, transparent), color-mix(in srgb, var(--c) 45%, transparent)); }
-.sp.ok { box-shadow:0 0 0 .14em #fff, 0 0 1.1em #fff; } .sp.ok::after { content:"◎ せいかい"; position:absolute; right:.6em; font-size:.75em; background:#fff; color:#12703f; border-radius:.3em; padding:.05em .5em; }
-.sp.ng { filter:grayscale(.6); } .sp.ng::after { content:"✕"; position:absolute; right:.7em; font-size:1.1em; color:#ffb0b0; }
+.sp.ok { background:linear-gradient(90deg, var(--c), color-mix(in srgb, var(--c) 70%, #fff)); border-color:#fff; box-shadow:0 0 0 .16em #fff, 0 0 1.4em .2em var(--c), 0 0 2.4em #fff8; z-index:1; animation:spOk 1s ease-in-out infinite alternate; }
+.sp.ok img { animation:spHop .5s ease-in-out infinite alternate; }
+.sp.ok::before, .sp.ok::after { content:""; position:absolute; width:.9em; height:.9em; background:#fff; clip-path:polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%); filter:drop-shadow(0 0 .3em #fff); animation:spTw .7s ease-in-out infinite alternate; }
+.sp.ok::before { right:.6em; top:-.45em; } .sp.ok::after { right:2em; bottom:-.4em; width:.6em; height:.6em; animation-delay:.35s; }
+.sp.ng { filter:grayscale(.85) brightness(.7); animation:spShake .4s; }
+@keyframes spOk { from { transform:scale(1); } to { transform:scale(1.03); } }
+@keyframes spHop { from { transform:translateY(0); } to { transform:translateY(-.2em); } }
+@keyframes spTw { from { transform:scale(.4) rotate(0); opacity:.5; } to { transform:scale(1.1) rotate(45deg); opacity:1; } }
+@keyframes spShake { 0%,100% { transform:translateX(0); } 20%,60% { transform:translateX(-.35em); } 40%,80% { transform:translateX(.35em); } }
 .sp.dim { opacity:.35; filter:grayscale(.7); }
 </style>
 </head>
