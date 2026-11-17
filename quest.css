@@ -348,7 +348,7 @@
 .shop-items button span { flex:1; }
 .shop-items button small { opacity:.65; }
 .fd-flash { position:absolute; inset:0; z-index:10; pointer-events:none; background:#fff; opacity:0; }
-.fd-flash.on { animation:enc 1s steps(1) forwards; }
+.fd-flash.on { animation:enc .6s steps(1) forwards; }
 @keyframes enc { 0%,20%,40% { opacity:1; background:#fff; } 10%,30% { opacity:1; background:#120a2e; } 60% { opacity:0; } 100% { opacity:0; } }
 
 /* ---------- 冒険の地図（エリアの一覧と進み具合） ---------- */

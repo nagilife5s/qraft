@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>リカリア 画面の見た目モック（2026-11-17）</title>
+<!-- モック。本番のデータは読むだけで、何も保存しない。
+     ① 先生の部屋作り ② 生徒の参加 ③ ひとりで冒険のメニューボタン ④ テスト範囲を問題の一覧から作る -->
+<style>
+* { box-sizing:border-box; }
+html, body { margin:0; height:100%; }
+body { font-family:"Hiragino Maru Gothic ProN","Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic",sans-serif; font-weight:700; color:#fff; background:#14122a; font-size:clamp(14px, 1.25vw, 22px); }
+button, input, select { font:inherit; }
+.top { position:sticky; top:0; z-index:20; display:flex; flex-wrap:wrap; gap:.4em; align-items:center; padding:.5em .8em; background:#0b0a24; border-bottom:.1em solid #3a3470; }
+.top b { margin-right:.6em; }
+.tab { border:.1em solid #5a52a0; background:none; color:#fff; border-radius:.5em; padding:.35em .8em; cursor:pointer; }
+.tab.on { background:#ffe27a; color:#2a1280; border-color:#ffe27a; }
+.note { font-size:.85em; opacity:.8; font-weight:600; padding:.6em 1em 0; }
+.page { display:none; padding:1em; }
+.page.on { display:block; }
+.cols { display:grid; grid-template-columns:1fr 1fr; gap:1em; }
+@media (max-width: 900px) { .cols { grid-template-columns:1fr; } }
+.lab { font-size:.9em; background:#3a3470; display:inline-block; border-radius:.4em; padding:.15em .7em; margin-bottom:.4em; }
+.lab.new { background:#ffe27a; color:#2a1280; }
+.stage { position:relative; border-radius:.6em; overflow:hidden; background:url(../img/rikaria/title-bg.webp) center/cover; padding:1.6em 1em 1.2em; min-height:26em; }
+.stage::before { content:""; position:absolute; inset:0; background:rgba(10,6,36,.35); }
+.stage > * { position:relative; }
+
+/* ---- タイトルと同じ窓 ---- */
+.win { position:relative; margin:1em auto 0; width:min(40em, 100%); background:rgba(10,12,44,.88); border:.18em solid #fff; border-radius:.7em; box-shadow:0 0 0 .22em rgba(10,12,44,.88), 0 .8em 2em rgba(0,0,0,.55); padding:1.5em 1em .8em; }
+.wtitle { position:absolute; left:1em; top:-.95em; background:#0a0c2c; border:.14em solid #fff; border-radius:.45em; padding:.15em .9em; font-weight:900; font-size:1.15em; letter-spacing:.2em; }
+.cur { display:inline-block; width:.62em; height:.95em; background:linear-gradient(135deg, #ffffff, #7ff0ff 40%, #1fb6e8 75%, #1a6fc0); clip-path:polygon(50% 0, 100% 50%, 50% 100%, 0 50%); filter:drop-shadow(0 0 .3em #35e0ff); vertical-align:-.1em; }
+.frow { display:grid; grid-template-columns:6em 1fr; gap:.6em; align-items:center; padding:.45em .4em; border-bottom:.08em dashed rgba(255,255,255,.22); }
+.frow > b { font-weight:900; letter-spacing:.08em; opacity:.85; }
+.opts { display:flex; flex-wrap:wrap; gap:.15em .3em; align-items:center; }
+.opt { position:relative; background:none; border:0; color:#fff; font-weight:900; font-size:1.05em; padding:.3em .45em .3em 1.35em; border-radius:.4em; cursor:pointer; letter-spacing:.04em; opacity:.72; }
+.opt:hover { opacity:1; background:rgba(255,255,255,.08); }
+.opt.on { color:#ffe27a; opacity:1; background:linear-gradient(90deg, rgba(255,226,122,.2), rgba(255,226,122,.04)); }
+.opt.on::before { content:""; position:absolute; left:.5em; top:50%; margin-top:-.42em; width:.55em; height:.84em; background:linear-gradient(135deg, #fff, #7ff0ff 40%, #1fb6e8 75%, #1a6fc0); clip-path:polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
+.win select, .win input[type=text], .win input[type=password] { background:rgba(255,255,255,.08); color:#fff; border:.1em solid rgba(255,255,255,.55); border-radius:.4em; padding:.35em .6em; font-weight:800; }
+.win select option { color:#111; }
+.win input::placeholder { color:rgba(255,255,255,.5); }
+.win input:focus, .win select:focus { outline:.14em solid #ffe27a; }
+.hint { font-size:.85em; opacity:.75; font-weight:600; padding:.6em .4em .2em; }
+.go { display:grid; grid-template-columns:1.4em 1fr; align-items:center; gap:.6em; width:100%; margin-top:.5em; padding:.7em .5em; border:0; border-top:.08em dashed rgba(255,255,255,.3); background:linear-gradient(90deg, rgba(255,226,122,.2), rgba(255,226,122,.04)); color:#ffe27a; font-weight:900; font-size:1.4em; letter-spacing:.12em; text-align:left; cursor:pointer; border-radius:0 0 .4em .4em; }
+.go:hover { background:linear-gradient(90deg, rgba(255,226,122,.34), rgba(255,226,122,.08)); }
+.go small { display:block; font-size:.55em; letter-spacing:.04em; color:#fff; opacity:.75; }
+.back { display:block; width:100%; text-align:left; background:none; border:0; color:#fff; font-weight:900; padding:.6em 2.4em .2em; cursor:pointer; opacity:.85; }
+
+/* ---- 今の見た目（比べる用） ---- */
+.old .panel { background:rgba(10,12,44,.86); border:.18em solid #fff; border-radius:.7em; padding:1em; display:flex; flex-direction:column; gap:.8em; width:min(40em,100%); margin:0 auto; }
+.old .form-row { display:flex; flex-wrap:wrap; gap:.5em; align-items:center; }
+.old .form-row > b { width:6em; }
+.old .seg { display:flex; flex-wrap:wrap; gap:.4em; }
+.old .seg button { border:0; border-radius:.7em; padding:.5em 1em; background:#f0ebff; color:#2a1a5e; font-weight:900; }
+.old .seg button.on { background:#5b34e0; color:#fff; }
+.old select, .old input { border:0; border-radius:.6em; padding:.45em .7em; background:#fff; color:#222; font-weight:800; }
+.old .bigbtn { display:block; margin:1em auto 0; border:0; border-radius:999px; padding:.6em 2em; font-size:1.5em; font-weight:900; background:linear-gradient(180deg, #fff6c8, #ffd23f); color:#2a1280; box-shadow:0 0 0 .14em #fff; }
+
+/* ---- ③ メニューボタン ---- */
+.town { position:relative; border-radius:.6em; overflow:hidden; min-height:25em; background:#5d8a4a url(../img/quest/worldmap.webp) center/cover; }
+.hud { position:absolute; right:.7em; top:.7em; display:flex; gap:.5em; }
+.oldbtn { border:0; border-radius:999px; padding:.5em 1.1em; background:linear-gradient(180deg,#7a4df0,#4a22b8); color:#fff; font-weight:900; box-shadow:0 .2em 0 rgba(30,10,90,.4); }
+.rbtn { background:rgba(10,12,44,.9); color:#fff; border:.14em solid #fff; border-radius:.45em; box-shadow:0 0 0 .16em rgba(10,12,44,.9), 0 .3em .8em rgba(0,0,0,.45); padding:.35em .9em; font-weight:900; letter-spacing:.14em; cursor:pointer; }
+.rbtn:hover { color:#ffe27a; }
+.mwin { position:absolute; right:.9em; top:4em; width:15em; margin:0; padding:1.2em .5em .5em; }
+.mi { display:grid; grid-template-columns:1.2em 1fr; gap:.4em; align-items:center; width:100%; background:none; border:0; color:#fff; font-weight:900; font-size:1.05em; text-align:left; padding:.4em .5em; border-radius:.4em; cursor:pointer; }
+.mi .cur { visibility:hidden; }
+.mi:hover, .mi.sel { background:linear-gradient(90deg, rgba(255,226,122,.2), rgba(255,226,122,.04)); color:#ffe27a; }
+.mi:hover .cur, .mi.sel .cur { visibility:visible; }
+
+/* ---- ④ テスト範囲 ---- */
+.rec { background:#f6f4fb; color:#221a44; border-radius:.6em; padding:1em; font-weight:600; }
+.rec h2 { margin:.2em 0 .5em; font-size:1.2em; }
+.rec .bar { display:flex; flex-wrap:wrap; gap:.5em; align-items:center; margin-bottom:.6em; }
+.rec select, .rec input[type=text] { border:.1em solid #c9c0ea; border-radius:.5em; padding:.35em .6em; background:#fff; color:#221a44; }
+.rec .pill { border:.1em solid #c9c0ea; background:#fff; color:#221a44; border-radius:999px; padding:.25em .9em; cursor:pointer; font-weight:800; }
+.rec .pill.on { background:#4320b0; color:#fff; border-color:#4320b0; }
+.list { max-height:26em; overflow:auto; background:#fff; border:.1em solid #ddd6f3; border-radius:.6em; }
+.uh { position:sticky; top:0; background:#4320b0; color:#fff; padding:.3em .8em; font-weight:900; display:flex; gap:.6em; align-items:center; z-index:1; }
+.uh button { margin-left:auto; border:0; border-radius:999px; padding:.15em .8em; font-weight:800; font-size:.85em; cursor:pointer; }
+.srow { border-bottom:.06em solid #ece7fb; }
+.shead { display:flex; align-items:center; gap:.6em; padding:.45em .7em; cursor:pointer; }
+.shead:hover { background:#f6f2ff; }
+.srow.on > .shead { background:#e8e0ff; }
+.shead input { width:1.2em; height:1.2em; }
+.shead .t { flex:1; font-weight:800; }
+.shead .c { font-size:.85em; opacity:.7; }
+.shead .open { border:0; background:none; color:#4320b0; font-weight:800; cursor:pointer; }
+.qs { padding:.2em .7em .6em 2.6em; background:#faf9ff; font-size:.92em; }
+.qs label { display:flex; gap:.5em; padding:.2em 0; align-items:flex-start; cursor:pointer; }
+.qs label.off { opacity:.45; text-decoration:line-through; }
+.tray { position:sticky; bottom:0; margin-top:.7em; background:#221a44; color:#fff; border-radius:.6em; padding:.7em .9em; display:flex; flex-wrap:wrap; gap:.6em; align-items:center; }
+.tray input[type=text] { flex:1; min-width:10em; }
+.tray .save { border:0; border-radius:.5em; padding:.5em 1.2em; background:#ffd23f; color:#2a1280; font-weight:900; cursor:pointer; }
+.tray .save:disabled { opacity:.5; cursor:default; }
+.saved { margin-top:.8em; }
+.saved table { border-collapse:collapse; width:100%; background:#fff; }
+.saved td, .saved th { border:.06em solid #ddd6f3; padding:.35em .6em; text-align:left; }
+</style>
+</head>
+<body>
+<div class="top"><b>リカリア 画面モック</b>
+  <button class="tab on" data-p="p1">① 先生の部屋作り</button>
+  <button class="tab" data-p="p2">② 生徒の参加</button>
+  <button class="tab" data-p="p3">③ メニューボタン</button>
+  <button class="tab" data-p="p4">④ テスト範囲づくり</button>
+</div>
+
+<!-- ① -->
+<div class="page on" id="p1">
+  <div class="cols">
+    <div><span class="lab">今</span>
+      <div class="stage old">
+        <div class="panel">
+          <div class="form-row"><b>クラス</b><select><option>3年</option></select><select><option>1組</option></select><span>町：ジェニファーの村（時計塔の町）</span></div>
+          <div class="form-row"><b>戦い</b><div class="seg"><button class="on">ダンジョン</button><button>オブリオン戦（学期末）</button></div></div>
+          <div class="form-row"><b>時間</b><div class="seg"><button>5分</button><button>10分</button><button>15分</button><button>20分</button><button>30分</button><button class="on">50分</button></div></div>
+          <div class="form-row"><b>パスワード</b><input placeholder="問題ファイルのパスワード"></div>
+        </div>
+        <button class="bigbtn">部屋を作る</button>
+      </div>
+    </div>
+    <div><span class="lab new">案</span>
+      <div class="stage">
+        <div class="win">
+          <div class="wtitle">部屋をつくる</div>
+          <div class="frow"><b>クラス</b><div class="opts"><select><option>1年</option><option>2年</option><option selected>3年</option></select><select><option>1組</option><option>2組</option></select><span style="opacity:.8;font-size:.9em">町：ジェニファーの村（時計塔の町）</span></div></div>
+          <div class="frow"><b>戦い</b><div class="opts" data-g><button class="opt on">ダンジョン</button><button class="opt">オブリオン戦（学期末）</button></div></div>
+          <div class="frow"><b>時間</b><div class="opts" data-g><button class="opt">5分</button><button class="opt">10分</button><button class="opt">15分</button><button class="opt">20分</button><button class="opt">30分</button><button class="opt on">50分</button></div></div>
+          <div class="frow"><b>パスワード</b><div class="opts"><input type="password" placeholder="問題ファイルのパスワード" style="width:min(18em,100%)"></div></div>
+          <div class="hint">地図でえらんだ単元が、冒険するダンジョンになります。どこで終わっても、班ごとに続きから始まります。</div>
+          <button class="go"><span class="cur"></span><span>部屋を作る<small>この下の地図で単元をえらんでから押す</small></span></button>
+          <button class="back">もどる</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="note">案のほうは、戦い・時間を押して切りかえられます。選んだものは黄色い字と水色のひし形になります（タイトルのメニューと同じ）。地図と問題セットの一覧は、この窓の下にそのまま続きます。</div>
+</div>
+
+<!-- ② -->
+<div class="page" id="p2">
+  <div class="cols">
+    <div><span class="lab new">案</span>
+      <div class="stage">
+        <div class="win" style="width:min(30em,100%)">
+          <div class="wtitle">みんなで参加</div>
+          <div class="frow"><b>PIN</b><div class="opts"><input type="text" inputmode="numeric" placeholder="6けたの数字" style="width:10em;letter-spacing:.2em"></div></div>
+          <div class="frow"><b>出席番号</b><div class="opts"><input type="text" inputmode="numeric" placeholder="例：12" style="width:6em"></div></div>
+          <div class="frow"><b>合言葉</b><div class="opts"><input type="password" placeholder="自分の合言葉" style="width:12em"></div></div>
+          <button class="go"><span class="cur"></span><span>冒険に入る</span></button>
+          <button class="back">もどる</button>
+        </div>
+      </div>
+    </div>
+    <div><div class="note" style="padding-top:2em">生徒の参加画面も、同じ窓・同じ「▶ 行」の形にそろえます。入力のわくは、白い箱をやめて、うすい白わくにします。</div></div>
+  </div>
+</div>
+
+<!-- ③ -->
+<div class="page" id="p3">
+  <div class="cols">
+    <div><span class="lab">今</span>
+      <div class="town"><div class="hud"><button class="oldbtn">☰ メニュー</button></div></div>
+    </div>
+    <div><span class="lab new">案</span>
+      <div class="town">
+        <div class="hud"><button class="rbtn" id="mBtn">メニュー</button></div>
+        <div class="win mwin" id="mWin">
+          <div class="wtitle" style="font-size:1em">メニュー</div>
+          <button class="mi sel"><span class="cur"></span>ステータス</button>
+          <button class="mi"><span class="cur"></span>地図</button>
+          <button class="mi"><span class="cur"></span>なかまと冒険</button>
+          <button class="mi"><span class="cur"></span>音楽：ON</button>
+          <button class="mi"><span class="cur"></span>タイトルへもどる</button>
+          <button class="mi" style="border-top:.08em dashed rgba(255,255,255,.3);border-radius:0;margin-top:.3em"><span class="cur"></span>とじる</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="note">案の「メニュー」を押すと、開いたり閉じたりします。ボタンを、開いたメニューの見出しの札と同じ形（紺・白いわく）にしました。「町へもどる」など、同じ場所に出るほかのボタンも同じ形にします。</div>
+</div>
+
+<!-- ④ -->
+<div class="page" id="p4">
+  <div class="rec">
+    <h2>テスト範囲を、問題の一覧から作る（記録画面の「問題」タブ）</h2>
+    <div class="bar">学年
+      <span id="gseg"><button class="pill" data-g="1">1年</button> <button class="pill on" data-g="2">2年</button> <button class="pill" data-g="3">3年</button></span>
+      <input type="text" id="kw" placeholder="題名でさがす（例：期末対策）" style="flex:1;min-width:10em">
+      <label><input type="checkbox" id="onlyPicked"> 選んだものだけ見る</label>
+    </div>
+    <div class="list" id="list">読み込み中…</div>
+    <div class="tray">
+      <span id="cnt">0セット・0問</span>
+      <input type="text" id="rname" placeholder="テスト範囲の名前（例：2学期期末）" maxlength="20">
+      <button class="save" id="save" disabled>このセットでテスト範囲をつくる</button>
+    </div>
+    <div class="saved" id="saved"></div>
+    <p style="font-size:.88em;opacity:.75">モックなので保存はしません。セットにチェックを付け、「中を見る」で入れたくない問題のチェックを外せます。作った範囲は、生徒の「ひとりで冒険 → テスト範囲」に名前で出ます。今の「単元でえらぶ」作り方も、設定タブに残します。</p>
+  </div>
+</div>
+
+<script>
+document.querySelectorAll('.tab').forEach(function (t) { t.onclick = function () {
+  document.querySelectorAll('.tab').forEach(function (x) { x.classList.toggle('on', x === t); });
+  document.querySelectorAll('.page').forEach(function (p) { p.classList.toggle('on', p.id === t.dataset.p); });
+}; });
+document.querySelectorAll('[data-g].opts, .opts[data-g]').forEach(function (g) { g.onclick = function (e) {
+  var b = e.target.closest('.opt'); if (!b) return;
+  g.querySelectorAll('.opt').forEach(function (x) { x.classList.toggle('on', x === b); });
+}; });
+document.getElementById('mBtn').onclick = function () { var w = document.getElementById('mWin'); w.style.display = w.style.display === 'none' ? '' : 'none'; };
+
+/* ④ */
+var SETS = [], G = 2, PICK = {}, OFF = {}, OPEN = {}, QS = {}, SAVED = [];
+function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+function nOf(s) { return s.count - Object.keys(OFF[s.id] || {}).length; }
+function draw() {
+  var kw = document.getElementById('kw').value.trim(), only = document.getElementById('onlyPicked').checked;
+  var rows = SETS.filter(function (s) { return s.grade === G && (!kw || s.title.indexOf(kw) >= 0 || s.unit.indexOf(kw) >= 0) && (!only || PICK[s.id]); });
+  var h = '', u = null;
+  rows.forEach(function (s) {
+    if (s.unit !== u) { u = s.unit; h += '<div class="uh">' + esc(u) + '<button data-all="' + esc(u) + '">この単元を全部</button></div>'; }
+    h += '<div class="srow' + (PICK[s.id] ? ' on' : '') + '"><div class="shead" data-id="' + s.id + '"><input type="checkbox"' + (PICK[s.id] ? ' checked' : '') + '><span class="t">' + esc(s.title) + '</span><span class="c">' + (PICK[s.id] ? nOf(s) + '／' : '') + s.count + '問</span><button class="open" data-open="' + s.id + '">' + (OPEN[s.id] ? 'とじる' : '中を見る') + '</button></div>';
+    if (OPEN[s.id]) {
+      h += '<div class="qs">';
+      (QS[s.id] || []).forEach(function (q, i) { var off = (OFF[s.id] || {})[i]; h += '<label class="' + (off ? 'off' : '') + '"><input type="checkbox" data-q="' + s.id + '|' + i + '"' + (off ? '' : ' checked') + '><span>' + (i + 1) + '. ' + esc(q.q) + '</span></label>'; });
+      if (!QS[s.id]) h += '読み込み中…';
+      h += '</div>';
+    }
+    h += '</div>';
+  });
+  document.getElementById('list').innerHTML = h || '<div style="padding:1em">あてはまるセットがありません</div>';
+  var ps = SETS.filter(function (s) { return PICK[s.id]; }), n = ps.reduce(function (a, s) { return a + nOf(s); }, 0);
+  document.getElementById('cnt').textContent = ps.length + 'セット・' + n + '問';
+  document.getElementById('save').disabled = !ps.length;
+}
+document.getElementById('list').onclick = async function (e) {
+  var t = e.target, a;
+  if ((a = t.dataset.all)) { SETS.forEach(function (s) { if (s.grade === G && s.unit === a) PICK[s.id] = true; }); draw(); return; }
+  if ((a = t.dataset.open)) { e.stopPropagation(); OPEN[a] = !OPEN[a]; draw(); if (OPEN[a] && !QS[a]) { try { QS[a] = (await (await fetch('../home/' + a + '.json')).json()).questions || []; } catch (x) { QS[a] = []; } draw(); } return; }
+  if ((a = t.dataset.q)) { var p = a.split('|'); OFF[p[0]] = OFF[p[0]] || {}; if (t.checked) delete OFF[p[0]][p[1]]; else OFF[p[0]][p[1]] = true; PICK[p[0]] = true; draw(); return; }
+  var hd = t.closest('.shead'); if (hd) { var id = hd.dataset.id; if (PICK[id]) { delete PICK[id]; delete OFF[id]; } else PICK[id] = true; draw(); }
+};
+document.getElementById('gseg').onclick = function (e) { var b = e.target.closest('.pill'); if (!b) return; G = Number(b.dataset.g); this.querySelectorAll('.pill').forEach(function (x) { x.classList.toggle('on', x === b); }); draw(); };
+document.getElementById('kw').oninput = draw; document.getElementById('onlyPicked').onchange = draw;
+document.getElementById('save').onclick = function () {
+  var ps = SETS.filter(function (s) { return PICK[s.id]; });
+  SAVED.push({ n: document.getElementById('rname').value.trim() || '（名前なし）', g: G, s: ps.length, q: ps.reduce(function (a, s) { return a + nOf(s); }, 0) });
+  document.getElementById('saved').innerHTML = '<b>作ったテスト範囲（モック）</b><table><tr><th>名前</th><th>学年</th><th>中身</th></tr>' + SAVED.map(function (r) { return '<tr><td>' + esc(r.n) + '</td><td>' + r.g + '年</td><td>' + r.s + 'セット・' + r.q + '問</td></tr>'; }).join('') + '</table>';
+  PICK = {}; OFF = {}; document.getElementById('rname').value = ''; draw();
+};
+fetch('../home/index.json').then(function (r) { return r.json(); }).then(function (d) { SETS = d; draw(); }).catch(function () { document.getElementById('list').textContent = '一覧を読めませんでした'; });
+</script>
+</body>
+</html>
