@@ -141,6 +141,13 @@ button, input, select { font:inherit; }
 .cm.dim { opacity:.45; }
 .exwin { margin-top:.6em; border-top:.08em dashed rgba(255,255,255,.3); padding:.6em .5em 0; font-weight:700; line-height:1.6; }
 .exwin b { color:#6dffb0; }
+
+.sp { display:grid; grid-template-columns:2.6em 1fr; gap:.6em; align-items:center; position:relative; background:linear-gradient(90deg, color-mix(in srgb, var(--c) 62%, transparent), color-mix(in srgb, var(--c) 26%, transparent)); border:.12em solid var(--c); border-left:.7em solid var(--c); border-radius:.5em; color:#fff; font-weight:900; font-size:1.12em; text-align:left; padding:.35em .6em .35em .4em; cursor:pointer; }
+.sp img { height:2.4em; width:2.6em; object-fit:contain; filter:drop-shadow(0 .1em .15em rgba(0,0,0,.6)); }
+.sp:hover { box-shadow:0 0 .8em var(--c); background:linear-gradient(90deg, color-mix(in srgb, var(--c) 85%, transparent), color-mix(in srgb, var(--c) 45%, transparent)); }
+.sp.ok { box-shadow:0 0 0 .14em #fff, 0 0 1.1em #fff; } .sp.ok::after { content:"◎ せいかい"; position:absolute; right:.6em; font-size:.75em; background:#fff; color:#12703f; border-radius:.3em; padding:.05em .5em; }
+.sp.ng { filter:grayscale(.6); } .sp.ng::after { content:"✕"; position:absolute; right:.7em; font-size:1.1em; color:#ffb0b0; }
+.sp.dim { opacity:.35; filter:grayscale(.7); }
 </style>
 </head>
 <body>
@@ -339,10 +346,35 @@ button, input, select { font:inherit; }
       </div>
     </div>
   </div>
+  <div class="cols" style="margin-top:1em">
+    <div><span class="lab new">案2（精霊の色としるし）</span>
+      <div class="stage dark">
+        <div class="win qwin">
+          <div class="wtitle" style="font-size:1em">問題</div>
+          <div class="qtext">炭酸水素ナトリウムを加熱したとき、試験管の口にたまる液体は何か。</div>
+          <div class="cmds" id="cmds2">
+            <button class="sp" style="--c:#e8503a"><img src="../img/rikaria/chara/spirit-fire.webp" alt="火"><span>エタノール</span></button>
+            <button class="sp" style="--c:#2f86e8" data-ok><img src="../img/rikaria/chara/spirit-water.webp" alt="水"><span>水</span></button>
+            <button class="sp" style="--c:#2fae5a"><img src="../img/rikaria/chara/spirit-wind.webp" alt="風"><span>塩酸</span></button>
+            <button class="sp" style="--c:#d9a21b"><img src="../img/rikaria/chara/spirit-earth.webp" alt="土"><span>アンモニア水</span></button>
+          </div>
+          <div class="exwin" id="exwin2" style="display:none"></div>
+        </div>
+        <div style="text-align:center;margin-top:.8em"><button class="rbtn" id="cmReset2">もう一度</button></div>
+      </div>
+    </div>
+    <div><div class="note" style="padding-top:2em">案2は、色と記号で見分ける今の良さを残した形です。図形の代わりに火・水・風・土の精霊、ベタ塗りのタイルの代わりに「色の帯＋うすい色の行」にしました。4色で見分けられる点は今と同じで、「火の答え」「水の答え」と呼べます。押すと答えられます。</div></div>
+  </div>
   <div class="note">案のほうは押すと答えられます。正解は緑に光り、まちがいは赤、ほかは暗くなります。色と図形の4タイルをやめて、RPGの「たたかう・まほう」と同じコマンドの形にしました。字の大きさは今と同じです。</div>
 </div>
 
 <script>
+function wire(id, exid, rid, sel) { var b = document.getElementById(id);
+  b.onclick = function (e) { var c = e.target.closest(sel); if (!c || b.dataset.done) return; b.dataset.done = 1;
+    b.querySelectorAll(sel).forEach(function (x) { if (x.dataset.ok != null) x.classList.add('ok'); else if (x === c) x.classList.add('ng'); else x.classList.add('dim'); });
+    var ex = document.getElementById(exid); ex.style.display = ''; ex.innerHTML = (c.dataset.ok != null ? '<b>せいかい！</b> ' : '<b style="color:#ffb0b0">ざんねん…</b> 正解は「水」。') + '炭酸水素ナトリウムは、加熱すると炭酸ナトリウム・水・二酸化炭素に分かれます。'; };
+  document.getElementById(rid).onclick = function () { delete b.dataset.done; b.querySelectorAll(sel).forEach(function (x) { x.classList.remove('ok', 'ng', 'dim'); }); document.getElementById(exid).style.display = 'none'; }; }
+wire('cmds2', 'exwin2', 'cmReset2', '.sp');
 document.getElementById('pkList').onclick = function (e) { var r = e.target.closest('.pk-r'); if (r) r.classList.toggle('on'); };
 document.getElementById('jobs').onclick = function (e) { var j = e.target.closest('.job'); if (!j) return; this.querySelectorAll('.job').forEach(function (x) { x.classList.toggle('on', x === j); }); };
 document.getElementById('cmds').onclick = function (e) { var c = e.target.closest('.cm'); if (!c || this.dataset.done) return; this.dataset.done = 1;
