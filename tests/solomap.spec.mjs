@@ -14,11 +14,14 @@ for (const vp of [{ width: 1366, height: 657 }, { width: 1920, height: 950 }]) {
     await t.goto('records.html?emu=1');
     const id = t.locator('#myUid'); await expect(id).not.toBeEmpty({ timeout: 15000 });
     const uid = await id.textContent(); await rest('PUT', `admins/${uid}`, true); await t.reload();
-    await t.locator('#tab-set').click(); await expect(t.locator('#ru input').first()).toBeVisible({ timeout: 15000 });
-    await t.locator('#rg').selectOption('3'); await t.locator('#rn').fill('2学期期末');
-    await t.locator('#ru input[value="matter"]').check(); await t.locator('#ru input[value="ion"]').check();
-    await t.locator('#btnRange').click(); await expect(t.locator('#tblRange')).toContainText('2学期期末');
-    await t.locator('#tblRange').scrollIntoViewIfNeeded(); await t.screenshot({ path: `${SHOT}/r-ranges-${W}.png` });
+    await rest('DELETE', `quest/${Y}/ranges/3`);
+    await t.locator('#tab-q').click(); await t.locator('#qsub button', { hasText: 'テスト範囲をつくる' }).click();   /* 問題タブの1か所で作る（2026-11-17） */
+    await t.locator('#mkG button', { hasText: '1年' }).click(); await t.locator('.mkuh', { hasText: '物質' }).getByRole('button', { name: 'この単元を全部' }).click();
+    await t.locator('#mkG button', { hasText: '3年' }).click(); await t.locator('.mkuh', { hasText: 'イオン' }).getByRole('button', { name: 'この単元を全部' }).click();
+    await t.locator('#mkTo').selectOption('3');
+    await t.locator('#mkTerm button', { hasText: '2学期' }).click(); await t.locator('#mkExam button', { hasText: '期末' }).click();
+    await t.locator('#mkSave').click(); await expect(t.locator('#tblRangeMk')).toContainText('2学期期末', { timeout: 15000 });
+    await t.locator('#tblRangeMk').scrollIntoViewIfNeeded(); await t.screenshot({ path: `${SHOT}/r-ranges-${W}.png` });
     // 3年の生徒
     await rest('PUT', `quest/${Y}/keys/3-1-5`, 'abc315');
     await rest('DELETE', `quest/${Y}/chars/3-1-5`); await rest('DELETE', `quest/${Y}/owners/3-1-5`);

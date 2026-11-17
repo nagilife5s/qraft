@@ -158,9 +158,15 @@ test('記録画面：問題の一覧からテスト範囲を作る（1問外す�
   expect(Object.keys(r.x)).toEqual(['06147353']); expect(r.x['06147353'][1]).toBe(true); expect(r.x['06147353'][0] == null).toBe(true);
   await expect(t.locator('#tblRangeMk')).toContainText(`1セット・${nq - 1}問`);
   await expect(t.locator('#mkCnt')).toHaveText('0セット・0問');
-  // 設定タブの一覧にも同じ中身で出る
-  await t.locator('#tab-set').click(); await t.locator('#rg').selectOption('3');
-  await expect(t.locator('#tblRange')).toContainText(`1セット・${nq - 1}問（1問を外した）`);
+  await expect(t.locator('#tblRangeMk')).toContainText(`1セット・${nq - 1}問（1問を外した）`);
+  // 学期・テストのボタンで名前が入る。手で書くとボタンの選びは外れる（2026-11-17）
+  await t.locator('#mkTerm button', { hasText: '2学期' }).click(); await t.locator('#mkExam button', { hasText: '期末' }).click();
+  await expect(t.locator('#mkName')).toHaveValue('2学期期末');
+  await t.locator('#mkTerm button', { hasText: '前期' }).click(); await expect(t.locator('#mkName')).toHaveValue('前期期末');
+  await t.locator('#mkExam button', { hasText: '期末' }).click(); await expect(t.locator('#mkName')).toHaveValue('前期');
+  await t.locator('#mkName').fill('理科のまとめ'); await expect(t.locator('.mkterm button[aria-pressed=true]')).toHaveCount(0);
+  // 設定タブには、古い作り方の欄はもうない
+  await t.locator('#tab-set').click(); await expect(t.locator('#btnRange')).toHaveCount(0);
   if (SHOT) await t.screenshot({ path: SHOT + '/rec-5-rangelist.png' });
   expect(errs).toEqual([]);
 });
