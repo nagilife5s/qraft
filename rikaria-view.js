@@ -4,6 +4,7 @@
  */
 import { propImg, zakoImg, guardImg, fieldImg, effectImg, heroImg, spiritImg } from './rikaria-data.js';
 import { buildMap } from './rikaria-engine.js';
+import { dungeonArt } from './dungeon-art.js?v=20261117140000';
 
 export var MAP = buildMap();
 export function el(t, c, txt) { var e = document.createElement(t); if (c) e.className = c; if (txt != null) e.textContent = txt; return e; }
@@ -70,6 +71,10 @@ export function drawField(mapEl, ts, gv, U, lead, mini) {
   h += '<div class="unit leader' + (gv.dir === 'left' ? ' left' : '') + '" data-me="1" style="' + box(p[0], p[1]) + ';z-index:' + (p[1] * 10 + 9) + '">' + (mini || !lead ? '' : '<span class="nm">' + esc(lead.name) + '</span>') +
        '<img class="hero" alt="" src="' + (lead ? fieldImg(lead.j, lead.lk, gv.dir === 'left' || gv.dir === 'right' ? 'right' : gv.dir) : 'img/quest/hero-warrior-a.webp') + '"></div>';
   mapEl.innerHTML = h;
+  /* つながった床・壁・じゅうたんと光（dungeon-art.js。2026-11-17）。下のタイルは、絵が読めるまでの代わり */
+  dungeonArt(mapEl, { key: 'team' + (open ? 'o' : 'c'), g: g, unit: U && U.id, ts: ts, mini: mini,
+    wall: function (c) { return c === '#' || (c === 'D' && !open); }, carpet: function (c) { return c === 'c' || (c === 'D' && open); },
+    torches: TORCHES, lights: [[MAP.guard[0] + .5, MAP.guard[1] + .3, 4]] });
 }
 /* 動いたところだけ直す（リーダーと魔物） */
 export function moveField(mapEl, ts, gv, lead) {
