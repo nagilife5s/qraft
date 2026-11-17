@@ -6,9 +6,9 @@
  *
  * cx = { pin: ()=>参加コード, players: ()=>players, GR: {班→{G, lead…}}, P: {uid→出題の状態}, CH: {uid→キャラ}, pool: ()=>問題の配列, ended: ()=>終わったか, phase: ()=>state.phase }
  */
-import { db, ref, set, shuffle, prepareQuestion, maskOf } from './lib.js?v=20261117060000';
+import { db, ref, set, shuffle, prepareQuestion, maskOf } from './lib.js?v=20261117120000';
 import { onChildAdded, onChildChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-import * as E from './rikaria-engine.js?v=20261117060000';
+import * as E from './rikaria-engine.js?v=20261117120000';
 
 export function makeRoomDriver(cx) {
   var ITU = {};
@@ -19,7 +19,7 @@ export function makeRoomDriver(cx) {
     if (!p.queue || !p.queue.length) p.queue = shuffle(POOL.map(function (_, i) { return i; }));
     var qi = p.queue.pop(), q = prepareQuestion(POOL[qi], true); q.qi = qi;
     p.n++; p.cur = q; p.wait = true;
-    set(ref(db, 'rooms/' + cx.pin() + '/qs/' + u), { n: p.n, t: q.text, img: q.image || '', imgAlt: q.imageAlt || '', ch: q.choices, mu: q.multi ? 1 : 0 });
+    set(ref(db, 'rooms/' + cx.pin() + '/qs/' + u), { n: p.n, t: q.text, img: q.image || '', imgAlt: q.imageAlt || '', ch: q.choices, mu: q.multi ? 1 : 0, id: POOL[qi]._s != null ? POOL[qi]._s + '-' + (POOL[qi]._i + 1) : '' });
   }
   function onAnsBucket(snap) { var n = Number(snap.key), v = snap.val() || {}; Object.keys(v).forEach(function (u) { var p = cx.P[u]; if (p && p.n === n && p.wait) grade(u, v[u]); }); }
   function grade(u, a) {

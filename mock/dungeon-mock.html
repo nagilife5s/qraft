@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<base href="../">
+<title>リカリア ダンジョンの見た目モック</title>
+<!-- 2026-11-17 モック。ひとりで冒険のエリア（ダンジョン）を、町のモックと同じ考え方（つながった床・壁をキャンバスで描く＋光）で描きなおす案。
+     本番（quest.html / rikaria-view.js）は変えていない。地図の形は quest.html の buildArea() と同じ。
+     ?u=matter|ion|earth  ?mode=old|new。U キー：単元、T キー：見た目の切りかえ。 -->
+<style>
+html, body { margin:0; height:100%; background:#07051a; overflow:hidden; font-family:"Hiragino Maru Gothic ProN","Hiragino Sans","Noto Sans JP",sans-serif; }
+.bar { position:absolute; left:0; right:0; top:0; height:40px; display:flex; align-items:center; gap:10px; padding:0 12px; background:linear-gradient(#241a4a, #1a1338); color:#fff; z-index:20; font-size:14px; box-shadow:0 2px 8px rgba(0,0,0,.4); }
+.bar b { color:#ffd86b; }
+.seg { display:flex; background:#120c2a; border-radius:999px; padding:3px; }
+.seg button { font:inherit; font-weight:800; border:0; background:transparent; color:#cfc6ff; padding:4px 14px; border-radius:999px; cursor:pointer; }
+.seg button.on { background:#ffd86b; color:#2a1f4a; }
+.bar small { color:#b9b0e6; margin-left:auto; }
+.wrap { position:absolute; left:0; right:0; top:40px; bottom:0; overflow:hidden; cursor:pointer; }
+.map { position:absolute; left:0; top:0; }
+.map canvas.layer { position:absolute; left:0; top:0; pointer-events:none; }
+.ent { position:absolute; pointer-events:none; object-fit:contain; object-position:bottom; filter:drop-shadow(0 .12em 0 rgba(0,0,0,.35)); }
+.mob { position:absolute; pointer-events:none; display:flex; align-items:flex-end; justify-content:center; }
+.mob::before { content:""; position:absolute; bottom:2%; width:70%; height:16%; border-radius:50%; background:rgba(0,0,0,.35); }
+.mob img { width:130%; height:130%; max-width:none; object-fit:contain; object-position:bottom; filter:drop-shadow(0 .1em 0 rgba(0,0,0,.35)); animation:bob 1.6s ease-in-out infinite; position:relative; }
+.mob.boss img { width:100%; height:100%; }
+.mob.boss::after { content:"BOSS"; position:absolute; top:-.6em; font-size:.6em; font-weight:900; color:#fff; background:#e8506a; padding:0 .5em; border-radius:999px; }
+@keyframes bob { 50% { transform:translateY(-6%); } }
+.chr { position:absolute; pointer-events:none; display:flex; align-items:flex-end; justify-content:center; }
+.chr img { height:150%; width:auto; position:relative; filter:drop-shadow(0 0 .12em #ffd23f) drop-shadow(0 .1em 0 rgba(0,0,0,.3)); }
+.chr::before { content:""; position:absolute; bottom:4%; width:60%; height:18%; border-radius:50%; background:rgba(0,0,0,.35); }
+.chr.left img { transform:scaleX(-1); }
+.chr.walk img { animation:walk .22s steps(2) infinite; }
+@keyframes walk { 50% { translate:0 -3.5%; } }
+.torch { position:absolute; pointer-events:none; }
+.torch img { position:absolute; left:10%; top:0; width:80%; height:95%; object-fit:contain; }
+.glow { position:absolute; border-radius:50%; pointer-events:none; mix-blend-mode:screen; animation:flick 1.3s ease-in-out infinite alternate; }
+@keyframes flick { 0% { opacity:.82; transform:scale(.97); } 60% { opacity:1; transform:scale(1.02); } 100% { opacity:.9; } }
+.fog { position:absolute; pointer-events:none; animation:drift 14s ease-in-out infinite alternate; }
+.fog.b { animation-duration:19s; animation-direction:alternate-reverse; }
+@keyframes drift { from { transform:translate(-2%, -1%); } to { transform:translate(2%, 1.5%); } }
+.vig { position:absolute; inset:0; pointer-events:none; z-index:5; background:radial-gradient(ellipse 75% 70% at 50% 50%, transparent 55%, rgba(20,8,50,.5) 100%); }
+#fx { position:absolute; inset:0; pointer-events:none; z-index:6; }
+/* 今の見た目：rikaria-view.js tileBg() と同じ、単元の床・壁の絵をマスごとに貼る */
+#oldtiles .tile { position:absolute; }
+.t-fog { background-color:#5a5291; overflow:hidden; }
+.t-fog::after { content:""; position:absolute; inset:-30%; background:radial-gradient(circle, rgba(220,215,255,.55), transparent 65%); }
+.t-exitw { background-color:#463d82; }
+body.old .newonly, body.old #fx, body.old .vig { display:none !important; }
+body:not(.old) #oldtiles { display:none; }
+.loading { position:absolute; inset:40px 0 0; display:flex; align-items:center; justify-content:center; color:#ffd86b; font-weight:900; z-index:30; background:#07051a; }
+</style>
+</head>
+<body class="new">
+<div class="bar">
+  <b>ダンジョンの見た目モック</b>
+  <select id="selUnit" style="font:inherit;font-weight:800;border-radius:999px;padding:4px 10px;background:#ffd86b;color:#2a1f4a;border:0"></select>
+  <div class="seg" id="segMode"><button data-v="old">今の見た目</button><button data-v="new">新しい案</button></div>
+  <small>矢印キー／クリックで歩く ・ U：単元 ・ T：見た目</small>
+</div>
+<div class="wrap" id="wrap">
+  <div class="map" id="map"></div>
+  <div class="vig"></div>
+  <canvas id="fx"></canvas>
+</div>
+<div class="loading" id="loading">ダンジョンを描いています…</div>
+<script>
+'use strict';
+function rng(seed) { return function () { return (seed = (seed * 16807) % 2147483647) / 2147483647; }; }
+function grid(w, h, c) { return Array.from({ length: h }, function () { return Array(w).fill(c); }); }
+function fill(g, x0, y0, x1, y1, c) { for (var y = y0; y <= y1; y++) for (var x = x0; x <= x1; x++) if (g[y] && g[y][x] !== undefined) g[y][x] = c; }
+/* quest.html の buildArea() と同じ */
+function buildArea() {
+  var W = 42, H = 26, g = grid(W, H, '#');
+  function room(x0, y0, x1, y1) { fill(g, x0, y0, x1, y1, 'k'); }
+  room(1, 9, 9, 16); room(10, 11, 14, 14); room(15, 4, 27, 21); room(4, 2, 12, 6); room(8, 7, 9, 8); room(4, 19, 12, 23); room(8, 17, 9, 18); room(28, 11, 31, 14);
+  fill(g, 32, 6, 40, 19, 'f'); fill(g, 0, 12, 0, 13, '<'); fill(g, 1, 12, 31, 13, 'c');
+  for (var x = 16; x <= 26; x += 2) g[4][x] = 's';
+  for (x = 5; x <= 11; x += 2) { g[2][x] = 's'; g[19][x] = 's'; }
+  [[18, 7], [19, 7], [23, 7], [24, 7], [18, 17], [19, 17], [23, 17], [24, 17], [6, 4], [10, 22]].forEach(function (p) { g[p[1]][p[0]] = 't'; });
+  [[16, 20], [26, 20], [16, 5], [26, 5], [2, 10], [2, 15], [12, 3], [12, 23]].forEach(function (p) { g[p[1]][p[0]] = 'x'; });
+  [[21, 9], [21, 16]].forEach(function (p) { g[p[1]][p[0]] = 'q'; });
+  [[15, 4], [27, 4], [4, 2], [12, 19]].forEach(function (p) { g[p[1]][p[0]] = 'y'; });
+  [[27, 8], [27, 17], [1, 9], [1, 16]].forEach(function (p) { g[p[1]][p[0]] = 'p'; });
+  [[4, 6], [11, 6], [4, 23], [5, 23]].forEach(function (p) { g[p[1]][p[0]] = 'z'; });
+  return { g: g, W: W, H: H, start: [1, 12] };
+}
+var A = buildArea(), G = A.g, MW = A.W, MH = A.H;
+var UNITS = {
+  matter: { nm: '錬金工房', z: ['metarich', 'donbuka', 'banara', 'awabon', 'tokerun', 'mistoru'], tint: [255, 170, 90], fogc: [200, 185, 255], mote: ['255,226,140', '200,170,255'] },
+  ion: { nm: '水晶の湖', tint: [140, 220, 255], fogc: [190, 235, 255], mote: ['170,235,255', '220,240,255'] },
+  earth: { nm: '火山', tint: [255, 140, 70], fogc: [230, 170, 150], mote: ['255,170,90', '255,120,70'] },
+  classify: { nm: '森の遺跡', tint: [255, 210, 130], fogc: [200, 235, 190], mote: ['220,255,170', '255,240,180'] },
+  force: { nm: '鏡の洞窟', tint: [220, 235, 255], fogc: [220, 230, 255], mote: ['230,240,255', '255,250,210'] },
+  life: { nm: '大樹', tint: [255, 200, 140], fogc: [210, 240, 200], mote: ['255,200,230', '210,255,180'] },
+  reaction: { nm: '溶鉱炉', tint: [255, 150, 70], fogc: [220, 180, 160], mote: ['255,170,80', '255,210,120'] },
+  weather: { nm: '嵐の塔', tint: [230, 230, 255], fogc: [210, 215, 235], mote: ['220,230,255', '200,220,255'] },
+  electric: { nm: '発電所', tint: [255, 240, 140], fogc: [220, 220, 200], mote: ['255,245,150', '180,230,255'] },
+  space: { nm: '天文台', tint: [200, 200, 255], fogc: [190, 190, 255], mote: ['230,230,255', '255,240,200'] },
+  heredity: { nm: '螺旋の神殿', tint: [255, 230, 180], fogc: [210, 245, 230], mote: ['190,255,220', '190,220,255'] },
+  energy: { nm: '機関の城', tint: [255, 190, 100], fogc: [230, 200, 170], mote: ['255,210,120', '255,180,120'] }
+};
+var OLD_PROPS = { s: ['prop-shelf', 1.4], t: ['prop-labtable', 1.15], x: ['prop-crystal', 1.2], q: ['prop-cauldron', 1.15], y: ['prop-bookshelf', 1.8], p: ['prop-pipes', 1.2], z: ['prop-sacks', 1.1] };
+var PI = { s: 1, t: 2, x: 3, q: 4, y: 5, p: 6, z: 7 };
+var BLOCK = new Set(['#', 's', 't', 'x', 'q', 'y', 'p', 'z']);
+var MOBS = [[18, 10], [23, 15], [8, 4], [20, 19], [25, 9], [8, 21], [6, 14]];
+function cell(x, y) { var r = G[y]; return r ? r[x] : undefined; }
+function isWall(x, y) { var c = cell(x, y); return c === undefined || c === '#'; }
+function zako(u, i) { return u === 'matter' ? 'img/quest/' + UNITS.matter.z[i] + '.webp' : 'img/rikaria/enemy/' + u + '-' + (i + 1) + '.webp'; }
+function boss(u) { return u === 'matter' ? 'img/quest/boss-alchemira.webp' : 'img/rikaria/enemy/' + u + '-boss.webp'; }
+function propSrc(u, c) { return u === 'matter' ? 'img/quest/' + OLD_PROPS[c][0] + '.webp' : 'img/rikaria/prop/' + u + '-' + PI[c] + '.webp'; }
+function propSize(u, c) { return u === 'matter' ? OLD_PROPS[c][1] : 1.25; }
+
+/* ---------- ノイズ ---------- */
+function hash(x, y) { var h = Math.imul(x | 0, 374761393) + Math.imul(y | 0, 668265263) | 0; h = Math.imul(h ^ (h >>> 13), 1274126177); h ^= h >>> 16; return (h >>> 0) / 4294967296; }
+function sm(t) { return t * t * (3 - 2 * t); }
+function vn(x, y) { var i = Math.floor(x), j = Math.floor(y), fx = sm(x - i), fy = sm(y - j);
+  var a = hash(i, j), b = hash(i + 1, j), c = hash(i, j + 1), d = hash(i + 1, j + 1); return a + (b - a) * fx + (c - a) * fy + (a - b - c + d) * fx * fy; }
+function fbm(x, y) { return vn(x, y) * .5 + vn(x * 2.03 + 17, y * 2.03 + 9) * .3 + vn(x * 4.1 + 41, y * 4.1 + 3) * .2; }
+function mix(a, b, t) { return a + (b - a) * t; }
+function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
+function maskField(test, X, Y) { var u = X - .5, v = Y - .5, i = Math.floor(u), j = Math.floor(v), fx = sm(u - i), fy = sm(v - j);
+  var m = function (a, b) { return test(clamp(a, 0, MW - 1), clamp(b, 0, MH - 1)) ? 1 : 0; };
+  return mix(mix(m(i, j), m(i + 1, j), fx), mix(m(i, j + 1), m(i + 1, j + 1), fx), fy); }
+
+var U = 'matter', TS, TX, IMG = {};
+function load(src) { return new Promise(function (ok) { var i = new Image(); i.onload = function () { ok(i); }; i.onerror = function () { ok(null); }; i.src = src; }); }
+function avgColor(img, sx, sy, sw, sh) { var c = document.createElement('canvas'); c.width = c.height = 1; var x = c.getContext('2d'); x.drawImage(img, sx, sy, sw, sh, 0, 0, 1, 1); var d = x.getImageData(0, 0, 1, 1).data; return [d[0], d[1], d[2]]; }
+function pat(ctx, img, worldSize) { var p = ctx.createPattern(img, 'repeat'); p.setTransform(new DOMMatrix().scale(worldSize / img.width)); return p; }
+function newCanvas(cls, z) { var c = document.createElement('canvas'); c.className = 'layer ' + (cls || ''); c.width = MW * TX; c.height = MH * TX; c.style.width = MW * TS + 'px'; c.style.height = MH * TS + 'px'; c.style.zIndex = z; return c; }
+
+/* ---------- 新しい案：地面 ---------- */
+function paintNew(map) {
+  var cv = newCanvas('newonly', 0), ctx = cv.getContext('2d'); ctx.scale(TX, TX);
+  var fl = IMG.floor, wl = IMG.wall, wt = IMG.walltop, cp = IMG.carpet;
+  var floorC = avgColor(fl, 0, 0, fl.width, fl.height), wallTopC = avgColor(wt, wt.width * .2, wt.height * .2, wt.width * .6, wt.height * .5);
+  /* 床：単元の床の絵を、マスの切れ目なしに1枚の布のように敷く */
+  if (IMG.ground) {   /* 新しい床：つながった地面を敷き、ground2 を大きなまだらでまぜる */
+    ctx.fillStyle = pat(ctx, IMG.ground, 5); ctx.fillRect(0, 0, MW, MH);
+    if (IMG.ground2) {
+      var mc = document.createElement('canvas'); mc.width = MW * TX; mc.height = MH * TX; var mx = mc.getContext('2d');
+      mx.scale(TX, TX); mx.fillStyle = pat(mx, IMG.ground2, 5); mx.fillRect(0, 0, MW, MH); mx.setTransform(1, 0, 0, 1, 0, 0);
+      var md = document.createElement('canvas'); md.width = MW * 8; md.height = MH * 8; var mdx = md.getContext('2d'), mdd = mdx.createImageData(md.width, md.height);
+      for (var j = 0; j < md.height; j++) for (var i = 0; i < md.width; i++) { var a = sm(clamp((fbm(i / 8 * .3 + 40, j / 8 * .3) - .42) / .16, 0, 1)); mdd.data[(j * md.width + i) * 4 + 3] = a * 255; }
+      mdx.putImageData(mdd, 0, 0); mx.globalCompositeOperation = 'destination-in'; mx.drawImage(md, 0, 0, mc.width, mc.height);
+      ctx.drawImage(mc, 0, 0, MW, MH);
+    }
+  } else { ctx.fillStyle = pat(ctx, fl, 4); ctx.fillRect(0, 0, MW, MH); }
+  /* 床のむら（大きなしみ・明るいところ）でくり返しを目立たなくする */
+  var nc = document.createElement('canvas'); nc.width = MW * 8; nc.height = MH * 8; var nx = nc.getContext('2d'), nd = nx.createImageData(nc.width, nc.height);
+  for (var py = 0; py < nc.height; py++) for (var px = 0; px < nc.width; px++) { var X = px / 8, Y = py / 8, n = fbm(X * .35, Y * .35), o = (py * nc.width + px) * 4;
+    var dark = clamp((n - .5) * 2.2, -1, 1); nd.data[o] = dark > 0 ? 20 : 255; nd.data[o + 1] = dark > 0 ? 10 : 245; nd.data[o + 2] = dark > 0 ? 40 : 225; nd.data[o + 3] = Math.abs(dark) * (dark > 0 ? 70 : 38); }
+  nx.putImageData(nd, 0, 0); ctx.imageSmoothingEnabled = true; ctx.drawImage(nc, 0, 0, MW, MH);
+  /* じゅうたん：1本の帯として描く（縁は布の房、ノイズで少しよれる） */
+  var cMid = avgColor(cp, cp.width * .3, 0, cp.width * .4, cp.height), cEdge = avgColor(cp, cp.width * .02, 0, cp.width * .06, cp.height);
+  var rc = document.createElement('canvas'); rc.width = MW * TX; rc.height = MH * TX; var rx = rc.getContext('2d'), rd = rx.createImageData(rc.width, rc.height);
+  for (py = 0; py < rc.height; py++) for (px = 0; px < rc.width; px++) { X = (px + .5) / TX; Y = (py + .5) / TX;
+    var cc = cell(Math.floor(X), Math.floor(Y)); if (Y < 10.5 || Y > 14.5) continue;
+    var e = maskField(function (a, b) { return G[b][a] === 'c'; }, X, Y) - .5 + (vn(X * 5, Y * 5) - .5) * .05; if (e <= 0) continue;
+    var wv = Math.sin(X * 9) * .02 + (hash(px, py) - .5) * .06, col;
+    if (e < .06) col = [cEdge[0] * .8, cEdge[1] * .8, cEdge[2] * .8]; else if (e < .12) col = cEdge; else if (e < .14) col = [cMid[0] * .8, cMid[1] * .8, cMid[2] * .8]; else { col = cMid;
+      var dx = Math.abs(((X + .5) % 1) - .5) + Math.abs(Y - 12 - .02) * .5; if (Math.abs(e - .2) < .012) col = [cEdge[0] * .95 + 10, cEdge[1] * .95 + 10, cEdge[2] * .95]; }
+    var sh = 1 + wv + (fbm(X * .8, Y * .8) - .5) * .12, o2 = (py * rc.width + px) * 4;
+    rd.data[o2] = col[0] * sh; rd.data[o2 + 1] = col[1] * sh; rd.data[o2 + 2] = col[2] * sh; rd.data[o2 + 3] = e < .02 ? 200 : 255; }
+  rx.putImageData(rd, 0, 0);
+  ctx.save(); ctx.shadowColor = 'rgba(10,0,30,.45)'; ctx.shadowBlur = TX * .12; ctx.shadowOffsetY = TX * .04; ctx.drawImage(rc, 0, 0, MW, MH); ctx.restore();
+  /* 壁の影（床の上に、やわらかく） */
+  var sc = document.createElement('canvas'); sc.width = MW * 16; sc.height = MH * 16; var sx = sc.getContext('2d'); sx.scale(16, 16); sx.fillStyle = '#000';
+  for (var y = 0; y < MH; y++) for (var x = 0; x < MW; x++) if (isWall(x, y)) sx.fillRect(x, y + .35, 1, 1);
+  ctx.save(); ctx.globalAlpha = .55; ctx.filter = 'blur(' + Math.round(TX * .28) + 'px)'; ctx.drawImage(sc, 0, 0, MW, MH); ctx.restore();
+  /* 壁：上（天井の黒いかたまり）は1つにつなげ、床に面したところだけ壁の面を見せる */
+  for (y = 0; y < MH; y++) for (x = 0; x < MW; x++) if (isWall(x, y)) {
+    var face = !isWall(x, y + 1);
+    if (face) continue;
+    var v = (fbm(x * .4, y * .4) - .5) * .25;
+    ctx.fillStyle = 'rgb(' + wallTopC.map(function (q) { return Math.round(q * (.42 + v)); }) + ')'; ctx.fillRect(x - .002, y - .002, 1.004, 1.004);
+  }
+  ctx.save(); ctx.globalAlpha = .22; ctx.globalCompositeOperation = 'overlay'; ctx.fillStyle = pat(ctx, wt, 1.6);
+  for (y = 0; y < MH; y++) for (x = 0; x < MW; x++) if (isWall(x, y) && isWall(x, y + 1)) ctx.fillRect(x - .002, y - .002, 1.004, 1.004);
+  ctx.restore();
+  /* 天井のかたまりの縁：床側に明るい縁取り（石の笠） */
+  var capC = wallTopC.map(function (q) { return Math.round(q * .9); });
+  for (y = 0; y < MH; y++) for (x = 0; x < MW; x++) if (isWall(x, y) && isWall(x, y + 1)) {
+    ['L', 'R', 'D'].forEach(function (s) {
+      var ox = s === 'L' ? -1 : s === 'R' ? 1 : 0, oy = s === 'D' ? 1 : 0; if (s === 'D') return;
+      if (!isWall(x + ox, y) ) { ctx.fillStyle = 'rgb(' + capC + ')'; ctx.fillRect(s === 'L' ? x : x + .86, y, .14, 1.0); ctx.fillStyle = 'rgba(255,255,255,.18)'; ctx.fillRect(s === 'L' ? x : x + .97, y, .03, 1); }
+    });
+  }
+  /* 壁の面：走る向きにつなげて貼る（2マスで1枚の絵） */
+  for (y = 0; y < MH; y++) for (x = 0; x < MW; x++) if (isWall(x, y) && !isWall(x, y + 1)) {
+    ctx.save(); ctx.beginPath(); ctx.rect(x - .001, y + .22, 1.002, .78); ctx.clip();
+    var p = pat(ctx, wl, 2); ctx.fillStyle = p; ctx.fillRect(x, y + .22, 1, .78); ctx.restore();
+    ctx.fillStyle = 'rgb(' + capC + ')'; ctx.fillRect(x - .001, y, 1.002, .24);   /* 上の笠 */
+    ctx.fillStyle = 'rgba(255,255,255,.2)'; ctx.fillRect(x, y + .2, 1, .035);
+    var gd = ctx.createLinearGradient(0, y + .22, 0, y + 1); gd.addColorStop(0, 'rgba(10,0,30,.25)'); gd.addColorStop(.3, 'rgba(10,0,30,0)'); gd.addColorStop(1, 'rgba(10,0,30,.35)'); ctx.fillStyle = gd; ctx.fillRect(x, y + .22, 1, .78);
+    if (isWall(x - 1, y) && isWall(x - 1, y + 1)) { var s1 = ctx.createLinearGradient(x, 0, x + .35, 0); s1.addColorStop(0, 'rgba(10,0,30,.45)'); s1.addColorStop(1, 'rgba(10,0,30,0)'); ctx.fillStyle = s1; ctx.fillRect(x, y + .22, .35, .78); }
+    if (isWall(x + 1, y) && isWall(x + 1, y + 1)) { var s2 = ctx.createLinearGradient(x + 1, 0, x + .65, 0); s2.addColorStop(0, 'rgba(10,0,30,.45)'); s2.addColorStop(1, 'rgba(10,0,30,0)'); ctx.fillStyle = s2; ctx.fillRect(x + .65, y + .22, .35, .78); }
+  }
+  /* 小物の下の影 */
+  for (y = 0; y < MH; y++) for (x = 0; x < MW; x++) if (PI[G[y][x]]) { ctx.save(); ctx.translate(x + .55, y + .9); ctx.scale(.48, .18); var g2 = ctx.createRadialGradient(0, 0, 0, 0, 0, 1); g2.addColorStop(0, 'rgba(10,0,30,.5)'); g2.addColorStop(1, 'rgba(10,0,30,0)'); ctx.fillStyle = g2; ctx.beginPath(); ctx.arc(0, 0, 1, 0, 7); ctx.fill(); ctx.restore(); }
+  map.appendChild(cv);
+  /* 霧（ボスの部屋）：縁がやわらかく、ゆっくり流れる2枚 */
+  var fc = UNITS[U].fogc;
+  ['a', 'b'].forEach(function (k, li) {
+    var f = document.createElement('canvas'), fw = 14, fh = 18, ox = 29.5, oy = 4; f.width = fw * 12; f.height = fh * 12; f.className = 'fog newonly ' + k;
+    f.style.cssText += ';left:' + ox * TS + 'px;top:' + oy * TS + 'px;width:' + fw * TS + 'px;height:' + fh * TS + 'px;z-index:' + (li ? 112 : 110);
+    var fx2 = f.getContext('2d'), fd = fx2.createImageData(f.width, f.height);
+    for (var j = 0; j < f.height; j++) for (var i = 0; i < f.width; i++) { var X2 = ox + i / 12, Y2 = oy + j / 12;
+      var m = maskField(function (a, b) { return G[b][a] === 'f'; }, X2, Y2) + (fbm(X2 * .55 + li * 9, Y2 * .55) - .5) * 1.1 + (vn(X2 * 2 + li, Y2 * 2) - .5) * .3, cl = fbm(X2 * .45 + li * 20, Y2 * .45 + 5);
+      var al = sm(clamp((m - .2) / .6, 0, 1)) * (.2 + cl * .5) * (li ? .5 : .6), oo = (j * f.width + i) * 4;
+      fd.data[oo] = fc[0]; fd.data[oo + 1] = fc[1]; fd.data[oo + 2] = fc[2]; fd.data[oo + 3] = al * 255; }
+    fx2.putImageData(fd, 0, 0); map.appendChild(f);
+  });
+  /* 暗さと灯り：全体を少し暗くし、たいまつ・ボスのまわりを明るく抜く */
+  var lc = document.createElement('canvas'); lc.width = MW * 10; lc.height = MH * 10; lc.className = 'layer newonly'; lc.style.width = MW * TS + 'px'; lc.style.height = MH * TS + 'px'; lc.style.zIndex = 380;
+  var lx = lc.getContext('2d'); lx.scale(10, 10); lx.fillStyle = 'rgba(14,6,40,.32)'; lx.fillRect(0, 0, MW, MH);
+  lx.globalCompositeOperation = 'destination-out';
+  TORCHES.concat([[36.5, 12.5, 4.5]]).forEach(function (t) { var r = t[2] || 3.6, gr = lx.createRadialGradient(t[0], t[1] + .6, 0, t[0], t[1] + .6, r); gr.addColorStop(0, 'rgba(0,0,0,1)'); gr.addColorStop(.5, 'rgba(0,0,0,.6)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); lx.fillStyle = gr; lx.beginPath(); lx.arc(t[0], t[1] + .6, r, 0, 7); lx.fill(); });
+  map.appendChild(lc);
+}
+/* たいまつ：床に面した壁に、部屋ごとにまばらに */
+var TORCHES = [];
+(function () { for (var y = 0; y < MH; y++) for (var x = 0; x < MW; x++) if (isWall(x, y) && !isWall(x, y + 1) && cell(x, y + 1) !== 'f' && (x * 7 + y * 3) % 4 === 0 && !BLOCK.has(cell(x, y + 1)) || false) TORCHES.push([x + .5, y + .4]); })();
+
+/* ---------- 今の見た目 ---------- */
+function paintOld(map) {
+  var ts = TS, b = 'img/rikaria/tile/' + U + '-', h = '';
+  var f = function (n, size, px, py) { return ";background:url('" + b + n + ".webp') " + (-px) + 'px ' + (-py) + 'px / ' + size + 'px ' + size + 'px'; };
+  for (var y = 0; y < MH; y++) for (var x = 0; x < MW; x++) { var c = G[y][x], st;
+    if (c === '#') st = isWall(x, y + 1) && cell(x, y + 1) !== undefined || cell(x, y + 1) === undefined ? f('walltop', ts, 0, 0) : f('wall', ts * 2, (x % 2) * ts, 0);
+    else if (c === 'c') st = f('carpetv', ts, 0, 0);
+    else if (c === 'f') st = '';
+    else if (c === '<') st = '';
+    else st = f('floor', ts * 4, (x % 4) * ts, (y % 4) * ts);
+    h += '<div class="tile' + (c === 'f' ? ' t-fog' : c === '<' ? ' t-exitw' : '') + '" style="left:' + x * ts + 'px;top:' + y * ts + 'px;width:' + ts + 'px;height:' + ts + 'px' + st + '"></div>'; }
+  var d = document.createElement('div'); d.id = 'oldtiles'; d.innerHTML = h; map.appendChild(d);
+}
+
+/* ---------- 物・魔物・主人公 ---------- */
+var hero = { x: 1, y: 12, dir: 'right', last: 0, path: [] };
+function paintEnts(map) {
+  var ts = TS, h = '', u = UNITS[U];
+  function bx(x, y, w, hh) { return 'left:' + x * ts + 'px;top:' + y * ts + 'px;width:' + (w || 1) * ts + 'px;height:' + (hh || 1) * ts + 'px'; }
+  for (var y = 0; y < MH; y++) for (var x = 0; x < MW; x++) { var c = G[y][x]; if (PI[c]) { var s = propSize(U, c); h += '<img class="ent" src="' + propSrc(U, c) + '" alt="" style="left:' + (x + .5 - s / 2) * ts + 'px;top:' + (y + 1 - s) * ts + 'px;width:' + s * ts + 'px;height:' + s * ts + 'px;z-index:' + (y * 10 + 4) + '">'; } }
+  TORCHES.forEach(function (t) { h += '<div class="torch newonly" style="' + bx(t[0] - .5, t[1] - .55, 1, 1) + ';z-index:' + (Math.floor(t[1]) * 10 + 3) + '"><img src="img/rikaria/prop/torch.webp" alt=""></div>';
+    h += '<div class="glow newonly" style="' + bx(t[0] - 2.4, t[1] - 2.6, 4.8, 4.8) + ';z-index:386;background:radial-gradient(circle, rgba(' + u.tint + ',.55) 0%, rgba(' + u.tint + ',.18) 35%, rgba(0,0,0,0) 70%);animation-delay:-' + (t[0] * .31 % 1.3).toFixed(2) + 's"></div>'; });
+  h += '<div class="glow newonly" style="' + bx(33.5, 9.2, 6, 6) + ';z-index:386;background:radial-gradient(circle, rgba(' + u.fogc + ',.35) 0%, rgba(0,0,0,0) 70%)"></div>';
+  h += '<div class="mob boss" style="' + bx(35, 11, 3, 3) + ';z-index:135"><img src="' + boss(U) + '" style="scale:-1 1" alt=""></div>';
+  MOBS.forEach(function (m, i) { h += '<div class="mob" style="' + bx(m[0], m[1]) + ';z-index:' + (m[1] * 10 + 5) + '"><img src="' + zako(U, i % 6) + '" alt=""></div>'; });
+  h += '<div class="chr" id="hero" style="width:' + ts + 'px;height:' + ts + 'px"><img src="img/rikaria/chara/mage-a.webp" alt=""></div>';
+  h += '<div class="glow newonly" id="heroglow" style="width:' + 5 * ts + 'px;height:' + 5 * ts + 'px;z-index:385;background:radial-gradient(circle, rgba(255,240,210,.22) 0%, rgba(0,0,0,0) 65%)"></div>';
+  var d = document.createElement('div'); d.innerHTML = h; while (d.firstChild) map.appendChild(d.firstChild);
+}
+
+/* ---------- 歩く・カメラ・光のつぶ ---------- */
+function blocked(x, y) { var c = cell(x, y); return c === undefined || BLOCK.has(c) || MOBS.some(function (m) { return m[0] === x && m[1] === y; }); }
+function route(tx, ty) {
+  var prev = new Map(), K = function (x, y) { return y * MW + x; }, q = [[hero.x, hero.y]]; prev.set(K(hero.x, hero.y), null);
+  while (q.length) { var p = q.shift(); if (p[0] === tx && p[1] === ty) break;
+    [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(function (d) { var nx = p[0] + d[0], ny = p[1] + d[1]; if (prev.has(K(nx, ny)) || blocked(nx, ny)) return; prev.set(K(nx, ny), p); q.push([nx, ny]); }); }
+  var path = [], cur = prev.has(K(tx, ty)) ? [tx, ty] : null;
+  while (cur && !(cur[0] === hero.x && cur[1] === hero.y)) { path.unshift(cur); cur = prev.get(K(cur[0], cur[1])); }
+  hero.path = path;
+}
+var hold = null, STEP = 220;
+function step(dx, dy) { hero.dir = dx < 0 ? 'left' : dx > 0 ? 'right' : dy < 0 ? 'up' : 'down'; var nx = hero.x + dx, ny = hero.y + dy; if (blocked(nx, ny)) return; hero.sx = hero.px; hero.sy = hero.py; hero.x = nx; hero.y = ny; hero.last = performance.now(); }
+var KEYS = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0], w: [0, -1], s: [0, 1], a: [-1, 0], d: [1, 0] };
+document.addEventListener('keydown', function (e) {
+  if (e.key === 't' || e.key === 'T') return setMode(document.body.classList.contains('old') ? 'new' : 'old');
+  if (e.key === 'u' || e.key === 'U') { var ks = ['matter','classify','force','earth','life','reaction','weather','electric','ion','space','heredity','energy']; return setUnit(ks[(ks.indexOf(U) + 1) % ks.length]); }
+  if (KEYS[e.key]) { e.preventDefault(); hold = KEYS[e.key]; hero.path = []; }
+});
+document.addEventListener('keyup', function (e) { if (KEYS[e.key]) hold = null; });
+document.getElementById('wrap').addEventListener('click', function (e) { var r = document.getElementById('map').getBoundingClientRect(); route(Math.floor((e.clientX - r.left) / TS), Math.floor((e.clientY - r.top) / TS)); });
+setInterval(function () { if (hold) step(hold[0], hold[1]); else if (hero.path.length) { var p = hero.path.shift(); step(p[0] - hero.x, p[1] - hero.y); } }, STEP);
+var cam = { x: 0, y: 0, init: false }, fx = document.getElementById('fx'), fctx = fx.getContext('2d'), motes = [];
+function frame(t) {
+  if (!TS) return requestAnimationFrame(frame);
+  var wrap = document.getElementById('wrap'), ww = wrap.clientWidth, wh = wrap.clientHeight, ts = TS, k = clamp((t - hero.last) / STEP, 0, 1);
+  if (hero.px == null) { hero.px = hero.sx = hero.x; hero.py = hero.sy = hero.y; }
+  hero.px = mix(hero.sx, hero.x, k); hero.py = mix(hero.sy, hero.y, k);
+  var he = document.getElementById('hero'), hg = document.getElementById('heroglow');
+  if (he) { he.style.left = hero.px * ts + 'px'; he.style.top = hero.py * ts + 'px'; he.style.zIndex = Math.round(hero.py * 10 + 9); he.classList.toggle('left', hero.dir === 'left'); he.classList.toggle('walk', k < 1); }
+  if (hg) { hg.style.left = (hero.px - 2) * ts + 'px'; hg.style.top = (hero.py - 2.2) * ts + 'px'; }
+  var W = MW * ts, H = MH * ts, tx = clamp(ww / 2 - (hero.px + .5) * ts, ww - W, 0), ty = clamp(wh / 2 - (hero.py + .5) * ts, wh - H, 0);
+  if (!cam.init) { cam.x = tx; cam.y = ty; cam.init = true; } else { cam.x = mix(cam.x, tx, .18); cam.y = mix(cam.y, ty, .18); }
+  document.getElementById('map').style.transform = 'translate(' + cam.x.toFixed(1) + 'px,' + cam.y.toFixed(1) + 'px)';
+  if (fx.width !== ww || fx.height !== wh) { fx.width = ww; fx.height = wh; }
+  fctx.clearRect(0, 0, ww, wh);
+  if (!document.body.classList.contains('old')) {
+    var s = t / 1000; fctx.globalCompositeOperation = 'lighter';
+    motes.forEach(function (m) { m.y -= m.v; m.x += Math.sin(s * m.w + m.ph) * .25; if (m.y < -10) { m.y = wh + 10; m.x = Math.random() * ww; }
+      var a = .5 + .5 * Math.sin(s * 1.7 + m.ph), r = m.r * ts / 56, g = fctx.createRadialGradient(m.x, m.y, 0, m.x, m.y, r * 4), c = UNITS[U].mote[m.i % 2];
+      g.addColorStop(0, 'rgba(' + c + ',' + a + ')'); g.addColorStop(.25, 'rgba(' + c + ',' + a * .4 + ')'); g.addColorStop(1, 'rgba(' + c + ',0)'); fctx.fillStyle = g; fctx.beginPath(); fctx.arc(m.x, m.y, r * 4, 0, 7); fctx.fill(); });
+    fctx.globalCompositeOperation = 'source-over';
+  }
+  requestAnimationFrame(frame);
+}
+(function () { var r = rng(5); for (var i = 0; i < 22; i++) motes.push({ i: i, x: r() * innerWidth, y: r() * innerHeight, v: .1 + r() * .25, r: 1.1 + r() * 1.6, w: .3 + r() * .6, ph: r() * 6 }); })();
+
+function setMode(v) { document.body.classList.toggle('old', v === 'old'); segOn('segMode', v); }
+function setUnit(v) { U = v; document.getElementById('selUnit').value = v; build(); }
+function segOn(id, v) { document.querySelectorAll('#' + id + ' button').forEach(function (b) { b.classList.toggle('on', b.dataset.v === v); }); }
+document.querySelectorAll('#segMode button').forEach(function (b) { b.onclick = function () { setMode(b.dataset.v); }; });
+(function () { var sel = document.getElementById('selUnit'); ['matter','classify','force','earth','life','reaction','weather','electric','ion','space','heredity','energy'].forEach(function (k) { var o = document.createElement('option'); o.value = k; o.textContent = UNITS[k].nm + '（' + k + '）'; sel.appendChild(o); }); sel.onchange = function () { setUnit(sel.value); sel.blur(); }; })();
+function build() {
+  window.READY = false; document.getElementById('loading').style.display = '';
+  var b = 'img/rikaria/tile/' + U + '-';
+  Promise.all(['floor', 'wall', 'walltop', 'carpet', 'ground', 'ground2'].map(function (n) { return load(b + n + '.webp'); })).then(function (im) {
+    /* 新しい床（<単元>-ground / ground2、依頼文：03_素材/依頼文/これから頼む/ダンジョンの床｜依頼文.md）があれば使う。無ければ今の床 */
+    IMG = { floor: im[0], wall: im[1], walltop: im[2], carpet: im[3], ground: im[4], ground2: im[5] };
+    var wrap = document.getElementById('wrap').getBoundingClientRect();
+    TS = Math.max(24, Math.floor(Math.min(wrap.width / 17, wrap.height / 10.5)));
+    TX = Math.min(64, Math.round(TS * Math.min(window.devicePixelRatio || 1, 1.5)));
+    var map = document.getElementById('map'); map.innerHTML = ''; map.style.width = MW * TS + 'px'; map.style.height = MH * TS + 'px'; map.style.fontSize = TS * .5 + 'px';
+    paintOld(map); paintNew(map); paintEnts(map); cam.init = false;
+    document.getElementById('loading').style.display = 'none'; window.READY = true;
+  });
+}
+var qs = new URLSearchParams(location.search);
+if (qs.get('x')) { hero.x = +qs.get('x'); hero.y = +qs.get('y'); }
+setMode(qs.get('mode') || 'new'); setUnit(UNITS[qs.get('u')] ? qs.get('u') : 'matter');
+requestAnimationFrame(frame);
+var rz; window.addEventListener('resize', function () { clearTimeout(rz); rz = setTimeout(build, 200); });
+</script>
+</body>
+</html>

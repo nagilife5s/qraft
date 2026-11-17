@@ -6,9 +6,9 @@
 <title>リカリア チーム戦</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261117060000">
-<link rel="stylesheet" href="quest.css?v=20261117060000">
-<link rel="stylesheet" href="rikaria.css?v=20261117060000">
+<link rel="stylesheet" href="theme.css?v=20261117120000">
+<link rel="stylesheet" href="quest.css?v=20261117120000">
+<link rel="stylesheet" href="rikaria.css?v=20261117120000">
 <style>
   #app { background:url(img/rikaria/title-bg.webp) center/cover no-repeat, #1d1648; }
   .q-bg-r { background:rgba(10,6,36,.55); }
@@ -143,13 +143,13 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261117060000"></script>
+<script src="firebase-config.js?v=20261117120000"></script>
 <script type="module">
-import { signIn, db, ref, set, get, update, onValue, serverNow, $, showScreen, confetti } from './lib.js?v=20261117060000';
-import { fiscalYear, ensureOwner, cmdImg } from './quest.js?v=20261117060000';
+import { signIn, db, ref, set, get, update, onValue, serverNow, $, showScreen, confetti, makeAdvLog } from './lib.js?v=20261117120000';
+import { fiscalYear, ensureOwner, cmdImg } from './quest.js?v=20261117120000';
 import { JOBS, JOB_KEYS, MP_MAX, LEARN, ELEMS, ELEM, heroImg, skillName, rankOf, rankCost, canRankUp, rankUp, loadoutOf, learned, migrateChar, expToNext, unitById, battleBg, weakOf, LOAD_N, OBLION,
-         newChar, ITEMS, carryList, spiritImg, storyBoss, storyOb, TOWN_DEFAULT , itemImg, iconHtml, statsOf, addExp, dayNo, soloDayCap } from './rikaria-data.js?v=20261117060000';
-import { el, esc, drawField, moveField, cameraOf, cellAt, dmgFx, supportFx, ovban, redflash, MAP, spiritHtml } from './rikaria-view.js?v=20261117060000';
+         newChar, ITEMS, carryList, spiritImg, storyBoss, storyOb, TOWN_DEFAULT , itemImg, iconHtml, statsOf, addExp, dayNo, soloDayCap } from './rikaria-data.js?v=20261117120000';
+import { el, esc, drawField, moveField, cameraOf, cellAt, dmgFx, supportFx, ovban, redflash, MAP, spiritHtml } from './rikaria-view.js?v=20261117120000';
 
 var TS = { '.sv': 'timestamp' };
 var uid = null, pin = null, state = null, sid = '', ch = null, look = 'a', job = 'warrior', gp = 0;
@@ -157,6 +157,9 @@ var item = '', itemUsed = false;   /* 持っていく持ち物（回復系を1�
 var players = {}, gv = null, qs = null, U = null, ready = false, done = false, actN = 0, ctlN = 0, lastQ = 0, view = '';
 /* なかまと冒険（生徒が開く部屋。?party=1）：ひとりで冒険のログインの番号をそのまま使い、班は1つ。強さの写し m を部屋に出し、ごほうびは自分のキャラに自分で書く（2026-11-16） */
 var PARTY = new URLSearchParams(location.search).get('party') === '1', MYQ = null, lastWrite = Date.now();
+/* 答えた結果を先生の記録画面へ（家庭練習と同じ practice/<番号>。1つの部屋で1件・終わったときと画面を閉じたときに書く。2026-11-17） */
+var advN = 0, ADV = makeAdvLog(PARTY ? 'p' : 't', function () { return sid; }, function () { return (state && state.y) || fiscalYear(); });
+addEventListener('pagehide', function () { ADV.flush(); });
 if (PARTY) { try { MYQ = JSON.parse(localStorage.getItem('qraft.quest.me') || 'null'); } catch (e) {} }
 
 (async function boot() {
@@ -269,7 +272,8 @@ async function joinRoom() {
   catch (e) { err('joinErr', '参加できませんでした: ' + e.message); showScreen('s-join'); return; }
   onValue(ref(db, 'rooms/' + pin + '/state'), function (s) { state = s.val(); render(); });
   onValue(ref(db, 'rooms/' + pin + '/players'), function (s) { players = s.val() || {}; if (view === 's-prep') drawPrep(); });
-  onValue(ref(db, 'rooms/' + pin + '/qs/' + uid), function (s) { qs = s.val(); drawQ(); });
+  ADV.start((state && state.unit) || '');
+  onValue(ref(db, 'rooms/' + pin + '/qs/' + uid), function (s) { qs = s.val(); if (qs && qs.r && qs.r.n === qs.n && qs.n > advN) { advN = qs.n; ADV.add(null, !!qs.r.ok, qs.id || ''); } drawQ(); });
   onValue(ref(db, 'rooms/' + pin + '/gv/' + gp), function (s) { gv = s.val(); render(); });
   onValue(ref(db, 'rooms/' + pin + '/kicked/' + uid), function (s) { if (s.val()) msg('この部屋から退出になりました'); });
 }
@@ -632,7 +636,7 @@ async function applyPartyReward(r) {
   return out;
 }
 async function showResult() {
-  done = true; view = 's-result';
+  done = true; view = 's-result'; ADV.flush();
   var tw = (state && state.tw) || { n: TOWN_DEFAULT, st: 0 };   /* 町の名前と段階（先生のPCが終了のときに送る） */
   $('storyMini').classList.add('hide');
   try { localStorage.removeItem('qraft.rikaria'); } catch (e) {}

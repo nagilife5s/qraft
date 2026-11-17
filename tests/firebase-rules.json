@@ -241,6 +241,15 @@
           },
           "y": {
             ".validate": "newData.isString() && newData.val().matches(/^20[0-9][0-9]$/)"
+          },
+          "m": {
+            ".validate": "newData.val() === 'q' || newData.val() === 'p' || newData.val() === 't'"
+          },
+          "u": {
+            ".validate": "newData.isString() && newData.val().matches(/^[a-z]{2,12}$/)"
+          },
+          "s": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 36000"
           }
         },
         ".write": "auth != null && root.child('admins').child(auth.uid).exists() && !newData.exists()"
@@ -427,6 +436,39 @@
                 ".validate": false
               }
             }
+          }
+        }
+      }
+    },
+    "qedits": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('admins').child(auth.uid).exists()",
+      "$set": {
+        ".validate": "$set.matches(/^[a-z0-9-]{1,24}$/)",
+        "$i": {
+          ".validate": "$i.matches(/^[0-9]{1,3}$/) && newData.hasChildren(['t'])",
+          "q": {
+            ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 600"
+          },
+          "c": {
+            "$j": {
+              ".validate": "$j.matches(/^[0-9]$/) && newData.isString() && newData.val().length <= 200"
+            }
+          },
+          "a": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 9"
+          },
+          "ex": {
+            ".validate": "newData.isString() && newData.val().length <= 1000"
+          },
+          "t": {
+            ".validate": "newData.isNumber()"
+          },
+          "by": {
+            ".validate": "newData.isString() && newData.val().length <= 40"
+          },
+          "$other": {
+            ".validate": false
           }
         }
       }

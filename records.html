@@ -4,47 +4,126 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Qraft 家庭練習の記録</title>
+<title>Qraft 先生の記録画面</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <style>
+  [hidden] { display:none !important; }
+  :root { --navy:#0a0c2c; --gold:#ffe27a; --ink-dark:#241c4a; }
   body { font-family:-apple-system,"Hiragino Kaku Gothic ProN",sans-serif; margin:0; background:#f6f4fb; color:#241c4a; }
-  main { max-width:62em; margin:0 auto; padding:1.2em 1em 4em; }
-  h1 { font-size:1.4em; } h2 { font-size:1.1em; margin-top:1.8em; }
-  button, select, input { font:inherit; padding:.45em .9em; border-radius:.5em; border:1px solid #bdb5de; background:#fff; cursor:pointer; max-width:100%; }
+  /* 上の帯：リカリアのタイトルと同じ「紺の窓・白い二重枠・金の字」（rikaria.css の .rk-skin に合わせる） */
+  header.top { background:linear-gradient(180deg,#1a1660,#0a0c2c); color:#fff; border-bottom:.2em solid #fff; box-shadow:0 .2em 0 var(--navy); position:sticky; top:0; z-index:20; }
+  header.top .in { max-width:84em; margin:0 auto; padding:.55em 1em 0; display:flex; flex-wrap:wrap; align-items:flex-end; gap:.4em 1.2em; }
+  header.top h1 { margin:0 0 .45em; font-size:1.25em; color:var(--gold); letter-spacing:.1em; text-shadow:0 0 .4em rgba(255,226,122,.45); }
+  nav.tabs { display:flex; gap:.3em; }
+  nav.tabs button { font:inherit; font-weight:800; font-size:1.02em; padding:.5em 1.4em; border:.15em solid rgba(255,255,255,.55); border-bottom:0; border-radius:.6em .6em 0 0; background:rgba(255,255,255,.08); color:#fff; cursor:pointer; }
+  nav.tabs button[aria-selected="true"] { background:#f6f4fb; color:#241c4a; border-color:#fff; }
+  main { max-width:84em; margin:0 auto; padding:1em 1em 4em; }
+  h2 { font-size:1.1em; margin-top:1.6em; } h2:first-child { margin-top:.4em; }
+  button, select, input, textarea { font:inherit; padding:.45em .9em; border-radius:.5em; border:1px solid #bdb5de; background:#fff; cursor:pointer; max-width:100%; }
+  input, textarea { cursor:text; }
   button.main { background:#5b3fd6; color:#fff; border-color:#5b3fd6; font-weight:700; }
+  button:disabled { opacity:.5; cursor:default; }
   table { border-collapse:collapse; width:100%; background:#fff; margin-top:.6em; }
   th, td { border:1px solid #ddd8ee; padding:.4em .7em; text-align:left; font-variant-numeric:tabular-nums; }
   th { background:#ece8fa; position:sticky; top:0; }
   tr.sum { cursor:pointer; } tr.sum:hover { background:#f3f0ff; }
-  tr.det td { background:#faf9fe; font-size:.92em; }
+  tr.det td { background:#faf9fe; font-size:.92em; line-height:1.7; }
   .bar { display:inline-block; height:.8em; background:#5b3fd6; border-radius:.4em; vertical-align:middle; }
   .low { color:#b3261e; font-weight:700; }
   .row { display:flex; flex-wrap:wrap; gap:.6em; align-items:center; margin:.6em 0; }
   .note { background:#fff; border-radius:.6em; padding:.8em 1em; line-height:1.7; }
   code { background:#eee; padding:.1em .4em; border-radius:.3em; word-break:break-all; }
+  .md { display:inline-block; border-radius:999px; padding:0 .6em; font-size:.82em; font-weight:800; white-space:nowrap; }
+  .md-h { background:#e3e6f2; color:#33415c; } .md-q { background:#dff3e6; color:#14613a; } .md-p { background:#ffe9c7; color:#7a4300; } .md-t { background:#e4dcff; color:#3b1f99; }
+  details.help { margin:.4em 0; } details.help summary { cursor:pointer; color:#5b3fd6; font-weight:700; }
+  /* 問題タブ */
+  .qwrap { display:grid; grid-template-columns:minmax(18em, 26em) 1fr; gap:1em; align-items:start; }
+  .qwrap > .left { position:sticky; top:4.2em; }
+  @media (max-width: 900px) { .qwrap { grid-template-columns:1fr; } .qwrap > .left { position:static; } }
+  .qcard { background:#fff; border:1px solid #ddd8ee; border-radius:.7em; padding:.7em .9em; margin:.6em 0; display:grid; grid-template-columns:1fr auto; gap:.4em 1em; }
+  .qcard.ed { border-color:#e0a100; box-shadow:0 0 0 .12em rgba(224,161,0,.35); }
+  .qcard .qt { font-weight:700; line-height:1.55; white-space:pre-wrap; }
+  .qcard .qn { color:#6b6390; font-size:.85em; font-weight:800; margin-right:.4em; }
+  .qcard img.th { max-width:11em; max-height:8em; border:1px solid #ddd8ee; border-radius:.4em; cursor:zoom-in; grid-row:span 3; }
+  .qcard ol { margin:.2em 0; padding-left:1.6em; line-height:1.6; } .qcard li.ok { font-weight:800; color:#14613a; } .qcard li.ok::after { content:" ✓ 正解"; font-size:.85em; }
+  .qcard li img { max-height:2.4em; vertical-align:middle; margin-right:.3em; }
+  .qcard .ex { background:#faf7e8; border-radius:.4em; padding:.35em .6em; font-size:.93em; line-height:1.6; white-space:pre-wrap; }
+  .qcard .ops { grid-column:1 / -1; display:flex; flex-wrap:wrap; gap:.5em; align-items:center; }
+  .badge-ed { background:#ffe08a; color:#5a3d00; border-radius:999px; padding:0 .6em; font-size:.8em; font-weight:800; }
+  .qform { grid-column:1 / -1; display:flex; flex-direction:column; gap:.45em; background:#f7f5ff; border-radius:.5em; padding:.6em; }
+  .qform textarea { width:100%; box-sizing:border-box; min-height:3.2em; resize:vertical; }
+  .qform .ch { display:flex; gap:.4em; align-items:center; } .qform .ch input[type=text] { flex:1; }
+  .qform label.lb { font-weight:800; font-size:.9em; color:#4a3f80; }
+  .qhead { display:flex; flex-wrap:wrap; gap:.4em 1em; align-items:baseline; } .qhead h2 { margin:0; }
+  .edlist { display:flex; flex-wrap:wrap; gap:.35em; margin:.4em 0; } .edlist button { font-size:.85em; padding:.25em .7em; }
+  /* セットの選び方（lib.js の mountSetPicker。theme.css と同じ見た目） */
+  .pkr { display:flex; flex-direction:column; gap:.6em; container:pk / inline-size; }
+  .pseg { display:grid; grid-template-columns:repeat(4, 1fr); gap:.4em; }
+  .pseg-b { font:inherit; cursor:pointer; background:#f0ebff; color:var(--ink-dark); border-radius:.9em; padding:.45em .3em; display:flex; flex-direction:column; align-items:center; line-height:1.15; border:.15em solid transparent; }
+  .pseg-b b { font-size:1.05em; font-weight:900; } .pseg-b small { font-size:.75em; opacity:.65; font-weight:800; }
+  .pseg-b.on { background:linear-gradient(#6a35e8,#4320b0); color:#fff; }
+  .pkq { font-weight:700; border:.15em solid #d6cdf7; border-radius:.8em; padding:.5em .9em; width:100%; box-sizing:border-box; }
+  .purow { display:flex; flex-wrap:wrap; gap:.35em; } .purow.hide { display:none; }
+  .pchip { font-weight:800; font-size:.85em; border:.12em solid transparent; border-radius:999px; padding:.25em .8em; background:#f2effd; color:var(--ink-dark); display:inline-flex; align-items:center; gap:.4em; }
+  .pchip i { width:.65em; height:.65em; border-radius:50%; background:var(--fc, #888); } .pchip.on { background:var(--fc, #4320b0); color:#fff; } .pchip.on i { background:#fff; } .pchip:first-child.on { background:#4320b0; }
+  .plist { max-height:calc(100vh - 19em); min-height:12em; overflow:auto; border-radius:.9em; background:#faf9ff; border:.15em solid #e2dbfa; padding:0 .35em .35em; }
+  .pgh { position:sticky; top:0; z-index:2; display:flex; align-items:center; gap:.6em; margin:.3em -.35em .3em; padding:.3em .8em; background:var(--fc); color:#fff; font-weight:900; }
+  .pgt { font-size:.95em; } .pgc { font-size:.8em; opacity:.85; } .pgall { display:none; }
+  .pcard { position:relative; display:flex; align-items:center; gap:.5em; margin:.18em 0; padding:.3em .6em; border-radius:.7em; background:#fff; border:.12em solid #ece7fb; border-left:.4em solid var(--fc, #888); cursor:pointer; font-weight:700; }
+  .pcard:hover { background:#f6f2ff; } .pcard.on { background:#e8e0ff; border-color:var(--fc, #6a35e8); }
+  .pcard input { position:absolute; left:0; top:0; width:1px; height:1px; opacity:0; pointer-events:none; }
+  .pcard .pck { display:none; } .pcard .ptt { flex:1; min-width:0; font-size:.95em; line-height:1.3; }
+  .pcard .pmeta { display:flex; gap:.3em; font-size:.78em; white-space:nowrap; } .bdg { border-radius:999px; padding:0 .5em; background:#e3e6f2; font-weight:800; } .bdg.m { background:#dcd4ff; } .bdg.t { background:#ffe9c7; }
+  .pkr .empty { padding:1.2em; text-align:center; opacity:.6; font-weight:800; }
+  @container pk (max-width: 330px) { .pcard { flex-wrap:wrap; } .pcard .pmeta { width:100%; } }
+  .img-zoom { position:fixed; inset:0; background:rgba(0,0,0,.82); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:100; cursor:zoom-out; color:#fff; }
+  .img-zoom img { max-width:94vw; max-height:88vh; background:#fff; }
 </style>
 </head>
 <body>
+<header class="top"><div class="in">
+  <h1>Qraft 先生の記録画面</h1>
+  <nav class="tabs" role="tablist" id="tabs" hidden>
+    <button role="tab" id="tab-rec" aria-controls="p-rec" data-tab="rec">記録</button>
+    <button role="tab" id="tab-q" aria-controls="p-q" data-tab="q">問題</button>
+    <button role="tab" id="tab-set" aria-controls="p-set" data-tab="set">設定</button>
+  </nav>
+</div></header>
 <main>
-<h1>Qraft 家庭練習の記録（先生用）</h1>
 <div id="gate"></div>
 <div id="body" hidden>
+<!-- ============================================================ 記録 -->
+<section role="tabpanel" id="p-rec" aria-labelledby="tab-rec">
   <div class="row">
     学年 <select id="fg"><option value="0">すべて</option><option>1</option><option>2</option><option>3</option></select>
     クラス <select id="fc"><option value="0">すべて</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select>
     期間 <select id="fd"><option value="0">すべて</option><option value="7">この7日</option><option value="30">この30日</option></select>
+    種類 <select id="fm"><option value="">すべて</option><option value="h">家庭練習</option><option value="q">ひとりで冒険</option><option value="p">なかまと冒険</option><option value="t">チーム戦</option></select>
     <button id="btnCsv">CSVを保存</button>
     <button id="btnReload">読み込み直す</button>
     <button id="btnDel" style="color:#b3261e">記録を消す</button> <span id="delMsg" role="status"></span>
   </div>
-  <div class="note" style="margin:.4em 0">⚠️ この記録は<b>成績には直接使わない参考記録</b>です。正解数は生徒の端末が数えた値で、本人が自分の点を盛ることは防げません。
-    2026年11月11日から、記録を送れるのは合言葉を入れた本人の端末だけになりました。それより前の記録には「本人確認なし」と付けています（ほかの人が番号を名乗って送った可能性があります）。</div>
+  <details class="help"><summary>この記録について</summary><div class="note" style="margin:.4em 0">⚠️ この記録は<b>成績には直接使わない参考記録</b>です。正解数は生徒の端末が数えた値で、本人が自分の点を盛ることは防げません。
+    2026年11月11日から、記録を送れるのは合言葉を入れた本人の端末だけになりました。それより前の記録には「本人確認なし」と付けています。<br>
+    2026年11月17日から、<span class="md md-q">ひとりで冒険</span>（エリアに入ってから町にもどるまでで1回）・<span class="md md-p">なかまと冒険</span>・<span class="md md-t">チーム戦</span>（1つの部屋で1回）の答えも記録します。</div></details>
   <div id="meta"></div>
-  <h2>生徒ごと（行を押すと、練習の一覧）</h2>
+  <h2>生徒ごと（行を押すと、一覧）</h2>
   <div style="overflow:auto"><table id="tbl"></table></div>
-  <h2>セットごと（よく練習されているセット・正答率の低いセット）</h2>
+  <h2>セットごと（よく使われているセット・正答率の低いセット）</h2>
   <div style="overflow:auto"><table id="tblSet"></table></div>
-  <h2>合言葉（クエスト・家庭練習）</h2>
+</section>
+<!-- ============================================================ 問題 -->
+<section role="tabpanel" id="p-q" aria-labelledby="tab-q" hidden>
+  <div class="note">問題をえらぶと、問題文・選択肢（✓が正解）・解説・図を見られます。「直す」で、問題文・選択肢・正解・解説を直せます。直したものは<b>すぐに</b>家庭練習・クラシック・リカリア・ひとりで冒険・なかまと冒険に出ます（もとの問題データは変わりません。あとでまとめて原本に書きもどします）。
+    <div id="edSum"></div></div>
+  <div class="qwrap" style="margin-top:.8em">
+    <div class="left"><div id="qPicker"></div></div>
+    <div id="qView"><div class="note">左の一覧から問題セットをえらんでください。</div></div>
+  </div>
+</section>
+<!-- ============================================================ 設定 -->
+<section role="tabpanel" id="p-set" aria-labelledby="tab-set" hidden>
+  <h2>合言葉・キャラ（リカリア・家庭練習）</h2>
   <div class="note">クエストのキャラと家庭練習の記録は、出席番号ごとの合言葉を入れた端末だけが使えます（初回と、端末を変えたときに入力。クエストと家庭練習で共通）。<br>
     組を選んで「合言葉を作る」を押すと、まだ合言葉がない番号に作ります。作ったら印刷して、生徒に1人ずつ配ってください。
     <div class="row">年度 <b id="qy"></b>　学年 <select id="kg"><option>1</option><option>2</option><option>3</option></select>
@@ -76,29 +155,30 @@
   <div class="note">この端末のID: <code id="myUid"></code><br>
     別の端末で開いたときに出るIDを、ここに入れて追加します。<br>
     <input id="addUid" size="34" placeholder="追加する端末のID"> <button id="btnAdd">追加</button> <span id="addMsg"></span></div>
+</section>
 </div>
 </main>
 
 <script src="firebase-config.js"></script>
 <script type="module">
-import { signIn, db, ref, set, get, remove } from './lib.js';
+import { signIn, db, ref, set, get, remove, loadQEdits, mountSetPicker, zoomImage } from './lib.js';
 import { fiscalYear, makeCode } from './quest.js';
 import { UNITS } from './rikaria-data.js';
 var $ = function (id) { return document.getElementById(id); };
-var uid = null, rows = [], titles = {}, open = {};
+var uid = null, rows = [], titles = {}, open = {}, HS = [];
 
 function gate(html) { $('gate').innerHTML = html; }
 (async function boot() {
   try { uid = (await signIn()).uid; } catch (e) { gate('<div class="note">ログインに失敗しました：' + e.message + '</div>'); return; }
   $('myUid').textContent = uid;
-  try { (await (await fetch('home/index.json', { cache: 'no-cache' })).json()).forEach(function (s) { titles[s.id] = s.title; }); } catch (e) {}
+  try { HS = await (await fetch('home/index.json', { cache: 'no-cache' })).json(); HS.forEach(function (s) { titles[s.id] = s.title; }); } catch (e) {}
   await check();
 })();
 
 async function check() {
   var admin = false;
   try { admin = (await get(ref(db, 'admins/' + uid))).val() === true; } catch (e) {}
-  if (admin) { gate(''); $('body').hidden = false; load(); loadRanges(); return; }
+  if (admin) { gate(''); $('body').hidden = false; $('tabs').hidden = false; showTab(savedTab()); load(); loadRanges(); return; }
   gate('<div class="note">この端末は、まだ先生として登録されていません。<br>' +
     '<b>最初の1回だけ</b>、このボタンで登録できます（登録できるのは最初の1台。2台目以降は、登録済みの端末から追加します）。<br>' +
     '<button class="main" id="btnClaim" style="margin-top:.6em">この端末を先生として登録する</button> <span id="claimMsg"></span></div>');
@@ -116,56 +196,69 @@ async function load() {
     var p = stu.key.split('-');
     stu.forEach(function (a) {
       var v = a.val();
-      rows.push({ g: +p[0], c: +p[1], n: +p[2], sid: stu.key, f: v.f, nq: v.n, k: v.k, w: v.w || '', r: v.r ? 1 : 0, t: v.t, ok: v.y ? 1 : 0 });
+      rows.push({ g: +p[0], c: +p[1], n: +p[2], sid: stu.key, f: v.f, nq: v.n, k: v.k, w: v.w || '', r: v.r ? 1 : 0, t: v.t, ok: v.y ? 1 : 0, m: v.m || 'h', u: v.u || '', s: v.s || 0 });
     });
   });
   render();
 }
 
 function filtered() {
-  var g = +$('fg').value, c = +$('fc').value, d = +$('fd').value, since = d ? Date.now() - d * 864e5 : 0;
-  return rows.filter(function (r) { return (!g || r.g === g) && (!c || r.c === c) && r.t >= since; });
+  var g = +$('fg').value, c = +$('fc').value, d = +$('fd').value, m = $('fm').value, since = d ? Date.now() - d * 864e5 : 0;
+  return rows.filter(function (r) { return (!g || r.g === g) && (!c || r.c === c) && (!m || r.m === m) && r.t >= since; });
 }
 function pct(k, n) { return n ? Math.round(k / n * 100) : 0; }
 function when(t) { var d = new Date(t); return (d.getMonth() + 1) + '/' + d.getDate() + ' ' + d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0'); }
+/* 記録の種類（2026-11-17）：h＝家庭練習（m がない古い記録も）・q＝ひとりで冒険・p＝なかまと冒険・t＝チーム戦 */
+var MODES = ['h', 'q', 'p', 't'], MODE_N = { h: '家庭練習', q: 'ひとりで冒険', p: 'なかまと冒険', t: 'チーム戦' };
+function mdBadge(m) { return '<span class="md md-' + m + '">' + MODE_N[m] + '</span>'; }
+function unitName(id) { var u = UNITS.filter(function (x) { return x.id === id; })[0]; return u ? u.g + '年 ' + u.unit : ''; }
+/* 記録の名前：1つのセットならセットの題名、いろいろなセットなら単元の名前 */
+function recName(r) { return titles[r.f] || (unitName(r.f) ? unitName(r.f) + '（いろいろなセット）' : r.u ? unitName(r.u) + '（いろいろなセット）' : r.f === 'mix' ? 'いろいろなセット' : r.f); }
+function secTxt(s) { return s >= 60 ? Math.round(s / 60) + '分' : s + '秒'; }
+/* まちがえた問題：家庭練習は「2,5」（セットの何問目）、冒険は「セットid-何問目」 */
+function wrongTxt(r) {
+  if (r.m === 'h') return esc(r.w);
+  return r.w.split(',').map(function (x) { var m = /^(.+)-(\d+)$/.exec(x); return m ? esc((titles[m[1]] || m[1]) + ' ' + m[2] + '問目') : esc(x); }).join('、');
+}
 function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
 
 function render() {
   var rs = filtered();
-  $('meta').textContent = '練習 ' + rs.length + ' 回 ／ 生徒 ' + new Set(rs.map(function (r) { return r.sid; })).size + ' 人（全体 ' + rows.length + ' 回）';
+  $('meta').textContent = '記録 ' + rs.length + ' 回 ／ 生徒 ' + new Set(rs.map(function (r) { return r.sid; })).size + ' 人（全体 ' + rows.length + ' 回）';
   var by = {};
   rs.forEach(function (r) { (by[r.sid] = by[r.sid] || []).push(r); });
   var ids = Object.keys(by).sort(function (a, b) { var x = a.split('-').map(Number), y = b.split('-').map(Number); return x[0] - y[0] || x[1] - y[1] || x[2] - y[2]; });
-  var h = '<tr><th>学年・組・番</th><th>回数</th><th>解いた問題</th><th>正答率</th><th>最後の練習</th></tr>';
+  var h = '<tr><th>学年・組・番</th><th>回数</th><th>種類</th><th>解いた問題</th><th>正答率</th><th>最後</th></tr>';
   ids.forEach(function (id) {
     var a = by[id].sort(function (x, y) { return y.t - x.t; }), n = 0, k = 0;
     a.forEach(function (r) { n += r.nq; k += r.k; });
     var p = pct(k, n);
-    h += '<tr class="sum" data-id="' + id + '"><td>' + id.replace(/(\d)-(\d+)-(\d+)/, '$1年$2組 $3番') + '</td><td>' + a.length + '</td><td>' + n + '</td><td' + (p < 60 ? ' class="low"' : '') + '>' + p + '% <span class="bar" style="width:' + p * .6 + 'px"></span></td><td>' + when(a[0].t) + '</td></tr>';
+    var cm = {}; a.forEach(function (r) { cm[r.m] = (cm[r.m] || 0) + 1; });
+    h += '<tr class="sum" data-id="' + id + '"><td>' + id.replace(/(\d)-(\d+)-(\d+)/, '$1年$2組 $3番') + '</td><td>' + a.length + '</td><td>' + MODES.filter(function (x) { return cm[x]; }).map(function (x) { return mdBadge(x) + ' ' + cm[x]; }).join(' ') + '</td><td>' + n + '</td><td' + (p < 60 ? ' class="low"' : '') + '>' + p + '% <span class="bar" style="width:' + p * .6 + 'px"></span></td><td>' + when(a[0].t) + '</td></tr>';
     if (open[id]) {
-      h += '<tr class="det"><td colspan="5">' + a.map(function (r) {
-        return when(r.t) + '　' + esc(titles[r.f] || r.f) + '　' + r.k + '/' + r.nq + (r.r ? '（やりなおし）' : '') + (r.w ? '　×問 ' + esc(r.w) : '') + (r.ok ? '' : '　<span style="color:#8a6d00">［本人確認なし］</span>');
+      h += '<tr class="det"><td colspan="6">' + a.map(function (r) {
+        return when(r.t) + '　' + mdBadge(r.m) + ' ' + esc(recName(r)) + '　' + r.k + '/' + r.nq + (r.s ? '（' + secTxt(r.s) + '）' : '') + (r.r ? '（やりなおし）' : '') + (r.w ? '　×問 ' + wrongTxt(r) : '') + (r.ok ? '' : '　<span style="color:#8a6d00">［本人確認なし］</span>');
       }).join('<br>') + '</td></tr>';
     }
   });
-  $('tbl').innerHTML = h;
+  $('tbl').innerHTML = ids.length ? h : '<tr><td>記録はありません</td></tr>';
   document.querySelectorAll('tr.sum').forEach(function (tr) { tr.onclick = function () { open[tr.dataset.id] = !open[tr.dataset.id]; render(); }; });
 
   var bs = {};
-  rs.filter(function (r) { return !r.r; }).forEach(function (r) { var o = bs[r.f] = bs[r.f] || { t: 0, n: 0, k: 0 }; o.t++; o.n += r.nq; o.k += r.k; });
-  var hs = '<tr><th>セット</th><th>回数</th><th>正答率</th></tr>';
+  rs.filter(function (r) { return !r.r; }).forEach(function (r) { var key = r.m + '|' + r.f, o = bs[key] = bs[key] || { t: 0, n: 0, k: 0, r: r, who: {} }; o.t++; o.n += r.nq; o.k += r.k; o.who[r.sid] = 1; });
+  var hs = '<tr><th>セット・単元</th><th>種類</th><th>回数</th><th>人数</th><th>解いた問題</th><th>正答率</th></tr>';
   Object.keys(bs).sort(function (a, b) { return bs[b].t - bs[a].t; }).forEach(function (f) {
-    var p = pct(bs[f].k, bs[f].n);
-    hs += '<tr><td>' + esc(titles[f] || f) + '</td><td>' + bs[f].t + '</td><td' + (p < 60 ? ' class="low"' : '') + '>' + p + '%</td></tr>';
+    var o = bs[f], p = pct(o.k, o.n);
+    hs += '<tr><td>' + esc(recName(o.r)) + '</td><td>' + mdBadge(o.r.m) + '</td><td>' + o.t + '</td><td>' + Object.keys(o.who).length + '</td><td>' + o.n + '</td><td' + (p < 60 ? ' class="low"' : '') + '>' + p + '%</td></tr>';
   });
   $('tblSet').innerHTML = hs;
 }
-['fg', 'fc', 'fd'].forEach(function (id) { $(id).onchange = function () { render(); delState(); }; });
+['fg', 'fc', 'fd', 'fm'].forEach(function (id) { $(id).onchange = function () { render(); delState(); }; });
 /* 記録を消す（2026-11-12）。今の学年・クラスの絞り込みで出ている生徒の記録を、番号ごとにまとめて消す。
    期間の絞り込み中は押せない（生徒の記録の一部だけを消すことはしない）。ルールで、消せるのは先生だけ */
 function delState() {
-  var d = +$('fd').value !== 0; $('btnDel').disabled = d;
-  $('btnDel').title = d ? '期間を「すべて」にすると押せます' : '';
+  var d = +$('fd').value !== 0 || $('fm').value !== ''; $('btnDel').disabled = d;
+  $('btnDel').title = d ? '期間と種類を「すべて」にすると押せます' : '';
 }
 delState();
 $('btnDel').onclick = async function () {
@@ -185,10 +278,10 @@ $('btnDel').onclick = async function () {
 };
 $('btnReload').onclick = load;
 $('btnCsv').onclick = function () {
-  var l = ['日時,学年,クラス,番号,セットID,セット,問題数,正解数,まちがえた問題番号,やりなおし,本人確認'];
+  var l = ['日時,学年,クラス,番号,種類,セットID,セット・単元,問題数,正解数,まちがえた問題,やりなおし,本人確認,かかった秒'];
   filtered().sort(function (a, b) { return a.t - b.t; }).forEach(function (r) {
     var d = new Date(r.t), ds = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0') + ' ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
-    l.push([ds, r.g, r.c, r.n, r.f, '"' + (titles[r.f] || '').replace(/"/g, '""') + '"', r.nq, r.k, '"' + r.w + '"', r.r, r.ok ? 'あり' : 'なし'].join(','));
+    l.push([ds, r.g, r.c, r.n, MODE_N[r.m], r.f, '"' + recName(r).replace(/"/g, '""') + '"', r.nq, r.k, '"' + r.w + '"', r.r, r.ok ? 'あり' : 'なし', r.s || ''].join(','));
   });
   var a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob(['﻿' + l.join('\n')], { type: 'text/csv' }));
@@ -401,6 +494,164 @@ $('btnRange').onclick = async function () {
     $('rMsg').textContent = '保存しました'; $('rn').value = ''; document.querySelectorAll('#ru input').forEach(function (x) { x.checked = false; }); $('rTaisaku').checked = false; loadRanges();
   } catch (e) { $('rMsg').textContent = '保存できませんでした（新しいルールがFirebaseに貼られているか確かめてください）: ' + e.message; }
 };
+
+/* ------------------------------------------------------------ タブ（記録・問題・設定。2026-11-17）。最後に開いたタブを端末ごとに覚える */
+var TABS = ['rec', 'q', 'set'];
+function savedTab() { try { var t = localStorage.getItem('qraft.records.tab'); return TABS.indexOf(t) >= 0 ? t : 'rec'; } catch (e) { return 'rec'; } }
+function showTab(t) {
+  TABS.forEach(function (k) { $('p-' + k).hidden = k !== t; $('tab-' + k).setAttribute('aria-selected', k === t ? 'true' : 'false'); $('tab-' + k).tabIndex = k === t ? 0 : -1; });
+  try { localStorage.setItem('qraft.records.tab', t); } catch (e) {}
+  if (t === 'q') openQTab();
+}
+document.querySelectorAll('#tabs button').forEach(function (b) {
+  b.onclick = function () { showTab(b.dataset.tab); };
+  b.onkeydown = function (e) { var i = TABS.indexOf(b.dataset.tab), d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0; if (!d) return; var t = TABS[(i + d + 3) % 3]; showTab(t); $('tab-' + t).focus(); };
+});
+
+/* ------------------------------------------------------------ 問題（2026-11-17）
+   家庭練習と同じ公開データ（home/）を見る。授業用の暗号化したセットと中身・順番は同じ（tools/build_home_sets.py が同じ平文から作る）。
+   直しは qedits/<セットid>/<番号> に、変えた項目だけ書く。読みこむ画面がすべて重ねる（lib.js の applyQEdits） */
+var QED = {}, qPicked = {}, qPicker = null, qCur = null, qOpen = {}, qReady = false;
+async function openQTab() {
+  if (qReady) return; qReady = true;
+  QED = await loadQEdits(true);
+  qPicker = mountSetPicker($('qPicker'), { sets: HS, key: function (s) { return s.id; }, picked: qPicked, onChange: function () {
+    var ids = Object.keys(qPicked), nw = ids.filter(function (k) { return !qCur || k !== qCur.id; })[0];
+    Object.keys(qPicked).forEach(function (k) { delete qPicked[k]; });
+    if (nw) { qPicked[nw] = true; showSet(nw); } else if (qCur) { qPicked[qCur.id] = true; }
+    qPicker.render();
+  } });
+  drawEdSum();
+}
+function edCount() { var n = 0; Object.keys(QED).forEach(function (s) { n += Object.keys(QED[s] || {}).length; }); return n; }
+function drawEdSum() {
+  var box = $('edSum'), n = edCount(); box.textContent = '';
+  if (!n) { box.innerHTML = '<div style="margin-top:.3em;color:#6b6390">いま手で直した問題はありません。</div>'; return; }
+  var d = document.createElement('div'); d.style.marginTop = '.3em';
+  d.innerHTML = '<b>手で直した問題 ' + n + '問</b>（押すと、そのセットを開きます）';
+  var l = document.createElement('div'); l.className = 'edlist';
+  Object.keys(QED).forEach(function (sid) {
+    Object.keys(QED[sid] || {}).sort(function (a, b) { return a - b; }).forEach(function (i) {
+      var b = document.createElement('button'); b.type = 'button'; b.textContent = (titles[sid] || sid) + ' ' + (+i + 1) + '問目';
+      b.onclick = function () { Object.keys(qPicked).forEach(function (k) { delete qPicked[k]; }); qPicked[sid] = true; qPicker.render(); showSet(sid, +i); };
+      l.appendChild(b);
+    });
+  });
+  d.appendChild(l);
+  var dl = document.createElement('button'); dl.type = 'button'; dl.textContent = '書きもどし用に保存（qedits.json）';
+  dl.title = '原本へ書きもどすときに使うファイル（tools/pull_qedits.py）';
+  dl.onclick = function () { var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(QED, null, 1)], { type: 'application/json' })); a.download = 'qedits.json'; a.click(); };
+  d.appendChild(dl); box.appendChild(d);
+}
+async function showSet(id, focusI) {
+  var v = $('qView'); v.innerHTML = '<div class="note">読み込み中…</div>';
+  try { var d = await (await fetch('home/' + id + '.json')).json(); qCur = { id: id, title: d.title || titles[id] || id, qs: d.questions || [] }; }
+  catch (e) { v.innerHTML = '<div class="note low">問題を読めませんでした。</div>'; return; }
+  qOpen = {}; drawSet();
+  if (focusI != null) { var c = document.getElementById('qc-' + focusI); if (c) c.scrollIntoView({ block: 'center' }); }
+}
+function chT(c) { return typeof c === 'string' ? c : (c.t || ''); }
+function isMultiAns(q) { return Array.isArray(q.answers) || Array.isArray(q.answer); }
+/* 直しを重ねた見た目（lib.js の applyQEdit と同じ決まり） */
+function merged(q, x) {
+  var o = Object.assign({}, q); if (!x) return o;
+  if (typeof x.q === 'string') o.q = x.q;
+  if (typeof x.ex === 'string') o.ex = x.ex;
+  if (x.c) { if (o.type === 'text') o.accept = Object.keys(x.c).map(function (k) { return x.c[k]; }); else o.choices = (o.choices || []).map(function (c, j) { return typeof x.c[j] === 'string' ? (typeof c === 'string' ? x.c[j] : Object.assign({}, c, { t: x.c[j] })) : c; }); }
+  if (typeof x.a === 'number' && o.type !== 'text' && !isMultiAns(o)) o.answer = x.a;
+  return o;
+}
+function drawSet() {
+  var v = $('qView'), E = QED[qCur.id] || {}, ne = Object.keys(E).length;
+  var h = '<div class="qhead"><h2>' + esc(qCur.title) + '</h2><span>' + qCur.qs.length + '問' + (ne ? '・<span class="badge-ed">手で直した ' + ne + '問</span>' : '') + '</span></div>';
+  v.innerHTML = h;
+  qCur.qs.forEach(function (q0, i) { v.appendChild(qCard(q0, i, E[i])); });
+}
+function qCard(q0, i, x) {
+  var q = merged(q0, x), card = document.createElement('div'); card.className = 'qcard' + (x ? ' ed' : ''); card.id = 'qc-' + i;
+  var main = document.createElement('div');
+  var kind = q.type === 'text' ? '入力' : Array.isArray(q.answers) ? '複数選択' : '選択';
+  main.innerHTML = '<div class="qt"><span class="qn">' + (i + 1) + '問目・' + kind + '</span>' + (x ? '<span class="badge-ed">手で直した</span> ' : '') + esc(q.q) + '</div>';
+  var ol = document.createElement('ol');
+  if (q.type === 'text') { ol.innerHTML = '<li class="ok">' + (q.accept || []).map(esc).join('　/　') + '</li>'; ol.style.listStyle = 'none'; ol.style.paddingLeft = '0'; }
+  else {
+    var cor = Array.isArray(q.answers) ? q.answers : Array.isArray(q.answer) ? q.answer : [q.answer];
+    (q.choices || []).forEach(function (c, j) { var li = document.createElement('li'); if (cor.indexOf(j) >= 0) li.className = 'ok'; if (c.image) { var im = document.createElement('img'); im.src = c.image; im.alt = c.alt || ''; li.appendChild(im); } li.appendChild(document.createTextNode(chT(c))); ol.appendChild(li); });
+  }
+  main.appendChild(ol);
+  if (q.ex) { var ex = document.createElement('div'); ex.className = 'ex'; ex.textContent = '💡 ' + q.ex; main.appendChild(ex); }
+  card.appendChild(main);
+  if (q.image) { var im = document.createElement('img'); im.className = 'th'; im.src = q.image; im.alt = q.imageAlt || ''; im.onclick = function () { zoomImage(im.src, im.alt, im); }; card.appendChild(im); }
+  else card.appendChild(document.createElement('span'));
+  var ops = document.createElement('div'); ops.className = 'ops';
+  var be = document.createElement('button'); be.type = 'button'; be.textContent = qOpen[i] ? '閉じる' : '直す'; be.onclick = function () { qOpen[i] = !qOpen[i]; card.replaceWith(qCard(q0, i, (QED[qCur.id] || {})[i])); };
+  ops.appendChild(be);
+  if (x) {
+    var br = document.createElement('button'); br.type = 'button'; br.textContent = '元にもどす'; br.style.color = '#b3261e';
+    br.onclick = async function () {
+      if (!confirm((i + 1) + '問目の直しを消して、もとの問題にもどします。')) return;
+      try { await remove(ref(db, 'qedits/' + qCur.id + '/' + i)); if (QED[qCur.id]) { delete QED[qCur.id][i]; if (!Object.keys(QED[qCur.id]).length) delete QED[qCur.id]; } qOpen[i] = false; drawSet(); drawEdSum(); }
+      catch (e) { alert('もどせませんでした（新しいルールが公開されているか確かめてください）：' + e.message); }
+    };
+    ops.appendChild(br);
+    var when2 = document.createElement('small'); when2.style.color = '#6b6390'; when2.textContent = x.t ? '直した日時 ' + when(x.t) : ''; ops.appendChild(when2);
+  }
+  var msg = document.createElement('span'); msg.setAttribute('role', 'status'); ops.appendChild(msg);
+  card.appendChild(ops);
+  if (qOpen[i]) card.appendChild(qForm(q0, q, i, msg));
+  return card;
+}
+function qForm(q0, q, i, msg) {
+  var f = document.createElement('div'); f.className = 'qform';
+  function lab(t) { var l = document.createElement('label'); l.className = 'lb'; l.textContent = t; return l; }
+  var tq = document.createElement('textarea'); tq.value = q.q || ''; tq.maxLength = 600; tq.setAttribute('aria-label', '問題文');
+  f.appendChild(lab('問題文')); f.appendChild(tq);
+  var ins = [], rad = [], multi = isMultiAns(q), cor = multi ? [] : [q.answer];
+  if (q.type === 'text') {
+    f.appendChild(lab('正解の答え（1行に1つ。どれを入れても正解）'));
+    var ta = document.createElement('textarea'); ta.value = (q.accept || []).join('\n'); ta.setAttribute('aria-label', '正解の答え'); f.appendChild(ta); ins.push(ta);
+  } else {
+    f.appendChild(lab(multi ? '選択肢（この問題は正解が2つ以上あるので、正解は変えられません）' : '選択肢（○をつけたものが正解）'));
+    (q.choices || []).forEach(function (c, j) {
+      var r = document.createElement('div'); r.className = 'ch';
+      var rb = document.createElement('input'); rb.type = 'radio'; rb.name = 'cor-' + i; rb.checked = cor.indexOf(j) >= 0; rb.disabled = multi; rb.setAttribute('aria-label', (j + 1) + 'を正解にする'); rad.push(rb);
+      var it = document.createElement('input'); it.type = 'text'; it.value = chT(c); it.maxLength = 200; it.setAttribute('aria-label', '選択肢' + (j + 1)); ins.push(it);
+      r.appendChild(document.createTextNode((j + 1) + '.')); r.appendChild(rb); r.appendChild(it); f.appendChild(r);
+    });
+  }
+  var te = document.createElement('textarea'); te.value = q.ex || ''; te.maxLength = 1000; te.setAttribute('aria-label', '解説');
+  f.appendChild(lab('解説')); f.appendChild(te);
+  var row = document.createElement('div'); row.className = 'row';
+  var sv = document.createElement('button'); sv.type = 'button'; sv.className = 'main'; sv.textContent = '保存する（すぐに出題に出ます）';
+  row.appendChild(sv); f.appendChild(row);
+  sv.onclick = async function () {
+    /* もとの問題とちがう項目だけを書く（原本へ書きもどすときに、何を変えたかがわかるように） */
+    var x = { t: Date.now(), by: uid }, any = false;
+    var nq = tq.value.trim(); if (!nq) { msg.textContent = '問題文が空です'; return; }
+    if (nq !== q0.q) { x.q = nq; any = true; }
+    if ((te.value.trim()) !== (q0.ex || '')) { x.ex = te.value.trim(); any = true; }
+    if (q0.type === 'text') {
+      var acc = ins[0].value.split(/\r?\n/).map(function (s) { return s.trim(); }).filter(Boolean).slice(0, 10);
+      if (!acc.length) { msg.textContent = '正解の答えを1つ以上入れてください'; return; }
+      if (acc.join('\n') !== (q0.accept || []).join('\n')) { x.c = {}; acc.forEach(function (s, j) { x.c[j] = s; }); any = true; }
+    } else {
+      var cs = ins.map(function (it) { return it.value.trim(); });
+      if (cs.some(function (s, j) { return !s && !(q0.choices[j] && q0.choices[j].image); })) { msg.textContent = '空の選択肢があります'; return; }
+      if (cs.some(function (s, j) { return s !== chT(q0.choices[j]); })) { x.c = {}; cs.forEach(function (s, j) { x.c[j] = s; }); any = true; }
+      if (!multi) { var a = rad.findIndex(function (r) { return r.checked; }); if (a >= 0 && a !== q0.answer) { x.a = a; any = true; } }
+    }
+    if (!any) {   /* もとと同じにもどしたときは、直しを消す */
+      if ((QED[qCur.id] || {})[i]) { try { await remove(ref(db, 'qedits/' + qCur.id + '/' + i)); delete QED[qCur.id][i]; } catch (e) { msg.textContent = '保存できませんでした：' + e.message; return; } }
+      else { msg.textContent = '変わったところがありません'; return; }
+    } else {
+      try { await set(ref(db, 'qedits/' + qCur.id + '/' + i), x); } catch (e) { msg.textContent = '保存できませんでした（新しいルールが公開されているか確かめてください）：' + e.message; return; }
+      QED[qCur.id] = QED[qCur.id] || {}; QED[qCur.id][i] = x;
+    }
+    qOpen[i] = false; drawSet(); drawEdSum();
+    var c = document.getElementById('qc-' + i); if (c) { c.scrollIntoView({ block: 'center' }); var m = c.querySelector('[role=status]'); if (m) m.textContent = any ? '保存しました' : 'もとの問題にもどしました'; }
+  };
+  return f;
+}
 </script>
 </body>
 </html>

@@ -147,14 +147,14 @@ test('記録を消す：取り消すと残り、「けす」で今の絞り込�
   await page.reload();
   await expect(page.locator('#body')).toBeVisible({ timeout: 15000 });
   await page.selectOption('#fg', '3'); await page.selectOption('#fc', '6');
-  await expect(page.locator('#meta')).toContainText('練習 2 回');
+  await expect(page.locator('#meta')).toContainText('記録 2 回');
   // 期間で絞り込み中は押せない
   await page.selectOption('#fd', '7'); await expect(page.locator('#btnDel')).toBeDisabled();
   await page.selectOption('#fd', '0'); await expect(page.locator('#btnDel')).toBeEnabled();
   // 1回目：確認で「キャンセル」→ 何も消えない
   page.once('dialog', d => d.dismiss());
   await page.click('#btnDel');
-  await expect(page.locator('#meta')).toContainText('練習 2 回');
+  await expect(page.locator('#meta')).toContainText('記録 2 回');
   // 2回目：確認OK・入力ちがい → 消えない
   page.once('dialog', d => { page.once('dialog', d2 => d2.accept('はい')); d.accept(); });
   await page.click('#btnDel');
@@ -163,9 +163,9 @@ test('記録を消す：取り消すと残り、「けす」で今の絞り込�
   page.once('dialog', d => { expect(d.message()).toContain('1 人・2 回分'); page.once('dialog', d2 => d2.accept('けす')); d.accept(); });
   await page.click('#btnDel');
   await expect(page.locator('#delMsg')).toContainText('消しました');
-  await expect(page.locator('#meta')).toContainText('練習 0 回');
+  await expect(page.locator('#meta')).toContainText('記録 0 回');
   await page.selectOption('#fc', '5');
-  await expect(page.locator('#meta')).toContainText('練習 1 回');
+  await expect(page.locator('#meta')).toContainText('記録 1 回');
 });
 
 // 古いチーム戦（quest-play.html）のテストは、2026-11-13 にリカリアのチーム戦へ切り替えたので外した（通しは rikaria.spec.mjs）

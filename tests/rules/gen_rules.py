@@ -156,5 +156,21 @@ if "'y'" not in pr['.validate']:
 # 記録を消せるのは先生だけ（番号ごとにまとめて消す。書き換えや追加はできない）。2026-11-12
 R['rules']['practice']['$sid']['.write'] = "auth != null && root.child('admins').child(auth.uid).exists() && !newData.exists()"
 pr['y'] = {".validate": "newData.isString() && newData.val().matches(/^20[0-9][0-9]$/)"}
+# 冒険の記録（2026-11-17）：家庭練習と同じ場所に、m＝'q'（ひとりで冒険）・'p'（なかまと冒険）・'t'（チーム戦）、u＝単元id、s＝かかった秒 を足せる
+pr['m'] = {".validate": "newData.val() === 'q' || newData.val() === 'p' || newData.val() === 't'"}
+pr['u'] = {".validate": "newData.isString() && newData.val().matches(/^[a-z]{2,12}$/)"}
+pr['s'] = {".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 36000"}
+# 先生が手で直した問題（記録画面の「問題」タブ。2026-11-17）。qedits/<セットid>/<問題の番号> = { q, c:{0..9: 文字}, a, ex, t, by }
+# 読むのはログインした人みんな（問題を読みこむ画面が重ねる）、書く・消すのは先生だけ
+R['rules']['qedits'] = {".read": "auth != null", ".write": "auth != null && " + A,
+  "$set": {".validate": "$set.matches(/^[a-z0-9-]{1,24}$/)", "$i": {
+    ".validate": "$i.matches(/^[0-9]{1,3}$/) && newData.hasChildren(['t'])",
+    "q": {".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 600"},
+    "c": {"$j": {".validate": "$j.matches(/^[0-9]$/) && newData.isString() && newData.val().length <= 200"}},
+    "a": {".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 9"},
+    "ex": {".validate": "newData.isString() && newData.val().length <= 1000"},
+    "t": {".validate": "newData.isNumber()"},
+    "by": {".validate": "newData.isString() && newData.val().length <= 40"},
+    "$other": {".validate": False}}}}
 json.dump(R, open(P, 'w'), ensure_ascii=False, indent=2)
 print('ok', len(c['.write']))

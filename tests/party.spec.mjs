@@ -61,6 +61,11 @@ test('なかまと冒険：1年のホストと2年の参加者で、部屋づく
   await expect(fa.locator('#s-field')).toBeVisible({ timeout: 30000 });
   await expect(B.p.locator('#s-prac')).toBeVisible({ timeout: 30000 });
   const st = await rest('GET', `rooms/${pin}/state`); expect(st.phase).toBe('run'); expect(st.gp['1'].lead).toBeTruthy();
+  // 参加者が練習問題に1問答える（冒険の記録になる。2026-11-17）
+  await rest('DELETE', 'practice/2-4-12');
+  await expect(B.p.locator('#prCmd .choices button').first()).toBeVisible({ timeout: 20000 });
+  await B.p.locator('#prCmd .choices button').first().click();
+  await expect(B.p.locator('#prCmd .res')).toBeVisible({ timeout: 15000 });
   // 終了して保存 → 2人とも結果。ごほうびは、それぞれの端末が自分のキャラに書く（前の書き込みから20秒あけるので少し待つ）
   A.p.once('dialog', d => d.accept());
   await A.p.locator('#btnQuit').click();
@@ -69,6 +74,10 @@ test('なかまと冒険：1年のホストと2年の参加者で、部屋づく
   await expect(B.p.locator('#rNote')).toContainText('保存しました', { timeout: 60000 });
   await expect(fa.locator('#rNote')).toContainText('保存しました', { timeout: 60000 });
   expect(await rest('GET', `quest/${Y}/chars/2-4-12/lv`)).toBe(16);
+  // 冒険の記録：なかまと冒険（m='p'）・1問・単元つき・まちがえた問題はセットid-番号
+  const recs = Object.values((await rest('GET', 'practice/2-4-12')) || {});
+  expect(recs.length).toBe(1); expect(recs[0].m).toBe('p'); expect(recs[0].n).toBe(1); expect(recs[0].u).toMatch(/^[a-z]+$/);
+  if (recs[0].k === 0) expect(recs[0].w).toMatch(/^[0-9a-z]+-\d+$/);
   expect(errs).toEqual([]);
 });
 

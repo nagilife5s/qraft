@@ -14,7 +14,7 @@ for (const vp of [{ width: 1366, height: 657 }, { width: 1920, height: 950 }]) {
     await t.goto('records.html?emu=1');
     const id = t.locator('#myUid'); await expect(id).not.toBeEmpty({ timeout: 15000 });
     const uid = await id.textContent(); await rest('PUT', `admins/${uid}`, true); await t.reload();
-    await expect(t.locator('#ru input').first()).toBeVisible({ timeout: 15000 });
+    await t.locator('#tab-set').click(); await expect(t.locator('#ru input').first()).toBeVisible({ timeout: 15000 });
     await t.locator('#rg').selectOption('3'); await t.locator('#rn').fill('2学期期末');
     await t.locator('#ru input[value="matter"]').check(); await t.locator('#ru input[value="ion"]').check();
     await t.locator('#btnRange').click(); await expect(t.locator('#tblRange')).toContainText('2学期期末');

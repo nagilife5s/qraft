@@ -331,7 +331,7 @@ test('記録画面：先生がキャラを消すと、生徒はキャラ作り�
   await host.goto('records.html?emu=1');
   const id = host.locator('#myUid'); await expect(id).not.toBeEmpty({ timeout: 15000 });
   await rest('PUT', 'admins/' + (await id.textContent()).trim(), true);
-  await host.reload(); await expect(host.locator('#body')).toBeVisible({ timeout: 15000 });
+  await host.reload(); await expect(host.locator('#body')).toBeVisible({ timeout: 15000 }); await host.locator('#tab-set').click();
   for (const n of [1, 2]) {
     await rest('PUT', `quest/${Y}/keys/3-9-${n}`, 'del' + n + '23');
     await rest('PUT', `quest/${Y}/chars/3-9-${n}`, { n: 'けす' + n, j: 'warrior', lk: 'a', lv: 30, exp: 0, gold: 0, sp: 29, spt: 29 });

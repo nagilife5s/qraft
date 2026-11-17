@@ -6,8 +6,8 @@
 <title>Qraft クエスト（ひとりで冒険）</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261117060000">
-<link rel="stylesheet" href="quest.css?v=20261117060000">
+<link rel="stylesheet" href="theme.css?v=20261117120000">
+<link rel="stylesheet" href="quest.css?v=20261117120000">
 <style>
   .hud-btns { display:flex; gap:.4em; }
   .hud-btns .btn { font-size:.85em; padding:.35em .9em; }
@@ -191,18 +191,22 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261117060000"></script>
+<script src="firebase-config.js?v=20261117120000"></script>
 <script type="module">
-import { bgm, preload } from './sound.js?v=20261117060000b';
-import { signIn, db, ref, set, get, $, el, showScreen, shuffle, prepareQuestion, maskOf, isTextCorrect, mountSetPicker } from './lib.js?v=20261117060000';
+import { bgm, preload } from './sound.js?v=20261117120000b';
+import { signIn, db, ref, set, get, $, el, showScreen, shuffle, prepareQuestion, maskOf, isTextCorrect, mountSetPicker, loadQEdits, applyQEdits, makeAdvLog } from './lib.js?v=20261117120000';
 import { addExp, expToNext, migrateChar, newChar, JOBS as RJOBS, JOB_KEYS, LEARN, RANK_POW, RANK_SEC, LOAD_N, ELEMS, ELEM, UNITS,
-         heroImg, fieldImg, skillName, rankOf, rankCost, canRankUp, rankUp, spUsed, loadoutOf, weakOf, statsOf, unitOf, zakoImg, bossImg, battleBg, gearImg, itemImg, iconHtml } from './rikaria-data.js?v=20261117060000';
+         heroImg, fieldImg, skillName, rankOf, rankCost, canRankUp, rankUp, spUsed, loadoutOf, weakOf, statsOf, unitOf, zakoImg, bossImg, battleBg, gearImg, itemImg, iconHtml } from './rikaria-data.js?v=20261117120000';
 import { fiscalYear, ENEMIES, TOWN, TOWN_DEFAULT,
          weaponList, armorList, weaponName, armorName, TOWN_MAX, soloDayCap, dayNo, ITEMS, ITEM_KEYS, FACS, RESPEC_COST, ensureOwner, battleGuide,
-         soloMult, soloReward, soloEnemyHp, soloBossHp, soloEnemyAtkX, BOSS, cmdImg } from './quest.js?v=20261117060000';
+         soloMult, soloReward, soloEnemyHp, soloBossHp, soloEnemyAtkX, BOSS, cmdImg } from './quest.js?v=20261117120000';
 
 var Y = fiscalYear(), me = { g: 0, c: 0, n: 0 }, sid = '', ch = null, CLS = {}, SETS = [], AREAS = [], look = 'a', job = 'mage';
 var curArea = null, HP = 0, MP = 0, RANGES = {};
+/* 冒険の記録（先生の記録画面へ）。エリアに入ってから町にもどるまでを1件で書く（2026-11-17） */
+var ADV = makeAdvLog('q', function () { return sid; }, function () { return Y; });
+addEventListener('pagehide', function () { ADV.flush(); });
+document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden' && ADV.count) { ADV.flush(); if (curArea) ADV.start((unitOfArea(curArea) || {}).id); } });
 /* 曲（はじめは鳴らさない。「🔊 音楽」で鳴らす。端末ごとに覚える。2026-11-16）。場面が変わったときだけ切りかえる */
 var MUS = null, MUS_ON = false;
 try { MUS_ON = localStorage.getItem('qraft.quest.bgm') === 'on'; } catch (e) {}
@@ -473,6 +477,7 @@ var ZAKO = Object.keys(ENEMIES);
 function cell(x, y) { var r = MAPS[FD.key].g[y]; return r ? r[x] : undefined; }
 function blocked(x, y) { var c = cell(x, y); return c === undefined || BLOCK.has(c); }
 function enterTown(pos) {
+  ADV.flush();
   HP = statsOf(ch).mhp; MP = 0;   /* 町にもどると全回復 */
   FD.mobs = [];   /* エリアの魔物を町に持ちこまない（町に魔物が出ていた。もどると魔物は出直す） */
   showScreen('s-town'); setTimeout(function () { openField('town', pos); refreshClass(); });
@@ -653,7 +658,7 @@ function gateOut() {
   wmG = a ? a.g : me.g; wmSel = a ? a.id : null; wmPick = true;
   drawWorld(); showScreen('s-world');
 }
-function goArea(a, src) { curArea = Object.assign({}, a, { src: src || { k: 'unit' } }); FD.mobs = []; showScreen('s-town'); setTimeout(function () { openField('area'); }); }
+function goArea(a, src) { curArea = Object.assign({}, a, { src: src || { k: 'unit' } }); ADV.flush(); ADV.start((unitOfArea(curArea) || {}).id); FD.mobs = []; showScreen('s-town'); setTimeout(function () { openField('area'); }); }
 
 /* ------------------------------------------------------------ お店 */
 function enter(b) {
@@ -938,7 +943,7 @@ function guardCut(s, r) { return s.guardSelf ? Math.min(.85, s.guardSelf.cut * (
 /* ------------------------------------------------------------ 戦闘（ひとりで冒険。正解は手元で判定する：家庭学習と同じ公開セットを使う） */
 var B = null, POOLS = {}, QS = {};
 async function qsOf(id) {
-  if (!QS[id]) { try { QS[id] = (await (await fetch('home/' + id + '.json')).json()).questions || []; } catch (e) { return []; } }
+  if (!QS[id]) { try { QS[id] = applyQEdits(id, (await (await fetch('home/' + id + '.json')).json()).questions || [], await loadQEdits()); } catch (e) { return []; } }
   return QS[id];
 }
 /* 問題の山。src＝冒険の前にえらんだもの（単元・テスト範囲・1問ずつ） */
@@ -958,6 +963,7 @@ async function poolOf(a) {
 }
 /* エリアのボスにひとりでちょうせん（霧に入ったとき）。たおすと、その単元は自分のキャラの「ボスをたおした」記録になる */
 if (/emu=1/.test(location.search)) window.__bossAsk = function () { bossAsk(); };   /* 画面テスト用 */
+if (/emu=1/.test(location.search)) window.__adv = ADV;   /* 画面テスト用（冒険の記録） */
 function bossAsk() {
   var u = unitOfArea(curArea), m = $('fdMsg'); m.textContent = '';
   m.appendChild(el('h3', '', '👑 ' + u.boss.n));
@@ -1056,6 +1062,7 @@ function judge(mask, text) {
   var q = B.q, ok = q.type === 'text' ? isTextCorrect(text, q.accept) : mask === maskOf(q.correct), box = $('cmd');
   box.querySelectorAll('button, input').forEach(function (b) { b.disabled = true; });
   box.querySelectorAll('.choices button').forEach(function (b, i) { var c = q.correct.indexOf(i) >= 0, mine = mask != null && !!(mask & (1 << i)); b.classList.remove('sel'); b.classList.add(c ? 'right' : 'dim'); if (c) b.classList.add('ans-ok'); else if (mine) b.classList.add('ans-ng'); });
+  ADV.add(B.P.q[q.qi], ok);
   var J = RJ(), f = B.fx, st = statsOf(ch);
   if (ok) {
     /* 正解：連続が1つ増え、MPがたまる（魔法使いは1.5ずつ）。そのあと、こうげきか技をえらぶ */

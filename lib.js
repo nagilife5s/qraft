@@ -9,10 +9,10 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { connectAuthEmulator, initializeAuth, signInAnonymously, browserSessionPersistence, indexedDBLocalPersistence }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { connectDatabaseEmulator, getDatabase, ref, set, get, update, remove, onValue, serverTimestamp }
+import { connectDatabaseEmulator, getDatabase, ref, set, get, update, remove, onValue, serverTimestamp, push }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-export { ref, set, get, update, remove, onValue, serverTimestamp };
+export { ref, set, get, update, remove, onValue, serverTimestamp, push };
 
 export const app = initializeApp(window.QRAFT_FIREBASE);
 /*
@@ -685,3 +685,65 @@ if (typeof document !== 'undefined') (function () {
   b.title = 'ニックネームを自動で作る'; b.onclick = function () { inp.value = randomNick(); inp.dispatchEvent(new Event('input', { bubbles: true })); inp.focus(); };
   inp.insertAdjacentElement('afterend', b);
 })();
+
+/* ====================================================================
+   先生が記録画面の「問題」タブで手で直した問題（2026-11-17）
+   qedits/<セットid>/<問題の番号（0から）> = { q:問題文, c:[選択肢…]（入力式は正解の答えの一覧）, a:正解の番号, ex:解説, t, by }
+   問題を読みこむ画面（家庭練習・クラシック・リカリア・ひとりで冒険・なかまと冒険）は、読みこむときにこれを重ねる。
+   原本へ書きもどすのは tools/pull_qedits.py（書きもどしたら qedits を消す）
+   ==================================================================== */
+var QE = null;
+export function setIdOf(file) { return String(file).replace(/^.*\//, '').replace(/\.json$/, ''); }
+export async function loadQEdits(force) {
+  if (QE && !force) return QE;
+  try { await signIn(); QE = (await get(ref(db, 'qedits'))).val() || {}; } catch (e) { QE = QE || {}; }
+  return QE;
+}
+/* 1つの問題に直しを重ねる（もとの q は変えない） */
+export function applyQEdit(q, x) {
+  if (!x) return q;
+  var o = Object.assign({}, q);
+  if (typeof x.q === 'string') o.q = x.q;
+  if (typeof x.ex === 'string') o.ex = x.ex;
+  if (x.c) {
+    if (o.type === 'text') o.accept = Object.keys(x.c).map(function (k) { return x.c[k]; }).filter(function (v) { return typeof v === 'string' && v; });
+    else if (o.choices) o.choices = o.choices.map(function (c, j) { var t = x.c[j]; if (typeof t !== 'string') return c; return typeof c === 'string' ? t : Object.assign({}, c, { t: t }); });
+  }
+  if (typeof x.a === 'number' && o.type !== 'text' && !Array.isArray(o.answers) && o.choices && x.a >= 0 && x.a < o.choices.length) o.answer = x.a;
+  o._ed = 1;
+  return o;
+}
+/* セットの問題すべてに直しを重ね、どのセットの何番か（_s・_i）を付ける。ed を省くと loadQEdits で読んだもの */
+export function applyQEdits(setId, qs, ed) {
+  var e = ((ed || QE || {})[setId]) || null;
+  return (qs || []).map(function (q, i) { var o = applyQEdit(q, e && e[i]); if (o === q) o = Object.assign({}, q); o._s = setId; o._i = i; return o; });
+}
+
+/* ====================================================================
+   冒険の記録（ひとりで冒険・なかまと冒険・チーム戦。2026-11-17）
+   家庭練習と同じ practice/<番号>/<push> に、1回の冒険（エリアに入ってから町にもどるまで・1つの部屋）を1件で書く。
+   m＝'q'（ひとりで冒険）・'p'（なかまと冒険）・'t'（チーム戦）、u＝単元id、s＝かかった秒、w＝まちがえた問題（セットid-番号）。
+   1件は100問まで（こえたら分けて書く）。書けるのは合言葉を入れた本人の端末だけ（ルール）
+   ==================================================================== */
+function cut300(s) { return s.length <= 300 ? s : s.slice(0, s.lastIndexOf(',', 300)); }
+export function makeAdvLog(mode, sidFn, yFn) {
+  var L = null;
+  function start(unit) { L = { u: unit || '', n: 0, k: 0, w: [], sets: {}, t0: Date.now() }; }
+  function add(q, ok, qid) {
+    if (!L) start('');
+    var id = qid || (q && q._s != null ? q._s + '-' + (q._i + 1) : '');
+    L.n++; if (ok) L.k++; else if (id) L.w.push(id);
+    if (id) L.sets[id.replace(/-\d+$/, '')] = 1;
+    if (L.n >= 100) { var u = L.u; flush(); start(u); }
+  }
+  function flush() {
+    if (!L || !L.n) { L = null; return Promise.resolve(); }
+    var r = L, sid = sidFn(), ks = Object.keys(r.sets); L = null;
+    if (!/^[1-3]-[1-9]-[0-9]{1,2}$/.test(sid || '')) return Promise.resolve();
+    var f = ks.length === 1 && ks[0].length <= 12 ? ks[0] : (r.u || 'mix');
+    var v = { f: f, n: r.n, k: r.k, w: cut300(r.w.join(',')), t: serverTimestamp(), y: String(yFn()), m: mode, s: Math.min(36000, Math.round((Date.now() - r.t0) / 1000)) };
+    if (r.u) v.u = r.u;
+    return set(push(ref(db, 'practice/' + sid)), v).catch(function () {});
+  }
+  return { start: start, add: add, flush: flush, get count() { return L ? L.n : 0; } };
+}

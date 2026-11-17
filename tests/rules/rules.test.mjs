@@ -203,6 +203,27 @@ await t('生徒は記録を1件だけ消すこともできない', async () => {
 await t('先生は番号ごとに記録を消せる', async () => { await assertSucceeds(teacher.ref('practice/' + SID).remove()); let v; await seed(async (d) => { v = (await d.ref('practice/' + SID).get()).val(); }); if (v !== null) throw new Error('残っている'); });
 await t('先生でも消す以外の書き換えはできない', () => assertFails(teacher.ref('practice/' + OTHER).set({ x: rec() })));
 
+console.log('冒険の記録（2026-11-17）');
+await t('ひとりで冒険の記録を送れる', () => assertSucceeds(put(alice, SID, { f: 'mix', m: 'q', u: 'kaku', s: 320, w: '3642fe2b-3,6fc9ec01-1' })));
+await t('なかまと冒険・チーム戦の記録を送れる', async () => { await assertSucceeds(put(alice, SID, { m: 'p', u: 'denki' })); await assertSucceeds(put(alice, SID, { m: 't' })); });
+await t('知らない mode は送れない', () => assertFails(put(alice, SID, { m: 'x' })));
+await t('単元idの形がちがうと送れない', () => assertFails(put(alice, SID, { m: 'q', u: 'A-1' })));
+await t('かかった秒が大きすぎると送れない', () => assertFails(put(alice, SID, { m: 'q', s: 99999 })));
+await t('持ち主でないと冒険の記録も送れない', () => assertFails(put(bob, SID, { m: 'q' })));
+
+console.log('手で直した問題（qedits）');
+const ed = { q: '直した問題文', c: { 0: 'ア', 1: 'イ', 2: 'ウ', 3: 'エ' }, a: 2, ex: '解説', t: Date.now(), by: 'teacher' };
+await t('先生は直しを書ける', () => assertSucceeds(teacher.ref('qedits/3642fe2b/4').set(ed)));
+await t('生徒は直しを書けない', () => assertFails(alice.ref('qedits/3642fe2b/5').set(ed)));
+await t('ログインした人は直しを読める', () => assertSucceeds(alice.ref('qedits').get()));
+await t('未ログインは直しを読めない', () => assertFails(db(null).ref('qedits').get()));
+await t('正解の番号が10以上は書けない', () => assertFails(teacher.ref('qedits/3642fe2b/6').set(Object.assign({}, ed, { a: 10 }))));
+await t('長すぎる問題文は書けない', () => assertFails(teacher.ref('qedits/3642fe2b/6').set(Object.assign({}, ed, { q: 'あ'.repeat(601) }))));
+await t('知らない項目は書けない', () => assertFails(teacher.ref('qedits/3642fe2b/6').set(Object.assign({}, ed, { zz: 1 }))));
+await t('問題の番号が数字でないと書けない', () => assertFails(teacher.ref('qedits/3642fe2b/x').set(ed)));
+await t('先生は直しを消せる（元にもどす）', () => assertSucceeds(teacher.ref('qedits/3642fe2b/4').remove()));
+await t('生徒は直しを消せない', async () => { await seed(async (d) => d.ref('qedits/aa/1').set(ed)); await assertFails(alice.ref('qedits/aa/1').remove()); });
+
 console.log('新しく作るキャラは学年の目安のレベルから（1年 Lv1・2年 Lv16・3年 Lv30）');
 await reset();
 await seed(async (d) => { await d.ref(P('keys/2-1-5')).set('key222'); await d.ref(P('keys/3-1-5')).set('key333'); await d.ref(P('keys/3-1-6')).set('key336'); });
