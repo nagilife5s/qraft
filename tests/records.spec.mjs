@@ -28,7 +28,7 @@ test('記録画面：3つのタブ・最後のタブを覚える・問題を直�
   // 問題タブ：セットをえらぶと問題が出る
   await t.locator('#tab-q').click();
   await t.locator('#qPicker .pkq').fill('塩化銅水溶液の電気分解');
-  await t.locator('#qPicker .pcard', { hasText: /^塩化銅水溶液の電気分解/ }).first().click();
+  await t.locator('#qPicker .pcard', { hasText: /^塩化銅水溶液の電気分解２/ }).first().click();
   await expect(t.locator('#qc-1')).toBeVisible({ timeout: 15000 });
   await expect(t.locator('#qc-1 li.ok')).toHaveCount(1);   // 選択問題は正解に印
   // 2問目（選択）を直す：問題文と正解の番号
@@ -58,12 +58,12 @@ test('記録画面：3つのタブ・最後のタブを覚える・問題を直�
   await s.evaluate(() => { const c = (id, t) => [...document.getElementById(id).querySelectorAll('*')].find((e) => e.textContent.trim() === t && !e.children.length).click(); c('idG', '3年'); c('idC', '1組'); });
   await s.selectOption('#idN', '2'); await s.click('#btnId');
   await s.fill('form input', 'abc345'); await s.click('form button[type=submit]');
-  await s.locator('#s-pick button', { hasText: /^塩化銅水溶液の電気分解\s*3年/ }).click();
+  await s.locator('#s-pick button', { hasText: /^塩化銅水溶液の電気分解２\s*3年/ }).click();
   await expect(s.locator('#sqtext')).toContainText('てすと：', { timeout: 15000 });
 
   // 元にもどす（読みこみ直したので、セットをえらび直す）
   await t.locator('#qPicker .pkq').fill('塩化銅水溶液の電気分解');
-  await t.locator('#qPicker .pcard', { hasText: /^塩化銅水溶液の電気分解/ }).first().click();
+  await t.locator('#qPicker .pcard', { hasText: /^塩化銅水溶液の電気分解２/ }).first().click();
   await expect(t.locator('#qc-1 .badge-ed')).toBeVisible({ timeout: 15000 });
   t.once('dialog', d => d.accept());
   await t.locator('#qc-1').getByRole('button', { name: '元にもどす' }).click();

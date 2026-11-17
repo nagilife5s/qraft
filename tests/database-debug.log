@@ -1,0 +1,15 @@
+06:15:36.439 [NamespaceSystem-akka.actor.default-dispatcher-4] INFO akka.event.slf4j.Slf4jLogger - Slf4jLogger started
+06:15:36.521 [main] INFO com.firebase.server.forge.App$ - Listening at 127.0.0.1:9000
+06:15:39.287 [NamespaceSystem-akka.actor.default-dispatcher-4] INFO com.firebase.core.namespace.NamespaceActor - undefined-default-rtdb successfully activated FBKV (SurveyIdle(0)) wait: 59ms, init: 0ms
+06:15:39.475 [NamespaceSystem-blocking-namespace-operation-dispatcher-6] INFO com.firebase.core.namespace.StateManager - Namespace undefined-default-rtdb status Active to Active
+06:15:41.564 [FirebaseWorkerPool-1-3] WARN com.firebase.core.persistence.backend.dummy.EmulatorMetadataPersistence - Multiple projectIds are not recommended in single project mode. Requested 
+namespace qraft-e4345-default-rtdb, but the emulator is configured for undefined-default-rtdb. To 
+opt-out of single project mode add/set the singleProjectMode: false property in 
+the firebase.json emulators config. 
+06:15:41.568 [NamespaceSystem-akka.actor.default-dispatcher-4] INFO com.firebase.core.namespace.NamespaceActor - qraft-e4345-default-rtdb successfully activated FBKV (SurveyIdle(0)) wait: 2ms, init: 0ms
+06:16:08.553 [NamespaceSystem-akka.actor.default-dispatcher-9] INFO com.firebase.core.namespace.DeadLetterResponder - Message DataPush(List(rooms, 552782, state),com.firebase.util.data.SparseMergeRenderable@1394957502) meant for other actor akka://NamespaceSystem/user/qraft-e4345-default-rtdb/$j from akka://NamespaceSystem/deadLetters went to deadletter actor
+06:16:09.580 [Thread-0] INFO com.firebase.server.forge.App$ - Attempting graceful shutdown.
+06:16:09.589 [NamespaceSystem-akka.actor.default-dispatcher-12] INFO com.firebase.core.namespace.Terminator$Terminator - 2 actors left to terminate: undefined-default-rtdb, qraft-e4345-default-rtdb
+06:16:09.592 [NamespaceSystem-akka.actor.default-dispatcher-9] INFO com.firebase.core.namespace.NamespaceActor - stopped namespace actor for undefined-default-rtdb
+06:16:09.592 [NamespaceSystem-akka.actor.default-dispatcher-11] INFO com.firebase.core.namespace.NamespaceActor - stopped namespace actor for qraft-e4345-default-rtdb
+06:16:09.594 [Thread-0] INFO com.firebase.server.forge.App$ - Graceful shutdown complete.

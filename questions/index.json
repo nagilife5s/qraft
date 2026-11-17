@@ -1,19 +1,43 @@
 [
  {
-  "file": "sets/3642fe2b.json",
-  "title": "顕微鏡の部品の名前",
-  "count": 9,
+  "file": "sets/j9202a6d.json",
+  "title": "生物の観察と分類の仕方",
+  "count": 6,
   "types": {
-   "choice": 0,
+   "choice": 6,
    "multi": 0,
-   "text": 9
+   "text": 0
   },
   "enc": true,
   "grade": 1,
   "unit": "分類",
   "field": "生物",
   "uo": 0,
-  "no": 0
+  "no": 2,
+  "otitle": "生物の観察と分類の仕方（基礎）",
+  "ch": 0,
+  "chapter": "第1章 生物の観察と分類のしかた",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/jb38d19e.json",
+  "title": "植物の分類の仕方",
+  "count": 8,
+  "types": {
+   "choice": 8,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "分類",
+  "field": "生物",
+  "uo": 0,
+  "no": 3,
+  "otitle": "植物の分類の仕方（基礎）",
+  "ch": 0,
+  "chapter": "第1章 生物の観察と分類のしかた",
+  "kind": "基礎"
  },
  {
   "file": "sets/6fc9ec01.json",
@@ -29,11 +53,55 @@
   "unit": "分類",
   "field": "生物",
   "uo": 0,
-  "no": 1
+  "no": 4,
+  "otitle": "顕微鏡の使い方",
+  "ch": 0,
+  "chapter": "第1章 生物の観察と分類のしかた",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/3642fe2b.json",
+  "title": "顕微鏡の部品",
+  "count": 9,
+  "types": {
+   "choice": 0,
+   "multi": 0,
+   "text": 9
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "分類",
+  "field": "生物",
+  "uo": 0,
+  "no": 4,
+  "otitle": "顕微鏡の部品の名前",
+  "ch": 0,
+  "chapter": "第1章 生物の観察と分類のしかた",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j920ee20.json",
+  "title": "花のつくり・スケッチ・観察",
+  "count": 8,
+  "types": {
+   "choice": 8,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "分類",
+  "field": "生物",
+  "uo": 0,
+  "no": 7,
+  "otitle": "花のつくり・スケッチ・観察（基礎）",
+  "ch": 1,
+  "chapter": "第2章 植物の分類",
+  "kind": "基礎"
  },
  {
   "file": "sets/8bea6755.json",
-  "title": "【分類】被子植物の花のつくり",
+  "title": "被子植物の花のつくり",
   "count": 11,
   "types": {
    "choice": 1,
@@ -45,87 +113,31 @@
   "unit": "分類",
   "field": "生物",
   "uo": 0,
-  "no": 2
+  "no": 7,
+  "otitle": "【分類】被子植物の花のつくり",
+  "ch": 1,
+  "chapter": "第2章 植物の分類",
+  "kind": "基礎"
  },
  {
-  "file": "sets/b3d90836.json",
-  "title": "サクラとマツの比較",
-  "count": 6,
+  "file": "sets/j452cafa.json",
+  "title": "被子植物",
+  "count": 7,
   "types": {
-   "choice": 2,
+   "choice": 7,
    "multi": 0,
-   "text": 4
+   "text": 0
   },
   "enc": true,
   "grade": 1,
   "unit": "分類",
   "field": "生物",
   "uo": 0,
-  "no": 3
- },
- {
-  "file": "sets/633feb7f.json",
-  "title": "マツの花のつくり",
-  "count": 10,
-  "types": {
-   "choice": 4,
-   "multi": 0,
-   "text": 6
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "分類",
-  "field": "生物",
-  "uo": 0,
-  "no": 4
- },
- {
-  "file": "sets/c32c576a.json",
-  "title": "シダ植物",
-  "count": 9,
-  "types": {
-   "choice": 5,
-   "multi": 0,
-   "text": 4
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "分類",
-  "field": "生物",
-  "uo": 0,
-  "no": 5
- },
- {
-  "file": "sets/8aca394e.json",
-  "title": "ゼニゴケの特徴",
-  "count": 10,
-  "types": {
-   "choice": 5,
-   "multi": 0,
-   "text": 5
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "分類",
-  "field": "生物",
-  "uo": 0,
-  "no": 6
- },
- {
-  "file": "sets/5fd0a764.json",
-  "title": "【分類】植物の分類【一問一答】",
-  "count": 15,
-  "types": {
-   "choice": 0,
-   "multi": 0,
-   "text": 15
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "分類",
-  "field": "生物",
-  "uo": 0,
-  "no": 7
+  "no": 8,
+  "otitle": "被子植物（基礎）",
+  "ch": 1,
+  "chapter": "第2章 植物の分類",
+  "kind": "基礎"
  },
  {
   "file": "sets/539441f4.json",
@@ -141,7 +153,171 @@
   "unit": "分類",
   "field": "生物",
   "uo": 0,
-  "no": 8
+  "no": 9,
+  "otitle": "双子葉類と単子葉類",
+  "ch": 1,
+  "chapter": "第2章 植物の分類",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j991fd6e.json",
+  "title": "双子葉類・単子葉類",
+  "count": 8,
+  "types": {
+   "choice": 8,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "分類",
+  "field": "生物",
+  "uo": 0,
+  "no": 9,
+  "otitle": "双子葉類・単子葉類（基礎）",
+  "ch": 1,
+  "chapter": "第2章 植物の分類",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/b3d90836.json",
+  "title": "サクラとマツの比較",
+  "count": 6,
+  "types": {
+   "choice": 2,
+   "multi": 0,
+   "text": 4
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "分類",
+  "field": "生物",
+  "uo": 0,
+  "no": 10,
+  "otitle": "サクラとマツの比較",
+  "ch": 1,
+  "chapter": "第2章 植物の分類",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/633feb7f.json",
+  "title": "マツの花のつくり",
+  "count": 10,
+  "types": {
+   "choice": 4,
+   "multi": 0,
+   "text": 6
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "分類",
+  "field": "生物",
+  "uo": 0,
+  "no": 10,
+  "otitle": "マツの花のつくり",
+  "ch": 1,
+  "chapter": "第2章 植物の分類",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j81cc83a.json",
+  "title": "裸子植物",
+  "count": 8,
+  "types": {
+   "choice": 8,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "分類",
+  "field": "生物",
+  "uo": 0,
+  "no": 10,
+  "otitle": "裸子植物（基礎）",
+  "ch": 1,
+  "chapter": "第2章 植物の分類",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j23f5d31.json",
+  "title": "シダ植物",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "分類",
+  "field": "生物",
+  "uo": 0,
+  "no": 11,
+  "otitle": "シダ植物（基礎）",
+  "ch": 1,
+  "chapter": "第2章 植物の分類",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/c32c576a.json",
+  "title": "シダ植物２",
+  "count": 9,
+  "types": {
+   "choice": 5,
+   "multi": 0,
+   "text": 4
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "分類",
+  "field": "生物",
+  "uo": 0,
+  "no": 11,
+  "otitle": "シダ植物",
+  "ch": 1,
+  "chapter": "第2章 植物の分類",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j2c8d68e.json",
+  "title": "コケ植物",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "分類",
+  "field": "生物",
+  "uo": 0,
+  "no": 12,
+  "otitle": "コケ植物（基礎）",
+  "ch": 1,
+  "chapter": "第2章 植物の分類",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/8aca394e.json",
+  "title": "ゼニゴケの特徴",
+  "count": 10,
+  "types": {
+   "choice": 5,
+   "multi": 0,
+   "text": 5
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "分類",
+  "field": "生物",
+  "uo": 0,
+  "no": 12,
+  "otitle": "ゼニゴケの特徴",
+  "ch": 1,
+  "chapter": "第2章 植物の分類",
+  "kind": "基礎"
  },
  {
   "file": "sets/6260869c.json",
@@ -157,23 +333,74 @@
   "unit": "分類",
   "field": "生物",
   "uo": 0,
-  "no": 9
+  "no": 13,
+  "otitle": "植物の分類",
+  "ch": 1,
+  "chapter": "第2章 植物の分類",
+  "kind": "基礎"
  },
  {
-  "file": "sets/90ef54ec.json",
-  "title": "無セキツイ動物の特徴",
-  "count": 18,
+  "file": "sets/5fd0a764.json",
+  "title": "植物の分類の用語",
+  "count": 15,
   "types": {
-   "choice": 10,
+   "choice": 0,
    "multi": 0,
-   "text": 8
+   "text": 15
   },
   "enc": true,
   "grade": 1,
   "unit": "分類",
   "field": "生物",
   "uo": 0,
-  "no": 10
+  "no": 13,
+  "otitle": "【分類】植物の分類【一問一答】",
+  "ch": 1,
+  "chapter": "第2章 植物の分類",
+  "kind": "基礎",
+  "qch": {
+   "1": 0
+  }
+ },
+ {
+  "file": "sets/je0276ec.json",
+  "title": "いりこの解剖",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "分類",
+  "field": "生物",
+  "uo": 0,
+  "no": 15,
+  "otitle": "いりこの解剖（基礎）",
+  "ch": 2,
+  "chapter": "第3章 動物の分類",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j40b94f3.json",
+  "title": "セキツイ動物①",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "分類",
+  "field": "生物",
+  "uo": 0,
+  "no": 16,
+  "otitle": "セキツイ動物①（基礎）",
+  "ch": 2,
+  "chapter": "第3章 動物の分類",
+  "kind": "基礎"
  },
  {
   "file": "sets/27b21044.json",
@@ -189,7 +416,11 @@
   "unit": "分類",
   "field": "生物",
   "uo": 0,
-  "no": 11
+  "no": 16,
+  "otitle": "セキツイ動物の分類",
+  "ch": 2,
+  "chapter": "第3章 動物の分類",
+  "kind": "基礎"
  },
  {
   "file": "sets/dca60f10.json",
@@ -205,171 +436,15 @@
   "unit": "分類",
   "field": "生物",
   "uo": 0,
-  "no": 12
- },
- {
-  "file": "sets/j9202a6d.json",
-  "title": "生物の観察と分類の仕方（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "分類",
-  "field": "生物",
-  "uo": 0,
-  "no": 102
- },
- {
-  "file": "sets/jb38d19e.json",
-  "title": "植物の分類の仕方（基礎）",
-  "count": 8,
-  "types": {
-   "choice": 8,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "分類",
-  "field": "生物",
-  "uo": 0,
-  "no": 103
- },
- {
-  "file": "sets/j920ee20.json",
-  "title": "花のつくり・スケッチ・観察（基礎）",
-  "count": 8,
-  "types": {
-   "choice": 8,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "分類",
-  "field": "生物",
-  "uo": 0,
-  "no": 107
- },
- {
-  "file": "sets/j452cafa.json",
-  "title": "被子植物（基礎）",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "分類",
-  "field": "生物",
-  "uo": 0,
-  "no": 108
- },
- {
-  "file": "sets/j991fd6e.json",
-  "title": "双子葉類・単子葉類（基礎）",
-  "count": 8,
-  "types": {
-   "choice": 8,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "分類",
-  "field": "生物",
-  "uo": 0,
-  "no": 109
- },
- {
-  "file": "sets/j81cc83a.json",
-  "title": "裸子植物（基礎）",
-  "count": 8,
-  "types": {
-   "choice": 8,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "分類",
-  "field": "生物",
-  "uo": 0,
-  "no": 110
- },
- {
-  "file": "sets/j23f5d31.json",
-  "title": "シダ植物（基礎）",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "分類",
-  "field": "生物",
-  "uo": 0,
-  "no": 111
- },
- {
-  "file": "sets/j2c8d68e.json",
-  "title": "コケ植物（基礎）",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "分類",
-  "field": "生物",
-  "uo": 0,
-  "no": 112
- },
- {
-  "file": "sets/je0276ec.json",
-  "title": "いりこの解剖（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "分類",
-  "field": "生物",
-  "uo": 0,
-  "no": 115
- },
- {
-  "file": "sets/j40b94f3.json",
-  "title": "セキツイ動物①（基礎）",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "分類",
-  "field": "生物",
-  "uo": 0,
-  "no": 116
+  "no": 16,
+  "otitle": "セキツイ動物の分類のしかた",
+  "ch": 2,
+  "chapter": "第3章 動物の分類",
+  "kind": "基礎"
  },
  {
   "file": "sets/j84052d5.json",
-  "title": "セキツイ動物②（基礎）",
+  "title": "セキツイ動物②",
   "count": 9,
   "types": {
    "choice": 9,
@@ -381,11 +456,15 @@
   "unit": "分類",
   "field": "生物",
   "uo": 0,
-  "no": 117
+  "no": 17,
+  "otitle": "セキツイ動物②（基礎）",
+  "ch": 2,
+  "chapter": "第3章 動物の分類",
+  "kind": "基礎"
  },
  {
   "file": "sets/j46b0fda.json",
-  "title": "無セキツイ動物①（基礎）",
+  "title": "無セキツイ動物①",
   "count": 7,
   "types": {
    "choice": 7,
@@ -397,11 +476,35 @@
   "unit": "分類",
   "field": "生物",
   "uo": 0,
-  "no": 118
+  "no": 18,
+  "otitle": "無セキツイ動物①（基礎）",
+  "ch": 2,
+  "chapter": "第3章 動物の分類",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/90ef54ec.json",
+  "title": "無セキツイ動物の特徴",
+  "count": 18,
+  "types": {
+   "choice": 10,
+   "multi": 0,
+   "text": 8
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "分類",
+  "field": "生物",
+  "uo": 0,
+  "no": 18,
+  "otitle": "無セキツイ動物の特徴",
+  "ch": 2,
+  "chapter": "第3章 動物の分類",
+  "kind": "基礎"
  },
  {
   "file": "sets/je604423.json",
-  "title": "無セキツイ動物②（基礎）",
+  "title": "無セキツイ動物②",
   "count": 6,
   "types": {
    "choice": 6,
@@ -413,59 +516,95 @@
   "unit": "分類",
   "field": "生物",
   "uo": 0,
-  "no": 119
+  "no": 19,
+  "otitle": "無セキツイ動物②（基礎）",
+  "ch": 2,
+  "chapter": "第3章 動物の分類",
+  "kind": "基礎"
  },
  {
-  "file": "sets/c74a0ba6.json",
-  "title": "火山",
-  "count": 14,
+  "file": "sets/j8aaeb56.json",
+  "title": "物質と物体",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "物質",
+  "field": "化学",
+  "uo": 1,
+  "no": 1,
+  "otitle": "物質と物体（基礎）",
+  "ch": 0,
+  "chapter": "第1章 身のまわりの物質とその性質",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j5aef622.json",
+  "title": "ガスバーナー",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "物質",
+  "field": "化学",
+  "uo": 1,
+  "no": 2,
+  "otitle": "ガスバーナー（基礎）",
+  "ch": 0,
+  "chapter": "第1章 身のまわりの物質とその性質",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j3a4e0b5.json",
+  "title": "金属の性質",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "物質",
+  "field": "化学",
+  "uo": 1,
+  "no": 3,
+  "otitle": "金属の性質（基礎）",
+  "ch": 0,
+  "chapter": "第1章 身のまわりの物質とその性質",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/jc9749c7.json",
+  "title": "密度の概念",
+  "count": 7,
   "types": {
    "choice": 7,
    "multi": 0,
-   "text": 7
+   "text": 0
   },
   "enc": true,
   "grade": 1,
-  "unit": "大地",
-  "field": "地学",
+  "unit": "物質",
+  "field": "化学",
   "uo": 1,
-  "no": 0
+  "no": 4,
+  "otitle": "密度の概念（基礎）",
+  "ch": 0,
+  "chapter": "第1章 身のまわりの物質とその性質",
+  "kind": "基礎"
  },
  {
-  "file": "sets/592a0f8b.json",
-  "title": "火成岩",
-  "count": 13,
-  "types": {
-   "choice": 2,
-   "multi": 0,
-   "text": 11
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "大地",
-  "field": "地学",
-  "uo": 1,
-  "no": 1
- },
- {
-  "file": "sets/ff0f2291.json",
-  "title": "地震",
-  "count": 10,
-  "types": {
-   "choice": 0,
-   "multi": 0,
-   "text": 10
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "大地",
-  "field": "地学",
-  "uo": 1,
-  "no": 2
- },
- {
-  "file": "sets/3a1f8b07.json",
-  "title": "地震波",
+  "file": "sets/j92a363d.json",
+  "title": "密度の計算",
   "count": 6,
   "types": {
    "choice": 6,
@@ -474,62 +613,18 @@
   },
   "enc": true,
   "grade": 1,
-  "unit": "大地",
-  "field": "地学",
+  "unit": "物質",
+  "field": "化学",
   "uo": 1,
-  "no": 3
+  "no": 6,
+  "otitle": "密度の計算（基礎）",
+  "ch": 0,
+  "chapter": "第1章 身のまわりの物質とその性質",
+  "kind": "基礎"
  },
  {
-  "file": "sets/7521b2cb.json",
-  "title": "地震のしくみ",
-  "count": 12,
-  "types": {
-   "choice": 1,
-   "multi": 0,
-   "text": 11
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "大地",
-  "field": "地学",
-  "uo": 1,
-  "no": 4
- },
- {
-  "file": "sets/2d065973.json",
-  "title": "火山の形・火山噴出物",
-  "count": 23,
-  "types": {
-   "choice": 23,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "大地",
-  "field": "地学",
-  "uo": 1,
-  "no": 99
- },
- {
-  "file": "sets/j1811297.json",
-  "title": "火山と火山噴出物・色と形（基礎）",
-  "count": 8,
-  "types": {
-   "choice": 8,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "大地",
-  "field": "地学",
-  "uo": 1,
-  "no": 101
- },
- {
-  "file": "sets/j1344606.json",
-  "title": "鉱物とアクセサリー（基礎）",
+  "file": "sets/jaa53bb6.json",
+  "title": "白い粉のまとめ",
   "count": 6,
   "types": {
    "choice": 6,
@@ -538,30 +633,18 @@
   },
   "enc": true,
   "grade": 1,
-  "unit": "大地",
-  "field": "地学",
+  "unit": "物質",
+  "field": "化学",
   "uo": 1,
-  "no": 102
+  "no": 8,
+  "otitle": "白い粉のまとめ（基礎）",
+  "ch": 0,
+  "chapter": "第1章 身のまわりの物質とその性質",
+  "kind": "基礎"
  },
  {
-  "file": "sets/j6d4eb4b.json",
-  "title": "火成岩（基礎）",
-  "count": 9,
-  "types": {
-   "choice": 9,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "大地",
-  "field": "地学",
-  "uo": 1,
-  "no": 103
- },
- {
-  "file": "sets/ja6fef61.json",
-  "title": "地震の基本・震度とマグニチュード（基礎）",
+  "file": "sets/ja50c30d.json",
+  "title": "気体の性質と集め方",
   "count": 8,
   "types": {
    "choice": 8,
@@ -570,30 +653,39 @@
   },
   "enc": true,
   "grade": 1,
-  "unit": "大地",
-  "field": "地学",
+  "unit": "物質",
+  "field": "化学",
   "uo": 1,
-  "no": 104
+  "no": 9,
+  "otitle": "気体の性質と集め方（基礎）",
+  "ch": 1,
+  "chapter": "第2章 気体の性質",
+  "kind": "基礎"
  },
  {
-  "file": "sets/j3729bee.json",
-  "title": "地震のしくみ（基礎）",
-  "count": 8,
+  "file": "sets/j86a5e6e.json",
+  "title": "気体の性質｜実践",
+  "count": 7,
   "types": {
-   "choice": 8,
+   "choice": 7,
    "multi": 0,
    "text": 0
   },
   "enc": true,
   "grade": 1,
-  "unit": "大地",
-  "field": "地学",
+  "unit": "物質",
+  "field": "化学",
   "uo": 1,
-  "no": 105
+  "no": 9,
+  "otitle": "期末対策｜気体の性質",
+  "ch": 1,
+  "chapter": "第2章 気体の性質",
+  "kind": "実践",
+  "test": "2学期期末"
  },
  {
-  "file": "sets/j263ec09.json",
-  "title": "地震がもたらす災害（基礎）",
+  "file": "sets/jdca87ad.json",
+  "title": "酸素と二酸化炭素をつくる",
   "count": 6,
   "types": {
    "choice": 6,
@@ -602,14 +694,58 @@
   },
   "enc": true,
   "grade": 1,
-  "unit": "大地",
-  "field": "地学",
+  "unit": "物質",
+  "field": "化学",
   "uo": 1,
-  "no": 106
+  "no": 10,
+  "otitle": "酸素と二酸化炭素をつくる（基礎）",
+  "ch": 1,
+  "chapter": "第2章 気体の性質",
+  "kind": "基礎"
  },
  {
-  "file": "sets/j2fbb733.json",
-  "title": "地層の基礎知識とでき方（基礎）",
+  "file": "sets/j8d9ae35.json",
+  "title": "アンモニアをつくる",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "物質",
+  "field": "化学",
+  "uo": 1,
+  "no": 11,
+  "otitle": "アンモニアをつくる（基礎）",
+  "ch": 1,
+  "chapter": "第2章 気体の性質",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/jc1a7ac7.json",
+  "title": "とけるの基礎知識とろ過",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "物質",
+  "field": "化学",
+  "uo": 1,
+  "no": 13,
+  "otitle": "とけるの基礎知識とろ過（基礎）",
+  "ch": 2,
+  "chapter": "第3章 水溶液の性質",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/jf64dea2.json",
+  "title": "溶液の濃度｜実践",
   "count": 8,
   "types": {
    "choice": 8,
@@ -618,26 +754,324 @@
   },
   "enc": true,
   "grade": 1,
-  "unit": "大地",
-  "field": "地学",
+  "unit": "物質",
+  "field": "化学",
   "uo": 1,
-  "no": 107
+  "no": 15,
+  "otitle": "期末対策｜溶液の濃度",
+  "ch": 2,
+  "chapter": "第3章 水溶液の性質",
+  "kind": "実践",
+  "test": "2学期期末"
  },
  {
-  "file": "sets/j7aae758.json",
-  "title": "柱状図の問題演習（基礎）",
-  "count": 9,
+  "file": "sets/j80d280b.json",
+  "title": "質量パーセント濃度",
+  "count": 6,
   "types": {
-   "choice": 9,
+   "choice": 6,
    "multi": 0,
    "text": 0
   },
   "enc": true,
   "grade": 1,
-  "unit": "大地",
-  "field": "地学",
+  "unit": "物質",
+  "field": "化学",
   "uo": 1,
-  "no": 108
+  "no": 15,
+  "otitle": "質量パーセント濃度（基礎）",
+  "ch": 2,
+  "chapter": "第3章 水溶液の性質",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/jfba6999.json",
+  "title": "溶解度と溶解度曲線",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "物質",
+  "field": "化学",
+  "uo": 1,
+  "no": 16,
+  "otitle": "溶解度と溶解度曲線（基礎）",
+  "ch": 2,
+  "chapter": "第3章 水溶液の性質",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j8a6deac.json",
+  "title": "再結晶の実験",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "物質",
+  "field": "化学",
+  "uo": 1,
+  "no": 17,
+  "otitle": "再結晶の実験（基礎）",
+  "ch": 2,
+  "chapter": "第3章 水溶液の性質",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/jcf3303f.json",
+  "title": "溶解度と再結晶｜実践",
+  "count": 4,
+  "types": {
+   "choice": 4,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "物質",
+  "field": "化学",
+  "uo": 1,
+  "no": 17,
+  "otitle": "期末対策｜溶解度と再結晶",
+  "ch": 2,
+  "chapter": "第3章 水溶液の性質",
+  "kind": "実践",
+  "test": "2学期期末"
+ },
+ {
+  "file": "sets/je746318.json",
+  "title": "状態変化と粒子のモデル｜実践",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "物質",
+  "field": "化学",
+  "uo": 1,
+  "no": 18,
+  "otitle": "期末対策｜状態変化と粒子のモデル",
+  "ch": 3,
+  "chapter": "第4章 物質の姿と状態変化",
+  "kind": "実践",
+  "test": "2学期期末"
+ },
+ {
+  "file": "sets/jf5af10e.json",
+  "title": "状態変化のまとめ",
+  "count": 11,
+  "types": {
+   "choice": 11,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "物質",
+  "field": "化学",
+  "uo": 1,
+  "no": 18,
+  "otitle": "状態変化のまとめ（基礎）",
+  "ch": 3,
+  "chapter": "第4章 物質の姿と状態変化",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j8a0b890.json",
+  "title": "氷をつり上げる｜実践",
+  "count": 3,
+  "types": {
+   "choice": 3,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "物質",
+  "field": "化学",
+  "uo": 1,
+  "no": 19,
+  "otitle": "期末対策｜氷をつり上げる",
+  "ch": 3,
+  "chapter": "第4章 物質の姿と状態変化",
+  "kind": "実践",
+  "test": "2学期期末"
+ },
+ {
+  "file": "sets/j9a0ba05.json",
+  "title": "状態変化と体積",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "物質",
+  "field": "化学",
+  "uo": 1,
+  "no": 19,
+  "otitle": "状態変化と体積（基礎）",
+  "ch": 3,
+  "chapter": "第4章 物質の姿と状態変化",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j35772a2.json",
+  "title": "状態変化と密度｜実践",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "物質",
+  "field": "化学",
+  "uo": 1,
+  "no": 19,
+  "otitle": "期末対策｜状態変化と密度",
+  "ch": 3,
+  "chapter": "第4章 物質の姿と状態変化",
+  "kind": "実践",
+  "test": "2学期期末"
+ },
+ {
+  "file": "sets/j279630b.json",
+  "title": "エタノールの沸点と蒸留",
+  "count": 8,
+  "types": {
+   "choice": 8,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "物質",
+  "field": "化学",
+  "uo": 1,
+  "no": 20,
+  "otitle": "エタノールの沸点と蒸留（基礎）",
+  "ch": 3,
+  "chapter": "第4章 物質の姿と状態変化",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j1edc1be.json",
+  "title": "水とエタノールの沸点｜実践",
+  "count": 4,
+  "types": {
+   "choice": 4,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "物質",
+  "field": "化学",
+  "uo": 1,
+  "no": 20,
+  "otitle": "期末対策｜水とエタノールの沸点",
+  "ch": 3,
+  "chapter": "第4章 物質の姿と状態変化",
+  "kind": "実践",
+  "test": "2学期期末"
+ },
+ {
+  "file": "sets/jc99e829.json",
+  "title": "純粋な物質の沸点｜実践",
+  "count": 3,
+  "types": {
+   "choice": 3,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "物質",
+  "field": "化学",
+  "uo": 1,
+  "no": 20,
+  "otitle": "期末対策｜純粋な物質の沸点",
+  "ch": 3,
+  "chapter": "第4章 物質の姿と状態変化",
+  "kind": "実践",
+  "test": "2学期期末"
+ },
+ {
+  "file": "sets/j25621c0.json",
+  "title": "状態変化と温度｜実践",
+  "count": 4,
+  "types": {
+   "choice": 4,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "物質",
+  "field": "化学",
+  "uo": 1,
+  "no": 21,
+  "otitle": "期末対策｜状態変化と温度",
+  "ch": 3,
+  "chapter": "第4章 物質の姿と状態変化",
+  "kind": "実践",
+  "test": "2学期期末"
+ },
+ {
+  "file": "sets/jcf3aa56.json",
+  "title": "融点と沸点｜実践",
+  "count": 5,
+  "types": {
+   "choice": 5,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "物質",
+  "field": "化学",
+  "uo": 1,
+  "no": 21,
+  "otitle": "期末対策｜融点と沸点",
+  "ch": 3,
+  "chapter": "第4章 物質の姿と状態変化",
+  "kind": "実践",
+  "test": "2学期期末"
+ },
+ {
+  "file": "sets/j99c1c94.json",
+  "title": "混合物の加熱｜実践",
+  "count": 3,
+  "types": {
+   "choice": 3,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "物質",
+  "field": "化学",
+  "uo": 1,
+  "no": 22,
+  "otitle": "期末対策｜混合物の加熱",
+  "ch": 3,
+  "chapter": "第4章 物質の姿と状態変化",
+  "kind": "実践",
+  "test": "2学期期末"
  },
  {
   "file": "sets/da080cb2.json",
@@ -652,380 +1086,16 @@
   "grade": 1,
   "unit": "物質",
   "field": "化学",
-  "uo": 2,
-  "no": 13
- },
- {
-  "file": "sets/j8aaeb56.json",
-  "title": "物質と物体（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "物質",
-  "field": "化学",
-  "uo": 2,
-  "no": 101
- },
- {
-  "file": "sets/j5aef622.json",
-  "title": "ガスバーナー（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "物質",
-  "field": "化学",
-  "uo": 2,
-  "no": 102
- },
- {
-  "file": "sets/j3a4e0b5.json",
-  "title": "金属の性質（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "物質",
-  "field": "化学",
-  "uo": 2,
-  "no": 103
- },
- {
-  "file": "sets/jc9749c7.json",
-  "title": "密度の概念（基礎）",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "物質",
-  "field": "化学",
-  "uo": 2,
-  "no": 104
- },
- {
-  "file": "sets/j92a363d.json",
-  "title": "密度の計算（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "物質",
-  "field": "化学",
-  "uo": 2,
-  "no": 106
- },
- {
-  "file": "sets/jaa53bb6.json",
-  "title": "白い粉のまとめ（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "物質",
-  "field": "化学",
-  "uo": 2,
-  "no": 108
- },
- {
-  "file": "sets/ja50c30d.json",
-  "title": "気体の性質と集め方（基礎）",
-  "count": 8,
-  "types": {
-   "choice": 8,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "物質",
-  "field": "化学",
-  "uo": 2,
-  "no": 109
- },
- {
-  "file": "sets/jdca87ad.json",
-  "title": "酸素と二酸化炭素をつくる（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "物質",
-  "field": "化学",
-  "uo": 2,
-  "no": 110
- },
- {
-  "file": "sets/j8d9ae35.json",
-  "title": "アンモニアをつくる（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "物質",
-  "field": "化学",
-  "uo": 2,
-  "no": 111
- },
- {
-  "file": "sets/jc1a7ac7.json",
-  "title": "とけるの基礎知識とろ過（基礎）",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "物質",
-  "field": "化学",
-  "uo": 2,
-  "no": 113
- },
- {
-  "file": "sets/j80d280b.json",
-  "title": "質量パーセント濃度（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "物質",
-  "field": "化学",
-  "uo": 2,
-  "no": 115
- },
- {
-  "file": "sets/jfba6999.json",
-  "title": "溶解度と溶解度曲線（基礎）",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "物質",
-  "field": "化学",
-  "uo": 2,
-  "no": 116
- },
- {
-  "file": "sets/j8a6deac.json",
-  "title": "再結晶の実験（基礎）",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "物質",
-  "field": "化学",
-  "uo": 2,
-  "no": 117
- },
- {
-  "file": "sets/jf5af10e.json",
-  "title": "状態変化のまとめ（基礎）",
-  "count": 11,
-  "types": {
-   "choice": 11,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "物質",
-  "field": "化学",
-  "uo": 2,
-  "no": 118
- },
- {
-  "file": "sets/j9a0ba05.json",
-  "title": "状態変化と体積（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "物質",
-  "field": "化学",
-  "uo": 2,
-  "no": 119
- },
- {
-  "file": "sets/j279630b.json",
-  "title": "エタノールの沸点と蒸留（基礎）",
-  "count": 8,
-  "types": {
-   "choice": 8,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "物質",
-  "field": "化学",
-  "uo": 2,
-  "no": 120
- },
- {
-  "file": "sets/je746318.json",
-  "title": "期末対策｜状態変化と粒子のモデル",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "物質",
-  "field": "化学",
-  "uo": 2,
-  "no": 301
- },
- {
-  "file": "sets/j35772a2.json",
-  "title": "期末対策｜状態変化と密度",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "物質",
-  "field": "化学",
-  "uo": 2,
-  "no": 302
- },
- {
-  "file": "sets/j25621c0.json",
-  "title": "期末対策｜状態変化と温度",
-  "count": 4,
-  "types": {
-   "choice": 4,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "物質",
-  "field": "化学",
-  "uo": 2,
-  "no": 303
- },
- {
-  "file": "sets/jc99e829.json",
-  "title": "期末対策｜純粋な物質の沸点",
-  "count": 3,
-  "types": {
-   "choice": 3,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "物質",
-  "field": "化学",
-  "uo": 2,
-  "no": 304
- },
- {
-  "file": "sets/j1edc1be.json",
-  "title": "期末対策｜水とエタノールの沸点",
-  "count": 4,
-  "types": {
-   "choice": 4,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "物質",
-  "field": "化学",
-  "uo": 2,
-  "no": 305
- },
- {
-  "file": "sets/jcf3aa56.json",
-  "title": "期末対策｜融点と沸点",
-  "count": 5,
-  "types": {
-   "choice": 5,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "物質",
-  "field": "化学",
-  "uo": 2,
-  "no": 306
- },
- {
-  "file": "sets/j99c1c94.json",
-  "title": "期末対策｜混合物の加熱",
-  "count": 3,
-  "types": {
-   "choice": 3,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "物質",
-  "field": "化学",
-  "uo": 2,
-  "no": 307
+  "uo": 1,
+  "no": 22,
+  "otitle": "蒸留",
+  "ch": 3,
+  "chapter": "第4章 物質の姿と状態変化",
+  "kind": "基礎"
  },
  {
   "file": "sets/j7d51148.json",
-  "title": "期末対策｜赤ワインの蒸留",
+  "title": "赤ワインの蒸留｜実践",
   "count": 3,
   "types": {
    "choice": 3,
@@ -1036,44 +1106,77 @@
   "grade": 1,
   "unit": "物質",
   "field": "化学",
-  "uo": 2,
-  "no": 308
+  "uo": 1,
+  "no": 22,
+  "otitle": "期末対策｜赤ワインの蒸留",
+  "ch": 3,
+  "chapter": "第4章 物質の姿と状態変化",
+  "kind": "実践",
+  "test": "2学期期末"
  },
  {
-  "file": "sets/j8a0b890.json",
-  "title": "期末対策｜氷をつり上げる",
-  "count": 3,
+  "file": "sets/j8df40de.json",
+  "title": "光の基本",
+  "count": 6,
   "types": {
-   "choice": 3,
+   "choice": 6,
    "multi": 0,
    "text": 0
   },
   "enc": true,
   "grade": 1,
-  "unit": "物質",
-  "field": "化学",
+  "unit": "音・光・力",
+  "field": "物理",
   "uo": 2,
-  "no": 309
+  "no": 1,
+  "otitle": "光の基本（基礎）",
+  "ch": 0,
+  "chapter": "第1章 光の世界",
+  "kind": "基礎"
  },
  {
-  "file": "sets/j86a5e6e.json",
-  "title": "期末対策｜気体の性質",
-  "count": 7,
+  "file": "sets/j89745b8.json",
+  "title": "光の反射",
+  "count": 6,
   "types": {
-   "choice": 7,
+   "choice": 6,
    "multi": 0,
    "text": 0
   },
   "enc": true,
   "grade": 1,
-  "unit": "物質",
-  "field": "化学",
+  "unit": "音・光・力",
+  "field": "物理",
   "uo": 2,
-  "no": 310
+  "no": 2,
+  "otitle": "光の反射（基礎）",
+  "ch": 0,
+  "chapter": "第1章 光の世界",
+  "kind": "基礎"
  },
  {
-  "file": "sets/jf64dea2.json",
-  "title": "期末対策｜溶液の濃度",
+  "file": "sets/j535f6d6.json",
+  "title": "光の反射の作図",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "音・光・力",
+  "field": "物理",
+  "uo": 2,
+  "no": 3,
+  "otitle": "光の反射の作図（基礎）",
+  "ch": 0,
+  "chapter": "第1章 光の世界",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j0363b76.json",
+  "title": "光の屈折",
   "count": 8,
   "types": {
    "choice": 8,
@@ -1082,26 +1185,54 @@
   },
   "enc": true,
   "grade": 1,
-  "unit": "物質",
-  "field": "化学",
+  "unit": "音・光・力",
+  "field": "物理",
   "uo": 2,
-  "no": 311
+  "no": 4,
+  "otitle": "光の屈折（基礎）",
+  "ch": 0,
+  "chapter": "第1章 光の世界",
+  "kind": "基礎"
  },
  {
-  "file": "sets/jcf3303f.json",
-  "title": "期末対策｜溶解度と再結晶",
-  "count": 4,
+  "file": "sets/j8d3a97d.json",
+  "title": "光の屈折の作図",
+  "count": 6,
   "types": {
-   "choice": 4,
+   "choice": 6,
    "multi": 0,
    "text": 0
   },
   "enc": true,
   "grade": 1,
-  "unit": "物質",
-  "field": "化学",
+  "unit": "音・光・力",
+  "field": "物理",
   "uo": 2,
-  "no": 312
+  "no": 5,
+  "otitle": "光の屈折の作図（基礎）",
+  "ch": 0,
+  "chapter": "第1章 光の世界",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/jc4c3118.json",
+  "title": "レンズのしくみと実験",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "音・光・力",
+  "field": "物理",
+  "uo": 2,
+  "no": 6,
+  "otitle": "レンズのしくみと実験（基礎）",
+  "ch": 0,
+  "chapter": "第1章 光の世界",
+  "kind": "基礎"
  },
  {
   "file": "sets/a0284cf8.json",
@@ -1116,12 +1247,56 @@
   "grade": 1,
   "unit": "音・光・力",
   "field": "物理",
-  "uo": 3,
-  "no": 0
+  "uo": 2,
+  "no": 6,
+  "otitle": "凸レンズ",
+  "ch": 0,
+  "chapter": "第1章 光の世界",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/jf659d1f.json",
+  "title": "レンズの作図",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "音・光・力",
+  "field": "物理",
+  "uo": 2,
+  "no": 7,
+  "otitle": "レンズの作図（基礎）",
+  "ch": 0,
+  "chapter": "第1章 光の世界",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/jbf6b083.json",
+  "title": "音",
+  "count": 9,
+  "types": {
+   "choice": 9,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "音・光・力",
+  "field": "物理",
+  "uo": 2,
+  "no": 8,
+  "otitle": "音（基礎）",
+  "ch": 1,
+  "chapter": "第2章 音の世界",
+  "kind": "基礎"
  },
  {
   "file": "sets/3afa3618.json",
-  "title": "音",
+  "title": "音２",
   "count": 16,
   "types": {
    "choice": 11,
@@ -1132,56 +1307,12 @@
   "grade": 1,
   "unit": "音・光・力",
   "field": "物理",
-  "uo": 3,
-  "no": 1
- },
- {
-  "file": "sets/5060b184.json",
-  "title": "力",
-  "count": 7,
-  "types": {
-   "choice": 5,
-   "multi": 0,
-   "text": 2
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "音・光・力",
-  "field": "物理",
-  "uo": 3,
-  "no": 2
- },
- {
-  "file": "sets/6152d91a.json",
-  "title": "バネののび",
-  "count": 6,
-  "types": {
-   "choice": 3,
-   "multi": 0,
-   "text": 3
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "音・光・力",
-  "field": "物理",
-  "uo": 3,
-  "no": 3
- },
- {
-  "file": "sets/2e251098.json",
-  "title": "力のつりあい",
-  "count": 9,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 3
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "音・光・力",
-  "field": "物理",
-  "uo": 3,
-  "no": 4
+  "uo": 2,
+  "no": 8,
+  "otitle": "音",
+  "ch": 1,
+  "chapter": "第2章 音の世界",
+  "kind": "基礎"
  },
  {
   "file": "sets/5edf2eb0.json",
@@ -1196,8 +1327,32 @@
   "grade": 1,
   "unit": "音・光・力",
   "field": "物理",
-  "uo": 3,
-  "no": 99
+  "uo": 2,
+  "no": 9,
+  "otitle": "いろいろな力の種類",
+  "ch": 2,
+  "chapter": "第3章 力の世界",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/5060b184.json",
+  "title": "力",
+  "count": 7,
+  "types": {
+   "choice": 5,
+   "multi": 0,
+   "text": 2
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "音・光・力",
+  "field": "物理",
+  "uo": 2,
+  "no": 9,
+  "otitle": "力",
+  "ch": 2,
+  "chapter": "第3章 力の世界",
+  "kind": "基礎"
  },
  {
   "file": "sets/b8667338.json",
@@ -1212,12 +1367,16 @@
   "grade": 1,
   "unit": "音・光・力",
   "field": "物理",
-  "uo": 3,
-  "no": 99
+  "uo": 2,
+  "no": 9,
+  "otitle": "力のはたらき",
+  "ch": 2,
+  "chapter": "第3章 力の世界",
+  "kind": "基礎"
  },
  {
-  "file": "sets/j8df40de.json",
-  "title": "光の基本（基礎）",
+  "file": "sets/j9d58887.json",
+  "title": "力の基本と作図",
   "count": 6,
   "types": {
    "choice": 6,
@@ -1228,44 +1387,36 @@
   "grade": 1,
   "unit": "音・光・力",
   "field": "物理",
-  "uo": 3,
-  "no": 101
+  "uo": 2,
+  "no": 9,
+  "otitle": "力の基本と作図（基礎）",
+  "ch": 2,
+  "chapter": "第3章 力の世界",
+  "kind": "基礎"
  },
  {
-  "file": "sets/j89745b8.json",
-  "title": "光の反射（基礎）",
+  "file": "sets/6152d91a.json",
+  "title": "ばねののび",
   "count": 6,
   "types": {
-   "choice": 6,
+   "choice": 3,
    "multi": 0,
-   "text": 0
+   "text": 3
   },
   "enc": true,
   "grade": 1,
   "unit": "音・光・力",
   "field": "物理",
-  "uo": 3,
-  "no": 102
+  "uo": 2,
+  "no": 10,
+  "otitle": "バネののび",
+  "ch": 2,
+  "chapter": "第3章 力の世界",
+  "kind": "基礎"
  },
  {
-  "file": "sets/j535f6d6.json",
-  "title": "光の反射の作図（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 1,
-  "unit": "音・光・力",
-  "field": "物理",
-  "uo": 3,
-  "no": 103
- },
- {
-  "file": "sets/j0363b76.json",
-  "title": "光の屈折（基礎）",
+  "file": "sets/jc80e595.json",
+  "title": "バネの実験",
   "count": 8,
   "types": {
    "choice": 8,
@@ -1276,12 +1427,16 @@
   "grade": 1,
   "unit": "音・光・力",
   "field": "物理",
-  "uo": 3,
-  "no": 104
+  "uo": 2,
+  "no": 10,
+  "otitle": "バネの実験（基礎）",
+  "ch": 2,
+  "chapter": "第3章 力の世界",
+  "kind": "基礎"
  },
  {
-  "file": "sets/j8d3a97d.json",
-  "title": "光の屈折の作図（基礎）",
+  "file": "sets/j2ad235f.json",
+  "title": "力のつりあい",
   "count": 6,
   "types": {
    "choice": 6,
@@ -1292,28 +1447,99 @@
   "grade": 1,
   "unit": "音・光・力",
   "field": "物理",
-  "uo": 3,
-  "no": 105
+  "uo": 2,
+  "no": 11,
+  "otitle": "力のつりあい（基礎）",
+  "ch": 2,
+  "chapter": "第3章 力の世界",
+  "kind": "基礎"
  },
  {
-  "file": "sets/jc4c3118.json",
-  "title": "レンズのしくみと実験（基礎）",
-  "count": 7,
+  "file": "sets/2e251098.json",
+  "title": "力のつりあい２",
+  "count": 9,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 3
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "音・光・力",
+  "field": "物理",
+  "uo": 2,
+  "no": 11,
+  "otitle": "力のつりあい",
+  "ch": 2,
+  "chapter": "第3章 力の世界",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/c74a0ba6.json",
+  "title": "火山",
+  "count": 14,
   "types": {
    "choice": 7,
    "multi": 0,
+   "text": 7
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "大地",
+  "field": "地学",
+  "uo": 3,
+  "no": 1,
+  "otitle": "火山",
+  "ch": 1,
+  "chapter": "第1章 火をふく大地",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j1811297.json",
+  "title": "火山と火山噴出物・色と形",
+  "count": 8,
+  "types": {
+   "choice": 8,
+   "multi": 0,
    "text": 0
   },
   "enc": true,
   "grade": 1,
-  "unit": "音・光・力",
-  "field": "物理",
+  "unit": "大地",
+  "field": "地学",
   "uo": 3,
-  "no": 106
+  "no": 1,
+  "otitle": "火山と火山噴出物・色と形（基礎）",
+  "ch": 1,
+  "chapter": "第1章 火をふく大地",
+  "kind": "基礎"
  },
  {
-  "file": "sets/jf659d1f.json",
-  "title": "レンズの作図（基礎）",
+  "file": "sets/2d065973.json",
+  "title": "火山の形・火山噴出物",
+  "count": 23,
+  "types": {
+   "choice": 23,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "大地",
+  "field": "地学",
+  "uo": 3,
+  "no": 1,
+  "otitle": "火山の形・火山噴出物",
+  "ch": 1,
+  "chapter": "第1章 火をふく大地",
+  "kind": "基礎",
+  "qch": {
+   "17": 3
+  }
+ },
+ {
+  "file": "sets/j1344606.json",
+  "title": "鉱物とアクセサリー",
   "count": 6,
   "types": {
    "choice": 6,
@@ -1322,14 +1548,18 @@
   },
   "enc": true,
   "grade": 1,
-  "unit": "音・光・力",
-  "field": "物理",
+  "unit": "大地",
+  "field": "地学",
   "uo": 3,
-  "no": 107
+  "no": 2,
+  "otitle": "鉱物とアクセサリー（基礎）",
+  "ch": 1,
+  "chapter": "第1章 火をふく大地",
+  "kind": "基礎"
  },
  {
-  "file": "sets/jbf6b083.json",
-  "title": "音（基礎）",
+  "file": "sets/j6d4eb4b.json",
+  "title": "火成岩",
   "count": 9,
   "types": {
    "choice": 9,
@@ -1338,30 +1568,58 @@
   },
   "enc": true,
   "grade": 1,
-  "unit": "音・光・力",
-  "field": "物理",
+  "unit": "大地",
+  "field": "地学",
   "uo": 3,
-  "no": 108
+  "no": 3,
+  "otitle": "火成岩（基礎）",
+  "ch": 1,
+  "chapter": "第1章 火をふく大地",
+  "kind": "基礎"
  },
  {
-  "file": "sets/j9d58887.json",
-  "title": "力の基本と作図（基礎）",
-  "count": 6,
+  "file": "sets/592a0f8b.json",
+  "title": "火成岩２",
+  "count": 13,
   "types": {
-   "choice": 6,
+   "choice": 2,
    "multi": 0,
-   "text": 0
+   "text": 11
   },
   "enc": true,
   "grade": 1,
-  "unit": "音・光・力",
-  "field": "物理",
+  "unit": "大地",
+  "field": "地学",
   "uo": 3,
-  "no": 109
+  "no": 3,
+  "otitle": "火成岩",
+  "ch": 1,
+  "chapter": "第1章 火をふく大地",
+  "kind": "基礎"
  },
  {
-  "file": "sets/jc80e595.json",
-  "title": "バネの実験（基礎）",
+  "file": "sets/ff0f2291.json",
+  "title": "地震",
+  "count": 10,
+  "types": {
+   "choice": 0,
+   "multi": 0,
+   "text": 10
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "大地",
+  "field": "地学",
+  "uo": 3,
+  "no": 4,
+  "otitle": "地震",
+  "ch": 2,
+  "chapter": "第2章 動き続ける大地",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/ja6fef61.json",
+  "title": "地震の基本・震度とマグニチュード",
   "count": 8,
   "types": {
    "choice": 8,
@@ -1370,14 +1628,18 @@
   },
   "enc": true,
   "grade": 1,
-  "unit": "音・光・力",
-  "field": "物理",
+  "unit": "大地",
+  "field": "地学",
   "uo": 3,
-  "no": 110
+  "no": 4,
+  "otitle": "地震の基本・震度とマグニチュード（基礎）",
+  "ch": 2,
+  "chapter": "第2章 動き続ける大地",
+  "kind": "基礎"
  },
  {
-  "file": "sets/j2ad235f.json",
-  "title": "力のつりあい（基礎）",
+  "file": "sets/3a1f8b07.json",
+  "title": "地震波",
   "count": 6,
   "types": {
    "choice": 6,
@@ -1386,26 +1648,294 @@
   },
   "enc": true,
   "grade": 1,
-  "unit": "音・光・力",
-  "field": "物理",
+  "unit": "大地",
+  "field": "地学",
   "uo": 3,
-  "no": 111
+  "no": 4,
+  "otitle": "地震波",
+  "ch": 2,
+  "chapter": "第2章 動き続ける大地",
+  "kind": "基礎"
  },
  {
-  "file": "sets/533f55f7.json",
-  "title": "炭酸水素ナトリウムの加熱",
-  "count": 14,
+  "file": "sets/j3729bee.json",
+  "title": "地震のしくみ",
+  "count": 8,
+  "types": {
+   "choice": 8,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "大地",
+  "field": "地学",
+  "uo": 3,
+  "no": 5,
+  "otitle": "地震のしくみ（基礎）",
+  "ch": 2,
+  "chapter": "第2章 動き続ける大地",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/7521b2cb.json",
+  "title": "地震のしくみ２",
+  "count": 12,
+  "types": {
+   "choice": 1,
+   "multi": 0,
+   "text": 11
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "大地",
+  "field": "地学",
+  "uo": 3,
+  "no": 5,
+  "otitle": "地震のしくみ",
+  "ch": 2,
+  "chapter": "第2章 動き続ける大地",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j263ec09.json",
+  "title": "地震がもたらす災害",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "大地",
+  "field": "地学",
+  "uo": 3,
+  "no": 6,
+  "otitle": "地震がもたらす災害（基礎）",
+  "ch": 2,
+  "chapter": "第2章 動き続ける大地",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j2fbb733.json",
+  "title": "地層の基礎知識とでき方",
+  "count": 8,
+  "types": {
+   "choice": 8,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "大地",
+  "field": "地学",
+  "uo": 3,
+  "no": 7,
+  "otitle": "地層の基礎知識とでき方（基礎）",
+  "ch": 3,
+  "chapter": "第3章 地層から読みとる大地の変化",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j7aae758.json",
+  "title": "柱状図の問題演習",
+  "count": 9,
   "types": {
    "choice": 9,
    "multi": 0,
-   "text": 5
+   "text": 0
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "大地",
+  "field": "地学",
+  "uo": 3,
+  "no": 8,
+  "otitle": "柱状図の問題演習（基礎）",
+  "ch": 3,
+  "chapter": "第3章 地層から読みとる大地の変化",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/4a59e866.json",
+  "title": "元素記号",
+  "count": 16,
+  "types": {
+   "choice": 0,
+   "multi": 0,
+   "text": 16
   },
   "enc": true,
   "grade": 2,
   "unit": "化学変化",
   "field": "化学",
   "uo": 4,
-  "no": 0
+  "no": 1,
+  "otitle": "【化学】元素記号",
+  "ch": 0,
+  "chapter": "第1章 物質のなり立ち",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j63b1b90.json",
+  "title": "原子記号",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "化学変化",
+  "field": "化学",
+  "uo": 4,
+  "no": 1,
+  "otitle": "原子記号（基礎）",
+  "ch": 0,
+  "chapter": "第1章 物質のなり立ち",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j85eef1f.json",
+  "title": "原子の性質",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "化学変化",
+  "field": "化学",
+  "uo": 4,
+  "no": 2,
+  "otitle": "原子の性質（基礎）",
+  "ch": 0,
+  "chapter": "第1章 物質のなり立ち",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/49bf5051.json",
+  "title": "原子の性質２",
+  "count": 6,
+  "types": {
+   "choice": 2,
+   "multi": 0,
+   "text": 4
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "化学変化",
+  "field": "化学",
+  "uo": 4,
+  "no": 2,
+  "otitle": "【化学】原子の性質",
+  "ch": 0,
+  "chapter": "第1章 物質のなり立ち",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j4150337.json",
+  "title": "化学式とモデル",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "化学変化",
+  "field": "化学",
+  "uo": 4,
+  "no": 3,
+  "otitle": "化学式とモデル（基礎）",
+  "ch": 0,
+  "chapter": "第1章 物質のなり立ち",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/je37ada8.json",
+  "title": "単体・化合物",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "化学変化",
+  "field": "化学",
+  "uo": 4,
+  "no": 4,
+  "otitle": "単体・化合物（基礎）",
+  "ch": 0,
+  "chapter": "第1章 物質のなり立ち",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/23eb4168.json",
+  "title": "単体・化合物２",
+  "count": 14,
+  "types": {
+   "choice": 14,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "化学変化",
+  "field": "化学",
+  "uo": 4,
+  "no": 4,
+  "otitle": "【化学】単体・化合物",
+  "ch": 0,
+  "chapter": "第1章 物質のなり立ち",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/jb892ae8.json",
+  "title": "水の電気分解",
+  "count": 8,
+  "types": {
+   "choice": 8,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "化学変化",
+  "field": "化学",
+  "uo": 4,
+  "no": 5,
+  "otitle": "水の電気分解（基礎）",
+  "ch": 0,
+  "chapter": "第1章 物質のなり立ち",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/0974336b.json",
+  "title": "水の電気分解２",
+  "count": 6,
+  "types": {
+   "choice": 4,
+   "multi": 0,
+   "text": 2
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "化学変化",
+  "field": "化学",
+  "uo": 4,
+  "no": 5,
+  "otitle": "水の電気分解",
+  "ch": 0,
+  "chapter": "第1章 物質のなり立ち",
+  "kind": "基礎"
  },
  {
   "file": "sets/5ee2bd8c.json",
@@ -1421,62 +1951,18 @@
   "unit": "化学変化",
   "field": "化学",
   "uo": 4,
-  "no": 1
+  "no": 6,
+  "otitle": "酸化銀の加熱",
+  "ch": 0,
+  "chapter": "第1章 物質のなり立ち",
+  "kind": "基礎"
  },
  {
-  "file": "sets/0974336b.json",
-  "title": "水の電気分解",
-  "count": 6,
+  "file": "sets/j43260c3.json",
+  "title": "酸化銀の熱分解",
+  "count": 7,
   "types": {
-   "choice": 4,
-   "multi": 0,
-   "text": 2
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "化学変化",
-  "field": "化学",
-  "uo": 4,
-  "no": 2
- },
- {
-  "file": "sets/4a59e866.json",
-  "title": "【化学】元素記号",
-  "count": 16,
-  "types": {
-   "choice": 0,
-   "multi": 0,
-   "text": 16
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "化学変化",
-  "field": "化学",
-  "uo": 4,
-  "no": 3
- },
- {
-  "file": "sets/49bf5051.json",
-  "title": "【化学】原子の性質",
-  "count": 6,
-  "types": {
-   "choice": 2,
-   "multi": 0,
-   "text": 4
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "化学変化",
-  "field": "化学",
-  "uo": 4,
-  "no": 4
- },
- {
-  "file": "sets/23eb4168.json",
-  "title": "【化学】単体・化合物",
-  "count": 14,
-  "types": {
-   "choice": 14,
+   "choice": 7,
    "multi": 0,
    "text": 0
   },
@@ -1485,7 +1971,75 @@
   "unit": "化学変化",
   "field": "化学",
   "uo": 4,
-  "no": 5
+  "no": 6,
+  "otitle": "酸化銀の熱分解（基礎）",
+  "ch": 0,
+  "chapter": "第1章 物質のなり立ち",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/533f55f7.json",
+  "title": "炭酸水素ナトリウムの加熱",
+  "count": 14,
+  "types": {
+   "choice": 9,
+   "multi": 0,
+   "text": 5
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "化学変化",
+  "field": "化学",
+  "uo": 4,
+  "no": 7,
+  "otitle": "炭酸水素ナトリウムの加熱",
+  "ch": 0,
+  "chapter": "第1章 物質のなり立ち",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j664b614.json",
+  "title": "炭酸水素ナトリウムの熱分解",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "化学変化",
+  "field": "化学",
+  "uo": 4,
+  "no": 7,
+  "otitle": "炭酸水素ナトリウムの熱分解（基礎）",
+  "ch": 0,
+  "chapter": "第1章 物質のなり立ち",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/db1632b8.json",
+  "title": "物質のなり立ちと化学変化の用語",
+  "count": 15,
+  "types": {
+   "choice": 0,
+   "multi": 0,
+   "text": 15
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "化学変化",
+  "field": "化学",
+  "uo": 4,
+  "no": 9,
+  "otitle": "【用語チェック】物質のなり立ちと化学変化",
+  "ch": 0,
+  "chapter": "第1章 物質のなり立ち",
+  "kind": "基礎",
+  "qch": {
+   "13": 1,
+   "15": 1
+  }
  },
  {
   "file": "sets/0babce4b.json",
@@ -1501,23 +2055,51 @@
   "unit": "化学変化",
   "field": "化学",
   "uo": 4,
-  "no": 6
+  "no": 8,
+  "otitle": "鉄と硫黄の加熱",
+  "ch": 1,
+  "chapter": "第2章 物質どうしの化学変化",
+  "kind": "基礎"
  },
  {
-  "file": "sets/db1632b8.json",
-  "title": "【用語チェック】物質のなり立ちと化学変化",
-  "count": 15,
+  "file": "sets/j03c1c3b.json",
+  "title": "鉄と硫黄の化合",
+  "count": 8,
   "types": {
-   "choice": 0,
+   "choice": 8,
    "multi": 0,
-   "text": 15
+   "text": 0
   },
   "enc": true,
   "grade": 2,
   "unit": "化学変化",
   "field": "化学",
   "uo": 4,
-  "no": 7
+  "no": 8,
+  "otitle": "鉄と硫黄の化合（基礎）",
+  "ch": 1,
+  "chapter": "第2章 物質どうしの化学変化",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/jaf9caf3.json",
+  "title": "まとめと化学反応式",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "化学変化",
+  "field": "化学",
+  "uo": 4,
+  "no": 9,
+  "otitle": "まとめと化学反応式（基礎）",
+  "ch": 1,
+  "chapter": "第2章 物質どうしの化学変化",
+  "kind": "基礎"
  },
  {
   "file": "sets/9d3ef90e.json",
@@ -1533,55 +2115,51 @@
   "unit": "化学変化",
   "field": "化学",
   "uo": 4,
-  "no": 8
+  "no": 11,
+  "otitle": "酸化",
+  "ch": 2,
+  "chapter": "第3章 酸素がかかわる化学変化",
+  "kind": "基礎"
  },
  {
-  "file": "sets/e2b12a91.json",
-  "title": "質量保存の法則",
-  "count": 7,
+  "file": "sets/j9fb9a5d.json",
+  "title": "鉄の酸化",
+  "count": 6,
   "types": {
-   "choice": 4,
+   "choice": 6,
    "multi": 0,
-   "text": 3
+   "text": 0
   },
   "enc": true,
   "grade": 2,
   "unit": "化学変化",
   "field": "化学",
   "uo": 4,
-  "no": 9
+  "no": 12,
+  "otitle": "鉄の酸化（基礎）",
+  "ch": 2,
+  "chapter": "第3章 酸素がかかわる化学変化",
+  "kind": "基礎"
  },
  {
-  "file": "sets/e13dda6c.json",
-  "title": "酸素と銅の計算問題",
-  "count": 5,
+  "file": "sets/j9eef4e6.json",
+  "title": "酸化と燃焼",
+  "count": 8,
   "types": {
-   "choice": 4,
+   "choice": 8,
    "multi": 0,
-   "text": 1
+   "text": 0
   },
   "enc": true,
   "grade": 2,
   "unit": "化学変化",
   "field": "化学",
   "uo": 4,
-  "no": 10
- },
- {
-  "file": "sets/2ce9143c.json",
-  "title": "酸素とマグネシウムの計算問題",
-  "count": 5,
-  "types": {
-   "choice": 4,
-   "multi": 0,
-   "text": 1
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "化学変化",
-  "field": "化学",
-  "uo": 4,
-  "no": 11
+  "no": 13,
+  "otitle": "酸化と燃焼（基礎）",
+  "ch": 2,
+  "chapter": "第3章 酸素がかかわる化学変化",
+  "kind": "基礎"
  },
  {
   "file": "sets/ebde90b8.json",
@@ -1597,11 +2175,95 @@
   "unit": "化学変化",
   "field": "化学",
   "uo": 4,
-  "no": 12
+  "no": 14,
+  "otitle": "還元",
+  "ch": 2,
+  "chapter": "第3章 酸素がかかわる化学変化",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/jc93dfd0.json",
+  "title": "酸化銅の還元",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "化学変化",
+  "field": "化学",
+  "uo": 4,
+  "no": 14,
+  "otitle": "酸化銅の還元（基礎）",
+  "ch": 2,
+  "chapter": "第3章 酸素がかかわる化学変化",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j1842051.json",
+  "title": "質量保存の法則",
+  "count": 8,
+  "types": {
+   "choice": 8,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "化学変化",
+  "field": "化学",
+  "uo": 4,
+  "no": 15,
+  "otitle": "質量保存の法則（基礎）",
+  "ch": 3,
+  "chapter": "第4章 化学変化と物質の質量",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/e2b12a91.json",
+  "title": "質量保存の法則２",
+  "count": 7,
+  "types": {
+   "choice": 4,
+   "multi": 0,
+   "text": 3
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "化学変化",
+  "field": "化学",
+  "uo": 4,
+  "no": 15,
+  "otitle": "質量保存の法則",
+  "ch": 3,
+  "chapter": "第4章 化学変化と物質の質量",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j73aafa0.json",
+  "title": "質量の変化・問題",
+  "count": 8,
+  "types": {
+   "choice": 8,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "化学変化",
+  "field": "化学",
+  "uo": 4,
+  "no": 17,
+  "otitle": "質量の変化・問題（基礎）",
+  "ch": 3,
+  "chapter": "第4章 化学変化と物質の質量",
+  "kind": "基礎"
  },
  {
   "file": "sets/bc27ae8d.json",
-  "title": "マグネシウム・銅と酸素の計算問題（むずい）",
+  "title": "マグネシウム・銅と酸素の計算｜実践",
   "count": 2,
   "types": {
    "choice": 2,
@@ -1613,11 +2275,95 @@
   "unit": "化学変化",
   "field": "化学",
   "uo": 4,
-  "no": 13
+  "no": 18,
+  "otitle": "マグネシウム・銅と酸素の計算問題（むずい）",
+  "ch": 3,
+  "chapter": "第4章 化学変化と物質の質量",
+  "kind": "実践"
+ },
+ {
+  "file": "sets/j40309d7.json",
+  "title": "質量の変化・計算問題",
+  "count": 8,
+  "types": {
+   "choice": 8,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "化学変化",
+  "field": "化学",
+  "uo": 4,
+  "no": 18,
+  "otitle": "質量の変化・計算問題（基礎）",
+  "ch": 3,
+  "chapter": "第4章 化学変化と物質の質量",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/2ce9143c.json",
+  "title": "酸素とマグネシウムの計算｜実践",
+  "count": 5,
+  "types": {
+   "choice": 4,
+   "multi": 0,
+   "text": 1
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "化学変化",
+  "field": "化学",
+  "uo": 4,
+  "no": 18,
+  "otitle": "酸素とマグネシウムの計算問題",
+  "ch": 3,
+  "chapter": "第4章 化学変化と物質の質量",
+  "kind": "実践"
+ },
+ {
+  "file": "sets/e13dda6c.json",
+  "title": "酸素と銅の計算｜実践",
+  "count": 5,
+  "types": {
+   "choice": 4,
+   "multi": 0,
+   "text": 1
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "化学変化",
+  "field": "化学",
+  "uo": 4,
+  "no": 18,
+  "otitle": "酸素と銅の計算問題",
+  "ch": 3,
+  "chapter": "第4章 化学変化と物質の質量",
+  "kind": "実践"
+ },
+ {
+  "file": "sets/j5e1eb4a.json",
+  "title": "化学変化と熱",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "化学変化",
+  "field": "化学",
+  "uo": 4,
+  "no": 20,
+  "otitle": "化学変化と熱（基礎）",
+  "ch": 4,
+  "chapter": "第5章 化学変化とその利用",
+  "kind": "基礎"
  },
  {
   "file": "sets/7fad5588.json",
-  "title": "化学変化と熱",
+  "title": "化学変化と熱２",
   "count": 10,
   "types": {
    "choice": 7,
@@ -1629,871 +2375,11 @@
   "unit": "化学変化",
   "field": "化学",
   "uo": 4,
-  "no": 14
- },
- {
-  "file": "sets/j63b1b90.json",
-  "title": "原子記号（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "化学変化",
-  "field": "化学",
-  "uo": 4,
-  "no": 101
- },
- {
-  "file": "sets/j85eef1f.json",
-  "title": "原子の性質（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "化学変化",
-  "field": "化学",
-  "uo": 4,
-  "no": 102
- },
- {
-  "file": "sets/j4150337.json",
-  "title": "化学式とモデル（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "化学変化",
-  "field": "化学",
-  "uo": 4,
-  "no": 103
- },
- {
-  "file": "sets/je37ada8.json",
-  "title": "単体・化合物（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "化学変化",
-  "field": "化学",
-  "uo": 4,
-  "no": 104
- },
- {
-  "file": "sets/jb892ae8.json",
-  "title": "水の電気分解（基礎）",
-  "count": 8,
-  "types": {
-   "choice": 8,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "化学変化",
-  "field": "化学",
-  "uo": 4,
-  "no": 105
- },
- {
-  "file": "sets/j43260c3.json",
-  "title": "酸化銀の熱分解（基礎）",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "化学変化",
-  "field": "化学",
-  "uo": 4,
-  "no": 106
- },
- {
-  "file": "sets/j664b614.json",
-  "title": "炭酸水素ナトリウムの熱分解（基礎）",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "化学変化",
-  "field": "化学",
-  "uo": 4,
-  "no": 107
- },
- {
-  "file": "sets/j03c1c3b.json",
-  "title": "鉄と硫黄の化合（基礎）",
-  "count": 8,
-  "types": {
-   "choice": 8,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "化学変化",
-  "field": "化学",
-  "uo": 4,
-  "no": 108
- },
- {
-  "file": "sets/jaf9caf3.json",
-  "title": "まとめと化学反応式（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "化学変化",
-  "field": "化学",
-  "uo": 4,
-  "no": 109
- },
- {
-  "file": "sets/j9fb9a5d.json",
-  "title": "鉄の酸化（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "化学変化",
-  "field": "化学",
-  "uo": 4,
-  "no": 112
- },
- {
-  "file": "sets/j9eef4e6.json",
-  "title": "酸化と燃焼（基礎）",
-  "count": 8,
-  "types": {
-   "choice": 8,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "化学変化",
-  "field": "化学",
-  "uo": 4,
-  "no": 113
- },
- {
-  "file": "sets/jc93dfd0.json",
-  "title": "酸化銅の還元（基礎）",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "化学変化",
-  "field": "化学",
-  "uo": 4,
-  "no": 114
- },
- {
-  "file": "sets/j1842051.json",
-  "title": "質量保存の法則（基礎）",
-  "count": 8,
-  "types": {
-   "choice": 8,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "化学変化",
-  "field": "化学",
-  "uo": 4,
-  "no": 115
- },
- {
-  "file": "sets/j73aafa0.json",
-  "title": "質量の変化・問題（基礎）",
-  "count": 8,
-  "types": {
-   "choice": 8,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "化学変化",
-  "field": "化学",
-  "uo": 4,
-  "no": 117
- },
- {
-  "file": "sets/j40309d7.json",
-  "title": "質量の変化・計算問題（基礎）",
-  "count": 8,
-  "types": {
-   "choice": 8,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "化学変化",
-  "field": "化学",
-  "uo": 4,
-  "no": 118
- },
- {
-  "file": "sets/j5e1eb4a.json",
-  "title": "化学変化と熱（基礎）",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "化学変化",
-  "field": "化学",
-  "uo": 4,
-  "no": 120
- },
- {
-  "file": "sets/8cf91cbb.json",
-  "title": "乾湿計の使い方",
-  "count": 3,
-  "types": {
-   "choice": 2,
-   "multi": 0,
-   "text": 1
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "天気",
-  "field": "地学",
-  "uo": 5,
-  "no": 0
- },
- {
-  "file": "sets/6e6c89e6.json",
-  "title": "気象のグラフ",
-  "count": 3,
-  "types": {
-   "choice": 3,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "天気",
-  "field": "地学",
-  "uo": 5,
-  "no": 1
- },
- {
-  "file": "sets/dd8ada07.json",
-  "title": "圧力",
-  "count": 5,
-  "types": {
-   "choice": 5,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "天気",
-  "field": "地学",
-  "uo": 5,
-  "no": 2
- },
- {
-  "file": "sets/26724b2e.json",
-  "title": "等圧線",
-  "count": 7,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 1
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "天気",
-  "field": "地学",
-  "uo": 5,
-  "no": 3
- },
- {
-  "file": "sets/47392ae8.json",
-  "title": "気圧と風",
-  "count": 17,
-  "types": {
-   "choice": 15,
-   "multi": 0,
-   "text": 2
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "天気",
-  "field": "地学",
-  "uo": 5,
-  "no": 4
- },
- {
-  "file": "sets/0ff777ed.json",
-  "title": "凝結・露点・湿度",
-  "count": 7,
-  "types": {
-   "choice": 3,
-   "multi": 0,
-   "text": 4
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "天気",
-  "field": "地学",
-  "uo": 5,
-  "no": 5
- },
- {
-  "file": "sets/39d31380.json",
-  "title": "前線のつくり",
-  "count": 14,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 7
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "天気",
-  "field": "地学",
-  "uo": 5,
-  "no": 6
- },
- {
-  "file": "sets/52178de3.json",
-  "title": "前線の通過",
-  "count": 9,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 2
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "天気",
-  "field": "地学",
-  "uo": 5,
-  "no": 7
- },
- {
-  "file": "sets/4e71cf29.json",
-  "title": "季節風",
-  "count": 3,
-  "types": {
-   "choice": 2,
-   "multi": 0,
-   "text": 1
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "天気",
-  "field": "地学",
-  "uo": 5,
-  "no": 8
- },
- {
-  "file": "sets/12338840.json",
-  "title": "海陸風",
-  "count": 6,
-  "types": {
-   "choice": 5,
-   "multi": 0,
-   "text": 1
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "天気",
-  "field": "地学",
-  "uo": 5,
-  "no": 9
- },
- {
-  "file": "sets/88c37166.json",
-  "title": "日本の天気",
-  "count": 29,
-  "types": {
-   "choice": 29,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "天気",
-  "field": "地学",
-  "uo": 5,
-  "no": 99
- },
- {
-  "file": "sets/041c00e6.json",
-  "title": "気圧の変化",
-  "count": 10,
-  "types": {
-   "choice": 10,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "天気",
-  "field": "地学",
-  "uo": 5,
-  "no": 99
- },
- {
-  "file": "sets/412f3514.json",
-  "title": "空気中に含まれる水分について",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "天気",
-  "field": "地学",
-  "uo": 5,
-  "no": 99
- },
- {
-  "file": "sets/cf5d8f6e.json",
-  "title": "雲ができる理由",
-  "count": 5,
-  "types": {
-   "choice": 5,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "天気",
-  "field": "地学",
-  "uo": 5,
-  "no": 99
- },
- {
-  "file": "sets/2555d1d9.json",
-  "title": "飽和水蒸気量・凝結についての確認問題",
-  "count": 10,
-  "types": {
-   "choice": 10,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "天気",
-  "field": "地学",
-  "uo": 5,
-  "no": 99
- },
- {
-  "file": "sets/jf7dbdc7.json",
-  "title": "圧力（基礎）",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "天気",
-  "field": "地学",
-  "uo": 5,
-  "no": 101
- },
- {
-  "file": "sets/ja487d73.json",
-  "title": "大気圧（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "天気",
-  "field": "地学",
-  "uo": 5,
-  "no": 102
- },
- {
-  "file": "sets/jf1b2d6d.json",
-  "title": "気温と湿度の測定（基礎）",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "天気",
-  "field": "地学",
-  "uo": 5,
-  "no": 103
- },
- {
-  "file": "sets/jf75a1ab.json",
-  "title": "天気の種類と風（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "天気",
-  "field": "地学",
-  "uo": 5,
-  "no": 104
- },
- {
-  "file": "sets/jc48898a.json",
-  "title": "天気記号と書き方（基礎）",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "天気",
-  "field": "地学",
-  "uo": 5,
-  "no": 105
- },
- {
-  "file": "sets/j3007b00.json",
-  "title": "等圧線の読み取り（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "天気",
-  "field": "地学",
-  "uo": 5,
-  "no": 106
- },
- {
-  "file": "sets/j1702273.json",
-  "title": "気圧と風の関係（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "天気",
-  "field": "地学",
-  "uo": 5,
-  "no": 107
- },
- {
-  "file": "sets/jf27134e.json",
-  "title": "気象グラフの読み取り（基礎）",
-  "count": 8,
-  "types": {
-   "choice": 8,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "天気",
-  "field": "地学",
-  "uo": 5,
-  "no": 108
- },
- {
-  "file": "sets/j2b4b2a9.json",
-  "title": "飽和水蒸気量と湿度（基礎）",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "天気",
-  "field": "地学",
-  "uo": 5,
-  "no": 110
- },
- {
-  "file": "sets/j531f41e.json",
-  "title": "凝結と露点（基礎）",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "天気",
-  "field": "地学",
-  "uo": 5,
-  "no": 111
- },
- {
-  "file": "sets/jcc70784.json",
-  "title": "空気の性質（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "天気",
-  "field": "地学",
-  "uo": 5,
-  "no": 112
- },
- {
-  "file": "sets/j667de66.json",
-  "title": "雲のできる理由（基礎）",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "天気",
-  "field": "地学",
-  "uo": 5,
-  "no": 113
- },
- {
-  "file": "sets/j7cb4b04.json",
-  "title": "気団と前線（基礎）",
-  "count": 8,
-  "types": {
-   "choice": 8,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "天気",
-  "field": "地学",
-  "uo": 5,
-  "no": 115
- },
- {
-  "file": "sets/j1b4eced.json",
-  "title": "前線の通過（基礎）",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "天気",
-  "field": "地学",
-  "uo": 5,
-  "no": 116
- },
- {
-  "file": "sets/jd589e27.json",
-  "title": "偏西風と大気の動き（基礎）",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "天気",
-  "field": "地学",
-  "uo": 5,
-  "no": 117
- },
- {
-  "file": "sets/j2c73d37.json",
-  "title": "海陸風（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "天気",
-  "field": "地学",
-  "uo": 5,
-  "no": 118
- },
- {
-  "file": "sets/j11cf7b5.json",
-  "title": "季節風（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "天気",
-  "field": "地学",
-  "uo": 5,
-  "no": 119
- },
- {
-  "file": "sets/j5f06834.json",
-  "title": "四季の天気（基礎）",
-  "count": 8,
-  "types": {
-   "choice": 8,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "天気",
-  "field": "地学",
-  "uo": 5,
-  "no": 120
- },
- {
-  "file": "sets/j55b263f.json",
-  "title": "期末対策｜圧力",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "天気",
-  "field": "地学",
-  "uo": 5,
-  "no": 301
- },
- {
-  "file": "sets/jcc8e2b6.json",
-  "title": "期末対策｜圧力・大気圧と風",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "天気",
-  "field": "地学",
-  "uo": 5,
-  "no": 302
- },
- {
-  "file": "sets/jeac2059.json",
-  "title": "期末対策｜気温・湿度・天気記号とグラフ",
-  "count": 4,
-  "types": {
-   "choice": 4,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "天気",
-  "field": "地学",
-  "uo": 5,
-  "no": 303
- },
- {
-  "file": "sets/jdfc948c.json",
-  "title": "期末対策｜天気図と等圧線",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "天気",
-  "field": "地学",
-  "uo": 5,
-  "no": 304
- },
- {
-  "file": "sets/39f6b818.json",
-  "title": "細胞のつくり",
-  "count": 9,
-  "types": {
-   "choice": 3,
-   "multi": 0,
-   "text": 6
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "植物と動物",
-  "field": "生物",
-  "uo": 6,
-  "no": 0
+  "no": 20,
+  "otitle": "化学変化と熱",
+  "ch": 4,
+  "chapter": "第5章 化学変化とその利用",
+  "kind": "基礎"
  },
  {
   "file": "sets/9b0a3f2d.json",
@@ -2508,12 +2394,76 @@
   "grade": 2,
   "unit": "植物と動物",
   "field": "生物",
-  "uo": 6,
-  "no": 1
+  "uo": 5,
+  "no": 1,
+  "otitle": "単細胞・多細胞生物",
+  "ch": 0,
+  "chapter": "第1章 生物と細胞",
+  "kind": "基礎"
  },
  {
-  "file": "sets/c634923f.json",
-  "title": "植物のからだとはたらき",
+  "file": "sets/jef79aa8.json",
+  "title": "単細胞生物・多細胞生物",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 5,
+  "no": 1,
+  "otitle": "単細胞生物・多細胞生物（基礎）",
+  "ch": 0,
+  "chapter": "第1章 生物と細胞",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j905b2fc.json",
+  "title": "顕微鏡の使い方",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 5,
+  "no": 2,
+  "otitle": "顕微鏡の使い方（基礎）",
+  "ch": 0,
+  "chapter": "第1章 生物と細胞",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/jcaf43d4.json",
+  "title": "細胞のつくり",
+  "count": 8,
+  "types": {
+   "choice": 8,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 5,
+  "no": 4,
+  "otitle": "細胞のつくり（基礎）",
+  "ch": 0,
+  "chapter": "第1章 生物と細胞",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/39f6b818.json",
+  "title": "細胞のつくり２",
   "count": 9,
   "types": {
    "choice": 3,
@@ -2524,8 +2474,72 @@
   "grade": 2,
   "unit": "植物と動物",
   "field": "生物",
-  "uo": 6,
-  "no": 2
+  "uo": 5,
+  "no": 4,
+  "otitle": "細胞のつくり",
+  "ch": 0,
+  "chapter": "第1章 生物と細胞",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/jf509925.json",
+  "title": "植物のからだとはたらき",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 5,
+  "no": 6,
+  "otitle": "植物のからだとはたらき（基礎）",
+  "ch": 1,
+  "chapter": "第2章 植物のからだのつくりとはたらき",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/c634923f.json",
+  "title": "植物のからだとはたらき２",
+  "count": 9,
+  "types": {
+   "choice": 3,
+   "multi": 0,
+   "text": 6
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 5,
+  "no": 6,
+  "otitle": "植物のからだとはたらき",
+  "ch": 1,
+  "chapter": "第2章 植物のからだのつくりとはたらき",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/jddccdec.json",
+  "title": "光合成のしくみ",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 5,
+  "no": 7,
+  "otitle": "光合成のしくみ（基礎）",
+  "ch": 1,
+  "chapter": "第2章 植物のからだのつくりとはたらき",
+  "kind": "基礎"
  },
  {
   "file": "sets/92a1344d.json",
@@ -2540,8 +2554,32 @@
   "grade": 2,
   "unit": "植物と動物",
   "field": "生物",
-  "uo": 6,
-  "no": 3
+  "uo": 5,
+  "no": 7,
+  "otitle": "光合成の基礎",
+  "ch": 1,
+  "chapter": "第2章 植物のからだのつくりとはたらき",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/1902629c.json",
+  "title": "光合成とBTB溶液",
+  "count": 5,
+  "types": {
+   "choice": 4,
+   "multi": 0,
+   "text": 1
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 5,
+  "no": 8,
+  "otitle": "光合成（BTB溶液の問題）",
+  "ch": 1,
+  "chapter": "第2章 植物のからだのつくりとはたらき",
+  "kind": "基礎"
  },
  {
   "file": "sets/71f459bc.json",
@@ -2556,24 +2594,32 @@
   "grade": 2,
   "unit": "植物と動物",
   "field": "生物",
-  "uo": 6,
-  "no": 4
+  "uo": 5,
+  "no": 8,
+  "otitle": "光合成の実験",
+  "ch": 1,
+  "chapter": "第2章 植物のからだのつくりとはたらき",
+  "kind": "基礎"
  },
  {
-  "file": "sets/1902629c.json",
-  "title": "光合成（BTB溶液の問題）",
-  "count": 5,
+  "file": "sets/jc95fb0a.json",
+  "title": "光合成の実験（BTB）",
+  "count": 6,
   "types": {
-   "choice": 4,
+   "choice": 6,
    "multi": 0,
-   "text": 1
+   "text": 0
   },
   "enc": true,
   "grade": 2,
   "unit": "植物と動物",
   "field": "生物",
-  "uo": 6,
-  "no": 5
+  "uo": 5,
+  "no": 8,
+  "otitle": "光合成の実験（BTB）（基礎）",
+  "ch": 1,
+  "chapter": "第2章 植物のからだのつくりとはたらき",
+  "kind": "基礎"
  },
  {
   "file": "sets/ca7cfec1.json",
@@ -2588,8 +2634,72 @@
   "grade": 2,
   "unit": "植物と動物",
   "field": "生物",
-  "uo": 6,
-  "no": 6
+  "uo": 5,
+  "no": 10,
+  "otitle": "光合成と呼吸",
+  "ch": 1,
+  "chapter": "第2章 植物のからだのつくりとはたらき",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j08e02a5.json",
+  "title": "呼吸と気体の出入り",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 5,
+  "no": 10,
+  "otitle": "呼吸と気体の出入り（基礎）",
+  "ch": 1,
+  "chapter": "第2章 植物のからだのつくりとはたらき",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j1f719a4.json",
+  "title": "気孔の観察と蒸散のしくみ",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 5,
+  "no": 11,
+  "otitle": "気孔の観察と蒸散のしくみ（基礎）",
+  "ch": 1,
+  "chapter": "第2章 植物のからだのつくりとはたらき",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/jceef6d0.json",
+  "title": "蒸散の問題",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 5,
+  "no": 12,
+  "otitle": "蒸散の問題（基礎）",
+  "ch": 1,
+  "chapter": "第2章 植物のからだのつくりとはたらき",
+  "kind": "基礎"
  },
  {
   "file": "sets/6a2b4e66.json",
@@ -2604,8 +2714,52 @@
   "grade": 2,
   "unit": "植物と動物",
   "field": "生物",
-  "uo": 6,
-  "no": 7
+  "uo": 5,
+  "no": 13,
+  "otitle": "維管束",
+  "ch": 1,
+  "chapter": "第2章 植物のからだのつくりとはたらき",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/jd317ff4.json",
+  "title": "茎のつくり",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 5,
+  "no": 13,
+  "otitle": "茎のつくり（基礎）",
+  "ch": 1,
+  "chapter": "第2章 植物のからだのつくりとはたらき",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/ja84b763.json",
+  "title": "動物のからだの分類",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 5,
+  "no": 16,
+  "otitle": "動物のからだの分類（基礎）",
+  "ch": 2,
+  "chapter": "第3章 動物のからだのつくりとはたらき",
+  "kind": "基礎"
  },
  {
   "file": "sets/bafe44a7.json",
@@ -2620,12 +2774,56 @@
   "grade": 2,
   "unit": "植物と動物",
   "field": "生物",
-  "uo": 6,
-  "no": 8
+  "uo": 5,
+  "no": 19,
+  "otitle": "消化",
+  "ch": 2,
+  "chapter": "第3章 動物のからだのつくりとはたらき",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/jcb5277f.json",
+  "title": "消化のしくみ",
+  "count": 8,
+  "types": {
+   "choice": 8,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 5,
+  "no": 19,
+  "otitle": "消化のしくみ（基礎）",
+  "ch": 2,
+  "chapter": "第3章 動物のからだのつくりとはたらき",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j4b8f588.json",
+  "title": "だ液の実験",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 5,
+  "no": 21,
+  "otitle": "だ液の実験（基礎）",
+  "ch": 2,
+  "chapter": "第3章 動物のからだのつくりとはたらき",
+  "kind": "基礎"
  },
  {
   "file": "sets/2f54f9b4.json",
-  "title": "だ液の実験",
+  "title": "だ液の実験２",
   "count": 6,
   "types": {
    "choice": 5,
@@ -2636,8 +2834,32 @@
   "grade": 2,
   "unit": "植物と動物",
   "field": "生物",
-  "uo": 6,
-  "no": 9
+  "uo": 5,
+  "no": 21,
+  "otitle": "だ液の実験",
+  "ch": 2,
+  "chapter": "第3章 動物のからだのつくりとはたらき",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j70c281f.json",
+  "title": "呼吸のはたらき（呼気と吸気）",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 5,
+  "no": 22,
+  "otitle": "呼吸のはたらき（呼気と吸気）（基礎）",
+  "ch": 2,
+  "chapter": "第3章 動物のからだのつくりとはたらき",
+  "kind": "基礎"
  },
  {
   "file": "sets/726e5edd.json",
@@ -2652,8 +2874,12 @@
   "grade": 2,
   "unit": "植物と動物",
   "field": "生物",
-  "uo": 6,
-  "no": 10
+  "uo": 5,
+  "no": 22,
+  "otitle": "呼気と吸気",
+  "ch": 2,
+  "chapter": "第3章 動物のからだのつくりとはたらき",
+  "kind": "基礎"
  },
  {
   "file": "sets/e867956f.json",
@@ -2668,120 +2894,53 @@
   "grade": 2,
   "unit": "植物と動物",
   "field": "生物",
-  "uo": 6,
-  "no": 11
+  "uo": 5,
+  "no": 23,
+  "otitle": "呼吸",
+  "ch": 2,
+  "chapter": "第3章 動物のからだのつくりとはたらき",
+  "kind": "基礎"
  },
  {
-  "file": "sets/4ffa28fe.json",
-  "title": "血管",
-  "count": 12,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 6
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "植物と動物",
-  "field": "生物",
-  "uo": 6,
-  "no": 12
- },
- {
-  "file": "sets/87292c6d.json",
-  "title": "血液",
-  "count": 10,
-  "types": {
-   "choice": 4,
-   "multi": 0,
-   "text": 6
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "植物と動物",
-  "field": "生物",
-  "uo": 6,
-  "no": 13
- },
- {
-  "file": "sets/4c48566a.json",
-  "title": "排出",
-  "count": 7,
-  "types": {
-   "choice": 0,
-   "multi": 0,
-   "text": 7
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "植物と動物",
-  "field": "生物",
-  "uo": 6,
-  "no": 14
- },
- {
-  "file": "sets/1b24f6bc.json",
-  "title": "心臓",
-  "count": 9,
-  "types": {
-   "choice": 4,
-   "multi": 0,
-   "text": 5
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "植物と動物",
-  "field": "生物",
-  "uo": 6,
-  "no": 15
- },
- {
-  "file": "sets/98bae84a.json",
-  "title": "感覚器官",
+  "file": "sets/j1daddf8.json",
+  "title": "呼吸のはたらき｜実践",
   "count": 8,
   "types": {
-   "choice": 2,
+   "choice": 8,
    "multi": 0,
-   "text": 6
+   "text": 0
   },
   "enc": true,
   "grade": 2,
   "unit": "植物と動物",
   "field": "生物",
-  "uo": 6,
-  "no": 16
+  "uo": 5,
+  "no": 23,
+  "otitle": "期末対策｜呼吸のはたらき",
+  "ch": 2,
+  "chapter": "第3章 動物のからだのつくりとはたらき",
+  "kind": "実践",
+  "test": "2学期期末"
  },
  {
-  "file": "sets/432ea9fc.json",
-  "title": "神経",
-  "count": 9,
+  "file": "sets/j74f9af7.json",
+  "title": "肺と呼吸",
+  "count": 7,
   "types": {
-   "choice": 4,
+   "choice": 7,
    "multi": 0,
-   "text": 5
+   "text": 0
   },
   "enc": true,
   "grade": 2,
   "unit": "植物と動物",
   "field": "生物",
-  "uo": 6,
-  "no": 17
- },
- {
-  "file": "sets/04af1339.json",
-  "title": "骨と筋肉",
-  "count": 4,
-  "types": {
-   "choice": 1,
-   "multi": 0,
-   "text": 3
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "植物と動物",
-  "field": "生物",
-  "uo": 6,
-  "no": 18
+  "uo": 5,
+  "no": 23,
+  "otitle": "肺と呼吸（基礎）",
+  "ch": 2,
+  "chapter": "第3章 動物のからだのつくりとはたらき",
+  "kind": "基礎"
  },
  {
   "file": "sets/5e80bb9c.json",
@@ -2796,348 +2955,36 @@
   "grade": 2,
   "unit": "植物と動物",
   "field": "生物",
-  "uo": 6,
-  "no": 19
+  "uo": 5,
+  "no": 24,
+  "otitle": "からだ全体の血液の循環",
+  "ch": 2,
+  "chapter": "第3章 動物のからだのつくりとはたらき",
+  "kind": "基礎"
  },
  {
-  "file": "sets/jef79aa8.json",
-  "title": "単細胞生物・多細胞生物（基礎）",
-  "count": 6,
+  "file": "sets/1b24f6bc.json",
+  "title": "心臓",
+  "count": 9,
   "types": {
-   "choice": 6,
+   "choice": 4,
    "multi": 0,
-   "text": 0
+   "text": 5
   },
   "enc": true,
   "grade": 2,
   "unit": "植物と動物",
   "field": "生物",
-  "uo": 6,
-  "no": 101
- },
- {
-  "file": "sets/j905b2fc.json",
-  "title": "顕微鏡の使い方（基礎）",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "植物と動物",
-  "field": "生物",
-  "uo": 6,
-  "no": 102
- },
- {
-  "file": "sets/jcaf43d4.json",
-  "title": "細胞のつくり（基礎）",
-  "count": 8,
-  "types": {
-   "choice": 8,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "植物と動物",
-  "field": "生物",
-  "uo": 6,
-  "no": 104
- },
- {
-  "file": "sets/jf509925.json",
-  "title": "植物のからだとはたらき（基礎）",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "植物と動物",
-  "field": "生物",
-  "uo": 6,
-  "no": 106
- },
- {
-  "file": "sets/jddccdec.json",
-  "title": "光合成のしくみ（基礎）",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "植物と動物",
-  "field": "生物",
-  "uo": 6,
-  "no": 107
- },
- {
-  "file": "sets/jc95fb0a.json",
-  "title": "光合成の実験（BTB）（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "植物と動物",
-  "field": "生物",
-  "uo": 6,
-  "no": 108
- },
- {
-  "file": "sets/j08e02a5.json",
-  "title": "呼吸と気体の出入り（基礎）",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "植物と動物",
-  "field": "生物",
-  "uo": 6,
-  "no": 110
- },
- {
-  "file": "sets/j1f719a4.json",
-  "title": "気孔の観察と蒸散のしくみ（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "植物と動物",
-  "field": "生物",
-  "uo": 6,
-  "no": 111
- },
- {
-  "file": "sets/jceef6d0.json",
-  "title": "蒸散の問題（基礎）",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "植物と動物",
-  "field": "生物",
-  "uo": 6,
-  "no": 112
- },
- {
-  "file": "sets/jd317ff4.json",
-  "title": "茎のつくり（基礎）",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "植物と動物",
-  "field": "生物",
-  "uo": 6,
-  "no": 113
- },
- {
-  "file": "sets/ja84b763.json",
-  "title": "動物のからだの分類（基礎）",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "植物と動物",
-  "field": "生物",
-  "uo": 6,
-  "no": 116
- },
- {
-  "file": "sets/jf08b2d3.json",
-  "title": "骨と筋肉（基礎）",
-  "count": 8,
-  "types": {
-   "choice": 8,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "植物と動物",
-  "field": "生物",
-  "uo": 6,
-  "no": 117
- },
- {
-  "file": "sets/jcb5277f.json",
-  "title": "消化のしくみ（基礎）",
-  "count": 8,
-  "types": {
-   "choice": 8,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "植物と動物",
-  "field": "生物",
-  "uo": 6,
-  "no": 119
- },
- {
-  "file": "sets/j4b8f588.json",
-  "title": "だ液の実験（基礎）",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "植物と動物",
-  "field": "生物",
-  "uo": 6,
-  "no": 121
- },
- {
-  "file": "sets/j70c281f.json",
-  "title": "呼吸のはたらき（呼気と吸気）（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "植物と動物",
-  "field": "生物",
-  "uo": 6,
-  "no": 122
- },
- {
-  "file": "sets/j74f9af7.json",
-  "title": "肺と呼吸（基礎）",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "植物と動物",
-  "field": "生物",
-  "uo": 6,
-  "no": 123
- },
- {
-  "file": "sets/ja719fe6.json",
-  "title": "血液の循環（基礎）",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "植物と動物",
-  "field": "生物",
-  "uo": 6,
-  "no": 124
- },
- {
-  "file": "sets/j7f72455.json",
-  "title": "血液の成分（基礎）",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "植物と動物",
-  "field": "生物",
-  "uo": 6,
-  "no": 125
- },
- {
-  "file": "sets/j7d6f1b9.json",
-  "title": "排出のしくみ（基礎）",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "植物と動物",
-  "field": "生物",
-  "uo": 6,
-  "no": 126
- },
- {
-  "file": "sets/jd6fa87d.json",
-  "title": "感覚器官（基礎）",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "植物と動物",
-  "field": "生物",
-  "uo": 6,
-  "no": 127
- },
- {
-  "file": "sets/j7113943.json",
-  "title": "神経（基礎）",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "植物と動物",
-  "field": "生物",
-  "uo": 6,
-  "no": 128
+  "uo": 5,
+  "no": 24,
+  "otitle": "心臓",
+  "ch": 2,
+  "chapter": "第3章 動物のからだのつくりとはたらき",
+  "kind": "基礎"
  },
  {
   "file": "sets/je3b2515.json",
-  "title": "期末対策｜心臓のはたらきと血液の循環",
+  "title": "心臓のはたらきと血液の循環｜実践",
   "count": 9,
   "types": {
    "choice": 9,
@@ -3148,60 +2995,17 @@
   "grade": 2,
   "unit": "植物と動物",
   "field": "生物",
-  "uo": 6,
-  "no": 301
+  "uo": 5,
+  "no": 24,
+  "otitle": "期末対策｜心臓のはたらきと血液の循環",
+  "ch": 2,
+  "chapter": "第3章 動物のからだのつくりとはたらき",
+  "kind": "実践",
+  "test": "2学期期末"
  },
  {
-  "file": "sets/j739b178.json",
-  "title": "期末対策｜血液と細胞の物質交換",
-  "count": 8,
-  "types": {
-   "choice": 8,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "植物と動物",
-  "field": "生物",
-  "uo": 6,
-  "no": 302
- },
- {
-  "file": "sets/j1daddf8.json",
-  "title": "期末対策｜呼吸のはたらき",
-  "count": 8,
-  "types": {
-   "choice": 8,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "植物と動物",
-  "field": "生物",
-  "uo": 6,
-  "no": 303
- },
- {
-  "file": "sets/j948116c.json",
-  "title": "期末対策｜排出のしくみ",
-  "count": 10,
-  "types": {
-   "choice": 10,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "植物と動物",
-  "field": "生物",
-  "uo": 6,
-  "no": 304
- },
- {
-  "file": "sets/j6f9d0d3.json",
-  "title": "期末対策｜目・耳・鼻・舌・皮膚のつくりとはたらき",
+  "file": "sets/ja719fe6.json",
+  "title": "血液の循環",
   "count": 7,
   "types": {
    "choice": 7,
@@ -3212,12 +3016,259 @@
   "grade": 2,
   "unit": "植物と動物",
   "field": "生物",
-  "uo": 6,
-  "no": 305
+  "uo": 5,
+  "no": 24,
+  "otitle": "血液の循環（基礎）",
+  "ch": 2,
+  "chapter": "第3章 動物のからだのつくりとはたらき",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/4ffa28fe.json",
+  "title": "血管",
+  "count": 12,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 6
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 5,
+  "no": 24,
+  "otitle": "血管",
+  "ch": 2,
+  "chapter": "第3章 動物のからだのつくりとはたらき",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/87292c6d.json",
+  "title": "血液",
+  "count": 10,
+  "types": {
+   "choice": 4,
+   "multi": 0,
+   "text": 6
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 5,
+  "no": 25,
+  "otitle": "血液",
+  "ch": 2,
+  "chapter": "第3章 動物のからだのつくりとはたらき",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j739b178.json",
+  "title": "血液と細胞の物質交換｜実践",
+  "count": 8,
+  "types": {
+   "choice": 8,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 5,
+  "no": 25,
+  "otitle": "期末対策｜血液と細胞の物質交換",
+  "ch": 2,
+  "chapter": "第3章 動物のからだのつくりとはたらき",
+  "kind": "実践",
+  "test": "2学期期末"
+ },
+ {
+  "file": "sets/j7f72455.json",
+  "title": "血液の成分",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 5,
+  "no": 25,
+  "otitle": "血液の成分（基礎）",
+  "ch": 2,
+  "chapter": "第3章 動物のからだのつくりとはたらき",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/4c48566a.json",
+  "title": "排出",
+  "count": 7,
+  "types": {
+   "choice": 0,
+   "multi": 0,
+   "text": 7
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 5,
+  "no": 26,
+  "otitle": "排出",
+  "ch": 2,
+  "chapter": "第3章 動物のからだのつくりとはたらき",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j7d6f1b9.json",
+  "title": "排出のしくみ",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 5,
+  "no": 26,
+  "otitle": "排出のしくみ（基礎）",
+  "ch": 2,
+  "chapter": "第3章 動物のからだのつくりとはたらき",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j948116c.json",
+  "title": "排出のしくみ｜実践",
+  "count": 10,
+  "types": {
+   "choice": 10,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 5,
+  "no": 26,
+  "otitle": "期末対策｜排出のしくみ",
+  "ch": 2,
+  "chapter": "第3章 動物のからだのつくりとはたらき",
+  "kind": "実践",
+  "test": "2学期期末"
+ },
+ {
+  "file": "sets/jf08b2d3.json",
+  "title": "骨と筋肉",
+  "count": 8,
+  "types": {
+   "choice": 8,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 5,
+  "no": 17,
+  "otitle": "骨と筋肉（基礎）",
+  "ch": 3,
+  "chapter": "第4章 刺激と反応",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/04af1339.json",
+  "title": "骨と筋肉２",
+  "count": 4,
+  "types": {
+   "choice": 1,
+   "multi": 0,
+   "text": 3
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 5,
+  "no": 17,
+  "otitle": "骨と筋肉",
+  "ch": 3,
+  "chapter": "第4章 刺激と反応",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/jd6fa87d.json",
+  "title": "感覚器官",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 5,
+  "no": 27,
+  "otitle": "感覚器官（基礎）",
+  "ch": 3,
+  "chapter": "第4章 刺激と反応",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/98bae84a.json",
+  "title": "感覚器官２",
+  "count": 8,
+  "types": {
+   "choice": 2,
+   "multi": 0,
+   "text": 6
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 5,
+  "no": 27,
+  "otitle": "感覚器官",
+  "ch": 3,
+  "chapter": "第4章 刺激と反応",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j6f9d0d3.json",
+  "title": "目・耳・鼻・舌・皮膚のつくりとはたらき｜実践",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 5,
+  "no": 27,
+  "otitle": "期末対策｜目・耳・鼻・舌・皮膚のつくりとはたらき",
+  "ch": 3,
+  "chapter": "第4章 刺激と反応",
+  "kind": "実践",
+  "test": "2学期期末"
  },
  {
   "file": "sets/j4f93046.json",
-  "title": "期末対策｜刺激と反応・反射",
+  "title": "刺激と反応・反射｜実践",
   "count": 6,
   "types": {
    "choice": 6,
@@ -3228,12 +3279,821 @@
   "grade": 2,
   "unit": "植物と動物",
   "field": "生物",
+  "uo": 5,
+  "no": 28,
+  "otitle": "期末対策｜刺激と反応・反射",
+  "ch": 3,
+  "chapter": "第4章 刺激と反応",
+  "kind": "実践",
+  "test": "2学期期末"
+ },
+ {
+  "file": "sets/j7113943.json",
+  "title": "神経",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 5,
+  "no": 28,
+  "otitle": "神経（基礎）",
+  "ch": 3,
+  "chapter": "第4章 刺激と反応",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/432ea9fc.json",
+  "title": "神経２",
+  "count": 9,
+  "types": {
+   "choice": 4,
+   "multi": 0,
+   "text": 5
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 5,
+  "no": 28,
+  "otitle": "神経",
+  "ch": 3,
+  "chapter": "第4章 刺激と反応",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/jf7dbdc7.json",
+  "title": "圧力",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
   "uo": 6,
-  "no": 306
+  "no": 1,
+  "otitle": "圧力（基礎）",
+  "ch": 0,
+  "chapter": "第1章 気象の観測",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/dd8ada07.json",
+  "title": "圧力２",
+  "count": 5,
+  "types": {
+   "choice": 5,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 6,
+  "no": 1,
+  "otitle": "圧力",
+  "ch": 0,
+  "chapter": "第1章 気象の観測",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j55b263f.json",
+  "title": "圧力｜実践",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 6,
+  "no": 1,
+  "otitle": "期末対策｜圧力",
+  "ch": 0,
+  "chapter": "第1章 気象の観測",
+  "kind": "実践",
+  "test": "2学期期末"
+ },
+ {
+  "file": "sets/jcc8e2b6.json",
+  "title": "圧力・大気圧と風｜実践",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 6,
+  "no": 2,
+  "otitle": "期末対策｜圧力・大気圧と風",
+  "ch": 0,
+  "chapter": "第1章 気象の観測",
+  "kind": "実践",
+  "test": "2学期期末"
+ },
+ {
+  "file": "sets/ja487d73.json",
+  "title": "大気圧",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 6,
+  "no": 2,
+  "otitle": "大気圧（基礎）",
+  "ch": 0,
+  "chapter": "第1章 気象の観測",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/8cf91cbb.json",
+  "title": "乾湿計の使い方",
+  "count": 3,
+  "types": {
+   "choice": 2,
+   "multi": 0,
+   "text": 1
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 6,
+  "no": 3,
+  "otitle": "乾湿計の使い方",
+  "ch": 0,
+  "chapter": "第1章 気象の観測",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/jf1b2d6d.json",
+  "title": "気温と湿度の測定",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 6,
+  "no": 3,
+  "otitle": "気温と湿度の測定（基礎）",
+  "ch": 0,
+  "chapter": "第1章 気象の観測",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/jeac2059.json",
+  "title": "気温・湿度・天気記号とグラフ｜実践",
+  "count": 4,
+  "types": {
+   "choice": 4,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 6,
+  "no": 3,
+  "otitle": "期末対策｜気温・湿度・天気記号とグラフ",
+  "ch": 0,
+  "chapter": "第1章 気象の観測",
+  "kind": "実践",
+  "test": "2学期期末"
+ },
+ {
+  "file": "sets/jf75a1ab.json",
+  "title": "天気の種類と風",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 6,
+  "no": 4,
+  "otitle": "天気の種類と風（基礎）",
+  "ch": 0,
+  "chapter": "第1章 気象の観測",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/jc48898a.json",
+  "title": "天気記号と書き方",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 6,
+  "no": 5,
+  "otitle": "天気記号と書き方（基礎）",
+  "ch": 0,
+  "chapter": "第1章 気象の観測",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/jdfc948c.json",
+  "title": "天気図と等圧線｜実践",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 6,
+  "no": 6,
+  "otitle": "期末対策｜天気図と等圧線",
+  "ch": 0,
+  "chapter": "第1章 気象の観測",
+  "kind": "実践",
+  "test": "2学期期末"
+ },
+ {
+  "file": "sets/26724b2e.json",
+  "title": "等圧線",
+  "count": 7,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 1
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 6,
+  "no": 6,
+  "otitle": "等圧線",
+  "ch": 0,
+  "chapter": "第1章 気象の観測",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j3007b00.json",
+  "title": "等圧線の読み取り",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 6,
+  "no": 6,
+  "otitle": "等圧線の読み取り（基礎）",
+  "ch": 0,
+  "chapter": "第1章 気象の観測",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/47392ae8.json",
+  "title": "気圧と風",
+  "count": 17,
+  "types": {
+   "choice": 15,
+   "multi": 0,
+   "text": 2
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 6,
+  "no": 7,
+  "otitle": "気圧と風",
+  "ch": 0,
+  "chapter": "第1章 気象の観測",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j1702273.json",
+  "title": "気圧と風の関係",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 6,
+  "no": 7,
+  "otitle": "気圧と風の関係（基礎）",
+  "ch": 0,
+  "chapter": "第1章 気象の観測",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/6e6c89e6.json",
+  "title": "気象のグラフ",
+  "count": 3,
+  "types": {
+   "choice": 3,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 6,
+  "no": 8,
+  "otitle": "気象のグラフ",
+  "ch": 0,
+  "chapter": "第1章 気象の観測",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/jf27134e.json",
+  "title": "気象グラフの読み取り",
+  "count": 8,
+  "types": {
+   "choice": 8,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 6,
+  "no": 8,
+  "otitle": "気象グラフの読み取り（基礎）",
+  "ch": 0,
+  "chapter": "第1章 気象の観測",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/412f3514.json",
+  "title": "空気中にふくまれる水分",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 6,
+  "no": 10,
+  "otitle": "空気中に含まれる水分について",
+  "ch": 1,
+  "chapter": "第2章 雲のでき方と前線",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/2555d1d9.json",
+  "title": "飽和水蒸気量と凝結",
+  "count": 10,
+  "types": {
+   "choice": 10,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 6,
+  "no": 10,
+  "otitle": "飽和水蒸気量・凝結についての確認問題",
+  "ch": 1,
+  "chapter": "第2章 雲のでき方と前線",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j2b4b2a9.json",
+  "title": "飽和水蒸気量と湿度",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 6,
+  "no": 10,
+  "otitle": "飽和水蒸気量と湿度（基礎）",
+  "ch": 1,
+  "chapter": "第2章 雲のでき方と前線",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j531f41e.json",
+  "title": "凝結と露点",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 6,
+  "no": 11,
+  "otitle": "凝結と露点（基礎）",
+  "ch": 1,
+  "chapter": "第2章 雲のでき方と前線",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/0ff777ed.json",
+  "title": "凝結・露点・湿度",
+  "count": 7,
+  "types": {
+   "choice": 3,
+   "multi": 0,
+   "text": 4
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 6,
+  "no": 11,
+  "otitle": "凝結・露点・湿度",
+  "ch": 1,
+  "chapter": "第2章 雲のでき方と前線",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/041c00e6.json",
+  "title": "気圧の変化",
+  "count": 10,
+  "types": {
+   "choice": 10,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 6,
+  "no": 12,
+  "otitle": "気圧の変化",
+  "ch": 1,
+  "chapter": "第2章 雲のでき方と前線",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/jcc70784.json",
+  "title": "空気の性質",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 6,
+  "no": 12,
+  "otitle": "空気の性質（基礎）",
+  "ch": 1,
+  "chapter": "第2章 雲のでき方と前線",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/cf5d8f6e.json",
+  "title": "雲ができる理由",
+  "count": 5,
+  "types": {
+   "choice": 5,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 6,
+  "no": 13,
+  "otitle": "雲ができる理由",
+  "ch": 1,
+  "chapter": "第2章 雲のでき方と前線",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j667de66.json",
+  "title": "雲のできる理由",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 6,
+  "no": 13,
+  "otitle": "雲のできる理由（基礎）",
+  "ch": 1,
+  "chapter": "第2章 雲のでき方と前線",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/39d31380.json",
+  "title": "前線のつくり",
+  "count": 14,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 7
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 6,
+  "no": 15,
+  "otitle": "前線のつくり",
+  "ch": 1,
+  "chapter": "第2章 雲のでき方と前線",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j7cb4b04.json",
+  "title": "気団と前線",
+  "count": 8,
+  "types": {
+   "choice": 8,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 6,
+  "no": 15,
+  "otitle": "気団と前線（基礎）",
+  "ch": 1,
+  "chapter": "第2章 雲のでき方と前線",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j1b4eced.json",
+  "title": "前線の通過",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 6,
+  "no": 16,
+  "otitle": "前線の通過（基礎）",
+  "ch": 1,
+  "chapter": "第2章 雲のでき方と前線",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/52178de3.json",
+  "title": "前線の通過２",
+  "count": 9,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 2
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 6,
+  "no": 16,
+  "otitle": "前線の通過",
+  "ch": 1,
+  "chapter": "第2章 雲のでき方と前線",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/jd589e27.json",
+  "title": "偏西風と大気の動き",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 6,
+  "no": 17,
+  "otitle": "偏西風と大気の動き（基礎）",
+  "ch": 2,
+  "chapter": "第3章 大気の動きと日本の天気",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j2c73d37.json",
+  "title": "海陸風",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 6,
+  "no": 18,
+  "otitle": "海陸風（基礎）",
+  "ch": 2,
+  "chapter": "第3章 大気の動きと日本の天気",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/12338840.json",
+  "title": "海陸風２",
+  "count": 6,
+  "types": {
+   "choice": 5,
+   "multi": 0,
+   "text": 1
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 6,
+  "no": 18,
+  "otitle": "海陸風",
+  "ch": 2,
+  "chapter": "第3章 大気の動きと日本の天気",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j11cf7b5.json",
+  "title": "季節風",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 6,
+  "no": 19,
+  "otitle": "季節風（基礎）",
+  "ch": 2,
+  "chapter": "第3章 大気の動きと日本の天気",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/4e71cf29.json",
+  "title": "季節風２",
+  "count": 3,
+  "types": {
+   "choice": 2,
+   "multi": 0,
+   "text": 1
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 6,
+  "no": 19,
+  "otitle": "季節風",
+  "ch": 2,
+  "chapter": "第3章 大気の動きと日本の天気",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j5f06834.json",
+  "title": "四季の天気",
+  "count": 8,
+  "types": {
+   "choice": 8,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 6,
+  "no": 20,
+  "otitle": "四季の天気（基礎）",
+  "ch": 2,
+  "chapter": "第3章 大気の動きと日本の天気",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/88c37166.json",
+  "title": "日本の天気",
+  "count": 29,
+  "types": {
+   "choice": 29,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 6,
+  "no": 20,
+  "otitle": "日本の天気",
+  "ch": 2,
+  "chapter": "第3章 大気の動きと日本の天気",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j27e67aa.json",
+  "title": "静電気",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "電気",
+  "field": "物理",
+  "uo": 7,
+  "no": 2,
+  "otitle": "静電気（基礎）",
+  "ch": 0,
+  "chapter": "第1章 静電気と電流",
+  "kind": "基礎"
  },
  {
   "file": "sets/c4f5ff37.json",
-  "title": "静電気",
+  "title": "静電気２",
   "count": 17,
   "types": {
    "choice": 16,
@@ -3245,7 +4105,31 @@
   "unit": "電気",
   "field": "物理",
   "uo": 7,
-  "no": 0
+  "no": 2,
+  "otitle": "静電気",
+  "ch": 0,
+  "chapter": "第1章 静電気と電流",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j36422f7.json",
+  "title": "陰極線と放電",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "電気",
+  "field": "物理",
+  "uo": 7,
+  "no": 3,
+  "otitle": "陰極線と放電（基礎）",
+  "ch": 0,
+  "chapter": "第1章 静電気と電流",
+  "kind": "基礎"
  },
  {
   "file": "sets/05ca1088.json",
@@ -3261,7 +4145,11 @@
   "unit": "電気",
   "field": "物理",
   "uo": 7,
-  "no": 1
+  "no": 3,
+  "otitle": "電流の正体",
+  "ch": 0,
+  "chapter": "第1章 静電気と電流",
+  "kind": "基礎"
  },
  {
   "file": "sets/bbb73d10.json",
@@ -3277,7 +4165,51 @@
   "unit": "電気",
   "field": "物理",
   "uo": 7,
-  "no": 2
+  "no": 4,
+  "otitle": "電気の基本",
+  "ch": 1,
+  "chapter": "第2章 電流の性質",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j12b7971.json",
+  "title": "電気の導入・回路",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "電気",
+  "field": "物理",
+  "uo": 7,
+  "no": 4,
+  "otitle": "電気の導入・回路（基礎）",
+  "ch": 1,
+  "chapter": "第2章 電流の性質",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j463d389.json",
+  "title": "回路図",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "電気",
+  "field": "物理",
+  "uo": 7,
+  "no": 5,
+  "otitle": "回路図（基礎）",
+  "ch": 1,
+  "chapter": "第2章 電流の性質",
+  "kind": "基礎"
  },
  {
   "file": "sets/7bc6aac7.json",
@@ -3293,107 +4225,15 @@
   "unit": "電気",
   "field": "物理",
   "uo": 7,
-  "no": 3
- },
- {
-  "file": "sets/522e1adf.json",
-  "title": "オームの性質",
-  "count": 7,
-  "types": {
-   "choice": 1,
-   "multi": 0,
-   "text": 6
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "電気",
-  "field": "物理",
-  "uo": 7,
-  "no": 4
- },
- {
-  "file": "sets/3bb72b99.json",
-  "title": "電気抵抗",
-  "count": 5,
-  "types": {
-   "choice": 2,
-   "multi": 0,
-   "text": 3
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "電気",
-  "field": "物理",
-  "uo": 7,
-  "no": 5
- },
- {
-  "file": "sets/fd6dd8fe.json",
-  "title": "時間の変化と発電",
-  "count": 7,
-  "types": {
-   "choice": 5,
-   "multi": 0,
-   "text": 2
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "電気",
-  "field": "物理",
-  "uo": 7,
-  "no": 6
- },
- {
-  "file": "sets/5bc7ea95.json",
-  "title": "電流が磁界から受ける力",
-  "count": 7,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 1
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "電気",
-  "field": "物理",
-  "uo": 7,
-  "no": 7
- },
- {
-  "file": "sets/cc3c06e1.json",
-  "title": "磁界",
-  "count": 10,
-  "types": {
-   "choice": 8,
-   "multi": 0,
-   "text": 2
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "電気",
-  "field": "物理",
-  "uo": 7,
-  "no": 8
- },
- {
-  "file": "sets/affd80fe.json",
-  "title": "電気製品の消費電力",
-  "count": 7,
-  "types": {
-   "choice": 4,
-   "multi": 0,
-   "text": 3
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "電気",
-  "field": "物理",
-  "uo": 7,
-  "no": 99
+  "no": 6,
+  "otitle": "電流と電圧",
+  "ch": 1,
+  "chapter": "第2章 電流の性質",
+  "kind": "基礎"
  },
  {
   "file": "sets/12eb6e77.json",
-  "title": "電流と電圧とは？",
+  "title": "電流と電圧とは",
   "count": 15,
   "types": {
    "choice": 15,
@@ -3405,7 +4245,11 @@
   "unit": "電気",
   "field": "物理",
   "uo": 7,
-  "no": 99
+  "no": 6,
+  "otitle": "電流と電圧とは？",
+  "ch": 1,
+  "chapter": "第2章 電流の性質",
+  "kind": "基礎"
  },
  {
   "file": "sets/ce073637.json",
@@ -3421,75 +4265,15 @@
   "unit": "電気",
   "field": "物理",
   "uo": 7,
-  "no": 99
- },
- {
-  "file": "sets/j27e67aa.json",
-  "title": "静電気（基礎）",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "電気",
-  "field": "物理",
-  "uo": 7,
-  "no": 102
- },
- {
-  "file": "sets/j36422f7.json",
-  "title": "陰極線と放電（基礎）",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "電気",
-  "field": "物理",
-  "uo": 7,
-  "no": 103
- },
- {
-  "file": "sets/j12b7971.json",
-  "title": "電気の導入・回路（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "電気",
-  "field": "物理",
-  "uo": 7,
-  "no": 104
- },
- {
-  "file": "sets/j463d389.json",
-  "title": "回路図（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 2,
-  "unit": "電気",
-  "field": "物理",
-  "uo": 7,
-  "no": 105
+  "no": 6,
+  "otitle": "電流の単位変換",
+  "ch": 1,
+  "chapter": "第2章 電流の性質",
+  "kind": "基礎"
  },
  {
   "file": "sets/j8a00fa5.json",
-  "title": "電流計・電圧計の使い方（基礎）",
+  "title": "電流計・電圧計の使い方",
   "count": 8,
   "types": {
    "choice": 8,
@@ -3501,11 +4285,15 @@
   "unit": "電気",
   "field": "物理",
   "uo": 7,
-  "no": 106
+  "no": 6,
+  "otitle": "電流計・電圧計の使い方（基礎）",
+  "ch": 1,
+  "chapter": "第2章 電流の性質",
+  "kind": "基礎"
  },
  {
   "file": "sets/j5e5ae31.json",
-  "title": "電流の関係（並列と直列）（基礎）",
+  "title": "電流の関係（並列と直列）",
   "count": 6,
   "types": {
    "choice": 6,
@@ -3517,11 +4305,15 @@
   "unit": "電気",
   "field": "物理",
   "uo": 7,
-  "no": 107
+  "no": 7,
+  "otitle": "電流の関係（並列と直列）（基礎）",
+  "ch": 1,
+  "chapter": "第2章 電流の性質",
+  "kind": "基礎"
  },
  {
   "file": "sets/jd3f6618.json",
-  "title": "電圧の関係（並列と直列）（基礎）",
+  "title": "電圧の関係（並列と直列）",
   "count": 7,
   "types": {
    "choice": 7,
@@ -3533,11 +4325,35 @@
   "unit": "電気",
   "field": "物理",
   "uo": 7,
-  "no": 108
+  "no": 8,
+  "otitle": "電圧の関係（並列と直列）（基礎）",
+  "ch": 1,
+  "chapter": "第2章 電流の性質",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/522e1adf.json",
+  "title": "オームの性質",
+  "count": 7,
+  "types": {
+   "choice": 1,
+   "multi": 0,
+   "text": 6
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "電気",
+  "field": "物理",
+  "uo": 7,
+  "no": 10,
+  "otitle": "オームの性質",
+  "ch": 1,
+  "chapter": "第2章 電流の性質",
+  "kind": "基礎"
  },
  {
   "file": "sets/j5c0d3a6.json",
-  "title": "オームの法則（基礎）",
+  "title": "オームの法則",
   "count": 8,
   "types": {
    "choice": 8,
@@ -3549,11 +4365,35 @@
   "unit": "電気",
   "field": "物理",
   "uo": 7,
-  "no": 110
+  "no": 10,
+  "otitle": "オームの法則（基礎）",
+  "ch": 1,
+  "chapter": "第2章 電流の性質",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/3bb72b99.json",
+  "title": "電気抵抗",
+  "count": 5,
+  "types": {
+   "choice": 2,
+   "multi": 0,
+   "text": 3
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "電気",
+  "field": "物理",
+  "uo": 7,
+  "no": 10,
+  "otitle": "電気抵抗",
+  "ch": 1,
+  "chapter": "第2章 電流の性質",
+  "kind": "基礎"
  },
  {
   "file": "sets/j76eba07.json",
-  "title": "オームの法則の問題演習（基礎）",
+  "title": "オームの法則の問題演習",
   "count": 7,
   "types": {
    "choice": 7,
@@ -3565,11 +4405,15 @@
   "unit": "電気",
   "field": "物理",
   "uo": 7,
-  "no": 111
+  "no": 11,
+  "otitle": "オームの法則の問題演習（基礎）",
+  "ch": 1,
+  "chapter": "第2章 電流の性質",
+  "kind": "基礎"
  },
  {
   "file": "sets/j2267f19.json",
-  "title": "電気エネルギー（基礎）",
+  "title": "電気エネルギー",
   "count": 6,
   "types": {
    "choice": 6,
@@ -3581,11 +4425,35 @@
   "unit": "電気",
   "field": "物理",
   "uo": 7,
-  "no": 112
+  "no": 12,
+  "otitle": "電気エネルギー（基礎）",
+  "ch": 1,
+  "chapter": "第2章 電流の性質",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/affd80fe.json",
+  "title": "電気製品の消費電力",
+  "count": 7,
+  "types": {
+   "choice": 4,
+   "multi": 0,
+   "text": 3
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "電気",
+  "field": "物理",
+  "uo": 7,
+  "no": 12,
+  "otitle": "電気製品の消費電力",
+  "ch": 1,
+  "chapter": "第2章 電流の性質",
+  "kind": "基礎"
  },
  {
   "file": "sets/j2242c33.json",
-  "title": "家庭の電気代（基礎）",
+  "title": "家庭の電気代",
   "count": 6,
   "types": {
    "choice": 6,
@@ -3597,11 +4465,15 @@
   "unit": "電気",
   "field": "物理",
   "uo": 7,
-  "no": 113
+  "no": 13,
+  "otitle": "家庭の電気代（基礎）",
+  "ch": 1,
+  "chapter": "第2章 電流の性質",
+  "kind": "基礎"
  },
  {
   "file": "sets/jd5c6d80.json",
-  "title": "電熱線の発熱量（基礎）",
+  "title": "電熱線の発熱量",
   "count": 7,
   "types": {
    "choice": 7,
@@ -3613,11 +4485,35 @@
   "unit": "電気",
   "field": "物理",
   "uo": 7,
-  "no": 114
+  "no": 14,
+  "otitle": "電熱線の発熱量（基礎）",
+  "ch": 1,
+  "chapter": "第2章 電流の性質",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/cc3c06e1.json",
+  "title": "磁界",
+  "count": 10,
+  "types": {
+   "choice": 8,
+   "multi": 0,
+   "text": 2
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "電気",
+  "field": "物理",
+  "uo": 7,
+  "no": 15,
+  "otitle": "磁界",
+  "ch": 2,
+  "chapter": "第3章 電流と磁界",
+  "kind": "基礎"
  },
  {
   "file": "sets/j01f94aa.json",
-  "title": "磁界の見える化（基礎）",
+  "title": "磁界の見える化",
   "count": 6,
   "types": {
    "choice": 6,
@@ -3629,11 +4525,15 @@
   "unit": "電気",
   "field": "物理",
   "uo": 7,
-  "no": 115
+  "no": 15,
+  "otitle": "磁界の見える化（基礎）",
+  "ch": 2,
+  "chapter": "第3章 電流と磁界",
+  "kind": "基礎"
  },
  {
   "file": "sets/jce11c64.json",
-  "title": "コイルの磁界（基礎）",
+  "title": "コイルの磁界",
   "count": 7,
   "types": {
    "choice": 7,
@@ -3645,11 +4545,35 @@
   "unit": "電気",
   "field": "物理",
   "uo": 7,
-  "no": 116
+  "no": 16,
+  "otitle": "コイルの磁界（基礎）",
+  "ch": 2,
+  "chapter": "第3章 電流と磁界",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/5bc7ea95.json",
+  "title": "電流が磁界から受ける力",
+  "count": 7,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 1
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "電気",
+  "field": "物理",
+  "uo": 7,
+  "no": 17,
+  "otitle": "電流が磁界から受ける力",
+  "ch": 2,
+  "chapter": "第3章 電流と磁界",
+  "kind": "基礎"
  },
  {
   "file": "sets/jca15433.json",
-  "title": "電磁相互作用（基礎）",
+  "title": "電磁相互作用",
   "count": 8,
   "types": {
    "choice": 8,
@@ -3661,11 +4585,35 @@
   "unit": "電気",
   "field": "物理",
   "uo": 7,
-  "no": 117
+  "no": 17,
+  "otitle": "電磁相互作用（基礎）",
+  "ch": 2,
+  "chapter": "第3章 電流と磁界",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/fd6dd8fe.json",
+  "title": "時間の変化と発電",
+  "count": 7,
+  "types": {
+   "choice": 5,
+   "multi": 0,
+   "text": 2
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "電気",
+  "field": "物理",
+  "uo": 7,
+  "no": 18,
+  "otitle": "時間の変化と発電",
+  "ch": 2,
+  "chapter": "第3章 電流と磁界",
+  "kind": "基礎"
  },
  {
   "file": "sets/j9c24ee7.json",
-  "title": "電磁誘導（基礎）",
+  "title": "電磁誘導",
   "count": 7,
   "types": {
    "choice": 7,
@@ -3677,11 +4625,35 @@
   "unit": "電気",
   "field": "物理",
   "uo": 7,
-  "no": 118
+  "no": 18,
+  "otitle": "電磁誘導（基礎）",
+  "ch": 2,
+  "chapter": "第3章 電流と磁界",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j88e7dfb.json",
+  "title": "２年生の復習",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "イオン",
+  "field": "化学",
+  "uo": 8,
+  "no": 1,
+  "otitle": "２年生の復習（基礎）",
+  "ch": 0,
+  "chapter": "第1章 水溶液とイオン",
+  "kind": "基礎"
  },
  {
   "file": "sets/fe0c8882.json",
-  "title": "【イオン】電気を流す物質",
+  "title": "電気を流す物質",
   "count": 6,
   "types": {
    "choice": 3,
@@ -3693,7 +4665,51 @@
   "unit": "イオン",
   "field": "化学",
   "uo": 8,
-  "no": 0
+  "no": 3,
+  "otitle": "【イオン】電気を流す物質",
+  "ch": 0,
+  "chapter": "第1章 水溶液とイオン",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j5b3cb29.json",
+  "title": "電解質",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "イオン",
+  "field": "化学",
+  "uo": 8,
+  "no": 3,
+  "otitle": "電解質（基礎）",
+  "ch": 0,
+  "chapter": "第1章 水溶液とイオン",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/jb7343c9.json",
+  "title": "イオンについて",
+  "count": 8,
+  "types": {
+   "choice": 8,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "イオン",
+  "field": "化学",
+  "uo": 8,
+  "no": 4,
+  "otitle": "イオンについて（基礎）",
+  "ch": 0,
+  "chapter": "第1章 水溶液とイオン",
+  "kind": "基礎"
  },
  {
   "file": "sets/4ee95149.json",
@@ -3709,14 +4725,18 @@
   "unit": "イオン",
   "field": "化学",
   "uo": 8,
-  "no": 1
+  "no": 4,
+  "otitle": "イオンの基礎",
+  "ch": 0,
+  "chapter": "第1章 水溶液とイオン",
+  "kind": "基礎"
  },
  {
-  "file": "sets/13ea0c6e.json",
-  "title": "【イオン】イオン式を選ぼう１",
-  "count": 12,
+  "file": "sets/j0d21fe7.json",
+  "title": "イオン式",
+  "count": 6,
   "types": {
-   "choice": 12,
+   "choice": 6,
    "multi": 0,
    "text": 0
   },
@@ -3725,27 +4745,15 @@
   "unit": "イオン",
   "field": "化学",
   "uo": 8,
-  "no": 2
- },
- {
-  "file": "sets/31bc46ec.json",
-  "title": "【イオン】イオン式を選ぼう２",
-  "count": 12,
-  "types": {
-   "choice": 12,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "イオン",
-  "field": "化学",
-  "uo": 8,
-  "no": 3
+  "no": 5,
+  "otitle": "イオン式（基礎）",
+  "ch": 0,
+  "chapter": "第1章 水溶液とイオン",
+  "kind": "基礎"
  },
  {
   "file": "sets/abca4ae5.json",
-  "title": "【イオン】イオン式を覚えよう【選択】",
+  "title": "イオン式を覚えよう１",
   "count": 12,
   "types": {
    "choice": 12,
@@ -3757,11 +4765,15 @@
   "unit": "イオン",
   "field": "化学",
   "uo": 8,
-  "no": 4
+  "no": 5,
+  "otitle": "【イオン】イオン式を覚えよう【選択】",
+  "ch": 0,
+  "chapter": "第1章 水溶液とイオン",
+  "kind": "基礎"
  },
  {
   "file": "sets/dfc9e7ef.json",
-  "title": "【イオン】イオン式を覚えよう【記述】",
+  "title": "イオン式を覚えよう２",
   "count": 12,
   "types": {
    "choice": 0,
@@ -3773,11 +4785,95 @@
   "unit": "イオン",
   "field": "化学",
   "uo": 8,
-  "no": 5
+  "no": 5,
+  "otitle": "【イオン】イオン式を覚えよう【記述】",
+  "ch": 0,
+  "chapter": "第1章 水溶液とイオン",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/13ea0c6e.json",
+  "title": "イオン式を選ぼう１",
+  "count": 12,
+  "types": {
+   "choice": 12,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "イオン",
+  "field": "化学",
+  "uo": 8,
+  "no": 5,
+  "otitle": "【イオン】イオン式を選ぼう１",
+  "ch": 0,
+  "chapter": "第1章 水溶液とイオン",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/31bc46ec.json",
+  "title": "イオン式を選ぼう２",
+  "count": 12,
+  "types": {
+   "choice": 12,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "イオン",
+  "field": "化学",
+  "uo": 8,
+  "no": 5,
+  "otitle": "【イオン】イオン式を選ぼう２",
+  "ch": 0,
+  "chapter": "第1章 水溶液とイオン",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j79785fa.json",
+  "title": "電離のようす",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "イオン",
+  "field": "化学",
+  "uo": 8,
+  "no": 6,
+  "otitle": "電離のようす（基礎）",
+  "ch": 0,
+  "chapter": "第1章 水溶液とイオン",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/ja2bf99c.json",
+  "title": "塩化銅水溶液の電気分解",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "イオン",
+  "field": "化学",
+  "uo": 8,
+  "no": 7,
+  "otitle": "塩化銅水溶液の電気分解（基礎）",
+  "ch": 0,
+  "chapter": "第1章 水溶液とイオン",
+  "kind": "基礎"
  },
  {
   "file": "sets/06147353.json",
-  "title": "塩化銅水溶液の電気分解",
+  "title": "塩化銅水溶液の電気分解２",
   "count": 7,
   "types": {
    "choice": 5,
@@ -3789,11 +4885,35 @@
   "unit": "イオン",
   "field": "化学",
   "uo": 8,
-  "no": 6
+  "no": 7,
+  "otitle": "塩化銅水溶液の電気分解",
+  "ch": 0,
+  "chapter": "第1章 水溶液とイオン",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j26c5c61.json",
+  "title": "塩酸の電気分解",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "イオン",
+  "field": "化学",
+  "uo": 8,
+  "no": 9,
+  "otitle": "塩酸の電気分解（基礎）",
+  "ch": 0,
+  "chapter": "第1章 水溶液とイオン",
+  "kind": "基礎"
  },
  {
   "file": "sets/a98a378c.json",
-  "title": "塩酸の電気分解",
+  "title": "塩酸の電気分解２",
   "count": 8,
   "types": {
    "choice": 5,
@@ -3805,7 +4925,11 @@
   "unit": "イオン",
   "field": "化学",
   "uo": 8,
-  "no": 7
+  "no": 9,
+  "otitle": "塩酸の電気分解",
+  "ch": 0,
+  "chapter": "第1章 水溶液とイオン",
+  "kind": "基礎"
  },
  {
   "file": "sets/e51401ce.json",
@@ -3821,27 +4945,35 @@
   "unit": "イオン",
   "field": "化学",
   "uo": 8,
-  "no": 8
+  "no": 11,
+  "otitle": "指示薬の性質",
+  "ch": 1,
+  "chapter": "第2章 酸、アルカリとイオン",
+  "kind": "基礎"
  },
  {
-  "file": "sets/781c5438.json",
-  "title": "イオンの移動",
-  "count": 9,
+  "file": "sets/j120b333.json",
+  "title": "試薬の性質",
+  "count": 6,
   "types": {
-   "choice": 4,
+   "choice": 6,
    "multi": 0,
-   "text": 5
+   "text": 0
   },
   "enc": true,
   "grade": 3,
   "unit": "イオン",
   "field": "化学",
   "uo": 8,
-  "no": 9
+  "no": 11,
+  "otitle": "試薬の性質（基礎）",
+  "ch": 1,
+  "chapter": "第2章 酸、アルカリとイオン",
+  "kind": "基礎"
  },
  {
   "file": "sets/b49375b8.json",
-  "title": "液性は何性？",
+  "title": "液性は何性",
   "count": 5,
   "types": {
    "choice": 5,
@@ -3853,7 +4985,91 @@
   "unit": "イオン",
   "field": "化学",
   "uo": 8,
-  "no": 10
+  "no": 12,
+  "otitle": "液性は何性？",
+  "ch": 1,
+  "chapter": "第2章 酸、アルカリとイオン",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j0f75430.json",
+  "title": "液性を調べる",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "イオン",
+  "field": "化学",
+  "uo": 8,
+  "no": 12,
+  "otitle": "液性を調べる（基礎）",
+  "ch": 1,
+  "chapter": "第2章 酸、アルカリとイオン",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/jc4bcae3.json",
+  "title": "イオンの移動",
+  "count": 8,
+  "types": {
+   "choice": 8,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "イオン",
+  "field": "化学",
+  "uo": 8,
+  "no": 13,
+  "otitle": "イオンの移動（基礎）",
+  "ch": 1,
+  "chapter": "第2章 酸、アルカリとイオン",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/781c5438.json",
+  "title": "イオンの移動２",
+  "count": 9,
+  "types": {
+   "choice": 4,
+   "multi": 0,
+   "text": 5
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "イオン",
+  "field": "化学",
+  "uo": 8,
+  "no": 13,
+  "otitle": "イオンの移動",
+  "ch": 1,
+  "chapter": "第2章 酸、アルカリとイオン",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j2c31e43.json",
+  "title": "中和の実験",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "イオン",
+  "field": "化学",
+  "uo": 8,
+  "no": 14,
+  "otitle": "中和の実験（基礎）",
+  "ch": 1,
+  "chapter": "第2章 酸、アルカリとイオン",
+  "kind": "基礎"
  },
  {
   "file": "sets/27b462aa.json",
@@ -3869,11 +5085,55 @@
   "unit": "イオン",
   "field": "化学",
   "uo": 8,
-  "no": 11
+  "no": 14,
+  "otitle": "酸とアルカリを混ぜると",
+  "ch": 1,
+  "chapter": "第2章 酸、アルカリとイオン",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/jad2d860.json",
+  "title": "酸・アルカリ",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "イオン",
+  "field": "化学",
+  "uo": 8,
+  "no": 15,
+  "otitle": "酸・アルカリ（基礎）",
+  "ch": 1,
+  "chapter": "第2章 酸、アルカリとイオン",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/ja22bbda.json",
+  "title": "中和のモデル化",
+  "count": 8,
+  "types": {
+   "choice": 8,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "イオン",
+  "field": "化学",
+  "uo": 8,
+  "no": 16,
+  "otitle": "中和のモデル化（基礎）",
+  "ch": 1,
+  "chapter": "第2章 酸、アルカリとイオン",
+  "kind": "基礎"
  },
  {
   "file": "sets/c1c255c3.json",
-  "title": "中和の問題【難】",
+  "title": "中和｜実践",
   "count": 4,
   "types": {
    "choice": 4,
@@ -3885,39 +5145,11 @@
   "unit": "イオン",
   "field": "化学",
   "uo": 8,
-  "no": 12
- },
- {
-  "file": "sets/56b287d5.json",
-  "title": "ダニエル電池",
-  "count": 9,
-  "types": {
-   "choice": 8,
-   "multi": 0,
-   "text": 1
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "イオン",
-  "field": "化学",
-  "uo": 8,
-  "no": 13
- },
- {
-  "file": "sets/3d35cf69.json",
-  "title": "電池とイオン",
-  "count": 8,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 2
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "イオン",
-  "field": "化学",
-  "uo": 8,
-  "no": 14
+  "no": 16,
+  "otitle": "中和の問題【難】",
+  "ch": 1,
+  "chapter": "第2章 酸、アルカリとイオン",
+  "kind": "実践"
  },
  {
   "file": "sets/03b77fcf.json",
@@ -3933,7 +5165,31 @@
   "unit": "イオン",
   "field": "化学",
   "uo": 8,
-  "no": 15
+  "no": 17,
+  "otitle": "電流を取り出すために必要な条件",
+  "ch": 2,
+  "chapter": "第3章 化学変化と電池",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j693dec3.json",
+  "title": "イオン化傾向",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "イオン",
+  "field": "化学",
+  "uo": 8,
+  "no": 18,
+  "otitle": "イオン化傾向（基礎）",
+  "ch": 2,
+  "chapter": "第3章 化学変化と電池",
+  "kind": "基礎"
  },
  {
   "file": "sets/3a588a35.json",
@@ -3949,251 +5205,15 @@
   "unit": "イオン",
   "field": "化学",
   "uo": 8,
-  "no": 16
- },
- {
-  "file": "sets/d5e1c10c.json",
-  "title": "いろいろな電池",
-  "count": 7,
-  "types": {
-   "choice": 3,
-   "multi": 0,
-   "text": 4
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "イオン",
-  "field": "化学",
-  "uo": 8,
-  "no": 17
- },
- {
-  "file": "sets/j88e7dfb.json",
-  "title": "２年生の復習（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "イオン",
-  "field": "化学",
-  "uo": 8,
-  "no": 101
- },
- {
-  "file": "sets/j5b3cb29.json",
-  "title": "電解質（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "イオン",
-  "field": "化学",
-  "uo": 8,
-  "no": 103
- },
- {
-  "file": "sets/jb7343c9.json",
-  "title": "イオンについて（基礎）",
-  "count": 8,
-  "types": {
-   "choice": 8,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "イオン",
-  "field": "化学",
-  "uo": 8,
-  "no": 104
- },
- {
-  "file": "sets/j0d21fe7.json",
-  "title": "イオン式（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "イオン",
-  "field": "化学",
-  "uo": 8,
-  "no": 105
- },
- {
-  "file": "sets/j79785fa.json",
-  "title": "電離のようす（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "イオン",
-  "field": "化学",
-  "uo": 8,
-  "no": 106
- },
- {
-  "file": "sets/ja2bf99c.json",
-  "title": "塩化銅水溶液の電気分解（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "イオン",
-  "field": "化学",
-  "uo": 8,
-  "no": 107
- },
- {
-  "file": "sets/j26c5c61.json",
-  "title": "塩酸の電気分解（基礎）",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "イオン",
-  "field": "化学",
-  "uo": 8,
-  "no": 109
- },
- {
-  "file": "sets/j120b333.json",
-  "title": "試薬の性質（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "イオン",
-  "field": "化学",
-  "uo": 8,
-  "no": 111
- },
- {
-  "file": "sets/j0f75430.json",
-  "title": "液性を調べる（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "イオン",
-  "field": "化学",
-  "uo": 8,
-  "no": 112
- },
- {
-  "file": "sets/jc4bcae3.json",
-  "title": "イオンの移動（基礎）",
-  "count": 8,
-  "types": {
-   "choice": 8,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "イオン",
-  "field": "化学",
-  "uo": 8,
-  "no": 113
- },
- {
-  "file": "sets/j2c31e43.json",
-  "title": "中和の実験（基礎）",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "イオン",
-  "field": "化学",
-  "uo": 8,
-  "no": 114
- },
- {
-  "file": "sets/jad2d860.json",
-  "title": "酸・アルカリ（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "イオン",
-  "field": "化学",
-  "uo": 8,
-  "no": 115
- },
- {
-  "file": "sets/ja22bbda.json",
-  "title": "中和のモデル化（基礎）",
-  "count": 8,
-  "types": {
-   "choice": 8,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "イオン",
-  "field": "化学",
-  "uo": 8,
-  "no": 116
- },
- {
-  "file": "sets/j693dec3.json",
-  "title": "イオン化傾向（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "イオン",
-  "field": "化学",
-  "uo": 8,
-  "no": 118
+  "no": 18,
+  "otitle": "金属イオンへのなりやすさ",
+  "ch": 2,
+  "chapter": "第3章 化学変化と電池",
+  "kind": "基礎"
  },
  {
   "file": "sets/j737d6da.json",
-  "title": "電池の実験（基礎）",
+  "title": "電池の実験",
   "count": 6,
   "types": {
    "choice": 6,
@@ -4205,11 +5225,15 @@
   "unit": "イオン",
   "field": "化学",
   "uo": 8,
-  "no": 119
+  "no": 19,
+  "otitle": "電池の実験（基礎）",
+  "ch": 2,
+  "chapter": "第3章 化学変化と電池",
+  "kind": "基礎"
  },
  {
   "file": "sets/j8b83e36.json",
-  "title": "ボルタ電池のしくみ（基礎）",
+  "title": "ボルタ電池のしくみ",
   "count": 8,
   "types": {
    "choice": 8,
@@ -4221,11 +5245,35 @@
   "unit": "イオン",
   "field": "化学",
   "uo": 8,
-  "no": 120
+  "no": 20,
+  "otitle": "ボルタ電池のしくみ（基礎）",
+  "ch": 2,
+  "chapter": "第3章 化学変化と電池",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/3d35cf69.json",
+  "title": "電池とイオン",
+  "count": 8,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 2
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "イオン",
+  "field": "化学",
+  "uo": 8,
+  "no": 20,
+  "otitle": "電池とイオン",
+  "ch": 2,
+  "chapter": "第3章 化学変化と電池",
+  "kind": "基礎"
  },
  {
   "file": "sets/jd51875d.json",
-  "title": "ダニエル電池（基礎）",
+  "title": "ダニエル電池",
   "count": 6,
   "types": {
    "choice": 6,
@@ -4237,11 +5285,35 @@
   "unit": "イオン",
   "field": "化学",
   "uo": 8,
-  "no": 121
+  "no": 21,
+  "otitle": "ダニエル電池（基礎）",
+  "ch": 2,
+  "chapter": "第3章 化学変化と電池",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/56b287d5.json",
+  "title": "ダニエル電池２",
+  "count": 9,
+  "types": {
+   "choice": 8,
+   "multi": 0,
+   "text": 1
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "イオン",
+  "field": "化学",
+  "uo": 8,
+  "no": 21,
+  "otitle": "ダニエル電池",
+  "ch": 2,
+  "chapter": "第3章 化学変化と電池",
+  "kind": "基礎"
  },
  {
   "file": "sets/je9ec36e.json",
-  "title": "いろいろな電池（基礎）",
+  "title": "いろいろな電池",
   "count": 7,
   "types": {
    "choice": 7,
@@ -4253,919 +5325,51 @@
   "unit": "イオン",
   "field": "化学",
   "uo": 8,
-  "no": 123
+  "no": 23,
+  "otitle": "いろいろな電池（基礎）",
+  "ch": 2,
+  "chapter": "第3章 化学変化と電池",
+  "kind": "基礎"
  },
  {
-  "file": "sets/673d05b3.json",
-  "title": "仕事",
-  "count": 4,
-  "types": {
-   "choice": 1,
-   "multi": 0,
-   "text": 3
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "エネルギー",
-  "field": "物理",
-  "uo": 9,
-  "no": 8
- },
- {
-  "file": "sets/afe70f41.json",
-  "title": "仕事の原理",
-  "count": 8,
-  "types": {
-   "choice": 5,
-   "multi": 0,
-   "text": 3
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "エネルギー",
-  "field": "物理",
-  "uo": 9,
-  "no": 9
- },
- {
-  "file": "sets/fbb272b9.json",
-  "title": "仕事率",
-  "count": 5,
+  "file": "sets/d5e1c10c.json",
+  "title": "いろいろな電池２",
+  "count": 7,
   "types": {
    "choice": 3,
-   "multi": 0,
-   "text": 2
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "エネルギー",
-  "field": "物理",
-  "uo": 9,
-  "no": 10
- },
- {
-  "file": "sets/b5698249.json",
-  "title": "熱の伝わり方",
-  "count": 13,
-  "types": {
-   "choice": 13,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "エネルギー",
-  "field": "物理",
-  "uo": 9,
-  "no": 99
- },
- {
-  "file": "sets/j6a3bb36.json",
-  "title": "運動の向きと速さ・速さの種類（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "エネルギー",
-  "field": "物理",
-  "uo": 9,
-  "no": 102
- },
- {
-  "file": "sets/j9ffd921.json",
-  "title": "記録タイマーの使い方（基礎）",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "エネルギー",
-  "field": "物理",
-  "uo": 9,
-  "no": 103
- },
- {
-  "file": "sets/ja53506f.json",
-  "title": "手で押す台車の速さ（等速直線運動）（基礎）",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "エネルギー",
-  "field": "物理",
-  "uo": 9,
-  "no": 104
- },
- {
-  "file": "sets/j7e6af20.json",
-  "title": "下りの台車の速さ（基礎）",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "エネルギー",
-  "field": "物理",
-  "uo": 9,
-  "no": 105
- },
- {
-  "file": "sets/ja0c7f81.json",
-  "title": "速さと力の関係（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "エネルギー",
-  "field": "物理",
-  "uo": 9,
-  "no": 106
- },
- {
-  "file": "sets/jbe1025c.json",
-  "title": "合力（基礎）",
-  "count": 8,
-  "types": {
-   "choice": 8,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "エネルギー",
-  "field": "物理",
-  "uo": 9,
-  "no": 107
- },
- {
-  "file": "sets/j6e36f18.json",
-  "title": "分力・台車が下る理由（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "エネルギー",
-  "field": "物理",
-  "uo": 9,
-  "no": 108
- },
- {
-  "file": "sets/j472e6d3.json",
-  "title": "慣性の法則（基礎）",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "エネルギー",
-  "field": "物理",
-  "uo": 9,
-  "no": 110
- },
- {
-  "file": "sets/je3299ae.json",
-  "title": "作用・反作用の法則（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "エネルギー",
-  "field": "物理",
-  "uo": 9,
-  "no": 111
- },
- {
-  "file": "sets/je1cac45.json",
-  "title": "水圧（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "エネルギー",
-  "field": "物理",
-  "uo": 9,
-  "no": 112
- },
- {
-  "file": "sets/jda9b2b3.json",
-  "title": "浮力（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "エネルギー",
-  "field": "物理",
-  "uo": 9,
-  "no": 113
- },
- {
-  "file": "sets/j3e8409a.json",
-  "title": "運動エネルギー（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "エネルギー",
-  "field": "物理",
-  "uo": 9,
-  "no": 115
- },
- {
-  "file": "sets/jc96095e.json",
-  "title": "位置エネルギー（基礎）",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "エネルギー",
-  "field": "物理",
-  "uo": 9,
-  "no": 116
- },
- {
-  "file": "sets/j4c6b532.json",
-  "title": "力学的エネルギー（基礎）",
-  "count": 8,
-  "types": {
-   "choice": 8,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "エネルギー",
-  "field": "物理",
-  "uo": 9,
-  "no": 117
- },
- {
-  "file": "sets/j6cb16ec.json",
-  "title": "仕事とは（基礎）",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "エネルギー",
-  "field": "物理",
-  "uo": 9,
-  "no": 119
- },
- {
-  "file": "sets/j3b3145b.json",
-  "title": "仕事と力学的エネルギー（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "エネルギー",
-  "field": "物理",
-  "uo": 9,
-  "no": 120
- },
- {
-  "file": "sets/j3f7cac2.json",
-  "title": "仕事の原理（基礎）",
-  "count": 8,
-  "types": {
-   "choice": 8,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "エネルギー",
-  "field": "物理",
-  "uo": 9,
-  "no": 121
- },
- {
-  "file": "sets/jff60809.json",
-  "title": "仕事率（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "エネルギー",
-  "field": "物理",
-  "uo": 9,
-  "no": 122
- },
- {
-  "file": "sets/j01f9fb2.json",
-  "title": "期末対策｜記録タイマーのテープ",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "エネルギー",
-  "field": "物理",
-  "uo": 9,
-  "no": 301
- },
- {
-  "file": "sets/jebdae56.json",
-  "title": "期末対策｜速さの計算",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "エネルギー",
-  "field": "物理",
-  "uo": 9,
-  "no": 302
- },
- {
-  "file": "sets/j1e54d14.json",
-  "title": "期末対策｜速さが変わらない運動",
-  "count": 5,
-  "types": {
-   "choice": 5,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "エネルギー",
-  "field": "物理",
-  "uo": 9,
-  "no": 303
- },
- {
-  "file": "sets/j378c8f6.json",
-  "title": "期末対策｜記録テープのグラフ",
-  "count": 5,
-  "types": {
-   "choice": 5,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "エネルギー",
-  "field": "物理",
-  "uo": 9,
-  "no": 304
- },
- {
-  "file": "sets/j2b6997b.json",
-  "title": "期末対策｜ストロボ写真",
-  "count": 5,
-  "types": {
-   "choice": 5,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "エネルギー",
-  "field": "物理",
-  "uo": 9,
-  "no": 305
- },
- {
-  "file": "sets/j6bb95a9.json",
-  "title": "期末対策｜斜面を下る運動と上る運動",
-  "count": 8,
-  "types": {
-   "choice": 8,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "エネルギー",
-  "field": "物理",
-  "uo": 9,
-  "no": 306
- },
- {
-  "file": "sets/j1d7417e.json",
-  "title": "期末対策｜力の合成",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "エネルギー",
-  "field": "物理",
-  "uo": 9,
-  "no": 307
- },
- {
-  "file": "sets/j0a2a195.json",
-  "title": "期末対策｜力の分解",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "エネルギー",
-  "field": "物理",
-  "uo": 9,
-  "no": 308
- },
- {
-  "file": "sets/j6808d03.json",
-  "title": "期末対策｜慣性と作用・反作用",
-  "count": 11,
-  "types": {
-   "choice": 11,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "エネルギー",
-  "field": "物理",
-  "uo": 9,
-  "no": 309
- },
- {
-  "file": "sets/j879aca8.json",
-  "title": "期末対策｜水圧と浮力",
-  "count": 11,
-  "types": {
-   "choice": 11,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "エネルギー",
-  "field": "物理",
-  "uo": 9,
-  "no": 310
- },
- {
-  "file": "sets/6bdb3105.json",
-  "title": "宇宙の基礎",
-  "count": 12,
-  "types": {
-   "choice": 0,
-   "multi": 0,
-   "text": 12
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "天体",
-  "field": "地学",
-  "uo": 10,
-  "no": 0
- },
- {
-  "file": "sets/dd68365e.json",
-  "title": "東西南北",
-  "count": 13,
-  "types": {
-   "choice": 13,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "天体",
-  "field": "地学",
-  "uo": 10,
-  "no": 1
- },
- {
-  "file": "sets/057984d7.json",
-  "title": "天体の観測の基礎知識",
-  "count": 7,
-  "types": {
-   "choice": 4,
-   "multi": 0,
-   "text": 3
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "天体",
-  "field": "地学",
-  "uo": 10,
-  "no": 2
- },
- {
-  "file": "sets/20539d9f.json",
-  "title": "太陽の日周運動",
-  "count": 8,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 2
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "天体",
-  "field": "地学",
-  "uo": 10,
-  "no": 3
- },
- {
-  "file": "sets/1800cf6d.json",
-  "title": "星の日周運動",
-  "count": 8,
-  "types": {
-   "choice": 4,
    "multi": 0,
    "text": 4
   },
   "enc": true,
   "grade": 3,
-  "unit": "天体",
-  "field": "地学",
-  "uo": 10,
-  "no": 4
+  "unit": "イオン",
+  "field": "化学",
+  "uo": 8,
+  "no": 23,
+  "otitle": "いろいろな電池",
+  "ch": 2,
+  "chapter": "第3章 化学変化と電池",
+  "kind": "基礎"
  },
  {
-  "file": "sets/f2e0c6c1.json",
-  "title": "星の年周運動",
-  "count": 5,
-  "types": {
-   "choice": 1,
-   "multi": 0,
-   "text": 4
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "天体",
-  "field": "地学",
-  "uo": 10,
-  "no": 5
- },
- {
-  "file": "sets/9345be12.json",
-  "title": "四季の星座",
-  "count": 9,
-  "types": {
-   "choice": 8,
-   "multi": 0,
-   "text": 1
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "天体",
-  "field": "地学",
-  "uo": 10,
-  "no": 6
- },
- {
-  "file": "sets/c84de86a.json",
-  "title": "日食と月食",
-  "count": 6,
-  "types": {
-   "choice": 4,
-   "multi": 0,
-   "text": 2
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "天体",
-  "field": "地学",
-  "uo": 10,
-  "no": 7
- },
- {
-  "file": "sets/f51acf8d.json",
-  "title": "金星",
-  "count": 7,
-  "types": {
-   "choice": 5,
-   "multi": 0,
-   "text": 2
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "天体",
-  "field": "地学",
-  "uo": 10,
-  "no": 8
- },
- {
-  "file": "sets/32d6db10.json",
-  "title": "太陽",
-  "count": 20,
-  "types": {
-   "choice": 20,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "天体",
-  "field": "地学",
-  "uo": 10,
-  "no": 99
- },
- {
-  "file": "sets/06c5654b.json",
-  "title": "宇宙の基礎２",
-  "count": 11,
-  "types": {
-   "choice": 11,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "天体",
-  "field": "地学",
-  "uo": 10,
-  "no": 99
- },
- {
-  "file": "sets/c38b6aec.json",
-  "title": "月の満ち欠け",
-  "count": 10,
-  "types": {
-   "choice": 10,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "天体",
-  "field": "地学",
-  "uo": 10,
-  "no": 99
- },
- {
-  "file": "sets/j8119a8d.json",
-  "title": "宇宙の基礎知識（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "天体",
-  "field": "地学",
-  "uo": 10,
-  "no": 103
- },
- {
-  "file": "sets/jacbdb12.json",
-  "title": "東西南北と天球（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "天体",
-  "field": "地学",
-  "uo": 10,
-  "no": 104
- },
- {
-  "file": "sets/jfd5304f.json",
-  "title": "太陽の日周運動（基礎）",
+  "file": "sets/j2698a42.json",
+  "title": "細胞分裂の導入",
   "count": 7,
   "types": {
    "choice": 7,
    "multi": 0,
    "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "天体",
-  "field": "地学",
-  "uo": 10,
-  "no": 105
- },
- {
-  "file": "sets/jc774b36.json",
-  "title": "星の年周運動（基礎）",
-  "count": 8,
-  "types": {
-   "choice": 8,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "天体",
-  "field": "地学",
-  "uo": 10,
-  "no": 106
- },
- {
-  "file": "sets/j970b8f2.json",
-  "title": "星の日周運動（基礎）",
-  "count": 8,
-  "types": {
-   "choice": 8,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "天体",
-  "field": "地学",
-  "uo": 10,
-  "no": 107
- },
- {
-  "file": "sets/jb518008.json",
-  "title": "季節の変化（基礎）",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "天体",
-  "field": "地学",
-  "uo": 10,
-  "no": 108
- },
- {
-  "file": "sets/j10eac1f.json",
-  "title": "月の満ち欠け（基礎）",
-  "count": 8,
-  "types": {
-   "choice": 8,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "天体",
-  "field": "地学",
-  "uo": 10,
-  "no": 109
- },
- {
-  "file": "sets/j4b577f3.json",
-  "title": "日食と月食（基礎）",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "天体",
-  "field": "地学",
-  "uo": 10,
-  "no": 110
- },
- {
-  "file": "sets/jbf6a06e.json",
-  "title": "金星の見え方（基礎）",
-  "count": 8,
-  "types": {
-   "choice": 8,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "天体",
-  "field": "地学",
-  "uo": 10,
-  "no": 111
- },
- {
-  "file": "sets/jb377986.json",
-  "title": "太陽のようす（基礎）",
-  "count": 9,
-  "types": {
-   "choice": 9,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "天体",
-  "field": "地学",
-  "uo": 10,
-  "no": 112
- },
- {
-  "file": "sets/jc53bb0f.json",
-  "title": "太陽系と惑星（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "天体",
-  "field": "地学",
-  "uo": 10,
-  "no": 113
- },
- {
-  "file": "sets/j980e8b7.json",
-  "title": "銀河系と宇宙の広がり（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "天体",
-  "field": "地学",
-  "uo": 10,
-  "no": 114
- },
- {
-  "file": "sets/56e38c4b.json",
-  "title": "たまねぎの根の成長",
-  "count": 4,
-  "types": {
-   "choice": 3,
-   "multi": 0,
-   "text": 1
   },
   "enc": true,
   "grade": 3,
   "unit": "遺伝",
   "field": "生物",
-  "uo": 11,
-  "no": 0
+  "uo": 9,
+  "no": 1,
+  "otitle": "細胞分裂の導入（基礎）",
+  "ch": 0,
+  "chapter": "第1章 生物の成長と生殖",
+  "kind": "基礎"
  },
  {
   "file": "sets/e390430d.json",
@@ -5180,8 +5384,97 @@
   "grade": 3,
   "unit": "遺伝",
   "field": "生物",
-  "uo": 11,
-  "no": 1
+  "uo": 9,
+  "no": 2,
+  "otitle": "細胞分裂と染色体",
+  "ch": 0,
+  "chapter": "第1章 生物の成長と生殖",
+  "kind": "基礎",
+  "qch": {
+   "7": 1,
+   "8": 1,
+   "9": 1
+  }
+ },
+ {
+  "file": "sets/jf571740.json",
+  "title": "細胞分裂の順序",
+  "count": 8,
+  "types": {
+   "choice": 8,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "遺伝",
+  "field": "生物",
+  "uo": 9,
+  "no": 2,
+  "otitle": "細胞分裂の順序（基礎）",
+  "ch": 0,
+  "chapter": "第1章 生物の成長と生殖",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/56e38c4b.json",
+  "title": "タマネギの根の成長",
+  "count": 4,
+  "types": {
+   "choice": 3,
+   "multi": 0,
+   "text": 1
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "遺伝",
+  "field": "生物",
+  "uo": 9,
+  "no": 3,
+  "otitle": "たまねぎの根の成長",
+  "ch": 0,
+  "chapter": "第1章 生物の成長と生殖",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/jdf8fb9c.json",
+  "title": "細胞分裂の観察",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "遺伝",
+  "field": "生物",
+  "uo": 9,
+  "no": 3,
+  "otitle": "細胞分裂の観察（基礎）",
+  "ch": 0,
+  "chapter": "第1章 生物の成長と生殖",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j8279000.json",
+  "title": "減数分裂と染色体・有性生殖",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "遺伝",
+  "field": "生物",
+  "uo": 9,
+  "no": 4,
+  "otitle": "減数分裂と染色体・有性生殖（基礎）",
+  "ch": 0,
+  "chapter": "第1章 生物の成長と生殖",
+  "kind": "基礎"
  },
  {
   "file": "sets/f1d2d440.json",
@@ -5196,40 +5489,92 @@
   "grade": 3,
   "unit": "遺伝",
   "field": "生物",
-  "uo": 11,
-  "no": 2
+  "uo": 9,
+  "no": 5,
+  "otitle": "カエルの生殖",
+  "ch": 0,
+  "chapter": "第1章 生物の成長と生殖",
+  "kind": "基礎"
  },
  {
-  "file": "sets/9cdb9a10.json",
-  "title": "進化の証拠",
-  "count": 9,
+  "file": "sets/je778a5a.json",
+  "title": "有性生殖（動物）",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "遺伝",
+  "field": "生物",
+  "uo": 9,
+  "no": 5,
+  "otitle": "有性生殖（動物）（基礎）",
+  "ch": 0,
+  "chapter": "第1章 生物の成長と生殖",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j1ff4bc4.json",
+  "title": "有性生殖（植物）",
+  "count": 8,
   "types": {
    "choice": 8,
    "multi": 0,
-   "text": 1
+   "text": 0
   },
   "enc": true,
   "grade": 3,
   "unit": "遺伝",
   "field": "生物",
-  "uo": 11,
-  "no": 3
+  "uo": 9,
+  "no": 6,
+  "otitle": "有性生殖（植物）（基礎）",
+  "ch": 0,
+  "chapter": "第1章 生物の成長と生殖",
+  "kind": "基礎"
  },
  {
-  "file": "sets/370f8b07.json",
-  "title": "進化とは",
+  "file": "sets/j24640a3.json",
+  "title": "無性生殖",
   "count": 6,
   "types": {
-   "choice": 2,
+   "choice": 6,
    "multi": 0,
-   "text": 4
+   "text": 0
   },
   "enc": true,
   "grade": 3,
   "unit": "遺伝",
   "field": "生物",
-  "uo": 11,
-  "no": 4
+  "uo": 9,
+  "no": 12,
+  "otitle": "無性生殖（基礎）",
+  "ch": 0,
+  "chapter": "第1章 生物の成長と生殖",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/jfa7eab1.json",
+  "title": "減数分裂と遺伝の法則",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "遺伝",
+  "field": "生物",
+  "uo": 9,
+  "no": 8,
+  "otitle": "減数分裂と遺伝の法則（基礎）",
+  "ch": 1,
+  "chapter": "第2章 遺伝の規則性と遺伝子",
+  "kind": "基礎"
  },
  {
   "file": "sets/19552206.json",
@@ -5244,124 +5589,20 @@
   "grade": 3,
   "unit": "遺伝",
   "field": "生物",
-  "uo": 11,
-  "no": 5
- },
- {
-  "file": "sets/j2698a42.json",
-  "title": "細胞分裂の導入（基礎）",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "遺伝",
-  "field": "生物",
-  "uo": 11,
-  "no": 101
- },
- {
-  "file": "sets/jf571740.json",
-  "title": "細胞分裂の順序（基礎）",
-  "count": 8,
-  "types": {
-   "choice": 8,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "遺伝",
-  "field": "生物",
-  "uo": 11,
-  "no": 102
- },
- {
-  "file": "sets/jdf8fb9c.json",
-  "title": "細胞分裂の観察（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "遺伝",
-  "field": "生物",
-  "uo": 11,
-  "no": 103
- },
- {
-  "file": "sets/j8279000.json",
-  "title": "減数分裂と染色体・有性生殖（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "遺伝",
-  "field": "生物",
-  "uo": 11,
-  "no": 104
- },
- {
-  "file": "sets/je778a5a.json",
-  "title": "有性生殖（動物）（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "遺伝",
-  "field": "生物",
-  "uo": 11,
-  "no": 105
- },
- {
-  "file": "sets/j1ff4bc4.json",
-  "title": "有性生殖（植物）（基礎）",
-  "count": 8,
-  "types": {
-   "choice": 8,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "遺伝",
-  "field": "生物",
-  "uo": 11,
-  "no": 106
- },
- {
-  "file": "sets/jfa7eab1.json",
-  "title": "減数分裂と遺伝の法則（基礎）",
-  "count": 7,
-  "types": {
-   "choice": 7,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "遺伝",
-  "field": "生物",
-  "uo": 11,
-  "no": 108
+  "uo": 9,
+  "no": 8,
+  "otitle": "減数分裂・遺伝の基礎知識",
+  "ch": 1,
+  "chapter": "第2章 遺伝の規則性と遺伝子",
+  "kind": "基礎",
+  "qch": {
+   "1": 0,
+   "2": 0
+  }
  },
  {
   "file": "sets/j5ad5146.json",
-  "title": "遺伝の法則の問題（基礎）",
+  "title": "遺伝の法則の問題",
   "count": 8,
   "types": {
    "choice": 8,
@@ -5372,12 +5613,16 @@
   "grade": 3,
   "unit": "遺伝",
   "field": "生物",
-  "uo": 11,
-  "no": 109
+  "uo": 9,
+  "no": 9,
+  "otitle": "遺伝の法則の問題（基礎）",
+  "ch": 1,
+  "chapter": "第2章 遺伝の規則性と遺伝子",
+  "kind": "基礎"
  },
  {
   "file": "sets/jc50e9b5.json",
-  "title": "遺伝子組換え（基礎）",
+  "title": "遺伝子組換え",
   "count": 6,
   "types": {
    "choice": 6,
@@ -5388,28 +5633,16 @@
   "grade": 3,
   "unit": "遺伝",
   "field": "生物",
-  "uo": 11,
-  "no": 110
- },
- {
-  "file": "sets/j24640a3.json",
-  "title": "無性生殖（基礎）",
-  "count": 6,
-  "types": {
-   "choice": 6,
-   "multi": 0,
-   "text": 0
-  },
-  "enc": true,
-  "grade": 3,
-  "unit": "遺伝",
-  "field": "生物",
-  "uo": 11,
-  "no": 112
+  "uo": 9,
+  "no": 10,
+  "otitle": "遺伝子組換え（基礎）",
+  "ch": 1,
+  "chapter": "第2章 遺伝の規則性と遺伝子",
+  "kind": "基礎"
  },
  {
   "file": "sets/j593d2ba.json",
-  "title": "進化とは（基礎）",
+  "title": "進化とは",
   "count": 6,
   "types": {
    "choice": 6,
@@ -5420,12 +5653,36 @@
   "grade": 3,
   "unit": "遺伝",
   "field": "生物",
-  "uo": 11,
-  "no": 113
+  "uo": 9,
+  "no": 13,
+  "otitle": "進化とは（基礎）",
+  "ch": 2,
+  "chapter": "第3章 生物の多様性と進化",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/370f8b07.json",
+  "title": "進化とは２",
+  "count": 6,
+  "types": {
+   "choice": 2,
+   "multi": 0,
+   "text": 4
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "遺伝",
+  "field": "生物",
+  "uo": 9,
+  "no": 13,
+  "otitle": "進化とは",
+  "ch": 2,
+  "chapter": "第3章 生物の多様性と進化",
+  "kind": "基礎"
  },
  {
   "file": "sets/j8de5711.json",
-  "title": "進化の証拠（基礎）",
+  "title": "進化の証拠",
   "count": 6,
   "types": {
    "choice": 6,
@@ -5436,12 +5693,1152 @@
   "grade": 3,
   "unit": "遺伝",
   "field": "生物",
+  "uo": 9,
+  "no": 14,
+  "otitle": "進化の証拠（基礎）",
+  "ch": 2,
+  "chapter": "第3章 生物の多様性と進化",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/9cdb9a10.json",
+  "title": "進化の証拠２",
+  "count": 9,
+  "types": {
+   "choice": 8,
+   "multi": 0,
+   "text": 1
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "遺伝",
+  "field": "生物",
+  "uo": 9,
+  "no": 14,
+  "otitle": "進化の証拠",
+  "ch": 2,
+  "chapter": "第3章 生物の多様性と進化",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/jebdae56.json",
+  "title": "速さの計算｜実践",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "エネルギー",
+  "field": "物理",
+  "uo": 10,
+  "no": 2,
+  "otitle": "期末対策｜速さの計算",
+  "ch": 0,
+  "chapter": "第1章 物体の運動",
+  "kind": "実践",
+  "test": "2学期期末"
+ },
+ {
+  "file": "sets/j6a3bb36.json",
+  "title": "運動の向きと速さ・速さの種類",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "エネルギー",
+  "field": "物理",
+  "uo": 10,
+  "no": 2,
+  "otitle": "運動の向きと速さ・速さの種類（基礎）",
+  "ch": 0,
+  "chapter": "第1章 物体の運動",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j01f9fb2.json",
+  "title": "記録タイマーのテープ｜実践",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "エネルギー",
+  "field": "物理",
+  "uo": 10,
+  "no": 3,
+  "otitle": "期末対策｜記録タイマーのテープ",
+  "ch": 0,
+  "chapter": "第1章 物体の運動",
+  "kind": "実践",
+  "test": "2学期期末"
+ },
+ {
+  "file": "sets/j9ffd921.json",
+  "title": "記録タイマーの使い方",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "エネルギー",
+  "field": "物理",
+  "uo": 10,
+  "no": 3,
+  "otitle": "記録タイマーの使い方（基礎）",
+  "ch": 0,
+  "chapter": "第1章 物体の運動",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j2b6997b.json",
+  "title": "ストロボ写真｜実践",
+  "count": 5,
+  "types": {
+   "choice": 5,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "エネルギー",
+  "field": "物理",
+  "uo": 10,
+  "no": 4,
+  "otitle": "期末対策｜ストロボ写真",
+  "ch": 0,
+  "chapter": "第1章 物体の運動",
+  "kind": "実践",
+  "test": "2学期期末"
+ },
+ {
+  "file": "sets/ja53506f.json",
+  "title": "手で押す台車の速さ（等速直線運動）",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "エネルギー",
+  "field": "物理",
+  "uo": 10,
+  "no": 4,
+  "otitle": "手で押す台車の速さ（等速直線運動）（基礎）",
+  "ch": 0,
+  "chapter": "第1章 物体の運動",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j1e54d14.json",
+  "title": "速さが変わらない運動｜実践",
+  "count": 5,
+  "types": {
+   "choice": 5,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "エネルギー",
+  "field": "物理",
+  "uo": 10,
+  "no": 4,
+  "otitle": "期末対策｜速さが変わらない運動",
+  "ch": 0,
+  "chapter": "第1章 物体の運動",
+  "kind": "実践",
+  "test": "2学期期末"
+ },
+ {
+  "file": "sets/j7e6af20.json",
+  "title": "下りの台車の速さ",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "エネルギー",
+  "field": "物理",
+  "uo": 10,
+  "no": 5,
+  "otitle": "下りの台車の速さ（基礎）",
+  "ch": 0,
+  "chapter": "第1章 物体の運動",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j6bb95a9.json",
+  "title": "斜面を下る運動と上る運動｜実践",
+  "count": 8,
+  "types": {
+   "choice": 8,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "エネルギー",
+  "field": "物理",
+  "uo": 10,
+  "no": 5,
+  "otitle": "期末対策｜斜面を下る運動と上る運動",
+  "ch": 0,
+  "chapter": "第1章 物体の運動",
+  "kind": "実践",
+  "test": "2学期期末"
+ },
+ {
+  "file": "sets/j378c8f6.json",
+  "title": "記録テープのグラフ｜実践",
+  "count": 5,
+  "types": {
+   "choice": 5,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "エネルギー",
+  "field": "物理",
+  "uo": 10,
+  "no": 5,
+  "otitle": "期末対策｜記録テープのグラフ",
+  "ch": 0,
+  "chapter": "第1章 物体の運動",
+  "kind": "実践",
+  "test": "2学期期末"
+ },
+ {
+  "file": "sets/ja0c7f81.json",
+  "title": "速さと力の関係",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "エネルギー",
+  "field": "物理",
+  "uo": 10,
+  "no": 6,
+  "otitle": "速さと力の関係（基礎）",
+  "ch": 0,
+  "chapter": "第1章 物体の運動",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j472e6d3.json",
+  "title": "慣性の法則",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "エネルギー",
+  "field": "物理",
+  "uo": 10,
+  "no": 10,
+  "otitle": "慣性の法則（基礎）",
+  "ch": 0,
+  "chapter": "第1章 物体の運動",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j1d7417e.json",
+  "title": "力の合成｜実践",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "エネルギー",
+  "field": "物理",
+  "uo": 10,
+  "no": 7,
+  "otitle": "期末対策｜力の合成",
+  "ch": 1,
+  "chapter": "第2章 力のはたらき方",
+  "kind": "実践",
+  "test": "2学期期末"
+ },
+ {
+  "file": "sets/jbe1025c.json",
+  "title": "合力",
+  "count": 8,
+  "types": {
+   "choice": 8,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "エネルギー",
+  "field": "物理",
+  "uo": 10,
+  "no": 7,
+  "otitle": "合力（基礎）",
+  "ch": 1,
+  "chapter": "第2章 力のはたらき方",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j6e36f18.json",
+  "title": "分力・台車が下る理由",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "エネルギー",
+  "field": "物理",
+  "uo": 10,
+  "no": 8,
+  "otitle": "分力・台車が下る理由（基礎）",
+  "ch": 1,
+  "chapter": "第2章 力のはたらき方",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j0a2a195.json",
+  "title": "力の分解｜実践",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "エネルギー",
+  "field": "物理",
+  "uo": 10,
+  "no": 8,
+  "otitle": "期末対策｜力の分解",
+  "ch": 1,
+  "chapter": "第2章 力のはたらき方",
+  "kind": "実践",
+  "test": "2学期期末"
+ },
+ {
+  "file": "sets/je3299ae.json",
+  "title": "作用・反作用の法則",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "エネルギー",
+  "field": "物理",
+  "uo": 10,
+  "no": 11,
+  "otitle": "作用・反作用の法則（基礎）",
+  "ch": 1,
+  "chapter": "第2章 力のはたらき方",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j6808d03.json",
+  "title": "慣性と作用・反作用｜実践",
+  "count": 11,
+  "types": {
+   "choice": 11,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "エネルギー",
+  "field": "物理",
+  "uo": 10,
+  "no": 11,
+  "otitle": "期末対策｜慣性と作用・反作用",
+  "ch": 1,
+  "chapter": "第2章 力のはたらき方",
+  "kind": "実践",
+  "test": "2学期期末",
+  "qch": {
+   "1": 0,
+   "2": 0,
+   "3": 0,
+   "11": 0
+  }
+ },
+ {
+  "file": "sets/je1cac45.json",
+  "title": "水圧",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "エネルギー",
+  "field": "物理",
+  "uo": 10,
+  "no": 12,
+  "otitle": "水圧（基礎）",
+  "ch": 1,
+  "chapter": "第2章 力のはたらき方",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j879aca8.json",
+  "title": "水圧と浮力｜実践",
+  "count": 11,
+  "types": {
+   "choice": 11,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "エネルギー",
+  "field": "物理",
+  "uo": 10,
+  "no": 12,
+  "otitle": "期末対策｜水圧と浮力",
+  "ch": 1,
+  "chapter": "第2章 力のはたらき方",
+  "kind": "実践",
+  "test": "2学期期末"
+ },
+ {
+  "file": "sets/jda9b2b3.json",
+  "title": "浮力",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "エネルギー",
+  "field": "物理",
+  "uo": 10,
+  "no": 13,
+  "otitle": "浮力（基礎）",
+  "ch": 1,
+  "chapter": "第2章 力のはたらき方",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j3e8409a.json",
+  "title": "運動エネルギー",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "エネルギー",
+  "field": "物理",
+  "uo": 10,
+  "no": 15,
+  "otitle": "運動エネルギー（基礎）",
+  "ch": 2,
+  "chapter": "第3章 エネルギーと仕事",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/jc96095e.json",
+  "title": "位置エネルギー",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "エネルギー",
+  "field": "物理",
+  "uo": 10,
+  "no": 16,
+  "otitle": "位置エネルギー（基礎）",
+  "ch": 2,
+  "chapter": "第3章 エネルギーと仕事",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j4c6b532.json",
+  "title": "力学的エネルギー",
+  "count": 8,
+  "types": {
+   "choice": 8,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "エネルギー",
+  "field": "物理",
+  "uo": 10,
+  "no": 17,
+  "otitle": "力学的エネルギー（基礎）",
+  "ch": 2,
+  "chapter": "第3章 エネルギーと仕事",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/673d05b3.json",
+  "title": "仕事",
+  "count": 4,
+  "types": {
+   "choice": 1,
+   "multi": 0,
+   "text": 3
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "エネルギー",
+  "field": "物理",
+  "uo": 10,
+  "no": 19,
+  "otitle": "仕事",
+  "ch": 2,
+  "chapter": "第3章 エネルギーと仕事",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j6cb16ec.json",
+  "title": "仕事とは",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "エネルギー",
+  "field": "物理",
+  "uo": 10,
+  "no": 19,
+  "otitle": "仕事とは（基礎）",
+  "ch": 2,
+  "chapter": "第3章 エネルギーと仕事",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j3b3145b.json",
+  "title": "仕事と力学的エネルギー",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "エネルギー",
+  "field": "物理",
+  "uo": 10,
+  "no": 20,
+  "otitle": "仕事と力学的エネルギー（基礎）",
+  "ch": 2,
+  "chapter": "第3章 エネルギーと仕事",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j3f7cac2.json",
+  "title": "仕事の原理",
+  "count": 8,
+  "types": {
+   "choice": 8,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "エネルギー",
+  "field": "物理",
+  "uo": 10,
+  "no": 21,
+  "otitle": "仕事の原理（基礎）",
+  "ch": 2,
+  "chapter": "第3章 エネルギーと仕事",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/afe70f41.json",
+  "title": "仕事の原理２",
+  "count": 8,
+  "types": {
+   "choice": 5,
+   "multi": 0,
+   "text": 3
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "エネルギー",
+  "field": "物理",
+  "uo": 10,
+  "no": 21,
+  "otitle": "仕事の原理",
+  "ch": 2,
+  "chapter": "第3章 エネルギーと仕事",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/jff60809.json",
+  "title": "仕事率",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "エネルギー",
+  "field": "物理",
+  "uo": 10,
+  "no": 22,
+  "otitle": "仕事率（基礎）",
+  "ch": 2,
+  "chapter": "第3章 エネルギーと仕事",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/fbb272b9.json",
+  "title": "仕事率２",
+  "count": 5,
+  "types": {
+   "choice": 3,
+   "multi": 0,
+   "text": 2
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "エネルギー",
+  "field": "物理",
+  "uo": 10,
+  "no": 22,
+  "otitle": "仕事率",
+  "ch": 2,
+  "chapter": "第3章 エネルギーと仕事",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/057984d7.json",
+  "title": "天体の観測の基礎知識",
+  "count": 7,
+  "types": {
+   "choice": 4,
+   "multi": 0,
+   "text": 3
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "天体",
+  "field": "地学",
   "uo": 11,
-  "no": 114
+  "no": 4,
+  "otitle": "天体の観測の基礎知識",
+  "ch": 1,
+  "chapter": "第1章 地球の運動と天体の動き",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/dd68365e.json",
+  "title": "東西南北",
+  "count": 13,
+  "types": {
+   "choice": 13,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "天体",
+  "field": "地学",
+  "uo": 11,
+  "no": 4,
+  "otitle": "東西南北",
+  "ch": 1,
+  "chapter": "第1章 地球の運動と天体の動き",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/jacbdb12.json",
+  "title": "東西南北と天球",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "天体",
+  "field": "地学",
+  "uo": 11,
+  "no": 4,
+  "otitle": "東西南北と天球（基礎）",
+  "ch": 1,
+  "chapter": "第1章 地球の運動と天体の動き",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/jfd5304f.json",
+  "title": "太陽の日周運動",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "天体",
+  "field": "地学",
+  "uo": 11,
+  "no": 5,
+  "otitle": "太陽の日周運動（基礎）",
+  "ch": 1,
+  "chapter": "第1章 地球の運動と天体の動き",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/20539d9f.json",
+  "title": "太陽の日周運動２",
+  "count": 8,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 2
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "天体",
+  "field": "地学",
+  "uo": 11,
+  "no": 5,
+  "otitle": "太陽の日周運動",
+  "ch": 1,
+  "chapter": "第1章 地球の運動と天体の動き",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/jc774b36.json",
+  "title": "星の年周運動",
+  "count": 8,
+  "types": {
+   "choice": 8,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "天体",
+  "field": "地学",
+  "uo": 11,
+  "no": 6,
+  "otitle": "星の年周運動（基礎）",
+  "ch": 1,
+  "chapter": "第1章 地球の運動と天体の動き",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/f2e0c6c1.json",
+  "title": "星の年周運動２",
+  "count": 5,
+  "types": {
+   "choice": 1,
+   "multi": 0,
+   "text": 4
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "天体",
+  "field": "地学",
+  "uo": 11,
+  "no": 6,
+  "otitle": "星の年周運動",
+  "ch": 1,
+  "chapter": "第1章 地球の運動と天体の動き",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j970b8f2.json",
+  "title": "星の日周運動",
+  "count": 8,
+  "types": {
+   "choice": 8,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "天体",
+  "field": "地学",
+  "uo": 11,
+  "no": 7,
+  "otitle": "星の日周運動（基礎）",
+  "ch": 1,
+  "chapter": "第1章 地球の運動と天体の動き",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/1800cf6d.json",
+  "title": "星の日周運動２",
+  "count": 8,
+  "types": {
+   "choice": 4,
+   "multi": 0,
+   "text": 4
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "天体",
+  "field": "地学",
+  "uo": 11,
+  "no": 7,
+  "otitle": "星の日周運動",
+  "ch": 1,
+  "chapter": "第1章 地球の運動と天体の動き",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/9345be12.json",
+  "title": "四季の星座",
+  "count": 9,
+  "types": {
+   "choice": 8,
+   "multi": 0,
+   "text": 1
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "天体",
+  "field": "地学",
+  "uo": 11,
+  "no": 8,
+  "otitle": "四季の星座",
+  "ch": 1,
+  "chapter": "第1章 地球の運動と天体の動き",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/jb518008.json",
+  "title": "季節の変化",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "天体",
+  "field": "地学",
+  "uo": 11,
+  "no": 8,
+  "otitle": "季節の変化（基礎）",
+  "ch": 1,
+  "chapter": "第1章 地球の運動と天体の動き",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j10eac1f.json",
+  "title": "月の満ち欠け",
+  "count": 8,
+  "types": {
+   "choice": 8,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "天体",
+  "field": "地学",
+  "uo": 11,
+  "no": 9,
+  "otitle": "月の満ち欠け（基礎）",
+  "ch": 2,
+  "chapter": "第2章 月と金星の見え方",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/c38b6aec.json",
+  "title": "月の満ち欠け２",
+  "count": 10,
+  "types": {
+   "choice": 10,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "天体",
+  "field": "地学",
+  "uo": 11,
+  "no": 9,
+  "otitle": "月の満ち欠け",
+  "ch": 2,
+  "chapter": "第2章 月と金星の見え方",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j4b577f3.json",
+  "title": "日食と月食",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "天体",
+  "field": "地学",
+  "uo": 11,
+  "no": 10,
+  "otitle": "日食と月食（基礎）",
+  "ch": 2,
+  "chapter": "第2章 月と金星の見え方",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/c84de86a.json",
+  "title": "日食と月食２",
+  "count": 6,
+  "types": {
+   "choice": 4,
+   "multi": 0,
+   "text": 2
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "天体",
+  "field": "地学",
+  "uo": 11,
+  "no": 10,
+  "otitle": "日食と月食",
+  "ch": 2,
+  "chapter": "第2章 月と金星の見え方",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/f51acf8d.json",
+  "title": "金星",
+  "count": 7,
+  "types": {
+   "choice": 5,
+   "multi": 0,
+   "text": 2
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "天体",
+  "field": "地学",
+  "uo": 11,
+  "no": 11,
+  "otitle": "金星",
+  "ch": 2,
+  "chapter": "第2章 月と金星の見え方",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/jbf6a06e.json",
+  "title": "金星の見え方",
+  "count": 8,
+  "types": {
+   "choice": 8,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "天体",
+  "field": "地学",
+  "uo": 11,
+  "no": 11,
+  "otitle": "金星の見え方（基礎）",
+  "ch": 2,
+  "chapter": "第2章 月と金星の見え方",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j8119a8d.json",
+  "title": "宇宙の基礎知識",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "天体",
+  "field": "地学",
+  "uo": 11,
+  "no": 3,
+  "otitle": "宇宙の基礎知識（基礎）",
+  "ch": 3,
+  "chapter": "第3章 宇宙の広がり",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/32d6db10.json",
+  "title": "太陽",
+  "count": 20,
+  "types": {
+   "choice": 20,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "天体",
+  "field": "地学",
+  "uo": 11,
+  "no": 12,
+  "otitle": "太陽",
+  "ch": 3,
+  "chapter": "第3章 宇宙の広がり",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/jb377986.json",
+  "title": "太陽のようす",
+  "count": 9,
+  "types": {
+   "choice": 9,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "天体",
+  "field": "地学",
+  "uo": 11,
+  "no": 12,
+  "otitle": "太陽のようす（基礎）",
+  "ch": 3,
+  "chapter": "第3章 宇宙の広がり",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/jc53bb0f.json",
+  "title": "太陽系と惑星",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "天体",
+  "field": "地学",
+  "uo": 11,
+  "no": 13,
+  "otitle": "太陽系と惑星（基礎）",
+  "ch": 3,
+  "chapter": "第3章 宇宙の広がり",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/6bdb3105.json",
+  "title": "宇宙の基礎",
+  "count": 12,
+  "types": {
+   "choice": 0,
+   "multi": 0,
+   "text": 12
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "天体",
+  "field": "地学",
+  "uo": 11,
+  "no": 13,
+  "otitle": "宇宙の基礎",
+  "ch": 3,
+  "chapter": "第3章 宇宙の広がり",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/06c5654b.json",
+  "title": "宇宙の基礎２",
+  "count": 11,
+  "types": {
+   "choice": 11,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "天体",
+  "field": "地学",
+  "uo": 11,
+  "no": 13,
+  "otitle": "宇宙の基礎２",
+  "ch": 3,
+  "chapter": "第3章 宇宙の広がり",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j980e8b7.json",
+  "title": "銀河系と宇宙の広がり",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "天体",
+  "field": "地学",
+  "uo": 11,
+  "no": 14,
+  "otitle": "銀河系と宇宙の広がり（基礎）",
+  "ch": 3,
+  "chapter": "第3章 宇宙の広がり",
+  "kind": "基礎"
  },
  {
   "file": "sets/j0abc8fb.json",
-  "title": "食物連鎖と生態系（基礎）",
+  "title": "食物連鎖と生態系",
   "count": 8,
   "types": {
    "choice": 8,
@@ -5453,11 +6850,15 @@
   "unit": "自然と人間",
   "field": "生物",
   "uo": 12,
-  "no": 101
+  "no": 1,
+  "otitle": "食物連鎖と生態系（基礎）",
+  "ch": 0,
+  "chapter": "第1章 自然のなかの生物",
+  "kind": "基礎"
  },
  {
   "file": "sets/j019b9a7.json",
-  "title": "生物の数のつり合い（基礎）",
+  "title": "生物の数のつり合い",
   "count": 7,
   "types": {
    "choice": 7,
@@ -5469,11 +6870,15 @@
   "unit": "自然と人間",
   "field": "生物",
   "uo": 12,
-  "no": 102
+  "no": 2,
+  "otitle": "生物の数のつり合い（基礎）",
+  "ch": 0,
+  "chapter": "第1章 自然のなかの生物",
+  "kind": "基礎"
  },
  {
   "file": "sets/j1172281.json",
-  "title": "分解者のはたらき（基礎）",
+  "title": "分解者のはたらき",
   "count": 8,
   "types": {
    "choice": 8,
@@ -5485,11 +6890,15 @@
   "unit": "自然と人間",
   "field": "生物",
   "uo": 12,
-  "no": 103
+  "no": 3,
+  "otitle": "分解者のはたらき（基礎）",
+  "ch": 0,
+  "chapter": "第1章 自然のなかの生物",
+  "kind": "基礎"
  },
  {
   "file": "sets/j4a314a3.json",
-  "title": "物質の循環（基礎）",
+  "title": "物質の循環",
   "count": 8,
   "types": {
    "choice": 8,
@@ -5501,11 +6910,15 @@
   "unit": "自然と人間",
   "field": "生物",
   "uo": 12,
-  "no": 104
+  "no": 4,
+  "otitle": "物質の循環（基礎）",
+  "ch": 0,
+  "chapter": "第1章 自然のなかの生物",
+  "kind": "基礎"
  },
  {
   "file": "sets/jec945f0.json",
-  "title": "自然環境の調査と保全（基礎）",
+  "title": "自然環境の調査と保全",
   "count": 6,
   "types": {
    "choice": 6,
@@ -5517,11 +6930,15 @@
   "unit": "自然と人間",
   "field": "生物",
   "uo": 12,
-  "no": 105
+  "no": 5,
+  "otitle": "自然環境の調査と保全（基礎）",
+  "ch": 1,
+  "chapter": "第2章 自然環境の調査と保全",
+  "kind": "基礎"
  },
  {
   "file": "sets/jba9d415.json",
-  "title": "自然災害と恵み（基礎）",
+  "title": "自然災害と恵み",
   "count": 6,
   "types": {
    "choice": 6,
@@ -5533,11 +6950,15 @@
   "unit": "自然と人間",
   "field": "生物",
   "uo": 12,
-  "no": 106
+  "no": 6,
+  "otitle": "自然災害と恵み（基礎）",
+  "ch": 1,
+  "chapter": "第2章 自然環境の調査と保全",
+  "kind": "基礎"
  },
  {
   "file": "sets/j3292edc.json",
-  "title": "いろいろなエネルギーとその変換（基礎）",
+  "title": "いろいろなエネルギーとその変換",
   "count": 8,
   "types": {
    "choice": 8,
@@ -5549,11 +6970,35 @@
   "unit": "自然と人間",
   "field": "生物",
   "uo": 12,
-  "no": 107
+  "no": 7,
+  "otitle": "いろいろなエネルギーとその変換（基礎）",
+  "ch": 2,
+  "chapter": "第3章 科学技術と人間",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/b5698249.json",
+  "title": "熱の伝わり方",
+  "count": 13,
+  "types": {
+   "choice": 13,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "自然と人間",
+  "field": "生物",
+  "uo": 12,
+  "no": 7,
+  "otitle": "熱の伝わり方",
+  "ch": 2,
+  "chapter": "第3章 科学技術と人間",
+  "kind": "基礎"
  },
  {
   "file": "sets/j548b189.json",
-  "title": "エネルギー資源と発電（基礎）",
+  "title": "エネルギー資源と発電",
   "count": 7,
   "types": {
    "choice": 7,
@@ -5565,11 +7010,15 @@
   "unit": "自然と人間",
   "field": "生物",
   "uo": 12,
-  "no": 108
+  "no": 8,
+  "otitle": "エネルギー資源と発電（基礎）",
+  "ch": 2,
+  "chapter": "第3章 科学技術と人間",
+  "kind": "基礎"
  },
  {
   "file": "sets/j52a1059.json",
-  "title": "放射線の性質と利用（基礎）",
+  "title": "放射線の性質と利用",
   "count": 6,
   "types": {
    "choice": 6,
@@ -5581,11 +7030,15 @@
   "unit": "自然と人間",
   "field": "生物",
   "uo": 12,
-  "no": 109
+  "no": 9,
+  "otitle": "放射線の性質と利用（基礎）",
+  "ch": 2,
+  "chapter": "第3章 科学技術と人間",
+  "kind": "基礎"
  },
  {
   "file": "sets/j2abc49e.json",
-  "title": "科学技術と持続可能な社会（基礎）",
+  "title": "科学技術と持続可能な社会",
   "count": 6,
   "types": {
    "choice": 6,
@@ -5597,7 +7050,11 @@
   "unit": "自然と人間",
   "field": "生物",
   "uo": 12,
-  "no": 110
+  "no": 10,
+  "otitle": "科学技術と持続可能な社会（基礎）",
+  "ch": 3,
+  "chapter": "終章 持続可能な社会のために",
+  "kind": "基礎"
  },
  {
   "file": "sample-science.json",
