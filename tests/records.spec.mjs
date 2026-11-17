@@ -49,7 +49,8 @@ test('記録画面：3つのタブ・最後のタブを覚える・問題を直�
   await t.reload(); await expect(t.locator('#tab-q')).toHaveAttribute('aria-selected', 'true', { timeout: 15000 });
 
   // 家庭練習：ほかの問題もすべて直したことにして、出る問題文が直したものになるかを見る
-  for (const i of [0, 2, 3, 4, 5]) await rest('PUT', `qedits/06147353/${i}`, { q: 'てすと：' + i, t: Date.now() });
+  const nq = await t.evaluate(async () => (await (await fetch('home/06147353.json')).json()).questions.length);   // 問題数は見直しで変わる（2026-11-17 に6→7問）
+  for (let i = 0; i < nq; i++) if (i !== 1) await rest('PUT', `qedits/06147353/${i}`, { q: 'てすと：' + i, t: Date.now() });
   await rest('PUT', `quest/${Y}/keys/3-1-2`, 'abc345');
   const s = await (await browser.newContext({ viewport: { width: 1280, height: 720 } })).newPage();
   s.on('pageerror', e => errs.push('S ' + e));
