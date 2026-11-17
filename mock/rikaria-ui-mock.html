@@ -192,6 +192,7 @@ button, input, select { font:inherit; }
       <input type="text" id="kw" placeholder="題名でさがす（例：期末対策）" style="flex:1;min-width:10em">
       <label><input type="checkbox" id="onlyPicked"> 選んだものだけ見る</label>
     </div>
+    <div class="bar">単元 <span id="useg"></span></div>
     <div class="list" id="list">読み込み中…</div>
     <div class="tray">
       <span id="cnt">0セット・0問</span>
@@ -199,7 +200,7 @@ button, input, select { font:inherit; }
       <button class="save" id="save" disabled>このセットでテスト範囲をつくる</button>
     </div>
     <div class="saved" id="saved"></div>
-    <p style="font-size:.88em;opacity:.75">モックなので保存はしません。セットにチェックを付け、「中を見る」で入れたくない問題のチェックを外せます。作った範囲は、生徒の「ひとりで冒険 → テスト範囲」に名前で出ます。今の「単元でえらぶ」作り方も、設定タブに残します。</p>
+    <p style="font-size:.88em;opacity:.75">モックなので保存はしません。学年と単元でしぼれます（単元の名前の横の数字は、その単元で選んだセットの数）。セットにチェックを付け、「中を見る」で入れたくない問題のチェックを外せます。作った範囲は、生徒の「ひとりで冒険 → テスト範囲」に名前で出ます。今の「単元でえらぶ」作り方も、設定タブに残します。</p>
   </div>
 </div>
 
@@ -215,12 +216,14 @@ document.querySelectorAll('[data-g].opts, .opts[data-g]').forEach(function (g) {
 document.getElementById('mBtn').onclick = function () { var w = document.getElementById('mWin'); w.style.display = w.style.display === 'none' ? '' : 'none'; };
 
 /* ④ */
-var SETS = [], G = 2, PICK = {}, OFF = {}, OPEN = {}, QS = {}, SAVED = [];
+var SETS = [], U = '', G = 2, PICK = {}, OFF = {}, OPEN = {}, QS = {}, SAVED = [];
 function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
 function nOf(s) { return s.count - Object.keys(OFF[s.id] || {}).length; }
 function draw() {
   var kw = document.getElementById('kw').value.trim(), only = document.getElementById('onlyPicked').checked;
-  var rows = SETS.filter(function (s) { return s.grade === G && (!kw || s.title.indexOf(kw) >= 0 || s.unit.indexOf(kw) >= 0) && (!only || PICK[s.id]); });
+  var rows = SETS.filter(function (s) { return s.grade === G && (!U || s.unit === U) && (!kw || s.title.indexOf(kw) >= 0 || s.unit.indexOf(kw) >= 0) && (!only || PICK[s.id]); });
+  var us = []; SETS.forEach(function (s) { if (s.grade === G && us.indexOf(s.unit) < 0) us.push(s.unit); });
+  document.getElementById('useg').innerHTML = '<button class="pill' + (U ? '' : ' on') + '" data-u="">すべて</button> ' + us.map(function (x) { var k = SETS.filter(function (s) { return s.grade === G && s.unit === x && PICK[s.id]; }).length; return '<button class="pill' + (U === x ? ' on' : '') + '" data-u="' + esc(x) + '">' + esc(x) + (k ? '（' + k + '）' : '') + '</button>'; }).join(' ');
   var h = '', u = null;
   rows.forEach(function (s) {
     if (s.unit !== u) { u = s.unit; h += '<div class="uh">' + esc(u) + '<button data-all="' + esc(u) + '">この単元を全部</button></div>'; }
@@ -245,7 +248,8 @@ document.getElementById('list').onclick = async function (e) {
   if ((a = t.dataset.q)) { var p = a.split('|'); OFF[p[0]] = OFF[p[0]] || {}; if (t.checked) delete OFF[p[0]][p[1]]; else OFF[p[0]][p[1]] = true; PICK[p[0]] = true; draw(); return; }
   var hd = t.closest('.shead'); if (hd) { var id = hd.dataset.id; if (PICK[id]) { delete PICK[id]; delete OFF[id]; } else PICK[id] = true; draw(); }
 };
-document.getElementById('gseg').onclick = function (e) { var b = e.target.closest('.pill'); if (!b) return; G = Number(b.dataset.g); this.querySelectorAll('.pill').forEach(function (x) { x.classList.toggle('on', x === b); }); draw(); };
+document.getElementById('gseg').onclick = function (e) { var b = e.target.closest('.pill'); if (!b) return; G = Number(b.dataset.g); U = ''; this.querySelectorAll('.pill').forEach(function (x) { x.classList.toggle('on', x === b); }); draw(); };
+document.getElementById('useg').onclick = function (e) { var b = e.target.closest('.pill'); if (!b) return; U = b.dataset.u; draw(); };
 document.getElementById('kw').oninput = draw; document.getElementById('onlyPicked').onchange = draw;
 document.getElementById('save').onclick = function () {
   var ps = SETS.filter(function (s) { return PICK[s.id]; });
