@@ -946,7 +946,9 @@ async function poolOf(a) {
   var src = a.src || { k: 'unit' }, key = a.id + '|' + JSON.stringify(src);
   if (POOLS[key]) return POOLS[key];
   var pool = [], sets = a.sets;
-  if (src.k === 'range') {
+  if (src.k === 'range' && (RANGES[src.id] || {}).s) {   /* 範囲に出すセットが決めてあれば、そのセットだけ（期末対策。2026-11-17） */
+    var rs = RANGES[src.id].s; sets = SETS.filter(function (x) { return rs[x.id]; });
+  } else if (src.k === 'range') {
     var us = rangeUnits(src.id);
     sets = AREAS.filter(function (x) { return us.indexOf(unitOf(x.g, x.unit).id) >= 0; }).reduce(function (o, x) { return o.concat(x.sets); }, []);
   }

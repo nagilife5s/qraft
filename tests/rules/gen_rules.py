@@ -115,9 +115,10 @@ q['classes'] = {".read": "auth != null", ".write": "auth != null && " + A}
 q['teams'] = {".read": "auth != null && " + A, ".write": "auth != null && " + A}
 # テスト範囲（ひとりで冒険の出題範囲。先生が記録画面で作る）。quest/<年度>/ranges/<学年>/<id> = { n: 名前, u: { <単元id>: true } }
 # 読むのは誰でも（生徒が冒険の前にえらぶ）、書くのは先生だけ。2026-11-16
+# s: { <セットid>: true } は任意。あれば冒険ではそのセットだけ出す（期末対策。2026-11-17）
 q['ranges'] = {".read": "auth != null", ".write": "auth != null && " + A, "$g": {".validate": "$g.matches(/^[1-3]$/)", "$id": {
     ".validate": "newData.hasChildren(['n','u']) && newData.child('n').isString() && newData.child('n').val().length >= 1 && newData.child('n').val().length <= 20",
-    "n": {".validate": True}, "u": {"$k": {".validate": "$k.matches(/^[a-z]{2,12}$/) && newData.val() === true"}}, "$other": {".validate": False}}}}
+    "n": {".validate": True}, "u": {"$k": {".validate": "$k.matches(/^[a-z]{2,12}$/) && newData.val() === true"}}, "s": {"$k": {".validate": "$k.matches(/^[a-z0-9]{8}$/) && newData.val() === true"}}, "$other": {".validate": False}}}}
 # ---------------------------------------------------------------- 部屋（リカリアのチーム戦で足した場所）
 rm = R['rules']['rooms']['$pin']
 pl = rm['players']['$uid']

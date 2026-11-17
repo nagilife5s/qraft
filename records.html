@@ -58,6 +58,7 @@
     <div class="row">学年 <select id="rg"><option>1</option><option>2</option><option>3</option></select>
       名前 <input id="rn" maxlength="20" placeholder="例：2学期期末" style="width:12em"></div>
     <div class="row" id="ru"></div>
+    <div class="row"><label><input type="checkbox" id="rTaisaku"> えらんだ単元の「期末対策」セットだけを出す</label></div>
     <div class="row"><button class="main" id="btnRange">この範囲を保存</button> <span id="rMsg" role="status"></span></div>
     <div style="overflow:auto"><table id="tblRange"></table></div></div>
   <h2>前年度から移す（進級・クラス替え）</h2>
@@ -364,15 +365,15 @@ $('btnAdd').onclick = async function () {
   try { await set(ref(db, 'admins/' + u), true); $('addMsg').textContent = '追加しました'; } catch (e) { $('addMsg').textContent = '追加できませんでした'; }
 };
 
-/* ------------------------------------------------------------ テスト範囲（quest/<年度>/ranges/<学年>/<id> = { n, u: { 単元id: true } }） */
+/* ------------------------------------------------------------ テスト範囲（quest/<年度>/ranges/<学年>/<id> = { n, u: { 単元id: true }, s: { セットid: true }（あれば、そのセットだけ出す。2026-11-17） }） */
 $('ru').innerHTML = UNITS.map(function (u) { return '<label><input type="checkbox" value="' + u.id + '"> ' + u.g + '年 ' + esc(u.unit) + '</label>'; }).join('');
 async function loadRanges() {
   var g = $('rg').value, v = {};
   try { v = (await get(ref(db, 'quest/' + QY + '/ranges/' + g))).val() || {}; } catch (e) { $('rMsg').textContent = '読めませんでした: ' + e.message; }
-  var h = '<tr><th>名前</th><th>単元</th><th></th></tr>';
+  var h = '<tr><th>名前</th><th>単元</th><th>出す問題</th><th></th></tr>';
   Object.keys(v).forEach(function (id) {
     var us = Object.keys(v[id].u || {}).map(function (k) { var u = UNITS.filter(function (x) { return x.id === k; })[0]; return u ? u.g + '年 ' + u.unit : k; });
-    h += '<tr><td>' + esc(v[id].n) + '</td><td>' + esc(us.join('、')) + '</td><td><button data-rdel="' + id + '" style="color:#b3261e">消す</button></td></tr>';
+    h += '<tr><td>' + esc(v[id].n) + '</td><td>' + esc(us.join('、')) + '</td><td>' + (v[id].s ? '期末対策 ' + Object.keys(v[id].s).length + 'セット' : '単元の全部') + '</td><td><button data-rdel="' + id + '" style="color:#b3261e">消す</button></td></tr>';
   });
   $('tblRange').innerHTML = h;
   document.querySelectorAll('[data-rdel]').forEach(function (b) { b.onclick = async function () {
@@ -386,9 +387,18 @@ $('btnRange').onclick = async function () {
   document.querySelectorAll('#ru input:checked').forEach(function (x) { u[x.value] = true; });
   if (!n) { $('rMsg').textContent = '名前を入れてください'; return; }
   if (!Object.keys(u).length) { $('rMsg').textContent = '単元を1つ以上えらんでください'; return; }
+  var rv = { n: n, u: u };
+  if ($('rTaisaku').checked) {
+    var hs = [];
+    try { hs = await (await fetch('home/index.json', { cache: 'no-cache' })).json(); } catch (e) { $('rMsg').textContent = '問題の一覧を読めませんでした'; return; }
+    var s = {};
+    hs.forEach(function (x) { var t = UNITS.filter(function (k) { return k.g === x.grade && k.unit === x.unit; })[0]; if (t && u[t.id] && /^期末対策/.test(x.title)) s[x.id] = true; });
+    if (!Object.keys(s).length) { $('rMsg').textContent = 'えらんだ単元に「期末対策」セットがありません'; return; }
+    rv.s = s;
+  }
   try {
-    await set(ref(db, 'quest/' + QY + '/ranges/' + $('rg').value + '/r' + Date.now().toString(36)), { n: n, u: u });
-    $('rMsg').textContent = '保存しました'; $('rn').value = ''; document.querySelectorAll('#ru input').forEach(function (x) { x.checked = false; }); loadRanges();
+    await set(ref(db, 'quest/' + QY + '/ranges/' + $('rg').value + '/r' + Date.now().toString(36)), rv);
+    $('rMsg').textContent = '保存しました'; $('rn').value = ''; document.querySelectorAll('#ru input').forEach(function (x) { x.checked = false; }); $('rTaisaku').checked = false; loadRanges();
   } catch (e) { $('rMsg').textContent = '保存できませんでした（新しいルールがFirebaseに貼られているか確かめてください）: ' + e.message; }
 };
 </script>

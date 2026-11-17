@@ -262,6 +262,8 @@ await t('生徒はテスト範囲を消せない', () => assertFails(alice.ref(P
 await t('学年が1〜3でないと書けない', () => assertFails(teacher.ref(P('ranges/4/r1')).set({ n: 'x', u: { matter: true } })));
 await t('名前のないテスト範囲は書けない', () => assertFails(teacher.ref(P('ranges/1/r1')).set({ u: { matter: true } })));
 await t('単元の値が true でないと書けない', () => assertFails(teacher.ref(P('ranges/1/r1')).set({ n: 'x', u: { matter: 1 } })));
+await t('先生は出すセットつきのテスト範囲を作れる', () => assertSucceeds(teacher.ref(P('ranges/1/r3')).set({ n: '期末対策', u: { matter: true }, s: { je746318: true } })));
+await t('セットidの形がちがうと書けない', () => assertFails(teacher.ref(P('ranges/1/r4')).set({ n: 'x', u: { matter: true }, s: { 'ab/c': true } })));
 await t('先生はテスト範囲を消せる', () => assertSucceeds(teacher.ref(P('ranges/2/r1')).remove()));
 
 console.log('なかまと冒険（生徒が開く部屋）');

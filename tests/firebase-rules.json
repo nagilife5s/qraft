@@ -418,6 +418,11 @@
                   ".validate": "$k.matches(/^[a-z]{2,12}$/) && newData.val() === true"
                 }
               },
+              "s": {
+                "$k": {
+                  ".validate": "$k.matches(/^[a-z0-9]{8}$/) && newData.val() === true"
+                }
+              },
               "$other": {
                 ".validate": false
               }
