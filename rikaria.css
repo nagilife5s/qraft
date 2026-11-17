@@ -111,9 +111,9 @@
 .skillrow { display:flex; gap:.5em; justify-content:flex-end; align-items:center; }
 .skillrow .lbl2 { font-weight:900; font-size:.8em; opacity:.7; }
 .tgtrow { display:flex; gap:.35em; align-items:center; margin-right:auto; }
-.tgtrow button { font:inherit; font-weight:900; font-size:.8em; display:flex; align-items:center; gap:.3em; border:.15em solid rgba(255,255,255,.3); background:rgba(255,255,255,.1); color:#fff; border-radius:999px; padding:.15em .7em .15em .2em; cursor:pointer; }
+.tgtrow button { font:inherit; font-weight:900; font-size:.8em; display:flex; align-items:center; gap:.3em; border:.15em solid rgba(255,255,255,.3); background:rgba(255,255,255,.1); color:#fff; border-radius:.5em; padding:.15em .7em .15em .2em; cursor:pointer; }
 .tgtrow button img { height:1.8em; }
-.tgtrow button.on { background:var(--q-gold); color:var(--ink-dark); border-color:var(--q-gold); }
+.tgtrow button.on { background:linear-gradient(90deg, rgba(255,226,122,.2), rgba(255,226,122,.04)); color:#ffe27a; border-color:#ffe27a; }   /* 2026-11-17 */
 .tgtrow button.dead { opacity:.25; pointer-events:none; }
 .tgtrow button.cg { border-color:var(--ng); box-shadow:0 0 .5em var(--ng); }
 .tgtrow kbd { font:inherit; font-size:.8em; background:rgba(0,0,0,.35); border-radius:.3em; padding:0 .3em; }
@@ -198,11 +198,11 @@
 .sk small { opacity:.75; font-weight:700; line-height:1.4; }
 .sk .meta { display:flex; gap:.5em; align-items:center; font-size:.8em; font-weight:900; }
 .sk .rk { color:var(--q-gold); }
-.sk .up { margin-left:auto; font:inherit; font-size:.95em; font-weight:900; border:0; border-radius:999px; padding:.15em .7em; background:var(--q-gold); color:var(--ink-dark); cursor:pointer; }
+.sk .up { margin-left:auto; font:inherit; font-size:.95em; font-weight:900; border:.12em solid #fff; border-radius:.45em; padding:.15em .7em; background:rgba(10,12,44,.9); color:#fff; cursor:pointer; }   /* 小さい札の形（2026-11-17） */
 .sk .up:disabled { opacity:.35; cursor:default; }
 .gpgrid { display:grid; grid-template-columns:repeat(5, 3.4em); gap:.5em; }
 .gpgrid button { font:inherit; font-weight:900; font-size:1.3em; height:2.4em; border-radius:.6em; border:.15em solid rgba(255,255,255,.3); background:rgba(255,255,255,.1); color:#fff; cursor:pointer; }
-.gpgrid button.on { background:var(--q-gold); color:var(--ink-dark); border-color:var(--q-gold); }
+.gpgrid button.on { background:linear-gradient(90deg, rgba(255,226,122,.2), rgba(255,226,122,.04)); color:#ffe27a; border-color:#ffe27a; }   /* 選んだ班：黄色い字＋黄色い枠（2026-11-17） */
 .elemrow { display:flex; gap:.3em; align-items:center; }
 .elemrow button { font:inherit; font-size:.85em; font-weight:900; border:.15em solid rgba(255,255,255,.3); background:rgba(255,255,255,.08); color:#fff; border-radius:999px; padding:.1em .6em; cursor:pointer; }
 .elemrow button.on { background:var(--ec); border-color:var(--ec); }
@@ -318,7 +318,7 @@
    テストプレイ（2026-11-13）で見つけた、切れる・読めない・押せない の直し
    ================================================================== */
 /* 準備：「準備OK！」をいつも画面の下に出す（技が10個・持ち物が多いと、スクロールしないと押せなかった） */
-#s-prep .pp-foot { position:sticky; bottom:-1em; z-index:6; margin:0 -1.4em -1em; padding:.55em 1.4em .7em; background:rgba(14,8,40,.94); box-shadow:0 -.3em .8em rgba(0,0,0,.35); }
+#s-prep .pp-foot { position:sticky; bottom:-1em; z-index:6; margin:0 -1.4em -1em; padding:.55em 1.4em .7em; background:rgba(10,12,44,.95); box-shadow:0 -.3em .8em rgba(0,0,0,.35); }
 /* 準備：班のなかまは横長の小さいカードに（場所を取りすぎて、技が下に追いやられていた） */
 #s-prep .mem-row .pp-mem { display:grid; grid-template-columns:auto auto; grid-template-rows:auto auto; column-gap:.6em; row-gap:.1em; align-items:center; justify-items:start; padding:.4em .9em .4em .6em; min-width:0; }
 #s-prep .mem-row .pp-mem .hero { grid-row:1 / span 2; height:3.2em; }
@@ -342,7 +342,7 @@
 .elemrow button { padding:.1em .7em; }
 #s-battle { overflow:clip; }   /* 床のかざりが左右にはみ出していて、画面ごと横にずれることがあった */
 #s-battle .cmd { flex:0 1 auto; max-height:none; overflow:hidden auto; gap:.45em; }   /* 敵の場所（22%）を残して、のこりの高さに収める */
-#s-battle .cmd > #skills { position:sticky; bottom:-.75em; z-index:3; margin:0 -1em -.7em; padding:.4em 1em .6em; background:rgb(20,12,48); border-radius:0 0 .8em .8em; }
+#s-battle .cmd > #skills { position:sticky; bottom:-.75em; z-index:3; margin:0 -1em -.7em; padding:.4em 1em .6em; background:rgb(11,13,46); border-radius:0 0 .8em .8em; }
 #s-battle .cmd:not(.has-img) > #skills { margin-top:auto; }
 #s-battle .cmd:not(.has-img) .qbox { font-size:1.2em; }
 #s-battle .cmd:not(.has-img) .choices button { font-size:1.1em; padding:.55em .8em; }
@@ -457,9 +457,14 @@
 .rk-skin .panel, .rk-skin .card { background:rgba(10,12,44,.86); color:#fff; border:.18em solid #fff; border-radius:.7em; box-shadow:0 0 0 .22em rgba(10,12,44,.86), 0 .8em 2em rgba(0,0,0,.55); }
 .rk-skin .q-title { color:#ffe27a; letter-spacing:.12em; text-shadow:0 0 .4em rgba(255,226,122,.5), 0 .1em .3em rgba(20,8,60,.9); }
 .rk-skin .q-sub { color:#fff; text-shadow:0 .1em .3em rgba(20,8,60,.9); }
-.rk-skin .btn:not(.ghost):not(.sub):not(.quit) { background:linear-gradient(180deg, #fff6c8, #ffd23f); color:#2a1280; box-shadow:0 0 0 .14em #fff, 0 0 1em rgba(255,226,122,.55); }
-.rk-skin .btn:disabled { filter:grayscale(.7); opacity:.6; }
+/* ボタンの形は quest.css の「リカリアの見た目をそろえる」に移した（2026-11-17） */
 .rk-skin .card .flabel, .rk-skin .card b { color:#fff; }
 .rk-skin .toplink, .rk-skin .backlink { color:#fff; text-shadow:0 .1em .3em rgba(20,8,60,.9); }
 .rk-skin .wtitle { z-index:2; }
 @media (prefers-reduced-motion: no-preference) { .rk-skin.on .card, .rk-skin.on > .wrap > .panel:first-of-type { animation:winIn .28s ease-out both; } }
+
+/* ---- 見出し札つきの窓・行の形（モック①②。2026-11-17）。.has-wt＝左上に .wtitle を置く窓 */
+.rk-skin .has-wt { position:relative; margin-top:1em; padding-top:1.5em; }
+.rk-skin .form-row, .rk-skin .frm { padding:.3em .4em .45em; border-bottom:.08em dashed rgba(255,255,255,.22); }
+.rk-skin .wrap > .frm { border-bottom:0; }
+.rk-skin .tc-note { padding:0 .4em; }

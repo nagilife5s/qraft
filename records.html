@@ -76,6 +76,28 @@
   .pcard .pmeta { display:flex; gap:.3em; font-size:.78em; white-space:nowrap; } .bdg { border-radius:999px; padding:0 .5em; background:#e3e6f2; font-weight:800; } .bdg.m { background:#dcd4ff; } .bdg.t { background:#ffe9c7; }
   .pkr .empty { padding:1.2em; text-align:center; opacity:.6; font-weight:800; }
   @container pk (max-width: 330px) { .pcard { flex-wrap:wrap; } .pcard .pmeta { width:100%; } }
+  /* テスト範囲を問題の一覧から作る（問題タブ。mock/rikaria-ui-mock.html の④。2026-11-17） */
+  .qsub { display:flex; gap:.4em; margin:.2em 0 .8em; }
+  .mkpill { border:1px solid #c9c0ea; background:#fff; color:#221a44; border-radius:999px; padding:.25em .9em; font-weight:800; }
+  .mkpill.on { background:#4320b0; color:#fff; border-color:#4320b0; }
+  .mkbar { display:flex; flex-wrap:wrap; gap:.5em; align-items:center; margin-bottom:.6em; font-weight:600; }
+  .mklist { max-height:calc(100vh - 22em); min-height:14em; overflow:auto; background:#fff; border:1px solid #ddd6f3; border-radius:.6em; }
+  .mkuh { position:sticky; top:0; background:#4320b0; color:#fff; padding:.3em .8em; font-weight:900; display:flex; gap:.6em; align-items:center; z-index:1; }
+  .mkuh button { margin-left:auto; border:0; border-radius:999px; padding:.15em .8em; font-weight:800; font-size:.85em; }
+  .mksrow { border-bottom:1px solid #ece7fb; }
+  .mkshead { display:flex; align-items:center; gap:.6em; padding:.45em .7em; cursor:pointer; }
+  .mkshead:hover { background:#f6f2ff; } .mksrow.on > .mkshead { background:#e8e0ff; }
+  .mkshead input { width:1.2em; height:1.2em; padding:0; cursor:pointer; }
+  .mkshead .t { flex:1; font-weight:800; } .mkshead .c { font-size:.85em; opacity:.7; white-space:nowrap; }
+  .mkshead .mkopen { border:0; background:none; color:#4320b0; font-weight:800; padding:.1em .4em; white-space:nowrap; }
+  .mkqs { padding:.2em .7em .6em 2.6em; background:#faf9ff; font-size:.92em; }
+  .mkqs label { display:flex; gap:.5em; padding:.2em 0; align-items:flex-start; cursor:pointer; white-space:pre-wrap; }
+  .mkqs label input { padding:0; cursor:pointer; margin-top:.25em; flex:none; }
+  .mkqs label.off { opacity:.45; text-decoration:line-through; }
+  .mktray { position:sticky; bottom:0; z-index:3; margin-top:.7em; background:#221a44; color:#fff; border-radius:.6em; padding:.7em .9em; display:flex; flex-wrap:wrap; gap:.6em; align-items:center; font-weight:700; }
+  .mktray input[type=text] { flex:1; min-width:10em; }
+  .mktray .save { border:0; background:#ffd23f; color:#2a1280; font-weight:900; padding:.5em 1.2em; }
+  .mktray [role=status] { width:100%; color:#ffe27a; } .mktray [role=status]:empty { display:none; }
   .img-zoom { position:fixed; inset:0; background:rgba(0,0,0,.82); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:100; cursor:zoom-out; color:#fff; }
   .img-zoom img { max-width:94vw; max-height:88vh; background:#fff; }
 </style>
@@ -114,11 +136,34 @@
 </section>
 <!-- ============================================================ 問題 -->
 <section role="tabpanel" id="p-q" aria-labelledby="tab-q" hidden>
+  <div class="qsub" id="qsub"><button type="button" class="mkpill on" data-qs="edit" aria-pressed="true">問題を見る・直す</button><button type="button" class="mkpill" data-qs="mk" aria-pressed="false">テスト範囲をつくる</button></div>
+  <div id="q-edit">
   <div class="note">問題をえらぶと、問題文・選択肢（✓が正解）・解説・図を見られます。「直す」で、問題文・選択肢・正解・解説を直せます。直したものは<b>すぐに</b>家庭練習・クラシック・リカリア・ひとりで冒険・なかまと冒険に出ます（もとの問題データは変わりません。あとでまとめて原本に書きもどします）。
     <div id="edSum"></div></div>
   <div class="qwrap" style="margin-top:.8em">
     <div class="left"><div id="qPicker"></div></div>
     <div id="qView"><div class="note">左の一覧から問題セットをえらんでください。</div></div>
+  </div>
+  </div>
+  <!-- テスト範囲を、問題の一覧から作る（2026-11-17） -->
+  <div id="q-mk" hidden>
+    <div class="note" style="margin-bottom:.8em">テストに出したい問題セットにチェックを付けて、名前を決めると、テスト範囲になります。「中を見る」で、入れたくない問題のチェックを外せます。作った範囲は、生徒の「ひとりで冒険 → テスト範囲」に名前で出ます。単元ごとにまとめて作るときは「設定」タブでも作れます。</div>
+    <div class="mkbar">学年
+      <span id="mkG"><button type="button" class="mkpill" data-g="1">1年</button> <button type="button" class="mkpill" data-g="2">2年</button> <button type="button" class="mkpill" data-g="3">3年</button></span>
+      <input type="text" id="mkKw" placeholder="題名でさがす（例：期末対策）" aria-label="題名でさがす" style="flex:1;min-width:10em">
+      <label><input type="checkbox" id="mkOnly"> 選んだものだけ見る</label>
+    </div>
+    <div class="mkbar">単元 <span id="mkU"></span></div>
+    <div class="mklist" id="mkList">読み込み中…</div>
+    <div class="mktray">
+      <span id="mkCnt">0セット・0問</span>
+      <label>出す学年 <select id="mkTo" aria-label="このテスト範囲を出す学年"><option value="1">1年生</option><option value="2">2年生</option><option value="3">3年生</option></select></label>
+      <input type="text" id="mkName" placeholder="テスト範囲の名前（例：2学期期末）" aria-label="テスト範囲の名前" maxlength="20">
+      <button type="button" class="save" id="mkSave" disabled>このセットでテスト範囲をつくる</button>
+      <span id="mkMsg" role="status"></span>
+    </div>
+    <h2>作ったテスト範囲（<span id="mkToName"></span>）</h2>
+    <div style="overflow:auto"><table id="tblRangeMk"></table></div>
   </div>
 </section>
 <!-- ============================================================ 設定 -->
@@ -133,7 +178,7 @@
     キャラを消すと、その生徒は次にひらいたとき、キャラ作りから始めます（作り直し）。レベル・技・装備・ゴールド・称号も消え、元に戻せません。合言葉はそのまま使えます。
     <div style="overflow:auto"><table id="tblKeys"></table></div></div>
   <h2>テスト範囲（ひとりで冒険）</h2>
-  <div class="note">「2学期期末」のように、名前と単元を決めておくと、生徒が「ひとりで冒険」で、その範囲の問題で冒険できます。学年ごと・この年度だけです。ほかの学年の単元も入れられます。
+  <div class="note">「2学期期末」のように、名前と単元を決めておくと、生徒が「ひとりで冒険」で、その範囲の問題で冒険できます。学年ごと・この年度だけです。ほかの学年の単元も入れられます。<br>問題セットを1つずつえらんで作るときは、「問題」タブの「テスト範囲をつくる」を使ってください。
     <div class="row">学年 <select id="rg"><option>1</option><option>2</option><option>3</option></select>
       名前 <input id="rn" maxlength="20" placeholder="例：2学期期末" style="width:12em"></div>
     <div class="row" id="ru"></div>
@@ -460,19 +505,31 @@ $('btnAdd').onclick = async function () {
 
 /* ------------------------------------------------------------ テスト範囲（quest/<年度>/ranges/<学年>/<id> = { n, u: { 単元id: true }, s: { セットid: true }（あれば、そのセットだけ出す。2026-11-17） }） */
 $('ru').innerHTML = UNITS.map(function (u) { return '<label><input type="checkbox" value="' + u.id + '"> ' + u.g + '年 ' + esc(u.unit) + '</label>'; }).join('');
-async function loadRanges() {
-  var g = $('rg').value, v = {};
-  try { v = (await get(ref(db, 'quest/' + QY + '/ranges/' + g))).val() || {}; } catch (e) { $('rMsg').textContent = '読めませんでした: ' + e.message; }
+/* 範囲の中身。s があれば「nセット・m問」（x＝外した問題を引く。番号だけの x は配列で返ることがある）。2026-11-17 */
+function rangeBody(r) {
+  if (!r.s) return '単元の全部';
+  var ids = Object.keys(r.s), x = r.x || {}, m = 0, off = 0;
+  ids.forEach(function (id) { var st = HS.filter(function (h) { return h.id === id; })[0], o = x[id] ? Object.keys(x[id]).filter(function (k) { return x[id][k]; }).length : 0; m += st ? Math.max(0, st.count - o) : 0; off += o; });
+  return ids.length + 'セット・' + m + '問' + (off ? '（' + off + '問を外した）' : '');
+}
+/* 作った範囲の表（設定タブと問題タブの2か所に出す） */
+async function rangeTable(g, tbl, msg) {
+  var v = {};
+  try { v = (await get(ref(db, 'quest/' + QY + '/ranges/' + g))).val() || {}; } catch (e) { msg.textContent = '読めませんでした: ' + e.message; }
   var h = '<tr><th>名前</th><th>単元</th><th>出す問題</th><th></th></tr>';
   Object.keys(v).forEach(function (id) {
     var us = Object.keys(v[id].u || {}).map(function (k) { var u = UNITS.filter(function (x) { return x.id === k; })[0]; return u ? u.g + '年 ' + u.unit : k; });
-    h += '<tr><td>' + esc(v[id].n) + '</td><td>' + esc(us.join('、')) + '</td><td>' + (v[id].s ? '期末対策 ' + Object.keys(v[id].s).length + 'セット' : '単元の全部') + '</td><td><button data-rdel="' + id + '" style="color:#b3261e">消す</button></td></tr>';
+    h += '<tr><td>' + esc(v[id].n) + '</td><td>' + esc(us.join('、')) + '</td><td>' + rangeBody(v[id]) + '</td><td><button data-rdel="' + id + '" style="color:#b3261e">消す</button></td></tr>';
   });
-  $('tblRange').innerHTML = h;
-  document.querySelectorAll('[data-rdel]').forEach(function (b) { b.onclick = async function () {
+  tbl.innerHTML = Object.keys(v).length ? h : '<tr><td>まだありません</td></tr>';
+  tbl.querySelectorAll('[data-rdel]').forEach(function (b) { b.onclick = async function () {
     if (!confirm('このテスト範囲を消しますか？')) return;
-    try { await remove(ref(db, 'quest/' + QY + '/ranges/' + g + '/' + b.dataset.rdel)); loadRanges(); } catch (e) { $('rMsg').textContent = '消せませんでした: ' + e.message; }
+    try { await remove(ref(db, 'quest/' + QY + '/ranges/' + g + '/' + b.dataset.rdel)); loadRanges(); } catch (e) { msg.textContent = '消せませんでした: ' + e.message; }
   }; });
+}
+function loadRanges() {
+  $('mkToName').textContent = $('mkTo').value + '年生';
+  return Promise.all([rangeTable($('rg').value, $('tblRange'), $('rMsg')), rangeTable($('mkTo').value, $('tblRangeMk'), $('mkMsg'))]);
 }
 $('rg').onchange = loadRanges;
 $('btnRange').onclick = async function () {
@@ -493,6 +550,96 @@ $('btnRange').onclick = async function () {
     await set(ref(db, 'quest/' + QY + '/ranges/' + $('rg').value + '/r' + Date.now().toString(36)), rv);
     $('rMsg').textContent = '保存しました'; $('rn').value = ''; document.querySelectorAll('#ru input').forEach(function (x) { x.checked = false; }); $('rTaisaku').checked = false; loadRanges();
   } catch (e) { $('rMsg').textContent = '保存できませんでした（新しいルールがFirebaseに貼られているか確かめてください）: ' + e.message; }
+};
+
+/* ------------------------------------------------------------ テスト範囲を、問題の一覧から作る（問題タブ。2026-11-17）
+   保存する形：{ n, u: { 選んだセットの単元id: true }, s: { セットid: true }, x: { セットid: { 外した問題の番号(0始まり): true } } }
+   x は、外した問題があるセットだけ。u は、生徒側と一覧表が単元を前提にしているので入れる */
+var MK = { g: 2, u: '', pick: {}, off: {}, open: {}, qs: {} };
+function mkN(s) { return s.count - Object.keys(MK.off[s.id] || {}).length; }
+function mkPicked() { return HS.filter(function (s) { return MK.pick[s.id]; }); }
+function mkDraw() {
+  var kw = $('mkKw').value.trim(), only = $('mkOnly').checked, G = MK.g, U = MK.u;
+  $('mkG').querySelectorAll('.mkpill').forEach(function (b) { var on = +b.dataset.g === G; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
+  var rows = HS.filter(function (s) { return s.grade === G && (!U || s.unit === U) && (!kw || s.title.indexOf(kw) >= 0 || s.unit.indexOf(kw) >= 0) && (!only || MK.pick[s.id]); });
+  var us = []; HS.forEach(function (s) { if (s.grade === G && us.indexOf(s.unit) < 0) us.push(s.unit); });
+  $('mkU').innerHTML = '<button type="button" class="mkpill' + (U ? '' : ' on') + '" data-u="">すべて</button> ' + us.map(function (x) {
+    var k = HS.filter(function (s) { return s.grade === G && s.unit === x && MK.pick[s.id]; }).length;
+    return '<button type="button" class="mkpill' + (U === x ? ' on' : '') + '" data-u="' + esc(x) + '">' + esc(x) + (k ? '（' + k + '）' : '') + '</button>';
+  }).join(' ');
+  var h = '', u = null;
+  rows.forEach(function (s) {
+    if (s.unit !== u) { u = s.unit; h += '<div class="mkuh">' + esc(u) + '<button type="button" data-all="' + esc(u) + '">この単元を全部</button></div>'; }
+    var on = MK.pick[s.id];
+    h += '<div class="mksrow' + (on ? ' on' : '') + '"><div class="mkshead" data-id="' + s.id + '"><input type="checkbox" aria-label="' + esc(s.title) + '"' + (on ? ' checked' : '') + '><span class="t">' + esc(s.title) + '</span><span class="c">' + (on ? mkN(s) + '／' : '') + s.count + '問</span><button type="button" class="mkopen" data-open="' + s.id + '">' + (MK.open[s.id] ? 'とじる' : '中を見る') + '</button></div>';
+    if (MK.open[s.id]) {
+      h += '<div class="mkqs">';
+      (MK.qs[s.id] || []).forEach(function (q, i) { var off = (MK.off[s.id] || {})[i]; h += '<label class="' + (off ? 'off' : '') + '"><input type="checkbox" data-q="' + s.id + '|' + i + '"' + (off ? '' : ' checked') + '><span>' + (i + 1) + '. ' + esc(q) + '</span></label>'; });
+      if (!MK.qs[s.id]) h += '読み込み中…'; else if (!MK.qs[s.id].length) h += '問題を読めませんでした。';
+      h += '</div>';
+    }
+    h += '</div>';
+  });
+  var box = $('mkList'), top = box.scrollTop;
+  box.innerHTML = h || '<div style="padding:1em">あてはまるセットがありません</div>'; box.scrollTop = top;
+  var ps = mkPicked(), n = ps.reduce(function (a, s) { return a + mkN(s); }, 0), og = ps.filter(function (s) { return s.grade !== G; }).length;
+  $('mkCnt').textContent = ps.length + 'セット・' + n + '問' + (og ? '（ほかの学年の ' + og + 'セットをふくむ）' : '');
+  $('mkSave').disabled = !ps.length;
+}
+$('mkList').onclick = async function (e) {
+  var t = e.target, a;
+  if ((a = t.dataset.all)) { HS.forEach(function (s) { if (s.grade === MK.g && s.unit === a) MK.pick[s.id] = true; }); mkDraw(); return; }
+  if ((a = t.dataset.open)) {
+    MK.open[a] = !MK.open[a]; mkDraw();
+    if (MK.open[a] && !MK.qs[a]) {   /* 問題文は、手で直したもの（qedits）を重ねて見せる */
+      try { var E = QED[a] || {}; MK.qs[a] = ((await (await fetch('home/' + a + '.json')).json()).questions || []).map(function (q, i) { return merged(q, E[i]).q || ''; }); } catch (x) { MK.qs[a] = []; }
+      mkDraw();
+    }
+    return;
+  }
+  if ((a = t.dataset.q)) {
+    var p = a.split('|'), st = HS.filter(function (s) { return s.id === p[0]; })[0];
+    MK.off[p[0]] = MK.off[p[0]] || {};
+    if (t.checked) delete MK.off[p[0]][p[1]]; else MK.off[p[0]][p[1]] = true;
+    MK.pick[p[0]] = true;
+    if (st && mkN(st) <= 0) { delete MK.pick[p[0]]; delete MK.off[p[0]]; }   /* 全部外したら、そのセットは選ばない */
+    mkDraw(); return;
+  }
+  var hd = t.closest('.mkshead'); if (hd) { var id = hd.dataset.id; if (MK.pick[id]) { delete MK.pick[id]; delete MK.off[id]; } else MK.pick[id] = true; mkDraw(); }
+};
+$('mkG').onclick = function (e) { var b = e.target.closest('.mkpill'); if (!b) return; MK.g = +b.dataset.g; MK.u = ''; $('mkTo').value = String(MK.g); mkDraw(); loadRanges(); };
+$('mkU').onclick = function (e) { var b = e.target.closest('.mkpill'); if (!b) return; MK.u = b.dataset.u; mkDraw(); };
+$('mkKw').oninput = mkDraw; $('mkOnly').onchange = mkDraw; $('mkTo').onchange = loadRanges;
+$('mkName').oninput = function () { $('mkMsg').textContent = ''; };
+$('mkSave').onclick = async function () {
+  var ps = mkPicked(), n = $('mkName').value.trim(), msg = $('mkMsg');
+  if (!ps.length) return;
+  if (!n) { msg.textContent = '名前を入れてください'; $('mkName').focus(); return; }
+  var rv = { n: n, u: {}, s: {} }, x = {}, nq = 0;
+  ps.forEach(function (s) {
+    var t = UNITS.filter(function (k) { return k.g === s.grade && k.unit === s.unit; })[0]; if (t) rv.u[t.id] = true;
+    rv.s[s.id] = true; nq += mkN(s);
+    if (Object.keys(MK.off[s.id] || {}).length) x[s.id] = Object.assign({}, MK.off[s.id]);
+  });
+  if (!Object.keys(rv.u).length) { msg.textContent = 'えらんだセットの単元がわかりませんでした。ほかのセットで試してください'; return; }
+  if (Object.keys(x).length) rv.x = x;
+  var g = $('mkTo').value;
+  $('mkSave').disabled = true; msg.textContent = '保存しています…';
+  try {
+    await set(ref(db, 'quest/' + QY + '/ranges/' + g + '/r' + Date.now().toString(36)), rv);
+    msg.textContent = g + '年生のテスト範囲「' + n + '」（' + ps.length + 'セット・' + nq + '問）をつくりました';
+    MK.pick = {}; MK.off = {}; $('mkName').value = ''; $('mkOnly').checked = false; mkDraw(); loadRanges();
+  } catch (e) {
+    msg.textContent = '保存できませんでした。' + (rv.x ? '問題を外したテスト範囲は、新しいルールをFirebaseに貼ってから保存できます（問題を外さなければ、今のままで保存できます）。' : '新しいルールがFirebaseに貼られているか確かめてください。') + '（' + e.message + '）';
+    $('mkSave').disabled = false;
+  }
+};
+/* 問題タブの中の切りかえ（見る・直す／テスト範囲をつくる） */
+$('qsub').onclick = function (e) {
+  var b = e.target.closest('.mkpill'); if (!b) return; var mk = b.dataset.qs === 'mk';
+  $('qsub').querySelectorAll('.mkpill').forEach(function (x) { x.classList.toggle('on', x === b); x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+  $('q-edit').hidden = mk; $('q-mk').hidden = !mk;
+  if (mk) { $('mkTo').value = String(MK.g); mkDraw(); loadRanges(); }
 };
 
 /* ------------------------------------------------------------ タブ（記録・問題・設定。2026-11-17）。最後に開いたタブを端末ごとに覚える */

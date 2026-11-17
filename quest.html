@@ -6,8 +6,8 @@
 <title>Qraft クエスト（ひとりで冒険）</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261117190000">
-<link rel="stylesheet" href="quest.css?v=20261117190000">
+<link rel="stylesheet" href="theme.css?v=20261117213000">
+<link rel="stylesheet" href="quest.css?v=20261117213000">
 <style>
   .hud-btns { display:flex; gap:.4em; }
   .hud-btns .btn { font-size:.85em; padding:.35em .9em; }
@@ -35,7 +35,7 @@
   .sk-wrap .skills:focus-visible { outline:.15em solid #ffd23f; outline-offset:.2em; }
   .sk-more { position:absolute; left:0; right:1em; bottom:0; padding:2.2em 0 .3em; text-align:center; font-weight:900; color:#ffe27a; pointer-events:none; background:linear-gradient(transparent, rgba(20,12,50,.95) 60%); transition:opacity .2s; }
   .sk-more.off { opacity:0; }
-  /* rikaria.css の窓・メニューの行（quest.css?v=20261117190000 と混ぜないよう .gm-bg の中だけ） */
+  /* rikaria.css の窓・メニューの行（quest.css?v=20261117213000 と混ぜないよう .gm-bg の中だけ） */
 .gm-bg .cur { position:absolute; top:50%; width:.62em; height:.95em; margin-top:-.475em; opacity:0; pointer-events:none;
   background:linear-gradient(135deg, #ffffff, #7ff0ff 40%, #1fb6e8 75%, #1a6fc0); clip-path:polygon(50% 0, 100% 50%, 50% 100%, 0 50%); filter:drop-shadow(0 0 .3em #35e0ff) drop-shadow(0 0 .15em #fff); }
 .gm-bg .win { position:relative; width:min(34em, 94%); margin-top:1.4em; background:rgba(10,12,44,.86); border:.18em solid #fff; border-radius:.7em; box-shadow:0 0 0 .22em rgba(10,12,44,.86), 0 .8em 2em rgba(0,0,0,.55); padding:1.5em .9em .8em; }
@@ -125,7 +125,7 @@
         <div class="row" style="gap:.4em;margin-top:.2em"><span class="lbl">HP</span><div class="bar hp" style="width:7em"><i id="hudHp"></i><b id="hudHpT"></b></div></div></div>
       <span class="pill" id="hudGold"></span>
     </div>
-    <div class="hud-btns"><button class="btn ghost hide" id="goHome">町へもどる</button><button class="btn totitle" id="goMenu" type="button" aria-haspopup="dialog">☰ メニュー</button></div>
+    <div class="hud-btns"><button class="btn ghost hide" id="goHome">町へもどる</button><button class="btn totitle" id="goMenu" type="button" aria-haspopup="dialog">メニュー</button></div>
   </div>
   <div class="fd-wrap"><div class="fd-map" id="map"></div></div>
   <div class="fd-help" id="fdHelp">矢印キー（WASD）か、行きたい場所をクリックで移動。</div>
@@ -191,17 +191,17 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261117190000"></script>
+<script src="firebase-config.js?v=20261117213000"></script>
 <script type="module">
-import { bgm, preload } from './sound.js?v=20261117190000';
-import { dungeonArt, autoTorches } from './dungeon-art.js?v=20261117190000';
-import { townArt } from './town-art.js?v=20261117190000';
-import { signIn, db, ref, set, get, $, el, showScreen, shuffle, prepareQuestion, maskOf, isTextCorrect, mountSetPicker, loadQEdits, applyQEdits, makeAdvLog } from './lib.js?v=20261117190000';
+import { bgm, preload } from './sound.js?v=20261117213000';
+import { dungeonArt, autoTorches } from './dungeon-art.js?v=20261117213000';
+import { townArt } from './town-art.js?v=20261117213000';
+import { signIn, db, ref, set, get, $, el, showScreen, shuffle, prepareQuestion, maskOf, isTextCorrect, mountSetPicker, loadQEdits, applyQEdits, makeAdvLog } from './lib.js?v=20261117213000';
 import { addExp, expToNext, migrateChar, newChar, JOBS as RJOBS, JOB_KEYS, LEARN, RANK_POW, RANK_SEC, LOAD_N, ELEMS, ELEM, UNITS,
-         heroImg, fieldImg, skillName, rankOf, rankCost, canRankUp, rankUp, spUsed, loadoutOf, weakOf, statsOf, unitOf, zakoImg, bossImg, battleBg, gearImg, itemImg, iconHtml } from './rikaria-data.js?v=20261117190000';
+         heroImg, fieldImg, skillName, rankOf, rankCost, canRankUp, rankUp, spUsed, loadoutOf, weakOf, statsOf, unitOf, zakoImg, bossImg, battleBg, gearImg, itemImg, iconHtml } from './rikaria-data.js?v=20261117213000';
 import { fiscalYear, ENEMIES, TOWN, TOWN_DEFAULT,
          weaponList, armorList, weaponName, armorName, TOWN_MAX, soloDayCap, dayNo, ITEMS, ITEM_KEYS, FACS, RESPEC_COST, ensureOwner, battleGuide,
-         soloMult, soloReward, soloEnemyHp, soloBossHp, soloEnemyAtkX, BOSS, cmdImg, placeFacNpcs } from './quest.js?v=20261117190000';
+         soloMult, soloReward, soloEnemyHp, soloBossHp, soloEnemyAtkX, BOSS, cmdImg, placeFacNpcs } from './quest.js?v=20261117213000';
 
 var Y = fiscalYear(), me = { g: 0, c: 0, n: 0 }, sid = '', ch = null, CLS = {}, SETS = [], AREAS = [], look = 'a', job = 'mage';
 var curArea = null, HP = 0, MP = 0, RANGES = {};
@@ -428,7 +428,7 @@ function buildTown(st) {
   if (st < 10) look[4] = 'hut';
   if (st < 11) look[5] = 'castle-ruin'; else if (st < 12) look[5] = 'castle-scaffold';
   NPCS.forEach(function (n) { g[n.y][n.x] = 'N'; });
-  /* 施設の6人（全身の絵）を、それぞれの施設の前に立たせる。行けるマスを減らさない場所だけ（quest.js?v=20261117190000 placeFacNpcs。2026-11-17） */
+  /* 施設の6人（全身の絵）を、それぞれの施設の前に立たせる。行けるマスを減らさない場所だけ（quest.js?v=20261117213000 placeFacNpcs。2026-11-17） */
   var fnpc = placeFacNpcs(g, blds, [16, 11], function (c) { return BLOCK.has(c); }, [4, 11]);
   return { g: g, blds: blds, fountain: [16, 11], dry: st < 4, start: [4, 11], st: st, tiles: tiles, props: props, objs: objs, look: look, fog: st < 2 ? 2 : st < 4 ? 1 : 0, fnpc: fnpc };
 }
@@ -822,7 +822,7 @@ function srcBox(a) {
   opt('sets', '問題セットをえらぶ ', ed);
   return box;
 }
-/* 問題セットをえらぶ画面。先生の準備画面（rikaria-host.html）と同じ選び方（lib.js?v=20261117190000 の mountSetPicker：学年→題名でさがす→単元ごとの一覧）。2026-11-16 */
+/* 問題セットをえらぶ画面。先生の準備画面（rikaria-host.html）と同じ選び方（lib.js?v=20261117213000 の mountSetPicker：学年→題名でさがす→単元ごとの一覧）。2026-11-16 */
 function setDialog(a) {
   var bg = el('div', 'pk-bg'), box = el('div', 'pk'); bg.appendChild(box); bg.setAttribute('role', 'dialog'); bg.setAttribute('aria-modal', 'true'); bg.setAttribute('aria-label', '問題セットをえらぶ');
   var top = el('div', 'row'); top.appendChild(el('b', 'grow', '問題セットをえらぶ（いくつでも）'));
@@ -975,7 +975,8 @@ async function poolOf(a) {
     sets = AREAS.filter(function (x) { return us.indexOf(unitOf(x.g, x.unit).id) >= 0; }).reduce(function (o, x) { return o.concat(x.sets); }, []);
   }
   if (src.k === 'sets') sets = SETS.filter(function (x) { return (src.ids || []).indexOf(x.id) >= 0; });
-  for (var i = 0; i < sets.length; i++) pool = pool.concat(await qsOf(sets[i].id));
+  var rx = src.k === 'range' ? ((RANGES[src.id] || {}).x || {}) : {};   /* 範囲から外した問題（2026-11-17） */
+  for (var i = 0; i < sets.length; i++) { var qs = await qsOf(sets[i].id), ex = rx[sets[i].id]; pool = pool.concat(ex ? qs.filter(function (q, j) { return !ex[j]; }) : qs); }
   POOLS[key] = { q: pool, queue: [] }; return POOLS[key];
 }
 /* エリアのボスにひとりでちょうせん（霧に入ったとき）。たおすと、その単元は自分のキャラの「ボスをたおした」記録になる */

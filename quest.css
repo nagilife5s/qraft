@@ -539,3 +539,178 @@ img.slot:not(.ok) { visibility:hidden; }
 /* 武器・防具・道具の絵（店・ステータス・持ち物。2026-11-13） */
 .gicon { width:2.2em; height:2.2em; object-fit:contain; vertical-align:middle; margin-right:.3em; flex:none; }
 .eq-row .gicon, #stInv .gicon { width:1.8em; height:1.8em; }
+
+/* ==================================================================
+   リカリアの見た目をそろえる（2026-11-17。承認ずみモック mock/rikaria-ui-mock.html の形）
+   紺の窓・白い枠・選んだものは黄色い字＋水色のひし形。このファイルはリカリアの画面
+   （quest.html・rikaria-host/play.html・quest-party.html）だけが読む。クイズ側の theme.css は変えない
+   ================================================================== */
+:root { --rk-navy:rgba(10,12,44,.86); --rk-navy2:rgba(10,12,44,.9); --rk-yel:#ffe27a; --rk-band:linear-gradient(90deg, rgba(255,226,122,.2), rgba(255,226,122,.04)); --rk-dia:linear-gradient(135deg, #fff, #7ff0ff 40%, #1fb6e8 75%, #1a6fc0); }
+
+/* ---- 窓（.panel・.card・店の箱・問題の箱） */
+.panel, .card { background:var(--rk-navy); color:#fff; border:.14em solid #fff; border-radius:.6em; box-shadow:0 0 0 .18em var(--rk-navy), 0 .5em 1.4em rgba(0,0,0,.45); backdrop-filter:none; }
+.fd-hud .panel, .wm-side .panel { background:var(--rk-navy); }
+.card .flabel, .card b { color:#fff; }
+.cmd { background:rgba(10,12,44,.88); border:.18em solid #fff; border-radius:.7em; box-shadow:0 0 0 .22em rgba(10,12,44,.88), 0 .4em 1em rgba(0,0,0,.4); }
+.fd-msg { background:rgba(10,12,44,.95); border:.18em solid #fff; border-radius:.7em; box-shadow:0 0 0 .22em rgba(10,12,44,.9), 0 .8em 2em rgba(0,0,0,.55); }
+.fd-msg .fd-foot { background:rgb(11,13,46); border-top:.08em dashed rgba(255,255,255,.3); border-radius:0 0 .5em .5em; }
+/* 店・宿などの見出し：見出し札の形（箱の中がスクロールするので、枠の上には出さず中に置く） */
+.fd-msg h3 { display:inline-block; background:#0a0c2c; border:.14em solid #fff; border-radius:.45em; padding:.1em .8em; font-size:1.15em; font-weight:900; letter-spacing:.12em; margin-bottom:.5em; }
+.err { background:rgba(70,10,24,.92); color:#ffc0c0; border:.1em solid #ff8a8a; border-radius:.4em; }
+
+/* ---- 切りかえボタン（.seg）：地なし白字。選んだものは黄色い字＋ひし形＋うすい黄色の帯 */
+.seg { flex-wrap:wrap; gap:.15em .3em; align-items:center; }
+.seg button { position:relative; background:none; border:0; color:#fff; font-weight:900; font-size:1.05em; height:auto; min-height:44px; padding:.3em .5em .3em 1.35em; border-radius:.4em; letter-spacing:.04em; opacity:.74; }
+.seg button:hover { opacity:1; background:rgba(255,255,255,.08); }
+.seg button.on { color:var(--rk-yel); opacity:1; background:var(--rk-band); }
+.seg button.on::before { content:""; position:absolute; left:.5em; top:50%; margin-top:-.42em; width:.55em; height:.84em; background:var(--rk-dia); clip-path:polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
+/* 数が多い所（出席番号・班・ねらう相手）：黄色い字＋黄色い枠だけ */
+.numgrid button, .pickgrid button { background:none; color:#fff; border:.1em solid rgba(255,255,255,.35); border-radius:.4em; }
+.numgrid button:hover, .pickgrid button:hover { background:rgba(255,255,255,.08); }
+.numgrid button.on, .pickgrid button.on { background:var(--rk-band); color:var(--rk-yel); border-color:var(--rk-yel); }
+.numgrid button:disabled, .pickgrid button:disabled { opacity:.35; cursor:default; }
+
+/* ---- ボタン。主役（.btn）＝黄色い字＋ひし形の「行」、わき（.sub .ghost .quit .totitle）＝紺の小さい札 */
+.btn { background:var(--rk-band), var(--rk-navy2); color:var(--rk-yel); border:.12em solid #fff; border-radius:.45em; box-shadow:0 0 0 .16em var(--rk-navy2), 0 .3em .8em rgba(0,0,0,.45); letter-spacing:.1em; min-height:44px; backdrop-filter:none; }
+.btn::before { content:""; display:inline-block; width:.55em; height:.84em; margin-right:.5em; vertical-align:-.06em; background:var(--rk-dia); clip-path:polygon(50% 0, 100% 50%, 50% 100%, 0 50%); filter:drop-shadow(0 0 .25em #35e0ff); }
+.btn:hover { transform:none; background:linear-gradient(90deg, rgba(255,226,122,.34), rgba(255,226,122,.08)), var(--rk-navy2); }
+.btn:active { transform:translateY(.08em); box-shadow:0 0 0 .16em var(--rk-navy2); }
+.btn:disabled { opacity:.5; filter:grayscale(.7); cursor:default; }
+.btn.sub, .btn.ghost, .btn.quit, button.btn.totitle, a.btn.totitle { background:var(--rk-navy2); color:#fff; padding:.35em .9em; letter-spacing:.14em; }
+.btn.sub::before, .btn.ghost::before, .btn.quit::before, .btn.totitle::before { content:none; }
+.btn.sub:hover, .btn.ghost:hover, .btn.quit:hover, button.btn.totitle:hover { background:var(--rk-navy2); color:var(--rk-yel); }
+/* 窓のいちばん下の「行」ボタン（モックの .go）：窓の中にある主役のボタン */
+.card > .btn:not(.sub), .wm-side .panel > .btn, .btn.go { align-self:stretch; width:100%; text-align:left; border:0; border-top:.08em dashed rgba(255,255,255,.3); border-radius:0 0 .4em .4em; box-shadow:none; background:var(--rk-band); padding:.6em .5em; }
+.card > .btn:not(.sub):hover, .wm-side .panel > .btn:hover, .btn.go:hover { background:linear-gradient(90deg, rgba(255,226,122,.34), rgba(255,226,122,.08)); }
+.btn.go { display:grid; grid-template-columns:1.2em 1fr; align-items:center; gap:.5em; }
+.btn.go::before { margin:0; justify-self:center; }
+.btn.go small { display:block; font-size:.55em; letter-spacing:.04em; color:#fff; opacity:.8; }
+.cmd .btn, .fd-msg .btn { box-shadow:none; }   /* 窓の中のボタンは外の輪を付けない（下に張りつくボタンの輪が切れるため） */
+#ppReady.done { background:var(--ok); color:#fff; }
+.backlink, .toplink, .snd { background:var(--rk-navy2); color:#fff; border:.12em solid #fff; border-radius:.45em; backdrop-filter:none; }
+.backlink:hover, .toplink:hover, .snd:hover { background:var(--rk-navy2); color:var(--rk-yel); }
+
+/* ---- 入力箱・select：うすい白地・白枠・白字（合言葉の白い箱は #app の外なので変わらない） */
+#app input:not([type=checkbox]):not([type=radio]), #app select, .pk-bg select, .pk-bg input.pkq { background:rgba(255,255,255,.08); color:#fff; border:.1em solid rgba(255,255,255,.55); border-radius:.4em; font-weight:800; box-shadow:none; }
+#app input::placeholder, .pk-bg input.pkq::placeholder { color:rgba(255,255,255,.5); }
+#app input:not([type=checkbox]):not([type=radio]):focus, #app select:focus, .pk-bg select:focus { outline:.14em solid var(--rk-yel); outline-offset:0; box-shadow:none; }
+#app select option, .pk-bg select option { color:#111; background:#fff; }
+
+/* ---- 時計・所持金・SPの札（モックの .gold） */
+.pill { background:var(--rk-navy2); color:var(--rk-yel); border:.12em solid #fff; border-radius:.4em; padding:.15em .7em; font-weight:900; box-shadow:none; }
+
+/* ---- 問題セットをえらぶ（lib.js の mountSetPicker。HTMLとJSはそのまま、色だけ暗く） */
+#app .qp-white, .pk-bg .pk { background:rgba(10,12,44,.94); color:#fff; border:.18em solid #fff; border-radius:.7em; box-shadow:0 0 0 .22em var(--rk-navy), 0 .8em 2em rgba(0,0,0,.55); }
+.pk-bg .pk > .row > button { font-weight:900; min-height:44px; background:var(--rk-navy2); color:#fff; border:.12em solid #fff; border-radius:.45em; letter-spacing:.1em; }
+.pk-bg .pk > .row > button:hover { color:var(--rk-yel); }
+.pk-bg .pk > .row > button.main { background:var(--rk-band), var(--rk-navy2); color:var(--rk-yel); border-color:var(--rk-yel); }
+.pkr .pseg-b { background:none; color:#fff; border:.1em solid rgba(255,255,255,.3); border-radius:.45em; padding:.5em .3em; opacity:.8; box-shadow:none; transform:none; }
+.pkr .pseg-b:hover { background:rgba(255,255,255,.08); opacity:1; }
+.pkr .pseg-b.on { background:var(--rk-band); color:var(--rk-yel); border-color:var(--rk-yel); opacity:1; box-shadow:none; transform:none; }
+.pkr .pkq:focus, .pkr .pkq:focus-visible { outline:.14em solid var(--rk-yel); outline-offset:0; box-shadow:none; border-color:#fff; }
+.pkr .pchip { background:none; color:#fff; border:.1em solid rgba(255,255,255,.4); border-radius:.4em; padding:.28em .85em; font-weight:800; }
+.pkr .pchip:hover { background:rgba(255,255,255,.08); }
+.pkr .pchip.on, .pkr .pchip:first-child.on { background:var(--rk-band); color:var(--rk-yel); border-color:var(--rk-yel); }
+.pkr .pchip.on i { background:var(--fc, #888); }
+.pkr .plist { background:none; border:0; border-top:.08em dashed rgba(255,255,255,.3); border-radius:0; padding:0; scrollbar-color:rgba(255,255,255,.5) transparent; }
+.pkr .pgh { margin:0; background:#0a0c2c; color:var(--rk-yel); letter-spacing:.1em; border-left:.45em solid var(--fc); border-bottom:.08em dashed rgba(255,255,255,.3); box-shadow:none; }
+.pkr .pgall { background:none; color:#fff; border:.1em solid rgba(255,255,255,.6); border-radius:.35em; padding:.2em .8em; letter-spacing:0; }
+.pkr .pgall:hover { color:var(--rk-yel); border-color:var(--rk-yel); }
+.pkr .pcard { background:none; color:#fff; border:0; border-radius:.4em; margin:0; }
+.pkr .pcard:hover { background:rgba(255,255,255,.07); transform:none; }
+.pkr .pcard.on { background:var(--rk-band); color:var(--rk-yel); }
+.pkr .pcard .pck { background:none; border:.12em solid rgba(255,255,255,.7); border-radius:.2em; }
+.pkr .pcard.on .pck { background:var(--rk-yel); border-color:var(--rk-yel); }
+.pkr .pcard.on .pck::after { border-color:#2a1280; }
+.pkr .bdg { background:rgba(255,255,255,.14); color:#fff; }
+.pkr .bdg.m { background:rgba(170,150,255,.3); } .pkr .bdg.t { background:rgba(255,200,120,.28); }
+#app .selbar .chip2, .chip2 { background:rgba(255,255,255,.12); color:#fff; border-radius:.4em; }
+.chip2 button { background:rgba(255,255,255,.18); color:#fff; }
+.selbar .linkbtn { color:#ffc0c0; }
+
+/* ---- 職業えらび */
+.jobcard { background:rgba(10,12,44,.84); color:#fff; border:.14em solid rgba(255,255,255,.45); border-radius:.5em; box-shadow:none; }
+.jobcard:hover { background:rgba(30,34,84,.9); }
+.jobcard.on { border-color:var(--rk-yel); color:var(--rk-yel); background:linear-gradient(180deg, rgba(255,226,122,.22), rgba(255,226,122,.04)), rgba(10,12,44,.88); box-shadow:0 0 .8em rgba(255,226,122,.35); }
+.jobcard.on p { color:#fff; }
+
+/* ---- 店・宿・持ち物の行 */
+.shop-items button, .pp-items button { background:none; color:#fff; border:0; border-radius:.4em; min-height:44px; }
+.shop-items button::before { content:""; flex:none; width:.55em; height:.84em; background:var(--rk-dia); clip-path:polygon(50% 0, 100% 50%, 50% 100%, 0 50%); visibility:hidden; }
+.shop-items button:not(:disabled):hover, .pp-items button:not(:disabled):hover, .pp-items button.on { background:var(--rk-band); color:var(--rk-yel); }
+.shop-items button:not(:disabled):hover::before { visibility:visible; }
+.pp-items button.on { border:.1em solid var(--rk-yel); }
+
+/* ---- 準備：班のなかまのカード */
+.pp-mem { background:rgba(255,255,255,.06); color:#fff; border:.12em solid rgba(255,255,255,.45); border-radius:.5em; box-shadow:none; }
+.pp-mem.me { border-color:var(--rk-yel); box-shadow:0 0 .6em rgba(255,226,122,.35); }
+.pp-mem .crown, .pp-mem .you { color:#2a1280; }
+.pp-mem .st.ok { background:rgba(60,220,140,.2); color:#6dffb0; }
+.pp-mem .st.wait { background:rgba(255,255,255,.14); color:#d8d6ea; }
+.pp-mem .give { background:none; color:#fff; border:.1em solid rgba(255,255,255,.6); border-radius:.35em; }
+
+/* ---- 先生の待機室：参加コード・班カード */
+.tc-pin { background:var(--rk-navy2); color:var(--rk-yel); border:.12em solid #fff; border-radius:.4em; }
+#app .gp-card, .tc-g { background:var(--rk-navy); color:#fff; border:.14em solid #fff; border-radius:.6em; box-shadow:0 0 0 .16em var(--rk-navy); }
+.tc-g.ready { border-color:#6dffb0; }
+.tc-g .warn { color:#ffd08a; }
+
+/* ---- ステータス：技の行・札 */
+.skill { background:rgba(10,12,44,.82); color:#fff; border:.12em solid rgba(255,255,255,.3); border-radius:.5em; box-shadow:none; }
+.skill.ult { background:linear-gradient(135deg, rgba(255,226,122,.16), rgba(255,160,60,.08)), rgba(10,12,44,.82); border-color:rgba(255,226,122,.55); }
+.skill.pick { border:.12em solid rgba(255,255,255,.3); }
+.skill.pick.ult { border-color:rgba(255,226,122,.55); }
+.skill.pick.on, .skill.pick.ult.on { border-color:var(--rk-yel); background:var(--rk-band), rgba(10,12,44,.86); }
+.skill.pick.on .nm { color:var(--rk-yel); }
+.skill .pips i { background:rgba(255,255,255,.25); }
+.skill .pips i.on { background:var(--rk-yel); }
+.skill .rk { color:var(--rk-yel); }
+.skill button, .skill button.up { background:var(--rk-navy2); color:#fff; border:.12em solid #fff; border-radius:.45em; box-shadow:none; }
+.skill button:not(:disabled):hover { color:var(--rk-yel); }
+.tag { background:none; color:#fff; border:.08em solid rgba(255,255,255,.6); border-radius:.3em; }
+.tag.team { background:none; color:#ffb0b0; border-color:#ff9c9c; }
+.inv span { border-radius:.4em; }
+
+/* ---- 戦闘：技・精霊・道具のボタン */
+.act { background:var(--rk-navy2); color:#fff; border:.12em solid rgba(255,255,255,.75); border-radius:.5em; box-shadow:none; min-height:44px; }
+.act:not(:disabled):hover { border-color:var(--rk-yel); color:var(--rk-yel); }
+.act .mp { color:#7cc8ff; }
+.act.ult { background:var(--rk-band), var(--rk-navy2); border-color:var(--rk-yel); color:var(--rk-yel); }
+.elems button, #s-battle .itembar button { background:var(--rk-navy2); color:#fff; border:.1em solid rgba(255,255,255,.6); border-radius:.4em; }
+.elems button.on { background:var(--rk-band), var(--rk-navy2); color:var(--rk-yel); border-color:var(--rk-yel); }
+
+/* ---- 戦闘の選択肢（モック⑦ 案2）：紺の行＋左に精霊の色の帯＋うすい色。図形の代わりに火・水・風・土の精霊 */
+.choices button { --c:#6b7280; border:.12em solid var(--c); border-left:.7em solid var(--c); border-radius:.5em; box-shadow:none; gap:.55em; }
+.choices button:nth-child(1) { --c:#e8503a; } .choices button:nth-child(2) { --c:#2f86e8; } .choices button:nth-child(3) { --c:#2fae5a; } .choices button:nth-child(4) { --c:#d9a21b; }
+.choices button:nth-child(5) { --c:#8e44ad; } .choices button:nth-child(6) { --c:#c2570c; }
+.choices button:nth-child(n) { background:rgba(40,44,90,.6); background:linear-gradient(90deg, color-mix(in srgb, var(--c) 62%, transparent), color-mix(in srgb, var(--c) 26%, transparent)); }   /* color-mix が無い古いブラウザは、紺の行＋色の枠だけ */
+.choices button:nth-child(-n+4)::before { width:1.5em; height:1.5em; clip-path:none; border-radius:0; background:center / contain no-repeat; filter:drop-shadow(0 .1em .15em rgba(0,0,0,.6)); }
+.choices button:nth-child(1)::before { background-image:url(img/rikaria/chara/spirit-fire.webp); }
+.choices button:nth-child(2)::before { background-image:url(img/rikaria/chara/spirit-water.webp); }
+.choices button:nth-child(3)::before { background-image:url(img/rikaria/chara/spirit-wind.webp); }
+.choices button:nth-child(4)::before { background-image:url(img/rikaria/chara/spirit-earth.webp); }
+.choices button:not(:disabled):hover { box-shadow:0 0 .8em var(--c); background:linear-gradient(90deg, color-mix(in srgb, var(--c) 85%, transparent), color-mix(in srgb, var(--c) 45%, transparent)); }
+/* 「すべて選ぶ」で選んだもの：黄色い枠＋右にチェック（精霊の絵は残す） */
+.choices button.sel, #app .choices button.sel { outline:.2em solid var(--rk-yel); outline-offset:-.2em; }
+.choices button.sel::before { content:""; }
+.choices button.sel::after { content:"✓"; position:absolute; right:.5em; top:50%; transform:translateY(-50%); color:var(--rk-yel); font-size:1.2em; font-weight:900; }
+/* 答えたあと：正解＝色がいっぱいに明るく・白枠と光の輪・星、自分のまちがい＝ふるえて灰色、ほか＝うすく。文字の札は出さない */
+.choices button.dim { opacity:.35; filter:grayscale(.7); }
+.choices button.ans-ng { opacity:1; filter:grayscale(.85) brightness(.7); animation:spShake .4s; }
+.choices button.right { outline:0; opacity:1; filter:none; background:var(--c); background:linear-gradient(90deg, var(--c), color-mix(in srgb, var(--c) 70%, #fff)); border-color:#fff; box-shadow:0 0 0 .16em #fff, 0 0 1.4em .2em var(--c), 0 0 2.4em rgba(255,255,255,.53); z-index:1; animation:spOk 1s ease-in-out infinite alternate; }
+.choices button.right::before { animation:spHop .5s ease-in-out infinite alternate; }
+.choices button.ans-ng::after { content:none; }
+.choices button.right::after, .choices button.ans-ok::after { content:""; position:absolute; right:.5em; left:auto; top:-.5em; bottom:-.45em; width:2.6em; padding:0; border-radius:0; font-size:1em; transform:none; pointer-events:none;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath fill='%23fff' d='M50 0 62 38 100 50 62 62 50 100 38 62 0 50 38 38z'/%3E%3C/svg%3E") right top / .9em .9em no-repeat,
+             url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath fill='%23fff' d='M50 0 62 38 100 50 62 62 50 100 38 62 0 50 38 38z'/%3E%3C/svg%3E") left bottom / .6em .6em no-repeat;
+  filter:drop-shadow(0 0 .3em #fff); animation:spTw .7s ease-in-out infinite alternate; }
+@keyframes spOk { from { transform:scale(1); } to { transform:scale(1.03); } }
+@keyframes spHop { from { transform:translateY(0); } to { transform:translateY(-.2em); } }
+@keyframes spTw { from { transform:scale(.75); opacity:.45; } to { transform:scale(1.05); opacity:1; } }
+@keyframes spShake { 0%,100% { transform:translateX(0); } 20%,60% { transform:translateX(-.35em); } 40%,80% { transform:translateX(.35em); } }
+@media (prefers-reduced-motion: reduce) { .choices button.right, .choices button.right::before, .choices button.right::after, .choices button.ans-ng { animation:none !important; } }
+/* 解説と勝ち負けの帯：紺の窓に合う色 */
+.qex { background:rgba(255,255,255,.07); color:#fff; border:.08em dashed rgba(255,255,255,.4); border-radius:.4em; }
+.banner { border:.1em solid rgba(255,255,255,.5); border-radius:.4em; background:rgba(255,255,255,.08); }
+.banner.ok { background:rgba(60,220,140,.18); color:#6dffb0; border-color:#6dffb0; }
+.banner.ng { background:rgba(255,80,80,.16); color:#ffb0b0; border-color:#ff8a8a; }

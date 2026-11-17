@@ -6,9 +6,9 @@
 <title>リカリア チーム戦</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261117190000">
-<link rel="stylesheet" href="quest.css?v=20261117190000">
-<link rel="stylesheet" href="rikaria.css?v=20261117190000">
+<link rel="stylesheet" href="theme.css?v=20261117213000">
+<link rel="stylesheet" href="quest.css?v=20261117213000">
+<link rel="stylesheet" href="rikaria.css?v=20261117213000">
 <style>
   #app { background:url(img/rikaria/title-bg.webp) center/cover no-repeat, #1d1648; }
   .q-bg-r { background:rgba(10,6,36,.55); }
@@ -29,8 +29,8 @@
 <section class="screen center q-bg-r rk-skin" id="s-join" style="gap:1em">
   <a class="toplink" href="rikaria.html">← リカリアへ</a>
   <img src="img/rikaria/logo.webp" alt="Rikaria" style="height:6em">
-  <div class="q-sub" style="font-size:1.2em">チーム戦に参加</div>
-  <div class="card" style="display:flex;flex-direction:column;gap:.8em;align-items:center">
+  <div class="card has-wt" style="display:flex;flex-direction:column;gap:.8em;align-items:center">
+    <div class="wtitle">チーム戦に参加</div>
     <label class="flabel" for="pin">参加コード（先生の画面の6けた）</label>
     <input class="field" id="pin" inputmode="numeric" autocomplete="off" maxlength="6" placeholder="123456">
     <button class="btn" id="btnPin" type="button">つぎへ</button>
@@ -143,13 +143,13 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261117190000"></script>
+<script src="firebase-config.js?v=20261117213000"></script>
 <script type="module">
-import { signIn, db, ref, set, get, update, onValue, serverNow, $, showScreen, confetti, makeAdvLog } from './lib.js?v=20261117190000';
-import { fiscalYear, ensureOwner, cmdImg } from './quest.js?v=20261117190000';
+import { signIn, db, ref, set, get, update, onValue, serverNow, $, showScreen, confetti, makeAdvLog } from './lib.js?v=20261117213000';
+import { fiscalYear, ensureOwner, cmdImg } from './quest.js?v=20261117213000';
 import { JOBS, JOB_KEYS, MP_MAX, LEARN, ELEMS, ELEM, heroImg, skillName, rankOf, rankCost, canRankUp, rankUp, loadoutOf, learned, migrateChar, expToNext, unitById, battleBg, weakOf, LOAD_N, OBLION,
-         newChar, ITEMS, carryList, spiritImg, storyBoss, storyOb, TOWN_DEFAULT , itemImg, iconHtml, statsOf, addExp, dayNo, soloDayCap } from './rikaria-data.js?v=20261117190000';
-import { el, esc, drawField, moveField, cameraOf, cellAt, dmgFx, supportFx, ovban, redflash, MAP, spiritHtml } from './rikaria-view.js?v=20261117190000';
+         newChar, ITEMS, carryList, spiritImg, storyBoss, storyOb, TOWN_DEFAULT , itemImg, iconHtml, statsOf, addExp, dayNo, soloDayCap } from './rikaria-data.js?v=20261117213000';
+import { el, esc, drawField, moveField, cameraOf, cellAt, dmgFx, supportFx, ovban, redflash, MAP, spiritHtml } from './rikaria-view.js?v=20261117213000';
 
 var TS = { '.sv': 'timestamp' };
 var uid = null, pin = null, state = null, sid = '', ch = null, look = 'a', job = 'warrior', gp = 0;

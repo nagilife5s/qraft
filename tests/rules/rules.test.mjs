@@ -285,6 +285,9 @@ await t('名前のないテスト範囲は書けない', () => assertFails(teach
 await t('単元の値が true でないと書けない', () => assertFails(teacher.ref(P('ranges/1/r1')).set({ n: 'x', u: { matter: 1 } })));
 await t('先生は出すセットつきのテスト範囲を作れる', () => assertSucceeds(teacher.ref(P('ranges/1/r3')).set({ n: '期末対策', u: { matter: true }, s: { je746318: true } })));
 await t('セットidの形がちがうと書けない', () => assertFails(teacher.ref(P('ranges/1/r4')).set({ n: 'x', u: { matter: true }, s: { ABC: true } })));
+await t('先生は外す問題つきのテスト範囲を作れる（2026-11-17）', () => assertSucceeds(teacher.ref(P('ranges/1/r5')).set({ n: '2学期期末', u: { matter: true }, s: { je746318: true, ab12cd34: true }, x: { je746318: { 0: true, 3: true } } })));
+await t('外す問題の番号・値・セットidの形がちがうと書けない', async () => { await assertFails(teacher.ref(P('ranges/1/r6')).set({ n: 'x', u: { matter: true }, s: { je746318: true }, x: { je746318: { a: true } } })); await assertFails(teacher.ref(P('ranges/1/r6')).set({ n: 'x', u: { matter: true }, s: { je746318: true }, x: { je746318: { 1: 5 } } })); await assertFails(teacher.ref(P('ranges/1/r6')).set({ n: 'x', u: { matter: true }, s: { je746318: true }, x: { ABC: { 1: true } } })); });
+await t('生徒は外す問題を書きかえられない', () => assertFails(alice.ref(P('ranges/1/r5/x/je746318/1')).set(true)));
 await t('先生はテスト範囲を消せる', () => assertSucceeds(teacher.ref(P('ranges/2/r1')).remove()));
 
 console.log('なかまと冒険（生徒が開く部屋）');

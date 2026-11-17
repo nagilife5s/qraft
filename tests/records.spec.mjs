@@ -117,3 +117,49 @@ test('ひとりで冒険：答えた結果が記録になり、記録画面に�
   if (SHOT) await t.screenshot({ path: SHOT + '/rec-4-adventure.png', fullPage: true });
   expect(errs).toEqual([]);
 });
+
+// 問題の一覧からテスト範囲を作る（問題タブ。2026-11-17）：セットをえらび、1問外して保存 → { n, u, s, x } で入る・一覧表に「nセット・m問」
+test('記録画面：問題の一覧からテスト範囲を作る（1問外す）', async ({ browser }) => {
+  const errs = [];
+  await rest('DELETE', `quest/${Y}/ranges`);
+  const t = await (await browser.newContext({ viewport: { width: 1366, height: 800 } })).newPage();
+  t.on('pageerror', e => errs.push('T ' + e));
+  await asTeacher(t);
+  await t.locator('#tab-q').click();
+  await t.locator('#qsub button', { hasText: 'テスト範囲をつくる' }).click();
+  await expect(t.locator('#q-edit')).toBeHidden();
+  await expect(t.locator('#mkSave')).toBeDisabled();
+  await t.locator('#mkG button', { hasText: '3年' }).click();
+  await t.locator('#mkKw').fill('塩化銅水溶液の電気分解');
+  const row = t.locator('.mksrow', { has: t.locator('.mkshead[data-id="06147353"]') });
+  await row.locator('.t').click();
+  await expect(row).toHaveClass(/on/);
+  await row.getByRole('button', { name: '中を見る' }).click();
+  await expect(row.locator('.mkqs label').first()).toBeVisible({ timeout: 15000 });
+  const nq = await row.locator('.mkqs label').count();
+  await row.locator('.mkqs input').nth(1).uncheck();
+  await expect(t.locator('#mkCnt')).toHaveText(`1セット・${nq - 1}問`);
+  await expect(t.locator('#mkU .mkpill.on')).toHaveText('すべて');
+  await expect(t.locator('#mkU')).toContainText('（1）');
+  // もう1セット（外さない）：単元の「この単元を全部」は使わず、題名でさがして足す
+  await t.locator('#mkKw').fill('');
+  await t.locator('#mkOnly').check();
+  await expect(t.locator('.mksrow')).toHaveCount(1);
+  await t.locator('#mkOnly').uncheck();
+  await t.locator('#mkSave').click();
+  await expect(t.locator('#mkMsg')).toContainText('名前を入れてください');
+  await t.locator('#mkName').fill('てすと期末');
+  if (SHOT) await t.screenshot({ path: SHOT + '/rec-4-mkrange.png' });
+  await t.locator('#mkSave').click();
+  await expect(t.locator('#mkMsg')).toContainText('つくりました', { timeout: 15000 });
+  const v = await rest('GET', `quest/${Y}/ranges/3`), r = Object.values(v)[0];
+  expect(r.n).toBe('てすと期末'); expect(Object.keys(r.s)).toEqual(['06147353']); expect(Object.keys(r.u).length).toBe(1);
+  expect(Object.keys(r.x)).toEqual(['06147353']); expect(r.x['06147353'][1]).toBe(true); expect(r.x['06147353'][0] == null).toBe(true);
+  await expect(t.locator('#tblRangeMk')).toContainText(`1セット・${nq - 1}問`);
+  await expect(t.locator('#mkCnt')).toHaveText('0セット・0問');
+  // 設定タブの一覧にも同じ中身で出る
+  await t.locator('#tab-set').click(); await t.locator('#rg').selectOption('3');
+  await expect(t.locator('#tblRange')).toContainText(`1セット・${nq - 1}問（1問を外した）`);
+  if (SHOT) await t.screenshot({ path: SHOT + '/rec-5-rangelist.png' });
+  expect(errs).toEqual([]);
+});
