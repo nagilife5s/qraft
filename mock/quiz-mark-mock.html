@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>クイズ しるし・色・結果だけ替えるモック（2026-11-17）</title>
+<!-- モック。今のクイズの雰囲気（紫の背景・色タイル・丸いボタン）はそのまま。替えるのは3点だけ：
+     ① 図形（▲◆●■）→ 理科のしるし ② 4色の色味を少しずらす ③ 表彰台 → メダル。何も保存しない。 -->
+<style>
+* { box-sizing:border-box; margin:0; }
+body { font-family:"Hiragino Maru Gothic ProN","Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic",sans-serif; font-weight:800; color:#fff; background:#14122a; font-size:clamp(13px, 1.15vw, 20px); }
+button { font:inherit; }
+.top { position:sticky; top:0; z-index:30; display:flex; flex-wrap:wrap; gap:.4em; align-items:center; padding:.5em .8em; background:#0e0c22; border-bottom:.1em solid #3a3470; }
+.top b { margin-right:.6em; }
+.tab { border:.1em solid #5a52a0; background:none; color:#fff; border-radius:.5em; padding:.35em .8em; cursor:pointer; }
+.tab.on { background:#ffd23f; color:#1d1630; border-color:#ffd23f; }
+.page { display:none; padding:1em; } .page.on { display:block; }
+.cols { display:grid; grid-template-columns:1fr 1fr; gap:1em; }
+@media (max-width: 900px) { .cols { grid-template-columns:1fr; } }
+.lab { font-size:.9em; background:#3a3470; display:inline-block; border-radius:.4em; padding:.15em .7em; margin-bottom:.4em; }
+.lab.new { background:#ffd23f; color:#1d1630; }
+.note { font-size:.9em; font-weight:600; opacity:.9; padding:.8em .3em 0; line-height:1.7; }
+
+/* ---- 今の本番と同じ見た目（theme.css から写した） ---- */
+.scr { position:relative; border-radius:.6em; overflow:hidden; padding:1.3em 1.6em; min-height:25em; display:flex; flex-direction:column; gap:.9em;
+  --c-red:#e21b3c; --c-blue:#1368ce; --c-yellow:#ffc00a; --c-green:#1fa95b;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(255,255,255,.14) 0 9%, transparent 9.2%),
+    radial-gradient(circle at 90% 85%, rgba(255,255,255,.10) 0 14%, transparent 14.2%),
+    radial-gradient(circle at 78% 12%, rgba(53,224,255,.20) 0 5%, transparent 5.2%),
+    radial-gradient(circle at 8% 88%, rgba(255,95,162,.22) 0 6%, transparent 6.2%),
+    linear-gradient(160deg, #6a35e8, #4320b0 55%, #2a1280); }
+.scr.new { --c-red:#f2553a; --c-blue:#1f8fe5; --c-yellow:#ffb41f; --c-green:#35b37a; }   /* 色味を少しずらす：朱・水色寄りの青・山吹・青みの緑 */
+.row { display:flex; align-items:center; gap:.7em; }
+.grow { flex:1; }
+.pill { background:#fff; color:#1d1630; border-radius:999px; padding:.3em 1em; font-weight:800; box-shadow:0 .2em 0 rgba(0,0,0,.2); }
+.timebar { flex:1; height:.8em; background:rgba(255,255,255,.2); border-radius:.5em; overflow:hidden; } .timebar i { display:block; height:100%; width:60%; background:#ffd23f; border-radius:.5em; }
+.qcard { background:#fff; color:#1d1630; border-radius:1em; padding:.8em 1.2em; text-align:center; font-weight:900; font-size:1.45em; line-height:1.4; box-shadow:0 .3em 0 rgba(0,0,0,.28); }
+.grid4 { flex:1; display:grid; grid-template-columns:1fr 1fr; gap:.8em; }
+.tile { position:relative; border:0; border-radius:1em; display:flex; align-items:center; gap:.7em; padding:.6em 1em; font-weight:900; font-size:1.35em; color:#fff; box-shadow:0 .3em 0 rgba(0,0,0,.28); text-align:left; cursor:pointer; min-height:3.4em; }
+.tile .sh { flex:0 0 auto; width:1.7em; height:1.7em; border-radius:50%; background:rgba(255,255,255,.95); display:grid; place-items:center; font-size:.95em; }
+.tile .sh svg { width:1.15em; height:1.15em; fill:currentColor; }
+.t0 { background:var(--c-red); } .t0 .sh { color:var(--c-red); }
+.t1 { background:var(--c-blue); } .t1 .sh { color:var(--c-blue); }
+.t2 { background:var(--c-yellow); color:#1d1630; } .t2 .sh { color:#a37400; }
+.t3 { background:var(--c-green); } .t3 .sh { color:var(--c-green); }
+.stu .tile { flex-direction:column; justify-content:center; text-align:center; gap:.25em; }
+.tile.dim { opacity:.3; box-shadow:none; }
+.tile.right { outline:.2em solid #fff; }
+.old .tile.right::after { content:"✓ 正解"; position:absolute; right:.6em; top:-.05em; transform:translateY(-50%); background:#fff; color:#0b7a3f; border-radius:999px; padding:.05em .6em; font-size:.55em; font-weight:900; }
+.scr.new .tile.right { box-shadow:0 .3em 0 rgba(0,0,0,.28), 0 0 1.4em #fff; animation:pulse 1s ease-in-out infinite alternate; z-index:1; }
+.scr.new .tile.right .sh { animation:hop .5s ease-in-out infinite alternate; }
+.scr.new .tile.ng { animation:shake .4s; filter:grayscale(.8) brightness(.8); }
+@keyframes pulse { to { transform:scale(1.03); } } @keyframes hop { to { transform:translateY(-.2em) scale(1.12); } }
+@keyframes shake { 0%,100% { translate:0; } 20%,60% { translate:-.3em 0; } 40%,80% { translate:.3em 0; } }
+@media (prefers-reduced-motion: reduce) { .scr.new .tile.right, .scr.new .tile.right .sh, .scr.new .tile.ng { animation:none; } }
+.again { align-self:center; background:rgba(18,10,48,.58); color:#fff; border:0; border-radius:999px; padding:.35em 1.1em; cursor:pointer; }
+
+/* ---- 結果 ---- */
+.title2 { text-align:center; font-size:1.8em; font-weight:900; }
+.podium { display:flex; justify-content:center; align-items:flex-end; gap:.8em; height:13em; margin-top:auto; }
+.podium .p { width:8.5em; border-radius:1em 1em 0 0; text-align:center; padding-top:.6em; font-weight:900; color:#1d1630; box-shadow:0 .3em 0 rgba(0,0,0,.28); }
+.podium .p b { display:block; font-size:1.15em; } .podium .p small { opacity:.8; }
+.p1 { height:100%; background:#ffd23f; } .p2 { height:72%; background:#e3e6f2; } .p3 { height:56%; background:#f0b27a; }
+.medals { display:flex; justify-content:center; align-items:center; gap:1.4em; margin:auto 0; }
+.md { position:relative; display:flex; flex-direction:column; align-items:center; gap:.35em; font-weight:900; animation:pop .6s cubic-bezier(.2,1.5,.4,1) both; }
+.md.m3 { animation-delay:.2s; } .md.m2 { animation-delay:.7s; } .md.m1 { animation-delay:1.3s; }
+@keyframes pop { from { transform:scale(0) rotate(-20deg); opacity:0; } to { transform:scale(1) rotate(0); opacity:1; } }
+.md .ring { position:relative; width:var(--s); height:var(--s); display:grid; place-items:center; }
+.md .ring::before { content:""; position:absolute; inset:0; background:var(--m); filter:drop-shadow(0 .25em 0 rgba(0,0,0,.28));   /* ギザギザのメダル */
+  clip-path:polygon(50% 0,59% 8%,71% 5%,76% 16%,88% 18%,88% 30%,98% 37%,93% 48%,100% 58%,91% 66%,93% 78%,82% 81%,78% 92%,66% 91%,57% 100%,47% 94%,36% 99%,29% 89%,17% 89%,15% 77%,4% 71%,8% 60%,0 50%,8% 40%,4% 29%,15% 23%,17% 11%,29% 11%,36% 1%,47% 6%); }
+.md .ring img { position:relative; width:62%; height:62%; object-fit:contain; background:#fff; border-radius:50%; padding:6%; box-shadow:inset 0 0 0 .12em rgba(0,0,0,.12); }
+.md .no { position:absolute; left:50%; bottom:-.5em; transform:translateX(-50%); background:#1d1630; color:#fff; border:.12em solid #fff; border-radius:999px; padding:0 .7em; font-size:.95em; }
+.md b { margin-top:.5em; font-size:1.15em; } .md small { opacity:.85; }
+.md.m1 { --s:10.5em; --m:#ffd23f; } .md.m2 { --s:8em; --m:#dfe3f0; } .md.m3 { --s:7em; --m:#f0b27a; }
+.md.m1 .ring::after { content:""; position:absolute; inset:-18%; z-index:-1; border-radius:50%; background:repeating-conic-gradient(rgba(255,210,63,.45) 0 9deg, transparent 9deg 18deg); animation:spin 16s linear infinite; mask:radial-gradient(circle, #000 40%, transparent 70%); -webkit-mask:radial-gradient(circle, #000 40%, transparent 70%); }
+@keyframes spin { to { rotate:360deg; } }
+@media (prefers-reduced-motion: reduce) { .md { animation:none; } .md.m1 .ring::after { animation:none; } }
+.rest { display:flex; justify-content:center; gap:.5em; flex-wrap:wrap; font-size:.9em; }
+</style>
+</head>
+<body>
+<div class="top"><b>クイズ モック（3点だけ替える）</b>
+  <button class="tab on" data-p="p1">① 先生の画面</button>
+  <button class="tab" data-p="p2">② 生徒の画面</button>
+  <button class="tab" data-p="p3">③ 結果</button>
+</div>
+
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="i-flask" viewBox="0 0 24 24"><path d="M9 2h6v2h-1v5.200l5.300 9.100c.8 1.400-.2 3.200-1.800 3.200H6.500c-1.600 0-2.600-1.800-1.800-3.200L10 9.200V4H9V2zm.3 12.500h5.400L12 10l-2.700 4.500z"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13.500 1 4 13.500h6L8.500 23 20 9.500h-6.500L13.500 1z"/></symbol>
+  <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M21 3C11 3 4 7.500 4 15c0 1.300.3 2.400.8 3.400L3 21l1.600 1.200 1.900-2.300c1.200.7 2.600 1.100 4.200 1.100C18 21 21.500 13 21 3z"/></symbol>
+  <symbol id="i-planet" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6.200"/><path d="M2.200 15.800c-.6-1.600 2.900-4.600 7.900-6.700s9.500-2.500 10.100-.9l1.600-.6c-1.100-2.900-6.800-2.400-12.400 0S-.5 13.500.6 16.400l1.600-.6z"/><path d="M21.800 8.200c.6 1.600-2.900 4.600-7.900 6.700s-9.500 2.500-10.100.9l-1.600.6c1.100 2.900 6.800 2.400 12.400 0s9.900-5.900 8.800-8.800l-1.600.6z"/></symbol>
+</svg>
+
+<!-- ① -->
+<div class="page on" id="p1">
+  <div class="cols">
+    <div><span class="lab">今</span>
+      <div class="scr old">
+        <div class="row"><span class="pill">3 / 10</span><div class="timebar"><i></i></div><span class="pill">12</span></div>
+        <div class="qcard">炭酸水素ナトリウムを加熱したとき、試験管の口にたまる液体は何か。</div>
+        <div class="grid4">
+          <div class="tile t0"><span class="sh">▲</span>エタノール</div><div class="tile t1 right"><span class="sh">◆</span>水</div>
+          <div class="tile t2 dim"><span class="sh">●</span>塩酸</div><div class="tile t3 dim"><span class="sh">■</span>アンモニア水</div>
+        </div>
+      </div>
+    </div>
+    <div><span class="lab new">案</span>
+      <div class="scr new">
+        <div class="row"><span class="pill">3 / 10</span><div class="timebar"><i></i></div><span class="pill">12</span></div>
+        <div class="qcard">炭酸水素ナトリウムを加熱したとき、試験管の口にたまる液体は何か。</div>
+        <div class="grid4" data-quiz>
+          <button class="tile t0"><span class="sh"><svg><use href="#i-flask"/></svg></span>エタノール</button><button class="tile t1" data-ok><span class="sh"><svg><use href="#i-planet"/></svg></span>水</button>
+          <button class="tile t2"><span class="sh"><svg><use href="#i-bolt"/></svg></span>塩酸</button><button class="tile t3"><span class="sh"><svg><use href="#i-leaf"/></svg></span>アンモニア水</button>
+        </div>
+        <button class="again">もう一度</button>
+      </div>
+    </div>
+  </div>
+  <div class="note">背景・白い問題カード・色タイル・丸い札は今のままです。替えたのは2つだけ。<br>・白い丸の中の図形（▲◆●■）を、理科のしるし（フラスコ・地球・いなずま・葉）にしました。<br>・4色の色味を少しだけずらしました（赤→朱、青→明るい青、黄→山吹、緑→青みの緑）。<br>案のほうは押すと答えられます。正解は「✓ 正解」の札の代わりに、タイルが光って、しるしが跳ねます。</div>
+</div>
+
+<!-- ② -->
+<div class="page" id="p2">
+  <div class="cols">
+    <div><span class="lab">今</span>
+      <div class="scr old stu">
+        <div class="row"><span class="pill">3 / 10</span><span class="grow"></span><span class="pill" style="background:#ffd23f">12 秒</span></div>
+        <div class="timebar" style="flex:none"><i></i></div>
+        <div class="qcard">炭酸水素ナトリウムを加熱したとき、試験管の口にたまる液体は何か。</div>
+        <div class="grid4">
+          <div class="tile t0"><span class="sh">▲</span>エタノール</div><div class="tile t1"><span class="sh">◆</span>水</div>
+          <div class="tile t2"><span class="sh">●</span>塩酸</div><div class="tile t3"><span class="sh">■</span>アンモニア水</div>
+        </div>
+      </div>
+    </div>
+    <div><span class="lab new">案</span>
+      <div class="scr new stu">
+        <div class="row"><span class="pill">3 / 10</span><span class="grow"></span><span class="pill" style="background:#ffd23f">12 秒</span></div>
+        <div class="timebar" style="flex:none"><i></i></div>
+        <div class="qcard">炭酸水素ナトリウムを加熱したとき、試験管の口にたまる液体は何か。</div>
+        <div class="grid4" data-quiz>
+          <button class="tile t0"><span class="sh"><svg><use href="#i-flask"/></svg></span>エタノール</button><button class="tile t1" data-ok><span class="sh"><svg><use href="#i-planet"/></svg></span>水</button>
+          <button class="tile t2"><span class="sh"><svg><use href="#i-bolt"/></svg></span>塩酸</button><button class="tile t3"><span class="sh"><svg><use href="#i-leaf"/></svg></span>アンモニア水</button>
+        </div>
+        <button class="again">もう一度</button>
+      </div>
+    </div>
+  </div>
+  <div class="note">生徒の画面です。並びも大きさも今と同じで、しるしと色味だけが違います。ジェットチェイスやおうちで練習も、同じタイルを使っているので一緒に替わります。</div>
+</div>
+
+<!-- ③ -->
+<div class="page" id="p3">
+  <div class="cols">
+    <div><span class="lab">今（表彰台）</span>
+      <div class="scr old">
+        <div class="title2">🏆 結果発表</div>
+        <div class="podium">
+          <div class="p p2"><b>みお</b><small>8,610</small></div><div class="p p1">👑<b>ゆい</b><small>9,420</small></div><div class="p p3"><b>はると</b><small>7,930</small></div>
+        </div>
+      </div>
+    </div>
+    <div><span class="lab new">案（メダル）</span>
+      <div class="scr new" id="medScr">
+        <div class="title2">🏆 結果発表</div>
+        <div class="medals">
+          <div class="md m2"><span class="ring"><img src="../img/robot/animal-cat.webp" alt=""><span class="no">2位</span></span><b>みお</b><small>8,610</small></div>
+          <div class="md m1"><span class="ring"><img src="../img/robot/animal-fox.webp" alt=""><span class="no">1位</span></span><b>ゆい</b><small>9,420</small></div>
+          <div class="md m3"><span class="ring"><img src="../img/robot/animal-bear.webp" alt=""><span class="no">3位</span></span><b>はると</b><small>7,930</small></div>
+        </div>
+        <div class="rest"><span class="pill">4位 りく 6,580</span><span class="pill">5位 さくら 5,940</span></div>
+        <button class="again" id="reMed">もう一度</button>
+      </div>
+    </div>
+  </div>
+  <div class="note">台に乗る形をやめて、ギザギザのメダルに自分のキャラが入る形にしました。3位→2位→1位の順に飛び出し、1位の後ろで光が回ります。背景・題字・紙ふぶき・音楽は今のままです。名前と点数は見本です。</div>
+</div>
+
+<script>
+document.querySelectorAll('.tab').forEach(function (t) { t.onclick = function () {
+  document.querySelectorAll('.tab').forEach(function (x) { x.classList.toggle('on', x === t); });
+  document.querySelectorAll('.page').forEach(function (p) { p.classList.toggle('on', p.id === t.dataset.p); });
+}; });
+document.querySelectorAll('[data-quiz]').forEach(function (b) {
+  b.onclick = function (e) { var c = e.target.closest('.tile'); if (!c || b.dataset.done) return; b.dataset.done = 1;
+    b.querySelectorAll('.tile').forEach(function (x) { if (x.dataset.ok != null) x.classList.add('right'); else if (x === c) x.classList.add('ng'); else x.classList.add('dim'); }); };
+  b.parentNode.querySelector('.again').onclick = function () { delete b.dataset.done; b.querySelectorAll('.tile').forEach(function (x) { x.classList.remove('right', 'ng', 'dim'); }); };
+});
+document.getElementById('reMed').onclick = function () { document.querySelectorAll('#medScr .md').forEach(function (m) { m.style.animation = 'none'; void m.offsetWidth; m.style.animation = ''; }); };
+</script>
+</body>
+</html>
