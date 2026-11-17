@@ -66,10 +66,10 @@
  {
   "file": "sets/633feb7f.json",
   "title": "マツの花のつくり",
-  "count": 9,
+  "count": 10,
   "types": {
-   "choice": 2,
-   "multi": 1,
+   "choice": 4,
+   "multi": 0,
    "text": 6
   },
   "enc": true,
@@ -84,8 +84,8 @@
   "title": "シダ植物",
   "count": 9,
   "types": {
-   "choice": 4,
-   "multi": 1,
+   "choice": 5,
+   "multi": 0,
    "text": 4
   },
   "enc": true,
@@ -130,10 +130,10 @@
  {
   "file": "sets/539441f4.json",
   "title": "双子葉類と単子葉類",
-  "count": 10,
+  "count": 12,
   "types": {
-   "choice": 3,
-   "multi": 2,
+   "choice": 7,
+   "multi": 0,
    "text": 5
   },
   "enc": true,
@@ -162,10 +162,10 @@
  {
   "file": "sets/90ef54ec.json",
   "title": "無セキツイ動物の特徴",
-  "count": 12,
+  "count": 18,
   "types": {
-   "choice": 0,
-   "multi": 4,
+   "choice": 10,
+   "multi": 0,
    "text": 8
   },
   "enc": true,
@@ -178,10 +178,10 @@
  {
   "file": "sets/27b21044.json",
   "title": "セキツイ動物の分類",
-  "count": 8,
+  "count": 9,
   "types": {
-   "choice": 7,
-   "multi": 1,
+   "choice": 9,
+   "multi": 0,
    "text": 0
   },
   "enc": true,
@@ -978,9 +978,9 @@
  {
   "file": "sets/j1edc1be.json",
   "title": "期末対策｜水とエタノールの沸点",
-  "count": 3,
+  "count": 4,
   "types": {
-   "choice": 3,
+   "choice": 4,
    "multi": 0,
    "text": 0
   },
@@ -1124,9 +1124,9 @@
   "title": "音",
   "count": 16,
   "types": {
-   "choice": 9,
-   "multi": 1,
-   "text": 6
+   "choice": 11,
+   "multi": 0,
+   "text": 5
   },
   "enc": true,
   "grade": 1,
@@ -1156,9 +1156,9 @@
   "title": "バネののび",
   "count": 6,
   "types": {
-   "choice": 0,
+   "choice": 3,
    "multi": 0,
-   "text": 6
+   "text": 3
   },
   "enc": true,
   "grade": 1,
@@ -1412,8 +1412,8 @@
   "title": "酸化銀の加熱",
   "count": 7,
   "types": {
-   "choice": 1,
-   "multi": 1,
+   "choice": 2,
+   "multi": 0,
    "text": 5
   },
   "enc": true,
@@ -1428,8 +1428,8 @@
   "title": "水の電気分解",
   "count": 6,
   "types": {
-   "choice": 3,
-   "multi": 1,
+   "choice": 4,
+   "multi": 0,
    "text": 2
   },
   "enc": true,
@@ -1458,10 +1458,10 @@
  {
   "file": "sets/49bf5051.json",
   "title": "【化学】原子の性質",
-  "count": 5,
+  "count": 6,
   "types": {
-   "choice": 0,
-   "multi": 1,
+   "choice": 2,
+   "multi": 0,
    "text": 4
   },
   "enc": true,
@@ -1474,10 +1474,10 @@
  {
   "file": "sets/23eb4168.json",
   "title": "【化学】単体・化合物",
-  "count": 10,
+  "count": 14,
   "types": {
-   "choice": 2,
-   "multi": 8,
+   "choice": 14,
+   "multi": 0,
    "text": 0
   },
   "enc": true,
@@ -1540,8 +1540,8 @@
   "title": "質量保存の法則",
   "count": 7,
   "types": {
-   "choice": 3,
-   "multi": 1,
+   "choice": 4,
+   "multi": 0,
    "text": 3
   },
   "enc": true,
@@ -1556,9 +1556,9 @@
   "title": "酸素と銅の計算問題",
   "count": 5,
   "types": {
-   "choice": 1,
+   "choice": 4,
    "multi": 0,
-   "text": 4
+   "text": 1
   },
   "enc": true,
   "grade": 2,
@@ -1572,9 +1572,9 @@
   "title": "酸素とマグネシウムの計算問題",
   "count": 5,
   "types": {
-   "choice": 2,
+   "choice": 4,
    "multi": 0,
-   "text": 3
+   "text": 1
   },
   "enc": true,
   "grade": 2,
@@ -1586,10 +1586,10 @@
  {
   "file": "sets/ebde90b8.json",
   "title": "還元",
-  "count": 7,
+  "count": 8,
   "types": {
-   "choice": 4,
-   "multi": 1,
+   "choice": 6,
+   "multi": 0,
    "text": 2
   },
   "enc": true,
@@ -1604,9 +1604,9 @@
   "title": "マグネシウム・銅と酸素の計算問題（むずい）",
   "count": 2,
   "types": {
-   "choice": 0,
+   "choice": 2,
    "multi": 0,
-   "text": 2
+   "text": 0
   },
   "enc": true,
   "grade": 2,
@@ -1620,8 +1620,8 @@
   "title": "化学変化と熱",
   "count": 10,
   "types": {
-   "choice": 6,
-   "multi": 1,
+   "choice": 7,
+   "multi": 0,
    "text": 3
   },
   "enc": true,
@@ -1924,9 +1924,9 @@
   "title": "圧力",
   "count": 5,
   "types": {
-   "choice": 3,
+   "choice": 5,
    "multi": 0,
-   "text": 2
+   "text": 0
   },
   "enc": true,
   "grade": 2,
@@ -1972,8 +1972,8 @@
   "title": "凝結・露点・湿度",
   "count": 7,
   "types": {
-   "choice": 2,
-   "multi": 1,
+   "choice": 3,
+   "multi": 0,
    "text": 4
   },
   "enc": true,
@@ -1986,10 +1986,10 @@
  {
   "file": "sets/39d31380.json",
   "title": "前線のつくり",
-  "count": 13,
+  "count": 14,
   "types": {
-   "choice": 5,
-   "multi": 1,
+   "choice": 7,
+   "multi": 0,
    "text": 7
   },
   "enc": true,
@@ -2482,10 +2482,10 @@
  {
   "file": "sets/39f6b818.json",
   "title": "細胞のつくり",
-  "count": 8,
+  "count": 9,
   "types": {
-   "choice": 1,
-   "multi": 1,
+   "choice": 3,
+   "multi": 0,
    "text": 6
   },
   "enc": true,
@@ -2530,10 +2530,10 @@
  {
   "file": "sets/92a1344d.json",
   "title": "光合成の基礎",
-  "count": 13,
+  "count": 14,
   "types": {
-   "choice": 5,
-   "multi": 1,
+   "choice": 7,
+   "multi": 0,
    "text": 7
   },
   "enc": true,
@@ -2578,10 +2578,10 @@
  {
   "file": "sets/ca7cfec1.json",
   "title": "光合成と呼吸",
-  "count": 6,
+  "count": 7,
   "types": {
-   "choice": 5,
-   "multi": 1,
+   "choice": 7,
+   "multi": 0,
    "text": 0
   },
   "enc": true,
@@ -2594,10 +2594,10 @@
  {
   "file": "sets/6a2b4e66.json",
   "title": "維管束",
-  "count": 10,
+  "count": 12,
   "types": {
-   "choice": 6,
-   "multi": 1,
+   "choice": 9,
+   "multi": 0,
    "text": 3
   },
   "enc": true,
@@ -2610,10 +2610,10 @@
  {
   "file": "sets/bafe44a7.json",
   "title": "消化",
-  "count": 15,
+  "count": 18,
   "types": {
-   "choice": 0,
-   "multi": 5,
+   "choice": 8,
+   "multi": 0,
    "text": 10
   },
   "enc": true,
@@ -2642,10 +2642,10 @@
  {
   "file": "sets/726e5edd.json",
   "title": "呼気と吸気",
-  "count": 7,
+  "count": 8,
   "types": {
-   "choice": 6,
-   "multi": 1,
+   "choice": 8,
+   "multi": 0,
    "text": 0
   },
   "enc": true,
@@ -2676,8 +2676,8 @@
   "title": "血管",
   "count": 12,
   "types": {
-   "choice": 2,
-   "multi": 4,
+   "choice": 6,
+   "multi": 0,
    "text": 6
   },
   "enc": true,
@@ -2692,8 +2692,8 @@
   "title": "血液",
   "count": 10,
   "types": {
-   "choice": 3,
-   "multi": 1,
+   "choice": 4,
+   "multi": 0,
    "text": 6
   },
   "enc": true,
@@ -2754,10 +2754,10 @@
  {
   "file": "sets/432ea9fc.json",
   "title": "神経",
-  "count": 8,
+  "count": 9,
   "types": {
-   "choice": 2,
-   "multi": 1,
+   "choice": 4,
+   "multi": 0,
    "text": 5
   },
   "enc": true,
@@ -2788,8 +2788,8 @@
   "title": "からだ全体の血液の循環",
   "count": 5,
   "types": {
-   "choice": 3,
-   "multi": 2,
+   "choice": 5,
+   "multi": 0,
    "text": 0
   },
   "enc": true,
@@ -3234,10 +3234,10 @@
  {
   "file": "sets/c4f5ff37.json",
   "title": "静電気",
-  "count": 16,
+  "count": 17,
   "types": {
-   "choice": 14,
-   "multi": 1,
+   "choice": 16,
+   "multi": 0,
    "text": 1
   },
   "enc": true,
@@ -3330,10 +3330,10 @@
  {
   "file": "sets/fd6dd8fe.json",
   "title": "時間の変化と発電",
-  "count": 5,
+  "count": 7,
   "types": {
-   "choice": 2,
-   "multi": 1,
+   "choice": 5,
+   "multi": 0,
    "text": 2
   },
   "enc": true,
@@ -3362,10 +3362,10 @@
  {
   "file": "sets/cc3c06e1.json",
   "title": "磁界",
-  "count": 9,
+  "count": 10,
   "types": {
-   "choice": 6,
-   "multi": 1,
+   "choice": 8,
+   "multi": 0,
    "text": 2
   },
   "enc": true,
@@ -3380,9 +3380,9 @@
   "title": "電気製品の消費電力",
   "count": 7,
   "types": {
-   "choice": 2,
+   "choice": 4,
    "multi": 0,
-   "text": 5
+   "text": 3
   },
   "enc": true,
   "grade": 2,
@@ -3682,10 +3682,10 @@
  {
   "file": "sets/fe0c8882.json",
   "title": "【イオン】電気を流す物質",
-  "count": 5,
+  "count": 6,
   "types": {
-   "choice": 1,
-   "multi": 1,
+   "choice": 3,
+   "multi": 0,
    "text": 3
   },
   "enc": true,
@@ -3778,10 +3778,10 @@
  {
   "file": "sets/06147353.json",
   "title": "塩化銅水溶液の電気分解",
-  "count": 6,
+  "count": 7,
   "types": {
-   "choice": 3,
-   "multi": 1,
+   "choice": 5,
+   "multi": 0,
    "text": 2
   },
   "enc": true,
@@ -3794,10 +3794,10 @@
  {
   "file": "sets/a98a378c.json",
   "title": "塩酸の電気分解",
-  "count": 7,
+  "count": 8,
   "types": {
-   "choice": 3,
-   "multi": 1,
+   "choice": 5,
+   "multi": 0,
    "text": 3
   },
   "enc": true,
@@ -3890,10 +3890,10 @@
  {
   "file": "sets/56b287d5.json",
   "title": "ダニエル電池",
-  "count": 8,
+  "count": 9,
   "types": {
-   "choice": 4,
-   "multi": 3,
+   "choice": 8,
+   "multi": 0,
    "text": 1
   },
   "enc": true,
@@ -3922,10 +3922,10 @@
  {
   "file": "sets/03b77fcf.json",
   "title": "電流を取り出すために必要な条件",
-  "count": 5,
+  "count": 6,
   "types": {
-   "choice": 3,
-   "multi": 2,
+   "choice": 6,
+   "multi": 0,
    "text": 0
   },
   "enc": true,
@@ -4276,9 +4276,9 @@
   "title": "仕事の原理",
   "count": 8,
   "types": {
-   "choice": 3,
+   "choice": 5,
    "multi": 0,
-   "text": 5
+   "text": 3
   },
   "enc": true,
   "grade": 3,
@@ -4292,9 +4292,9 @@
   "title": "仕事率",
   "count": 5,
   "types": {
-   "choice": 1,
+   "choice": 3,
    "multi": 0,
-   "text": 4
+   "text": 2
   },
   "enc": true,
   "grade": 3,
@@ -4738,9 +4738,9 @@
  {
   "file": "sets/j6808d03.json",
   "title": "期末対策｜慣性と作用・反作用",
-  "count": 8,
+  "count": 11,
   "types": {
-   "choice": 8,
+   "choice": 11,
    "multi": 0,
    "text": 0
   },
@@ -4834,10 +4834,10 @@
  {
   "file": "sets/1800cf6d.json",
   "title": "星の日周運動",
-  "count": 7,
+  "count": 8,
   "types": {
-   "choice": 2,
-   "multi": 1,
+   "choice": 4,
+   "multi": 0,
    "text": 4
   },
   "enc": true,
@@ -4898,10 +4898,10 @@
  {
   "file": "sets/f51acf8d.json",
   "title": "金星",
-  "count": 6,
+  "count": 7,
   "types": {
-   "choice": 2,
-   "multi": 2,
+   "choice": 5,
+   "multi": 0,
    "text": 2
   },
   "enc": true,
@@ -5220,8 +5220,8 @@
   "title": "進化とは",
   "count": 6,
   "types": {
-   "choice": 1,
-   "multi": 1,
+   "choice": 2,
+   "multi": 0,
    "text": 4
   },
   "enc": true,
