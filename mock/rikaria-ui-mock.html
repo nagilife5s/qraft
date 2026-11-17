@@ -98,6 +98,49 @@ button, input, select { font:inherit; }
 .saved { margin-top:.8em; }
 .saved table { border-collapse:collapse; width:100%; background:#fff; }
 .saved td, .saved th { border:.06em solid #ddd6f3; padding:.35em .6em; text-align:left; }
+
+/* ---- ⑤〜⑦ ---- */
+.pk-list { max-height:17em; overflow:auto; margin-top:.5em; border-top:.08em dashed rgba(255,255,255,.3); }
+.pk-u { position:sticky; top:0; background:#0a0c2c; color:#ffe27a; font-weight:900; letter-spacing:.12em; padding:.4em .5em; border-bottom:.08em dashed rgba(255,255,255,.3); display:flex; }
+.pk-u button { margin-left:auto; background:none; border:.1em solid rgba(255,255,255,.6); color:#fff; border-radius:.35em; font-size:.8em; font-weight:800; padding:.05em .6em; cursor:pointer; letter-spacing:0; }
+.pk-r { display:grid; grid-template-columns:1.4em 1fr auto; gap:.5em; align-items:center; width:100%; background:none; border:0; color:#fff; font-weight:800; text-align:left; padding:.42em .5em; border-radius:.4em; cursor:pointer; }
+.pk-r .box { width:1.05em; height:1.05em; border:.12em solid rgba(255,255,255,.7); border-radius:.2em; display:grid; place-items:center; font-size:.9em; }
+.pk-r small { opacity:.7; font-weight:700; }
+.pk-r:hover { background:rgba(255,255,255,.07); }
+.pk-r.on { color:#ffe27a; background:linear-gradient(90deg, rgba(255,226,122,.2), rgba(255,226,122,.04)); }
+.pk-r.on .box { border-color:#ffe27a; background:#ffe27a; } .pk-r.on .box::after { content:"✓"; color:#2a1280; font-weight:900; line-height:1; }
+.jobs { display:grid; grid-template-columns:repeat(4, 1fr); gap:.6em; }
+.job { background:rgba(255,255,255,.05); border:.12em solid rgba(255,255,255,.45); border-radius:.5em; color:#fff; padding:.5em .3em; text-align:center; cursor:pointer; font-weight:900; }
+.job img { height:5.2em; display:block; margin:0 auto .2em; filter:drop-shadow(0 .15em .2em rgba(0,0,0,.5)); }
+.job small { display:block; font-size:.72em; opacity:.75; font-weight:700; }
+.job.on { border-color:#ffe27a; color:#ffe27a; background:linear-gradient(180deg, rgba(255,226,122,.2), rgba(255,226,122,.03)); box-shadow:0 0 .8em rgba(255,226,122,.35); }
+.gold { display:inline-block; background:rgba(10,12,44,.9); border:.12em solid #fff; border-radius:.4em; padding:.15em .7em; font-weight:900; color:#ffe27a; }
+.it { display:grid; grid-template-columns:1.2em 1fr auto; gap:.5em; align-items:center; width:100%; background:none; border:0; color:#fff; font-weight:800; text-align:left; padding:.4em .5em; border-radius:.4em; cursor:pointer; }
+.it .cur { visibility:hidden; } .it:hover { background:linear-gradient(90deg, rgba(255,226,122,.2), rgba(255,226,122,.04)); color:#ffe27a; } .it:hover .cur { visibility:visible; }
+.it small { opacity:.7; display:block; font-weight:600; }
+.stack { display:flex; flex-direction:column; gap:2.2em; }
+.stage.dark { background:#2b3550 linear-gradient(180deg, #33406a, #1c2238); min-height:0; }
+.old .q { background:#fff; color:#222; border-radius:.7em; padding:.7em 1em; font-weight:900; margin:0 auto .6em; width:min(40em,100%); }
+.old .ch { display:grid; grid-template-columns:1fr 1fr; gap:.6em; width:min(40em,100%); margin:0 auto; }
+.old .ch button { border:0; border-radius:.8em; color:#fff; font-weight:900; font-size:1.1em; padding:.75em .8em; text-align:left; display:flex; gap:.6em; align-items:center; box-shadow:0 .25em 0 rgba(0,0,0,.3); }
+.old .ch button::before { content:""; width:1.1em; height:1.1em; background:#fff; flex:none; }
+.old .ch button:nth-child(1) { background:#e21b3c; } .old .ch button:nth-child(1)::before { clip-path:polygon(50% 0,100% 100%,0 100%); }
+.old .ch button:nth-child(2) { background:#1368ce; } .old .ch button:nth-child(2)::before { clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%); }
+.old .ch button:nth-child(3) { background:#d89e00; } .old .ch button:nth-child(3)::before { border-radius:50%; }
+.old .ch button:nth-child(4) { background:#26890c; }
+.qwin { margin-top:1.2em; }
+.qtext { font-weight:900; font-size:1.15em; line-height:1.5; padding:.2em .5em .7em; border-bottom:.08em dashed rgba(255,255,255,.3); }
+.cmds { display:grid; grid-template-columns:1fr 1fr; gap:.3em .8em; padding-top:.5em; }
+.cmds.one { grid-template-columns:1fr; }
+.cm { display:grid; grid-template-columns:1.1em 1.9em 1fr; gap:.5em; align-items:center; background:none; border:.1em solid rgba(255,255,255,.28); border-radius:.45em; color:#fff; font-weight:900; font-size:1.12em; text-align:left; padding:.55em .6em; cursor:pointer; }
+.cm .cur { visibility:hidden; }
+.cm .k { width:1.7em; height:1.7em; display:grid; place-items:center; border:.1em solid #fff; border-radius:.3em; font-size:.85em; background:rgba(255,255,255,.1); }
+.cm:hover { border-color:#ffe27a; color:#ffe27a; background:linear-gradient(90deg, rgba(255,226,122,.2), rgba(255,226,122,.04)); } .cm:hover .cur { visibility:visible; } .cm:hover .k { border-color:#ffe27a; }
+.cm.ok { border-color:#6dffb0; color:#6dffb0; background:rgba(60,220,140,.18); box-shadow:0 0 .8em rgba(90,255,170,.4); } .cm.ok .k { border-color:#6dffb0; }
+.cm.ng { border-color:#ff8a8a; color:#ffb0b0; background:rgba(255,80,80,.16); } .cm.ng .k { border-color:#ff8a8a; }
+.cm.dim { opacity:.45; }
+.exwin { margin-top:.6em; border-top:.08em dashed rgba(255,255,255,.3); padding:.6em .5em 0; font-weight:700; line-height:1.6; }
+.exwin b { color:#6dffb0; }
 </style>
 </head>
 <body>
@@ -106,6 +149,9 @@ button, input, select { font:inherit; }
   <button class="tab" data-p="p2">② 生徒の参加</button>
   <button class="tab" data-p="p3">③ メニューボタン</button>
   <button class="tab" data-p="p4">④ テスト範囲づくり</button>
+  <button class="tab" data-p="p5">⑤ 問題セットをえらぶ</button>
+  <button class="tab" data-p="p6">⑥ 職業・店・ステータス</button>
+  <button class="tab" data-p="p7">⑦ 戦闘の選択肢</button>
 </div>
 
 <!-- ① -->
@@ -204,7 +250,105 @@ button, input, select { font:inherit; }
   </div>
 </div>
 
+<!-- ⑤ -->
+<div class="page" id="p5">
+  <div class="cols">
+    <div><span class="lab new">案</span>
+      <div class="stage">
+        <div class="win">
+          <div class="wtitle">問題をえらぶ</div>
+          <div class="frow"><b>学年</b><div class="opts" data-g><button class="opt">1年</button><button class="opt on">2年</button><button class="opt">3年</button><button class="opt">ぜんぶ</button></div></div>
+          <div class="frow"><b>さがす</b><div class="opts"><input type="text" placeholder="題名でさがす" style="width:min(18em,100%)"></div></div>
+          <div class="pk-list" id="pkList">
+            <div class="pk-u">化学変化<button>ぜんぶ選ぶ</button></div>
+            <button class="pk-r on"><span class="box"></span><span>炭酸水素ナトリウムの加熱</span><small>14問</small></button>
+            <button class="pk-r"><span class="box"></span><span>酸化銅の還元</span><small>10問</small></button>
+            <button class="pk-r on"><span class="box"></span><span>期末対策｜化学変化と質量</span><small>6問</small></button>
+            <div class="pk-u">天気<button>ぜんぶ選ぶ</button></div>
+            <button class="pk-r"><span class="box"></span><span>乾湿計の使い方</span><small>3問</small></button>
+            <button class="pk-r"><span class="box"></span><span>前線のつくり</span><small>14問</small></button>
+            <button class="pk-r"><span class="box"></span><span>気圧と風</span><small>17問</small></button>
+          </div>
+          <button class="go"><span class="cur"></span><span>これで冒険に出る<small>2セット・20問</small></span></button>
+        </div>
+      </div>
+    </div>
+    <div><div class="note" style="padding-top:2em">今は白い箱に薄紫のカードが並んでいます。これを紺の窓にして、選んだ行を黄色い字＋チェックにします。行を押すと選べます。先生の準備・なかまと冒険・ひとりで冒険の3か所で同じ形になります。</div></div>
+  </div>
+</div>
+
+<!-- ⑥ -->
+<div class="page" id="p6">
+  <div class="cols">
+    <div class="stage"><div class="stack">
+      <div class="win">
+        <div class="wtitle">職業をえらぶ</div>
+        <div class="jobs" id="jobs">
+          <button class="job on"><img src="../img/rikaria/chara/hunter-a.webp" alt="">ハンター<small>すばやい攻撃</small></button>
+          <button class="job"><img src="../img/rikaria/chara/mage-a.webp" alt="">まほう使い<small>強い魔法</small></button>
+          <button class="job"><img src="../img/rikaria/chara/monk-a.webp" alt="">武闘家<small>連続こうげき</small></button>
+          <button class="job"><img src="../img/rikaria/chara/priest-a.webp" alt="">そうりょ<small>回復と守り</small></button>
+        </div>
+        <div class="frow" style="margin-top:.6em;border-top:.08em dashed rgba(255,255,255,.22)"><b>名前</b><div class="opts"><input type="text" placeholder="8文字まで" style="width:12em"></div></div>
+        <button class="go"><span class="cur"></span><span>この姿で始める</span></button>
+      </div>
+    </div></div>
+    <div class="stage"><div class="stack">
+      <div class="win" style="width:min(26em,100%)">
+        <div class="wtitle">道具屋</div>
+        <div style="text-align:right;padding:0 .4em .4em"><span class="gold">所持金 120 G</span></div>
+        <button class="it"><span class="cur"></span><span>やくそう<small>HPを30回復する</small></span><span>10 G</span></button>
+        <button class="it"><span class="cur"></span><span>まもりの札<small>敵の攻撃を1回ふせぐ</small></span><span>25 G</span></button>
+        <button class="it"><span class="cur"></span><span>ひらめきの石<small>選択肢を2つに減らす</small></span><span>40 G</span></button>
+        <button class="back" style="border-top:.08em dashed rgba(255,255,255,.3);margin-top:.4em">店を出る</button>
+      </div>
+      <div class="win" style="width:min(26em,100%)">
+        <div class="wtitle">とくぎ</div>
+        <button class="it"><span class="cur"></span><span>ねらいうち<small>2問連続正解で使える・大ダメージ</small></span><span>Lv 3</span></button>
+        <button class="it"><span class="cur"></span><span>みきり<small>敵の攻撃を1回よける</small></span><span>Lv 1</span></button>
+        <button class="it"><span class="cur"></span><span>かぜの矢<small>必殺技・5問連続正解</small></span><span style="color:#ffe27a">★</span></button>
+      </div>
+    </div></div>
+  </div>
+  <div class="note">白いカード・白い丸ボタンをやめて、どの窓も「見出し札＋行をえらぶ」形にそろえた案です。職業は押して選べます。文言と数字は見本です。</div>
+</div>
+
+<!-- ⑦ -->
+<div class="page" id="p7">
+  <div class="cols">
+    <div><span class="lab">今（色と形の4つのタイル）</span>
+      <div class="stage dark old">
+        <div class="q">炭酸水素ナトリウムを加熱したとき、試験管の口にたまる液体は何か。</div>
+        <div class="ch"><button>エタノール</button><button>水</button><button>塩酸</button><button>アンモニア水</button></div>
+      </div>
+    </div>
+    <div><span class="lab new">案（コマンドの窓）</span>
+      <div class="stage dark">
+        <div class="win qwin">
+          <div class="wtitle" style="font-size:1em">問題</div>
+          <div class="qtext">炭酸水素ナトリウムを加熱したとき、試験管の口にたまる液体は何か。</div>
+          <div class="cmds" id="cmds">
+            <button class="cm"><span class="cur"></span><span class="k">ア</span><span>エタノール</span></button>
+            <button class="cm" data-ok><span class="cur"></span><span class="k">イ</span><span>水</span></button>
+            <button class="cm"><span class="cur"></span><span class="k">ウ</span><span>塩酸</span></button>
+            <button class="cm"><span class="cur"></span><span class="k">エ</span><span>アンモニア水</span></button>
+          </div>
+          <div class="exwin" id="exwin" style="display:none"></div>
+        </div>
+        <div style="text-align:center;margin-top:.8em"><button class="rbtn" id="cmReset">もう一度</button></div>
+      </div>
+    </div>
+  </div>
+  <div class="note">案のほうは押すと答えられます。正解は緑に光り、まちがいは赤、ほかは暗くなります。色と図形の4タイルをやめて、RPGの「たたかう・まほう」と同じコマンドの形にしました。字の大きさは今と同じです。</div>
+</div>
+
 <script>
+document.getElementById('pkList').onclick = function (e) { var r = e.target.closest('.pk-r'); if (r) r.classList.toggle('on'); };
+document.getElementById('jobs').onclick = function (e) { var j = e.target.closest('.job'); if (!j) return; this.querySelectorAll('.job').forEach(function (x) { x.classList.toggle('on', x === j); }); };
+document.getElementById('cmds').onclick = function (e) { var c = e.target.closest('.cm'); if (!c || this.dataset.done) return; this.dataset.done = 1;
+  this.querySelectorAll('.cm').forEach(function (x) { if (x.dataset.ok != null) x.classList.add('ok'); else if (x === c) x.classList.add('ng'); else x.classList.add('dim'); });
+  var ex = document.getElementById('exwin'); ex.style.display = ''; ex.innerHTML = (c.dataset.ok != null ? '<b>せいかい！</b> ' : '<b style="color:#ffb0b0">ざんねん…</b> 正解は「イ 水」。') + '炭酸水素ナトリウムは、加熱すると炭酸ナトリウム・水・二酸化炭素に分かれます。'; };
+document.getElementById('cmReset').onclick = function () { var b = document.getElementById('cmds'); delete b.dataset.done; b.querySelectorAll('.cm').forEach(function (x) { x.classList.remove('ok', 'ng', 'dim'); }); document.getElementById('exwin').style.display = 'none'; };
 document.querySelectorAll('.tab').forEach(function (t) { t.onclick = function () {
   document.querySelectorAll('.tab').forEach(function (x) { x.classList.toggle('on', x === t); });
   document.querySelectorAll('.page').forEach(function (p) { p.classList.toggle('on', p.id === t.dataset.p); });
