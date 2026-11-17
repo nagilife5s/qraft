@@ -891,3 +891,9 @@ img.qimg { cursor:zoom-in; }
   @keyframes mdPop { from { transform:scale(0) rotate(-20deg); opacity:0; } to { transform:scale(1) rotate(0); opacity:1; } }
   @keyframes mdSpin { to { rotate:360deg; } }
 }
+
+/* 章の見出し（問題セットの選択。2026-11-18） */
+.pch { display:flex; align-items:center; gap:.6em; margin:.5em 0 .25em; padding:.15em .5em; border-left:.35em solid var(--fc); border-bottom:.08em solid rgba(0,0,0,.12); font-weight:900; font-size:.92em; }
+.pch small { opacity:.65; font-weight:700; }
+.pch .pchall { margin-left:auto; border:0; border-radius:999px; padding:.1em .8em; font:inherit; font-size:.85em; font-weight:800; background:rgba(0,0,0,.08); color:inherit; cursor:pointer; }
+.pkr .pch { color:var(--rk-yel); border-bottom-color:rgba(255,255,255,.25); }

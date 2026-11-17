@@ -629,7 +629,7 @@ export function mountSetPicker(box, cfg) {
 
   function renderList() {
     var f = q.value.trim(), groups = {}, order = [];
-    sets.filter(function (s) { return (!gradeSel || s.grade === gradeSel) && (!unitSel || s.unit === unitSel) && (!f || s.title.indexOf(f) >= 0); })
+    sets.filter(function (s) { return (!gradeSel || s.grade === gradeSel) && (!unitSel || s.unit === unitSel) && (!f || s.title.indexOf(f) >= 0 || (s.chapter || '').indexOf(f) >= 0); })
       .forEach(function (s) { var gk = s.grade + '|' + s.unit; if (!groups[gk]) { groups[gk] = { s: s, items: [] }; order.push(gk); } groups[gk].items.push(s); });
     order.sort(function (a, b) { return (groups[a].s.grade || 9) - (groups[b].s.grade || 9) || groups[a].s.uo - groups[b].s.uo; });
     list.textContent = '';
@@ -641,7 +641,15 @@ export function mountSetPicker(box, cfg) {
       var ab = el('button', 'pgall', allOn ? 'ぜんぶはずす' : 'ぜんぶ選ぶ'); ab.type = 'button';
       ab.onclick = function () { g.items.forEach(function (s) { if (allOn) delete picked[key(s)]; else picked[key(s)] = true; }); renderList(); cfg.onChange(); };
       head.appendChild(ab); list.appendChild(head);
+      var chNow = null;
       g.items.forEach(function (s) {
+        if (s.chapter && s.chapter !== chNow) {   /* 章の見出し（教科書の章。2026-11-18） */
+          chNow = s.chapter; var chItems = g.items.filter(function (x) { return x.chapter === chNow; }), ch = el('div', 'pch'); ch.style.setProperty('--fc', col);
+          ch.appendChild(el('span', '', chNow)); ch.appendChild(el('small', '', chItems.length + 'セット'));
+          var chOn = chItems.every(function (x) { return picked[key(x)]; }), cb2 = el('button', 'pchall', chOn ? 'この章をはずす' : 'この章を選ぶ'); cb2.type = 'button';
+          cb2.onclick = function () { chItems.forEach(function (x) { if (chOn) delete picked[key(x)]; else picked[key(x)] = true; }); renderList(); cfg.onChange(); };
+          ch.appendChild(cb2); list.appendChild(ch);
+        }
         var row = el('label', 'pcard' + (picked[key(s)] ? ' on' : '')); row.style.setProperty('--fc', col);
         var cb = el('input'); cb.type = 'checkbox'; cb.checked = !!picked[key(s)];
         cb.onchange = function () { if (cb.checked) picked[key(s)] = true; else delete picked[key(s)]; row.classList.toggle('on', cb.checked); cfg.onChange(); };

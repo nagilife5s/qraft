@@ -83,6 +83,8 @@
   .mkbar { display:flex; flex-wrap:wrap; gap:.5em; align-items:center; margin-bottom:.6em; font-weight:600; }
   .mklist { max-height:calc(100vh - 22em); min-height:14em; overflow:auto; background:#fff; border:1px solid #ddd6f3; border-radius:.6em; }
   .mkuh { position:sticky; top:0; background:#4320b0; color:#fff; padding:.3em .8em; font-weight:900; display:flex; gap:.6em; align-items:center; z-index:1; }
+  .mkch { display:flex; gap:.6em; align-items:center; padding:.2em .8em; margin-top:.2em; border-left:.35em solid #4320b0; background:#efeaff; color:#2a1470; font-weight:900; font-size:.92em; }
+  .mkch button { margin-left:auto; border:0; border-radius:999px; padding:.1em .8em; font-weight:800; font-size:.85em; background:#fff; }
   .mkuh button { margin-left:auto; border:0; border-radius:999px; padding:.15em .8em; font-weight:800; font-size:.85em; }
   .mksrow { border-bottom:1px solid #ece7fb; }
   .mkshead { display:flex; align-items:center; gap:.6em; padding:.45em .7em; cursor:pointer; }
@@ -540,15 +542,16 @@ function mkPicked() { return HS.filter(function (s) { return MK.pick[s.id]; }); 
 function mkDraw() {
   var kw = $('mkKw').value.trim(), only = $('mkOnly').checked, G = MK.g, U = MK.u;
   $('mkG').querySelectorAll('.mkpill').forEach(function (b) { var on = +b.dataset.g === G; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
-  var rows = HS.filter(function (s) { return s.grade === G && (!U || s.unit === U) && (!kw || s.title.indexOf(kw) >= 0 || s.unit.indexOf(kw) >= 0) && (!only || MK.pick[s.id]); });
+  var rows = HS.filter(function (s) { return s.grade === G && (!U || s.unit === U) && (!kw || s.title.indexOf(kw) >= 0 || s.unit.indexOf(kw) >= 0 || (s.chapter || '').indexOf(kw) >= 0) && (!only || MK.pick[s.id]); });
   var us = []; HS.forEach(function (s) { if (s.grade === G && us.indexOf(s.unit) < 0) us.push(s.unit); });
   $('mkU').innerHTML = '<button type="button" class="mkpill' + (U ? '' : ' on') + '" data-u="">すべて</button> ' + us.map(function (x) {
     var k = HS.filter(function (s) { return s.grade === G && s.unit === x && MK.pick[s.id]; }).length;
     return '<button type="button" class="mkpill' + (U === x ? ' on' : '') + '" data-u="' + esc(x) + '">' + esc(x) + (k ? '（' + k + '）' : '') + '</button>';
   }).join(' ');
-  var h = '', u = null;
+  var h = '', u = null, c = null;
   rows.forEach(function (s) {
-    if (s.unit !== u) { u = s.unit; h += '<div class="mkuh">' + esc(u) + '<button type="button" data-all="' + esc(u) + '">この単元を全部</button></div>'; }
+    if (s.unit !== u) { u = s.unit; c = null; h += '<div class="mkuh">' + esc(u) + '<button type="button" data-all="' + esc(u) + '">この単元を全部</button></div>'; }
+    if (s.chapter && s.chapter !== c) { c = s.chapter; h += '<div class="mkch">' + esc(c) + '<button type="button" data-allch="' + esc(u + '|' + c) + '">この章を全部</button></div>'; }   /* 章の見出し（2026-11-18） */
     var on = MK.pick[s.id];
     h += '<div class="mksrow' + (on ? ' on' : '') + '"><div class="mkshead" data-id="' + s.id + '"><input type="checkbox" aria-label="' + esc(s.title) + '"' + (on ? ' checked' : '') + '><span class="t">' + esc(s.title) + '</span><span class="c">' + (on ? mkN(s) + '／' : '') + s.count + '問</span><button type="button" class="mkopen" data-open="' + s.id + '">' + (MK.open[s.id] ? 'とじる' : '中を見る') + '</button></div>';
     if (MK.open[s.id]) {
@@ -567,6 +570,7 @@ function mkDraw() {
 }
 $('mkList').onclick = async function (e) {
   var t = e.target, a;
+  if ((a = t.dataset.allch)) { var uc = a.split('|'); HS.forEach(function (s) { if (s.grade === MK.g && s.unit === uc[0] && s.chapter === uc[1]) MK.pick[s.id] = true; }); mkDraw(); return; }
   if ((a = t.dataset.all)) { HS.forEach(function (s) { if (s.grade === MK.g && s.unit === a) MK.pick[s.id] = true; }); mkDraw(); return; }
   if ((a = t.dataset.open)) {
     MK.open[a] = !MK.open[a]; mkDraw();
