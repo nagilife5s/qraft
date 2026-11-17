@@ -6,7 +6,7 @@
 <title>Qraft</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261117213000">
+<link rel="stylesheet" href="theme.css?v=20261117233000">
 </head>
 <body>
 <div id="app">
@@ -128,11 +128,11 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261117213000"></script>
+<script src="firebase-config.js?v=20261117233000"></script>
 <script type="module">
-import { mountAvatarPicker, avatarEl, signIn, db, ref, set, get, onValue, serverTimestamp, serverNow, CHOICE_STYLE,
+import { mountAvatarPicker, avatarEl, signIn, db, ref, set, get, onValue, serverTimestamp, serverNow, CHOICE_STYLE, shapeEl,
          $, el, fmt, motionOn, showScreen, stopAnim, countUp, confetti, buildRank,
-         loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261117213000';
+         loadBackgrounds, applyBg, mountStage } from './lib.js?v=20261117233000';
 
 mountStage();
 
@@ -278,7 +278,7 @@ function drawQuestion() {
   selMask = 0;
   choices.forEach(function (c, idx) {
     var b = el('button', 'tile t' + idx);
-    b.appendChild(el('span', 'sh', CHOICE_STYLE[idx].shape));
+    b.appendChild(shapeEl(idx));
     if (c.image) { var im = el('img', 'ch-img'); im.src = c.image; im.alt = c.alt || ''; b.appendChild(im); }
     if (c.t) b.appendChild(el('span', 'tx', c.t));
     b.onclick = function () { if (state.multi) toggle(idx, b); else answer(idx); };
@@ -302,7 +302,7 @@ function drawResult(variant, me, r) {
   var rv = $(variant + 'av'); if (rv) { rv.textContent = ''; rv.appendChild(avatarEl(avPick.get(), uid)); }
   var q;
   if (state.type === 'text') { q = (state.accept || []).slice(0, 3).join(' ／ '); }
-  else { var cs = [].concat(state.correct); q = cs.map(function (i) { var c = state.choices[i]; return CHOICE_STYLE[i].shape + ' ' + (c.t || '（画像）'); }).join('　'); }
+  else { var cs = [].concat(state.correct); q = cs.map(function (i) { var c = state.choices[i]; return (c.t || '（画像）'); }).join('　'); }
   var ansText = '正解は ' + q;
   ['ok', 'ng', 'late'].forEach(function (v) { var e = $(v + 'ex'); e.textContent = state.ex ? '💡 ' + state.ex : ''; e.classList.toggle('hide', !state.ex); });   /* 解説（先生が出すにしたとき） */
   if (variant === 'ok') {

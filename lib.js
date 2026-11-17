@@ -63,15 +63,26 @@ export function calcScore(elapsedMs, limitMs) {
   return Math.round(1000 * (1 - r / 2));
 }
 
-/* 選択肢の色と形（Kahoot風）。色だけに頼らないよう形も付ける */
+/* 選択肢の色としるし。色だけに頼らないよう、しるしも付ける。
+   2026-11-17：図形（▲◆●■）を理科のしるし（フラスコ・地球・いなずま・葉）に、4色を少しずらした（Qraft 独自の見た目にするため）。
+   icon は 24x24 の SVG の path。5択・6択目は文字のまま */
 export const CHOICE_STYLE = [
-  { shape: '▲', color: '#e21b3c' },
-  { shape: '◆', color: '#1368ce' },
-  { shape: '●', color: '#ffc00a' },
-  { shape: '■', color: '#1fa95b' },
+  { shape: '▲', color: '#f2553a', icon: ['M9 2h6v2h-1v5.2l5.3 9.1c.8 1.4-.2 3.2-1.8 3.2H6.5c-1.6 0-2.6-1.8-1.8-3.2L10 9.2V4H9V2zm.3 12.5h5.4L12 10l-2.700 4.500z'] },
+  { shape: '◆', color: '#1f8fe5', icon: ['M12 5.8a6.2 6.2 0 1 0 0 12.4 6.2 6.2 0 0 0 0-12.4z', 'M2.2 15.8c-.6-1.600 2.900-4.600 7.900-6.700s9.500-2.500 10.100-.9l1.600-.6c-1.100-2.900-6.800-2.400-12.400 0S-.5 13.500.6 16.400l1.600-.6z', 'M21.800 8.200c.6 1.600-2.900 4.600-7.900 6.700s-9.500 2.500-10.100.9l-1.600.6c1.100 2.900 6.800 2.400 12.400 0s9.900-5.900 8.800-8.800l-1.600.6z'] },
+  { shape: '●', color: '#ffb41f', icon: ['M13.5 1 4 13.5h6L8.500 23 20 9.500h-6.500L13.500 1z'] },
+  { shape: '■', color: '#35b37a', icon: ['M21 3C11 3 4 7.500 4 15c0 1.300.3 2.400.8 3.400L3 21l1.600 1.200 1.900-2.300c1.200.7 2.600 1.100 4.200 1.100C18 21 21.500 13 21 3z'] },
   { shape: '★', color: '#8e44ad' },        /* 5択・6択のとき */
   { shape: '⬢', color: '#e67e22' }
 ];
+
+/* 選択肢のしるし（白い丸の中）。しるしの絵が無い番号（5択・6択目）は文字を出す */
+export function shapeEl(idx) {
+  var st = CHOICE_STYLE[idx], s = document.createElement('span'); s.className = 'sh';
+  if (!st || !st.icon) { s.textContent = st ? st.shape : ''; return s; }
+  var NS = 'http://www.w3.org/2000/svg', v = document.createElementNS(NS, 'svg'); v.setAttribute('viewBox', '0 0 24 24'); v.setAttribute('aria-hidden', 'true');
+  st.icon.forEach(function (d) { var p = document.createElementNS(NS, 'path'); p.setAttribute('d', d); v.appendChild(p); });
+  s.appendChild(v); return s;
+}
 
 export const RESULT_SEC = 8;   /* 正解と分布を見せる秒数 */
 export const RANK_SEC = 7;     /* ランキングを見せる秒数（順位が入れ替わる動きを見せるため、少し長め） */

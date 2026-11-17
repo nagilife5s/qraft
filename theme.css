@@ -31,7 +31,7 @@
 :root {
   --ink:#fff; --ink-dark:#1d1630;
   --ok:#2fd070; --ng:#ff4d5e; --late:#ff9f1c;
-  --c-red:#e21b3c;  --c-blue:#1368ce; --c-yellow:#ffc00a; --c-green:#1fa95b;  /* 選択肢4色（色+形で区別） */
+  --c-red:#f2553a;  --c-blue:#1f8fe5; --c-yellow:#ffb41f; --c-green:#35b37a;  /* 選択肢4色（色+しるしで区別）。2026-11-17 に少しずらした。lib.js の CHOICE_STYLE と同じ */
   --shadow: 0 .45em 0 rgba(0,0,0,.28);           /* ぷっくりした影 */
   --font: "Hiragino Maru Gothic ProN","Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic",sans-serif;
 }
@@ -122,6 +122,7 @@ button[data-bg="forest"] i { background:linear-gradient(170deg,#25a862,#062f24);
 .grid4 { display:grid; grid-template-columns:1fr 1fr; gap:1em; flex:1; min-height:0; }
 .tile { position:relative; border-radius:1em; display:flex; align-items:center; gap:.7em; padding:.6em 1em; font-weight:900; font-size:1.7em; color:#fff; box-shadow:var(--shadow); text-align:left; overflow:hidden; min-height:0; }
 .tile .sh { flex:0 0 auto; width:1.5em; height:1.5em; border-radius:50%; background:rgba(255,255,255,.95); display:grid; place-items:center; font-size:.95em; }
+.tile .sh svg { width:.78em; height:.78em; fill:currentColor; display:block; }   /* 理科のしるし（lib.js の shapeEl）2026-11-17 */
 .t0{background:var(--c-red)} .t0 .sh{color:var(--c-red)}
 .t1{background:var(--c-blue)} .t1 .sh{color:var(--c-blue)}
 .t2{background:var(--c-yellow);color:var(--ink-dark)} .t2 .sh{color:#a37400}
@@ -866,3 +867,27 @@ img.qimg { cursor:zoom-in; }
   opacity:calc((var(--spd, 0) - .3) * .7); animation:speedline .45s linear infinite; }
 @keyframes speedline { from { -webkit-mask-position:0 0; mask-position:0 0; } to { -webkit-mask-position:-13em 0; mask-position:-13em 0; } }
 @media (prefers-reduced-motion: reduce) { .scene::before { display:none; } }
+
+/* ===== 2026-11-17：Qraft 独自の見た目（しるし・正解の光・結果のメダル） ===== */
+/* 正解のタイルは、札「✓ 正解」に加えて、光ってしるしが跳ねる */
+.tile.right { box-shadow:var(--shadow), 0 0 1.2em rgba(255,255,255,.9); }
+@media (prefers-reduced-motion: no-preference) { .screen.on .tile.right .sh { animation:shHop .5s ease-in-out infinite alternate; } @keyframes shHop { to { transform:translateY(-.14em) scale(1.12); } } }
+/* 結果：表彰台の代わりに、ギザギザのメダルにキャラが入る。3位→2位→1位の順に出る */
+.podium.medals { align-items:center; gap:2.2em; height:auto; padding-top:1.2em; }
+.md { position:relative; display:flex; flex-direction:column; align-items:center; gap:.3em; font-weight:900; }
+.md .mdring { position:relative; width:var(--s); height:var(--s); display:grid; place-items:center; }
+.md .mdring::before { content:""; position:absolute; inset:0; background:var(--m); filter:drop-shadow(0 .3em 0 rgba(0,0,0,.28));
+  clip-path:polygon(50% 0,59% 8%,71% 5%,76% 16%,88% 18%,88% 30%,98% 37%,93% 48%,100% 58%,91% 66%,93% 78%,82% 81%,78% 92%,66% 91%,57% 100%,47% 94%,36% 99%,29% 89%,17% 89%,15% 77%,4% 71%,8% 60%,0 50%,8% 40%,4% 29%,15% 23%,17% 11%,29% 11%,36% 1%,47% 6%); }
+.md .pav { position:relative; width:66%; height:66%; border-radius:50%; background:#fff; display:grid; place-items:center; font-size:calc(var(--s) * .34); line-height:1; }
+.md .pav .avx { display:inline-block; }
+.md .no { position:absolute; left:50%; bottom:-.55em; transform:translateX(-50%); background:var(--ink-dark); color:#fff; border:.12em solid #fff; border-radius:999px; padding:0 .8em; font-size:1.25em; white-space:nowrap; }
+.md b { margin-top:.7em; font-size:1.5em; } .md small { font-size:1.15em; opacity:.9; }
+.md.m1 { --s:10.6em; --m:var(--pop1); } .md.m2 { --s:8.4em; --m:#e3e6f2; } .md.m3 { --s:7.4em; --m:#f0b27a; }
+.md.m1 .mdring::after { content:""; position:absolute; inset:-20%; z-index:-1; border-radius:50%; background:repeating-conic-gradient(rgba(255,210,63,.5) 0 9deg, transparent 9deg 18deg); -webkit-mask:radial-gradient(circle, #000 40%, transparent 70%); mask:radial-gradient(circle, #000 40%, transparent 70%); }
+@media (prefers-reduced-motion: no-preference) {
+  .screen.on .md { animation:mdPop .6s cubic-bezier(.2,1.5,.4,1) both; }
+  .screen.on .md.m3 { animation-delay:.3s; } .screen.on .md.m2 { animation-delay:.9s; } .screen.on .md.m1 { animation-delay:1.6s; }
+  .screen.on .md.m1 .mdring::after { animation:mdSpin 16s linear infinite; }
+  @keyframes mdPop { from { transform:scale(0) rotate(-20deg); opacity:0; } to { transform:scale(1) rotate(0); opacity:1; } }
+  @keyframes mdSpin { to { rotate:360deg; } }
+}

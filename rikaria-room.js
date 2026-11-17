@@ -6,9 +6,9 @@
  *
  * cx = { pin: ()=>参加コード, players: ()=>players, GR: {班→{G, lead…}}, P: {uid→出題の状態}, CH: {uid→キャラ}, pool: ()=>問題の配列, ended: ()=>終わったか, phase: ()=>state.phase }
  */
-import { db, ref, set, shuffle, prepareQuestion, maskOf } from './lib.js?v=20261117213000';
+import { db, ref, set, shuffle, prepareQuestion, maskOf } from './lib.js?v=20261117233000';
 import { onChildAdded, onChildChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-import * as E from './rikaria-engine.js?v=20261117213000';
+import * as E from './rikaria-engine.js?v=20261117233000';
 
 export function makeRoomDriver(cx) {
   var ITU = {};
