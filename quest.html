@@ -6,8 +6,8 @@
 <title>Qraft クエスト（ひとりで冒険）</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261117150000">
-<link rel="stylesheet" href="quest.css?v=20261117150000">
+<link rel="stylesheet" href="theme.css?v=20261117160000">
+<link rel="stylesheet" href="quest.css?v=20261117160000">
 <style>
   .hud-btns { display:flex; gap:.4em; }
   .hud-btns .btn { font-size:.85em; padding:.35em .9em; }
@@ -191,17 +191,17 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261117150000"></script>
+<script src="firebase-config.js?v=20261117160000"></script>
 <script type="module">
-import { bgm, preload } from './sound.js?v=20261117150000';
-import { dungeonArt, autoTorches } from './dungeon-art.js?v=20261117150000';
-import { townArt } from './town-art.js?v=20261117150000';
-import { signIn, db, ref, set, get, $, el, showScreen, shuffle, prepareQuestion, maskOf, isTextCorrect, mountSetPicker, loadQEdits, applyQEdits, makeAdvLog } from './lib.js?v=20261117150000';
+import { bgm, preload } from './sound.js?v=20261117160000';
+import { dungeonArt, autoTorches } from './dungeon-art.js?v=20261117160000';
+import { townArt } from './town-art.js?v=20261117160000';
+import { signIn, db, ref, set, get, $, el, showScreen, shuffle, prepareQuestion, maskOf, isTextCorrect, mountSetPicker, loadQEdits, applyQEdits, makeAdvLog } from './lib.js?v=20261117160000';
 import { addExp, expToNext, migrateChar, newChar, JOBS as RJOBS, JOB_KEYS, LEARN, RANK_POW, RANK_SEC, LOAD_N, ELEMS, ELEM, UNITS,
-         heroImg, fieldImg, skillName, rankOf, rankCost, canRankUp, rankUp, spUsed, loadoutOf, weakOf, statsOf, unitOf, zakoImg, bossImg, battleBg, gearImg, itemImg, iconHtml } from './rikaria-data.js?v=20261117150000';
+         heroImg, fieldImg, skillName, rankOf, rankCost, canRankUp, rankUp, spUsed, loadoutOf, weakOf, statsOf, unitOf, zakoImg, bossImg, battleBg, gearImg, itemImg, iconHtml } from './rikaria-data.js?v=20261117160000';
 import { fiscalYear, ENEMIES, TOWN, TOWN_DEFAULT,
          weaponList, armorList, weaponName, armorName, TOWN_MAX, soloDayCap, dayNo, ITEMS, ITEM_KEYS, FACS, RESPEC_COST, ensureOwner, battleGuide,
-         soloMult, soloReward, soloEnemyHp, soloBossHp, soloEnemyAtkX, BOSS, cmdImg } from './quest.js?v=20261117150000';
+         soloMult, soloReward, soloEnemyHp, soloBossHp, soloEnemyAtkX, BOSS, cmdImg, placeFacNpcs } from './quest.js?v=20261117160000';
 
 var Y = fiscalYear(), me = { g: 0, c: 0, n: 0 }, sid = '', ch = null, CLS = {}, SETS = [], AREAS = [], look = 'a', job = 'mage';
 var curArea = null, HP = 0, MP = 0, RANGES = {};
@@ -428,7 +428,9 @@ function buildTown(st) {
   if (st < 10) look[4] = 'hut';
   if (st < 11) look[5] = 'castle-ruin'; else if (st < 12) look[5] = 'castle-scaffold';
   NPCS.forEach(function (n) { g[n.y][n.x] = 'N'; });
-  return { g: g, blds: blds, fountain: [16, 11], dry: st < 4, start: [4, 11], st: st, tiles: tiles, props: props, objs: objs, look: look, fog: st < 2 ? 2 : st < 4 ? 1 : 0 };
+  /* 施設の6人（全身の絵）を、それぞれの施設の前に立たせる。行けるマスを減らさない場所だけ（quest.js placeFacNpcs。2026-11-17） */
+  var fnpc = placeFacNpcs(g, blds, [16, 11], function (c) { return BLOCK.has(c); }, [4, 11]);
+  return { g: g, blds: blds, fountain: [16, 11], dry: st < 4, start: [4, 11], st: st, tiles: tiles, props: props, objs: objs, look: look, fog: st < 2 ? 2 : st < 4 ? 1 : 0, fnpc: fnpc };
 }
 function buildArea() {
   var W = 42, H = 26, g = grid(W, H, '#');
@@ -555,7 +557,7 @@ function drawMap() {
     h += slot(o.s, 'prop', 'left:' + (o.x + o.w / 2 - o.dw / 2) * ts + 'px;top:' + (o.y + o.h - o.dh) * ts + 'px;width:' + o.dw * ts + 'px;height:' + o.dh * ts + 'px;z-index:' + (o.z || ((o.y + o.h - 1) * 10 + 4)) + ';font-size:' + Math.min(o.dw, o.dh) * ts * .8 + 'px');
   });
   if (m.fog) h += '<div class="fd-fog f' + m.fog + '"></div>';
-  if (FD.key === 'town') NPCS.forEach(function (n) { h += '<div class="npc" style="' + box(n.x, n.y) + ';z-index:' + (n.y * 10 + 5) + '"><img src="img/quest/' + n.img + '.webp" alt=""></div>'; });
+  if (FD.key === 'town') NPCS.concat(m.fnpc || []).forEach(function (n) { h += '<div class="npc" style="' + box(n.x, n.y) + ';z-index:' + (n.y * 10 + 5) + '"><img src="img/quest/' + n.img + (n.f != null ? '-full' : '') + '.webp" alt=""></div>'; });
   if (FD.key === 'area') h += '<div class="mob boss" style="' + box(35, 11, 3, 3) + ';z-index:135"><img src="' + BOSS.img + '" style="scale:-1 1"></div>';
   h += '<div id="mobs">' + (FD.key === 'area' ? FD.mobs : []).map(function (mo, i) { return '<div class="mob" data-i="' + i + '" style="' + box(mo.x, mo.y) + ';z-index:' + (mo.y * 10 + 5) + '"><img src="' + foeOf(curArea, mo.id).img + '"></div>'; }).join('') + '</div>';
   h += '<div id="units"><div class="unit leader" style="' + box(FD.pos[0], FD.pos[1]) + ';z-index:' + (FD.pos[1] * 10 + 9) + '"><img class="hero" src="' + fieldImg(ch.j, ch.lk, FD.dir === 'left' ? 'right' : FD.dir) + '" alt=""></div></div>';
@@ -604,7 +606,11 @@ function move(dx, dy) {
   FD.dir = dx < 0 ? 'left' : dx > 0 ? 'right' : dy < 0 ? 'up' : 'down';
   if (c === 'f') { FD.path = []; bossAsk(); return false; }
   if (c === 'B') { FD.path = []; enter(MAPS.town.blds.filter(function (b) { return nx >= b.x && nx < b.x + b.w && ny >= b.y && ny < b.y + b.h; })[0]); return false; }
-  if (c === 'N') { FD.path = []; var np = NPCS.filter(function (q) { return q.x === nx && q.y === ny; })[0]; say('<div class="who"><img src="img/quest/' + np.img + '.webp" alt=""><div><h3>' + np.nm + '</h3>' + np.say + '</div></div>'); return false; }
+  if (c === 'N') {   /* 施設の人に話しかける＝その施設に入る（広場の村長は噴水を調べる）のと同じ */
+    var fn = (MAPS.town.fnpc || []).filter(function (q) { return q.x === nx && q.y === ny; })[0];
+    if (fn) { FD.path = []; if (fn.f === 0) plaza(); else enter(MAPS.town.blds.filter(function (b) { return b.f === fn.f; })[0]); return false; }
+  }
+  if (c === 'N') { FD.path = []; var np =NPCS.filter(function (q) { return q.x === nx && q.y === ny; })[0]; say('<div class="who"><img src="img/quest/' + np.img + '.webp" alt=""><div><h3>' + np.nm + '</h3>' + np.say + '</div></div>'); return false; }
   if (c === 'O') { FD.path = []; plaza(); return false; }
   if (blocked(nx, ny)) return false;
   FD.last = Date.now(); FD.pos = [nx, ny];

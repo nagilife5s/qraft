@@ -7,7 +7,7 @@
  *   ・シングルモードの書き込み上限：経験値＋300・ゴールド＋200（firebase-rules.json）
  */
 
-import { TOWN, TOWN_DEFAULT, TOWN_MAX, ITEMS, ITEM_KEYS, weaponName, armorName, weaponList, armorList, gearOf, goldOf, soloGold, soloDayCap, dayNo } from './rikaria-data.js?v=20261117150000';
+import { TOWN, TOWN_DEFAULT, TOWN_MAX, ITEMS, ITEM_KEYS, weaponName, armorName, weaponList, armorList, gearOf, goldOf, soloGold, soloDayCap, dayNo } from './rikaria-data.js?v=20261117160000';
 /* 町・装備・道具は rikaria-data.js が正本（2026-11-13 確定の数値の表） */
 export { goldOf, TOWN, TOWN_DEFAULT, TOWN_MAX, ITEMS, ITEM_KEYS, weaponName, armorName, weaponList, armorList, soloGold, soloDayCap, dayNo };
 
@@ -219,4 +219,38 @@ export function cmdImg(src, alt) {
   im.tabIndex = 0; im.setAttribute('role', 'button'); im.title = '押すと大きく見られます';
   im.onkeydown = function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); im.click(); } };   /* クリックの拡大は lib.js */
   return im;
+}
+
+/* ------------------------------------------------------------ 町に立つ施設の6人（2026-11-17）
+ * 各施設の前（広場は噴水のそば）に、全身の絵の人を1人ずつ立たせる。話しかける＝その施設に入る（広場は噴水を調べる）のと同じ。
+ * 置く場所は候補から順に、「草・花・広場の石畳」のマスで、置いても今まで行けたマスがどこも行けなくならない最初のマス。
+ * g＝町の地図（置いたマスは 'N' にする）、blocked(c)＝通れない文字か、start＝出発のマス。返すのは [{x, y, f, img}] */
+export var FAC_NPC_IMG = ['npc6-chief', 'npc6-item', 'npc6-sister', 'npc6-smith', 'npc6-librarian', 'npc6-gate'];
+export function townReach(g, blocked, start) {
+  var H = g.length, W = g[0].length, seen = new Uint8Array(W * H), q = [start];
+  if (blocked(g[start[1]][start[0]])) return seen;
+  seen[start[1] * W + start[0]] = 1;
+  while (q.length) { var p = q.shift();
+    [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(function (d) { var x = p[0] + d[0], y = p[1] + d[1];
+      if (x < 0 || y < 0 || x >= W || y >= H || seen[y * W + x] || blocked(g[y][x])) return; seen[y * W + x] = 1; q.push([x, y]); }); }
+  return seen;
+}
+export function placeFacNpcs(g, blds, fountain, blocked, start) {
+  var W = g[0].length, out = [];
+  function ok(x, y) {
+    if (!g[y] || '.,P'.indexOf(g[y][x]) < 0) return false;
+    var before = townReach(g, blocked, start), c = g[y][x]; g[y][x] = 'N';
+    var after = townReach(g, blocked, start), good = true;
+    for (var i = 0; i < before.length && good; i++) if (before[i] && !after[i] && i !== y * W + x) good = false;
+    if (!good) g[y][x] = c;
+    return good;
+  }
+  var spots = [[0, fountain ? [[fountain[0] + 2, fountain[1] - 1], [fountain[0] - 1, fountain[1] - 1], [fountain[0] + 2, fountain[1] + 2], [fountain[0] - 1, fountain[1] + 2]] : []]];
+  blds.forEach(function (b) {
+    var fy = b.y + b.h, c = [];
+    c.push([b.x + b.w, fy - 1], [b.x - 1, fy - 1], [b.x + b.w - 1, fy], [b.x, fy], [b.x + b.w, fy], [b.x - 1, fy]);   /* 横・前の角（入口のまん中はあける） */
+    spots.push([b.f, c]);
+  });
+  spots.forEach(function (s) { for (var i = 0; i < s[1].length; i++) { var p = s[1][i]; if (ok(p[0], p[1])) { out.push({ x: p[0], y: p[1], f: s[0], img: FAC_NPC_IMG[s[0]] }); break; } } });
+  return out;
 }
