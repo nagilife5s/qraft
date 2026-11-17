@@ -20,13 +20,24 @@ test('ひとりで冒険：町の育ち方と画面', async ({ browser }) => {
   await p.locator('.jobcard[data-job="summoner"]').click(); await p.locator('#cname').fill('せいれい'); await p.locator('#btnMake').click();
   await expect(p.locator('#s-town')).toBeVisible({ timeout: 15000 });
   const ch = await rest('GET', `quest/${Y}/chars/2-3-7`); expect(ch.lv).toBe(16); expect(ch.sp).toBe(15);
-  for (const st of [0, 2, 4, 7, 9, 12]) {
+  // 町の段階ごと・画面の大きさごと。つながった地面（town-art.js）が描き終わるまでの時間も出す（THROTTLE=4 で CPU を4倍遅く）
+  const cdp = process.env.THROTTLE ? await p.context().newCDPSession(p) : null;
+  if (cdp) await cdp.send('Emulation.setCPUThrottlingRate', { rate: +process.env.THROTTLE });
+  for (const st of [0, 2, 4, 8, 12]) for (const vp of [{ width: 1366, height: 657 }, { width: 1920, height: 950 }]) {
     await rest('PUT', `quest/${Y}/classes/2-3/stage`, st);
+    await p.setViewportSize(vp);
     await p.reload(); await p.locator('#segG button[data-v="2"]').click().catch(() => {});
     if (await p.locator('#s-login').isVisible()) { await p.locator('#segC button', { hasText: '3' }).first().click(); await p.locator('#nums button', { hasText: /^7$/ }).click(); }
-    await expect(p.locator('#s-town')).toBeVisible({ timeout: 15000 }); await p.waitForTimeout(1500);
-    await p.screenshot({ path: SHOT + '/s1-town-' + st + '.png' });
+    await expect(p.locator('#s-town')).toBeVisible({ timeout: 15000 });
+    const t0 = Date.now(); await expect(p.locator('#map .tw-cv').first()).toBeVisible({ timeout: 30000 });
+    console.log('town', st, vp.width, 'canvas ms', Date.now() - t0);
+    await p.waitForTimeout(800);
+    await p.screenshot({ path: SHOT + '/s1-town-' + st + '-' + vp.width + '.png' });
   }
+  // 東（川・橋・壁・塔・門）まで歩いて撮る（最後の段階のまま）
+  for (let k = 0; k < 4; k++) { await p.mouse.click(1880, 520); await p.waitForTimeout(4500); }
+  await p.screenshot({ path: SHOT + '/s1-town-east-1920.png' });
+  await p.setViewportSize({ width: 1280, height: 800 });
   // 装備と持ち物をデータで持たせて、ステータスに絵が出るかを見る
   await rest('PATCH', `quest/${Y}/chars/2-3-7`, { eq: { w: 'w3', a: 'a2' }, inv: { potion: 2, ether2: 1, potion3: 1 }, gold: 900 });
   await p.reload(); if (await p.locator('#s-login').isVisible()) { await p.locator('#segG button[data-v="2"]').click(); await p.locator('#segC button', { hasText: '3' }).first().click(); await p.locator('#nums button', { hasText: /^7$/ }).click(); }
