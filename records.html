@@ -84,8 +84,11 @@
   .mklist { max-height:calc(100vh - 22em); min-height:14em; overflow:auto; background:#fff; border:1px solid #ddd6f3; border-radius:.6em; }
   .mkuh { position:sticky; top:0; background:#4320b0; color:#fff; padding:.3em .8em; font-weight:900; display:flex; gap:.6em; align-items:center; z-index:1; }
   .mkch { display:flex; gap:.6em; align-items:center; padding:.2em .8em; margin-top:.2em; border-left:.35em solid #4320b0; background:#efeaff; color:#2a1470; font-weight:900; font-size:.92em; }
-  .mkch button { margin-left:auto; border:0; border-radius:999px; padding:.1em .8em; font-weight:800; font-size:.85em; background:#fff; }
-  .mkuh button { margin-left:auto; border:0; border-radius:999px; padding:.15em .8em; font-weight:800; font-size:.85em; }
+  .mkch button, .mkuh button { margin-left:auto; border:0; background:none; padding:0 .2em; font-weight:600; font-size:.78em; color:inherit; opacity:.75; text-decoration:underline; text-underline-offset:.2em; cursor:pointer; }
+  .mkch button:hover, .mkuh button:hover { opacity:1; }
+  .chmv { display:flex; flex-wrap:wrap; gap:.8em; align-items:center; margin:-.2em 0 .8em; font-weight:700; font-size:.92em; }
+  .chmv select { font:inherit; padding:.2em .4em; border-radius:.4em; border:1px solid #c9c0ea; }
+  .chmv-n { color:#6b6390; font-weight:600; font-size:.9em; }
   .mksrow { border-bottom:1px solid #ece7fb; }
   .mkshead { display:flex; align-items:center; gap:.6em; padding:.45em .7em; cursor:pointer; }
   .mkshead:hover { background:#f6f2ff; } .mksrow.on > .mkshead { background:#e8e0ff; }
@@ -154,7 +157,7 @@
   </div>
   <!-- テスト範囲を、問題の一覧から作る（2026-11-17） -->
   <div id="q-mk" hidden>
-    <div class="note" style="margin-bottom:.8em">テストに出したい問題セットにチェックを付けて、名前を決めると、テスト範囲になります。「中を見る」で、入れたくない問題のチェックを外せます。作った範囲は、生徒の「ひとりで冒険 → テスト範囲」に名前で出ます。単元ごとにまとめて作るときは「設定」タブでも作れます。</div>
+    <div class="note" style="margin-bottom:.8em">テストに出したい問題セットにチェックを付けて、名前を決めると、テスト範囲になります。「中を見る」で、入れたくない問題のチェックを外せます。作った範囲は、生徒の「ひとりで冒険 → テスト範囲」に名前で出ます。単元や章をまとめて入れるときは、見出しの「この単元を全部」「この章を全部」を押します。</div>
     <div class="mkbar">学年
       <span id="mkG"><button type="button" class="mkpill" data-g="1">1年</button> <button type="button" class="mkpill" data-g="2">2年</button> <button type="button" class="mkpill" data-g="3">3年</button></span>
       <input type="text" id="mkKw" placeholder="題名でさがす（例：期末対策）" aria-label="題名でさがす" style="flex:1;min-width:10em">
@@ -209,9 +212,9 @@
 
 <script src="firebase-config.js"></script>
 <script type="module">
-import { signIn, db, ref, set, get, remove, loadQEdits, mountSetPicker, zoomImage } from './lib.js';
-import { fiscalYear, makeCode } from './quest.js';
-import { UNITS } from './rikaria-data.js';
+import { loadHomeSets, signIn, db, ref, set, get, remove, loadQEdits, mountSetPicker, zoomImage } from './lib.js?v=20261118114500';
+import { fiscalYear, makeCode } from './quest.js?v=20261118114500';
+import { UNITS } from './rikaria-data.js?v=20261118114500';
 var $ = function (id) { return document.getElementById(id); };
 var uid = null, rows = [], titles = {}, open = {}, HS = [];
 
@@ -219,7 +222,7 @@ function gate(html) { $('gate').innerHTML = html; }
 (async function boot() {
   try { uid = (await signIn()).uid; } catch (e) { gate('<div class="note">ログインに失敗しました：' + e.message + '</div>'); return; }
   $('myUid').textContent = uid;
-  try { HS = await (await fetch('home/index.json', { cache: 'no-cache' })).json(); HS.forEach(function (s) { titles[s.id] = s.title; }); } catch (e) {}
+  try { HS = await loadHomeSets(); HS.forEach(function (s) { titles[s.id] = s.title; }); } catch (e) {}
   await check();
 })();
 
@@ -705,8 +708,27 @@ function merged(q, x) {
 function drawSet() {
   var v = $('qView'), E = QED[qCur.id] || {}, ne = Object.keys(E).length;
   var h = '<div class="qhead"><h2>' + esc(qCur.title) + '</h2><span>' + qCur.qs.length + '問' + (ne ? '・<span class="badge-ed">手で直した ' + ne + '問</span>' : '') + '</span></div>';
-  v.innerHTML = h;
+  v.innerHTML = h; v.appendChild(chMover());
   qCur.qs.forEach(function (q0, i) { v.appendChild(qCard(q0, i, E[i])); });
+}
+/* 章を移す（2026-11-18）。chedits/<セットid> に章の名前を書く。もとの章にもどしたら消す */
+function chMover() {
+  var st = HS.filter(function (s) { return s.id === qCur.id; })[0], d = document.createElement('div'); d.className = 'chmv';
+  if (!st || !st.chapter) return d;
+  var chs = []; HS.forEach(function (s) { if (s.grade === st.grade && s.unit === st.unit && s._ch0 && chs.indexOf(s._ch0) < 0) chs.push(s._ch0); });
+  if (chs.length < 2) return d;
+  d.innerHTML = '<label>章：<select id="chSel">' + chs.map(function (c) { return '<option' + (c === st.chapter ? ' selected' : '') + '>' + esc(c) + '</option>'; }).join('') + '</select></label>' +
+    (st._moved ? '<span class="chmv-n">もとは「' + esc(st._ch0) + '」</span>' : '') + '<span id="chMsg" class="chmv-n"></span>';
+  d.querySelector('select').onchange = async function () {
+    var c = this.value, m = d.querySelector('#chMsg'); m.textContent = '保存しています…';
+    try {
+      if (c === st._ch0) await remove(ref(db, 'chedits/' + st.id)); else await set(ref(db, 'chedits/' + st.id), c);
+      var nw = await loadHomeSets(); HS.length = 0; nw.forEach(function (x) { HS.push(x); });
+      if (qPicker) qPicker.render(); drawSet();
+      $('chMsg').textContent = '「' + c + '」に移しました';
+    } catch (e) { m.textContent = '保存できませんでした（新しいルールが公開されているか確かめてください）：' + e.message; this.value = st.chapter; }
+  };
+  return d;
 }
 function qCard(q0, i, x) {
   var q = merged(q0, x), card = document.createElement('div'); card.className = 'qcard' + (x ? ' ed' : ''); card.id = 'qc-' + i;

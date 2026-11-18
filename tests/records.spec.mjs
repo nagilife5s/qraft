@@ -170,3 +170,32 @@ test('記録画面：問題の一覧からテスト範囲を作る（1問外す�
   if (SHOT) await t.screenshot({ path: SHOT + '/rec-5-rangelist.png' });
   expect(errs).toEqual([]);
 });
+
+test('記録画面：セットを別の章に移す・もとにもどす（章の移しかえ）', async ({ browser }) => {
+  const errs = [];
+  await rest('DELETE', 'chedits');
+  const t = await (await browser.newContext({ viewport: { width: 1366, height: 800 } })).newPage();
+  t.on('pageerror', e => errs.push('T ' + e));
+  await asTeacher(t);
+  await t.locator('#tab-q').click();
+  await t.locator('#qPicker .pkq').fill('慣性の法則');
+  await t.locator('#qPicker .pcard', { hasText: /^慣性の法則/ }).first().click();
+  const sel = t.locator('#chSel'); await expect(sel).toHaveValue(/第1章/, { timeout: 15000 });
+  await sel.selectOption({ label: '第2章 力のはたらき方' });
+  await expect(t.locator('.chmv')).toContainText('第2章 力のはたらき方」に移しました');
+  await expect(t.locator('.chmv')).toContainText('もとは「第1章 物体の運動」');
+  const v = await rest('GET', 'chedits'); expect(Object.values(v)).toEqual(['第2章 力のはたらき方']);
+  // テスト範囲づくりの一覧でも、第2章の見出しの下に出る
+  await t.locator('#qsub button', { hasText: 'テスト範囲をつくる' }).click();
+  await t.locator('#mkG .mkpill', { hasText: '3年' }).click(); await t.locator('#mkKw').fill('慣性');
+  const txt = await t.locator('#mkList').innerText();
+  expect(txt.indexOf('第2章')).toBeLessThan(txt.indexOf('慣性の法則'));
+  expect(txt).not.toContain('第1章');
+  if (SHOT) await t.screenshot({ path: SHOT + '/rec-6-chmove.png' });
+  // もとの章にもどすと、直しは消える
+  await t.locator('#qsub button', { hasText: '問題を見る' }).click();
+  await t.locator('#chSel').selectOption({ label: '第1章 物体の運動' });
+  await expect(t.locator('.chmv')).toContainText('移しました');
+  expect(await rest('GET', 'chedits')).toBeNull();
+  expect(errs).toEqual([]);
+});

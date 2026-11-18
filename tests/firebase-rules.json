@@ -480,6 +480,13 @@
           }
         }
       }
+    },
+    "chedits": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('admins').child(auth.uid).exists()",
+      "$set": {
+        ".validate": "$set.matches(/^[a-z0-9-]{1,24}$/) && newData.isString() && newData.val().length >= 1 && newData.val().length <= 60"
+      }
     }
   }
 }

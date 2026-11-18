@@ -711,6 +711,29 @@ if (typeof document !== 'undefined') (function () {
    問題を読みこむ画面（家庭練習・クラシック・リカリア・ひとりで冒険・なかまと冒険）は、読みこむときにこれを重ねる。
    原本へ書きもどすのは tools/pull_qedits.py（書きもどしたら qedits を消す）
    ==================================================================== */
+/* ====================================================================
+   章の移しかえ（記録画面の「問題」タブ。2026-11-18）
+   chedits/<セットid> = 章の名前（同じ単元の別の章）。一覧（home/index.json）を読むときに重ねて、教科書の順に並べなおす。
+   ==================================================================== */
+export function applyChEdits(sets, ce) {
+  if (!ce) return sets;
+  var chNo = {};   /* 学年|単元|章 → 章の番号 */
+  sets.forEach(function (s) { if (s.chapter) chNo[s.grade + '|' + s.unit + '|' + s.chapter] = s.ch; });
+  sets.forEach(function (s, i) {
+    s._o = i; s._ch0 = s.chapter; var c = ce[s.id];
+    if (typeof c === 'string' && c !== s.chapter && chNo[s.grade + '|' + s.unit + '|' + c] != null) { s.chapter = c; s.ch = chNo[s.grade + '|' + s.unit + '|' + c]; s._moved = 1; }
+  });
+  return sets.slice().sort(function (a, b) { return (a.grade - b.grade) || ((a.uo || 0) - (b.uo || 0)) || ((a.ch || 0) - (b.ch || 0)) || (a._o - b._o); });
+}
+export async function loadChEdits() {
+  try { await signIn(); return (await get(ref(db, 'chedits'))).val() || {}; } catch (e) { return {}; }
+}
+/* 問題セットの一覧（章の移しかえを重ねたもの） */
+export async function loadHomeSets() {
+  var r = await Promise.all([fetch('home/index.json', { cache: 'no-cache' }).then(function (x) { return x.json(); }), loadChEdits()]);
+  return applyChEdits(r[0], r[1]);
+}
+
 var QE = null;
 export function setIdOf(file) { return String(file).replace(/^.*\//, '').replace(/\.json$/, ''); }
 export async function loadQEdits(force) {

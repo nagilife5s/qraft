@@ -164,6 +164,9 @@ pr['u'] = {".validate": "newData.isString() && newData.val().matches(/^[a-z]{2,1
 pr['s'] = {".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 36000"}
 # 先生が手で直した問題（記録画面の「問題」タブ。2026-11-17）。qedits/<セットid>/<問題の番号> = { q, c:{0..9: 文字}, a, ex, t, by }
 # 読むのはログインした人みんな（問題を読みこむ画面が重ねる）、書く・消すのは先生だけ
+# 章の移しかえ（記録画面の「問題」タブ。2026-11-18）。chedits/<セットid> = 章の名前。読むのはログインした人みんな、書くのは先生だけ
+R['rules']['chedits'] = {".read": "auth != null", ".write": "auth != null && " + A,
+  "$set": {".validate": "$set.matches(/^[a-z0-9-]{1,24}$/) && newData.isString() && newData.val().length >= 1 && newData.val().length <= 60"}}
 R['rules']['qedits'] = {".read": "auth != null", ".write": "auth != null && " + A,
   "$set": {".validate": "$set.matches(/^[a-z0-9-]{1,24}$/)", "$i": {
     ".validate": "$i.matches(/^[0-9]{1,3}$/) && newData.hasChildren(['t'])",
