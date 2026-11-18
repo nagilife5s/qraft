@@ -142,6 +142,7 @@ test('リカリア・チーム戦：通しで動き、続きから始められ�
 
 // オブリオン戦（2026-11-13）：クラスで1体・2班。1回目で削って持ち越し → 2回目で倒す → 前回だけ来た人にもごほうび
 test('オブリオン戦：クラスで1体のHPを持ち越し、倒すと参加した人全員にごほうび', async ({ browser }) => {
+  test.setTimeout(300000);
   const tctx = await browser.newContext({ viewport: { width: 1366, height: 800 } });
   const host = await tctx.newPage();
   await host.goto('records.html?emu=1');
@@ -179,7 +180,7 @@ test('オブリオン戦：クラスで1体のHPを持ち越し、倒すと参�
   const players = await rest('GET', `rooms/${pin}/players`);
   const uidOf = (n) => Object.keys(players).find((u) => players[u].sid === '1-2-' + n);
   // 2人が答える（正解するまで）→ クラスのHPが減る。2つの班で同じHP
-  for (let i = 0; i < 12; i++) {
+  for (const end = Date.now() + 60000; Date.now() < end;) {
     for (const p of [a, b]) { const btn = p.locator('#cmd .choices button:not([disabled])').first(); if (await btn.isVisible().catch(() => false)) await btn.click().catch(() => {}); }
     await a.waitForTimeout(1300);
     const g1 = await rest('GET', `rooms/${pin}/gv/1`); if (g1.foes[0].hp < g1.foes[0].mx) break;
@@ -206,7 +207,8 @@ test('オブリオン戦：クラスで1体のHPを持ち越し、倒すと参�
   const seen2 = await skipStory(host, '#obStage');   // 2回目は「戦いの前」だけ（章の始まりは出ない）
   expect(seen2.length).toBe(1); expect(seen2[0]).toContain('霧影オブリオン');
   await expect(a2.locator('#s-battle')).toBeVisible({ timeout: 10000 });
-  for (let i = 0; i < 15; i++) {
+  // 1番目の選択肢を押し続ける（まちがえて全滅すると数秒待つので、回数でなく時間で区切る。全体を並べて動かすと遅くなるため）
+  for (const end = Date.now() + 90000; Date.now() < end;) {
     const btn = a2.locator('#cmd .choices button:not([disabled])').first(); if (await btn.isVisible().catch(() => false)) await btn.click().catch(() => {});
     await a2.waitForTimeout(1300);
     if (await host.locator('#s-end').isVisible()) break;
