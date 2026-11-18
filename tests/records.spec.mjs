@@ -187,7 +187,7 @@ test('記録画面：セットを別の章に移す・もとにもどす（章�
   const v = await rest('GET', 'chedits'); expect(Object.values(v)).toEqual(['第2章 力のはたらき方']);
   // テスト範囲づくりの一覧でも、第2章の見出しの下に出る
   await t.locator('#qsub button', { hasText: 'テスト範囲をつくる' }).click();
-  await t.locator('#mkG .mkpill', { hasText: '3年' }).click(); await t.locator('#mkKw').fill('慣性');
+  await t.locator('#mkG .mkpill', { hasText: '3年' }).click(); await t.locator('#mkKw').fill('慣性の法則');
   const txt = await t.locator('#mkList').innerText();
   expect(txt.indexOf('第2章')).toBeLessThan(txt.indexOf('慣性の法則'));
   expect(txt).not.toContain('第1章');
