@@ -4,7 +4,7 @@
  */
 import { propImg, zakoImg, guardImg, fieldImg, effectImg, heroImg, spiritImg } from './rikaria-data.js';
 import { buildMap } from './rikaria-engine.js';
-import { dungeonArt } from './dungeon-art.js?v=20261120230000';
+import { dungeonArt } from './dungeon-art.js?v=20261121010000';
 
 export var MAP = buildMap();
 export function el(t, c, txt) { var e = document.createElement(t); if (c) e.className = c; if (txt != null) e.textContent = txt; return e; }
@@ -114,11 +114,17 @@ var COL = { '01': '#cfeaff', '02': '#ff7a2a', '03': '#9fe4ff', '04': '#fff36a', 
 /* ダメージ（ev: {d, crit, weak, n, fx, ult, guard, dot}）。who＝技を使った人の呼び名 */
 /* エフェクト画像（黒い背景）の黒を透明にするフィルター。画面に1つだけ置く。
    前は mix-blend-mode:screen だけで黒を消していたが、戦いの場がゆれている間（.quake の transform）は重ね方が効かず、絵の後ろに黒い四角が見えた（2026-11-15 テストプレイ） */
-function fxFilter() {
+export function fxFilter() {
   if (document.getElementById('fxLum')) return;
   var d = document.createElement('div'); d.style.cssText = 'position:absolute;width:0;height:0;overflow:hidden';
   d.innerHTML = '<svg width="0" height="0" aria-hidden="true"><filter id="fxLum" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  1.4 1.4 1.4 0 0"/></filter></svg>';
   document.body.appendChild(d);
+}
+/* エフェクト画像を1枚重ねて、ms 後に消す（チーム戦・ひとりで冒険の両方で使う）。cls＝'ult'・'team'・'small' など */
+export function fxImg(hostEl, fx, cls, ms) {
+  if (!hostEl || !fx) return null;
+  fxFilter(); var im = el('img', 'fximg' + (cls ? ' ' + cls : '')); im.style.filter = 'url(#fxLum)'; im.src = effectImg(fx); im.alt = ''; im.setAttribute('aria-hidden', 'true');
+  hostEl.appendChild(im); setTimeout(function () { im.remove(); }, ms || 900); return im;
 }
 export function dmgFx(enemyEl, arenaEl, rootEl, ev, who) {
   if (!enemyEl) return;
@@ -128,8 +134,7 @@ export function dmgFx(enemyEl, arenaEl, rootEl, ev, who) {
   if (ev.guard) return;
   var skill = !!ev.n && ev.n !== 'カウンター', fx = ev.fx || (ev.dot ? '16' : '01'), c = COL[fx] || '#fff';
   if (skill || ev.crit) {   /* 採用したエフェクト画像を、黒を消して重ねる */
-    fxFilter(); var im = el('img', 'fximg' + (ev.ult ? ' ult' : '')); im.style.filter = 'url(#fxLum)'; im.src = effectImg(fx); im.alt = '';
-    enemyEl.appendChild(im); setTimeout(function () { im.remove(); }, 900);
+    fxImg(enemyEl, fx, ev.ult ? 'ult' : '', 900);
   }
   var hf = el('div', 'hitflash'); enemyEl.appendChild(hf); setTimeout(function () { hf.remove(); }, 400);
   [0, skill ? 120 : -1, ev.ult ? 240 : -1].forEach(function (t) { if (t < 0) return; setTimeout(function () { var r = el('div', 'ring' + (skill ? ' big' : '')); r.style.setProperty('--rc', c); r.style.setProperty('--rs', ev.ult ? 6 : skill ? 4.2 : 2.6); enemyEl.appendChild(r); setTimeout(function () { r.remove(); }, 900); }, t); });
@@ -147,7 +152,7 @@ export function dmgFx(enemyEl, arenaEl, rootEl, ev, who) {
 /* 回復・強化など、敵に当たらない技（自分たちの上に光） */
 export function supportFx(hostEl, fx, name, who, ult) {
   if (!hostEl) return;
-  fxFilter(); var im = el('img', 'fximg team' + (ult ? ' ult' : '')); im.style.filter = 'url(#fxLum)'; im.src = effectImg(fx || '10'); im.alt = ''; hostEl.appendChild(im); setTimeout(function () { im.remove(); }, 1000);
+  fxImg(hostEl, fx || '10', 'team' + (ult ? ' ult' : ''), 1000);
   var cu = el('div', 'cutin' + (ult ? ' ult' : '')); cu.innerHTML = '<small>' + esc(who || '') + 'の</small>' + esc(name) + '！'; cu.style.setProperty('--cg', COL[fx] || '#9dffb8'); hostEl.appendChild(cu); setTimeout(function () { cu.remove(); }, 1000);
 }
 export function ovban(host, s, big) { if (!host || !s) return; host.querySelectorAll(':scope > .ovban').forEach(function (o) { o.remove(); }); var b = el('div', 'ovban' + (big ? ' big' : ''), s), ms = s.length > 18 ? 3500 : 2000; b.style.animationDuration = ms + 'ms'; host.appendChild(b); setTimeout(function () { b.remove(); }, ms); }   /* 19文字より長い文は3.5秒（2秒では読みきれない） */

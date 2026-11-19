@@ -11,13 +11,16 @@ test('全部の階が解ける（鍵は扉の手前・階段は扉の奥）', ()
     const d = dgBfs(M.g, M.start), goal = M.items[0];
     assert.equal(goal.k, fl === 5 ? 'boss' : 'stair', tag);
     assert.equal(M.g.flat().filter((c) => c === 'D').length, 1, tag + ' 扉は1つ');
-    const keys = M.items.filter((i) => i.k === 'key');
-    assert.equal(keys.length, M.need, tag);
-    keys.forEach((k) => assert.ok(d[k.y][k.x] > 0, tag + ' 鍵に扉なしで行ける'));
+    assert.equal(M.g.length, 19); assert.equal(M.g[0].length, 27);
+    assert.equal(M.items.filter((i) => i.k === 'key').length, 0, tag + ' 鍵は床に置かない');
+    assert.ok(M.items.filter((i) => i.k === 'chest').length <= 1, tag + ' 宝箱は1つまで');
+    assert.equal(M.carriers.length, M.need, tag + ' 鍵を持つ魔物の数');
+    M.carriers.forEach(([x, y]) => assert.ok(d[y][x] > 0, tag + ' 鍵の魔物に扉なしで行ける'));
+    if (M.carriers.length === 2) { const [a, b] = M.carriers; assert.ok(Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]) >= 6, tag + ' 鍵の魔物は離れている'); }
     assert.equal(d[goal.y][goal.x], -1, tag + ' 階段は扉を開けないと行けない');
     const g2 = M.g.map((r) => r.map((c) => (c === 'D' ? '.' : c)));
     assert.ok(dgBfs(g2, M.start)[goal.y][goal.x] > 0, tag + ' 扉を開ければ階段に行ける');
-    assert.ok(M.spots.length > 20, tag + ' 魔物の置き場所');
+    assert.ok(M.spots.length >= 50, tag + ' 魔物の置き場所');
   }
 });
 test('同じ単元・同じ階なら同じ形', () => {

@@ -475,6 +475,26 @@ export function bossImg(u) { return u.id === 'matter' ? 'img/quest/boss-alchemir
 export function battleBg(u) { return u.id === 'matter' ? 'img/bg/lab.webp' : 'img/rikaria/bg/' + u.id + '.webp'; }
 export function propImg(u, i) { return u.id === 'matter' ? null : 'img/rikaria/prop/' + u.id + '-' + i + '.webp'; }
 export function effectImg(fx) { return 'img/rikaria/effect/fx-' + fx + '.webp'; }
+/* 技ごとの専用エフェクト（fx-26〜fx-89。絵は順に届く）。職業 → 技の番号 → 画像の番号。
+   FX_HAVE に入れた番号だけ使い、まだ無いものは今までの s.fx のまま（2026-11-20） */
+export var FX_OWN = {
+  warrior: { 5: 26, 7: 27, 10: 28, 12: 29, 13: 30, 14: 31 },
+  mage: { 0: 32, 1: 33, 3: 34, 6: 35, 7: 36, 10: 37, 11: 38, 12: 39, 13: 40, 14: 41 },
+  priest: { 0: 42, 2: 43, 3: 44, 6: 45, 7: 46, 8: 47, 9: 48, 10: 49, 11: 50, 12: 51, 13: 52, 14: 53 },
+  hunter: { 1: 54, 2: 55, 3: 56, 6: 57, 7: 58, 8: 59, 10: 60, 11: 61, 12: 62, 13: 63, 14: 64 },
+  monk: { 1: 65, 2: 66, 3: 67, 4: 68, 5: 69, 7: 70, 8: 71, 9: 72, 10: 73, 11: 74, 12: 75, 13: 76, 14: 77 },
+  summoner: { 1: 78, 2: 79, 4: 80, 5: 81, 7: 82, 8: 83, 9: 84, 10: 85, 11: 86, 12: 87, 13: 88, 14: 89 }
+};
+export var FX_HAVE = new Set([]);   /* 届いた絵の番号（文字列 '26' など）をここに足す */
+export function skillFx(j, i) {
+  var own = FX_OWN[j] && FX_OWN[j][i], id = own ? String(own) : null;
+  if (id && FX_HAVE.has(id)) return id;
+  var s = JOBS[j] && JOBS[j].sk[i]; return s ? s.fx : null;
+}
+/* 精霊使いの「今の精霊」のエフェクト */
+export function elemFx(e) { return { fire: '02', water: '06', wind: '05', earth: '07' }[e] || '02'; }
+/* こうげき（正解のふつうの攻撃）の小さなエフェクト */
+export var ATK_FX = { warrior: '01', mage: '02', priest: '08', hunter: '12', monk: '14' };
 
 /* ------------------------------------------------------------ 戦闘の数値（方向性 8.5。モックで試算済み） */
 export var N = {

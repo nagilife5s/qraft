@@ -2,9 +2,10 @@
  * ひとりで冒険の5階のダンジョン（2026-11-20。mock/dungeon5-mock.html を本番用にしたもの）
  * 単元と階で決まる乱数で迷路を作る（同じ単元・同じ階なら、いつも同じ形）。
  *   '#' 壁 ・ '.' 床 ・ 'D' 扉（鍵が必要数そろうと開く）。階段（5階はボス）は 5×5 の部屋の真ん中で、部屋の入口は扉1つだけ。
- *   items: stair / boss / key / chest。1〜3階は鍵1本、4・5階は鍵2本。
+ *   items: stair / boss / chest。鍵は床に置かず、鍵を持った魔物（carriers の場所）が落とす。1〜3階は1体、4・5階は2体。
+ *   2026-11-21：歩くばかりで戦闘が少ないと言われ、広さを約2/3（27×19）に。宝箱は1つ。
  */
-export const DG_W = 41, DG_H = 29, DG_FLOORS = 5;
+export const DG_W = 27, DG_H = 19, DG_FLOORS = 5;
 export function dgRng(seed) { let s = 0; for (const c of seed) s = (s * 31 + c.charCodeAt(0)) >>> 0; return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; }
 export function dgBfs(g, [sx, sy]) {
   const d = g.map((r) => r.map(() => -1)); d[sy][sx] = 0; const q = [[sx, sy]];
@@ -13,7 +14,7 @@ export function dgBfs(g, [sx, sy]) {
 }
 export function dgBuild(uid, fl) {
   /* 階段の部屋の壁が通路を切って、扉の手前がせまくなりすぎることがある（force 3階・space 3階）。そのときは種を変えて作り直す */
-  for (let t = 0; t < 20; t++) { const M = make(uid + '#' + fl + (t ? '#' + t : ''), fl); if (M.spots.length >= 120) return M; }
+  for (let t = 0; t < 20; t++) { const M = make(uid + '#' + fl + (t ? '#' + t : ''), fl); if (M.spots.length >= 50) return M; }
   return make(uid + '#' + fl, fl);
 }
 function make(seed, fl) {
@@ -24,10 +25,10 @@ function make(seed, fl) {
     if (!n.length) { st.pop(); continue; } const [dx, dy] = n[Math.floor(R() * n.length)]; g[y + dy / 2][x + dx / 2] = '.'; g[y + dy][x + dx] = '.'; st.push([x + dx, y + dy]); }
   /* 2) 部屋 */
   const rooms = [];
-  for (let i = 0; i < 7; i++) { const w = 3 + 2 * Math.floor(R() * 3), h = 3 + 2 * Math.floor(R() * 2), x = 1 + 2 * Math.floor(R() * ((W - w - 2) / 2)), y = 1 + 2 * Math.floor(R() * ((H - h - 2) / 2));
+  for (let i = 0; i < 4; i++) { const w = 3 + 2 * Math.floor(R() * 3), h = 3 + 2 * Math.floor(R() * 2), x = 1 + 2 * Math.floor(R() * ((W - w - 2) / 2)), y = 1 + 2 * Math.floor(R() * ((H - h - 2) / 2));
     for (let yy = y; yy < y + h; yy++) for (let xx = x; xx < x + w; xx++) g[yy][xx] = '.'; rooms.push({ x, y, w, h }); }
   /* 3) ループ */
-  for (let i = 0; i < 25; i++) { const x = 1 + Math.floor(R() * (W - 2)), y = 1 + Math.floor(R() * (H - 2)); if (g[y][x] === '#' && ((g[y][x - 1] === '.' && g[y][x + 1] === '.') || (g[y - 1][x] === '.' && g[y + 1][x] === '.'))) g[y][x] = '.'; }
+  for (let i = 0; i < 14; i++) { const x = 1 + Math.floor(R() * (W - 2)), y = 1 + Math.floor(R() * (H - 2)); if (g[y][x] === '#' && ((g[y][x - 1] === '.' && g[y][x + 1] === '.') || (g[y - 1][x] === '.' && g[y + 1][x] === '.'))) g[y][x] = '.'; }
   /* 4) 一番遠い所に、壁でかこんだ階段の部屋（入口は扉1つ） */
   const start = [1, 1], dist = dgBfs(g, start);
   let far = start, fd = 0; for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (dist[y][x] > fd) { fd = dist[y][x]; far = [x, y]; }
@@ -44,10 +45,10 @@ function make(seed, fl) {
   g[door[1]][door[0]] = 'D';
   const d2 = dgBfs(g, start); let key = start, kd = 0;
   for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (d2[y][x] > kd && g[y][x] === '.') { kd = d2[y][x]; key = [x, y]; }
-  const items = [{ k: fl === DG_FLOORS ? 'boss' : 'stair', x: far[0], y: far[1] }, { k: 'key', x: key[0], y: key[1] }];
-  if (fl >= 4) { let k2 = start, best = 0; for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) { const v = d2[y][x], dk = Math.abs(x - key[0]) + Math.abs(y - key[1]); if (v > 0 && g[y][x] === '.' && dk > best && v > kd * .5) { best = dk; k2 = [x, y]; } } items.push({ k: 'key', x: k2[0], y: k2[1] }); }
-  rooms.slice(0, 3).forEach((r) => { if (g[r.y][r.x] === '.' && d2[r.y][r.x] > 0 && !items.some((i) => i.x === r.x && i.y === r.y)) items.push({ k: 'chest', x: r.x, y: r.y }); });
+  const items = [{ k: fl === DG_FLOORS ? 'boss' : 'stair', x: far[0], y: far[1] }], carriers = [key];
+  if (fl >= 4) { let k2 = start, best = 0; for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) { const v = d2[y][x], dk = Math.abs(x - key[0]) + Math.abs(y - key[1]); if (v > 0 && g[y][x] === '.' && dk > best && v > kd * .5) { best = dk; k2 = [x, y]; } } carriers.push(k2); }
+  for (const r of rooms) { if (g[r.y][r.x] === '.' && d2[r.y][r.x] > 0 && !carriers.some((c) => c[0] === r.x && c[1] === r.y)) { items.push({ k: 'chest', x: r.x, y: r.y }); break; } }
   /* 魔物の置き場所の候補：入口から離れた、扉の手前の床（階段の部屋には置かない） */
-  const spots = []; for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (d2[y][x] > 8 && !items.some((i) => i.x === x && i.y === y)) spots.push([x, y]);
-  return { g, items, start, door, need: fl >= 4 ? 2 : 1, spots, R };
+  const spots = []; for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (d2[y][x] > 5 && !items.some((i) => i.x === x && i.y === y) && !carriers.some((c) => c[0] === x && c[1] === y)) spots.push([x, y]);
+  return { g, items, carriers, start, door, need: fl >= 4 ? 2 : 1, spots, R };
 }

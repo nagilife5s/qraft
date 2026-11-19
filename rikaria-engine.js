@@ -3,7 +3,7 @@
  * 先生のPC（rikaria-host.html）が班ごとに1つ持ち、0.5秒ごとに step() で進める。生徒の入力は answer / skill / target / moveTo などで入れる。
  * 生徒の画面には view() の中身を送る。node で単体テストできる（tests/rikaria-engine.test.mjs）。
  */
-import { lapX, goldOf, JOBS, N, REWARD, RANK_POW, RANK_SEC, MP_MAX, lvMult, weakOf, ELEMS, ELEM, skillName, rankOf, loadoutOf,
+import { lapX, goldOf, JOBS, N, REWARD, RANK_POW, RANK_SEC, MP_MAX, lvMult, weakOf, ELEMS, ELEM, skillName, rankOf, loadoutOf, skillFx, elemFx,
   zakoImg, guardImg, bossImg, bossTitle, BOSS_SK, BSK_SAY, OBLION, oblionImg, ITEMS, isCarry, zkAdd, zkBit, rollZako, zakoOf, RARE, NZ } from './rikaria-data.js';
 
 var rnd = function (a) { return a[Math.floor(Math.random() * a.length)]; };
@@ -220,7 +220,8 @@ export function skill(G, id, i) {
   if (m.ld.a.indexOf(i) < 0 && m.ld.u !== i) return false;
   var s = JOBS[m.j].sk[i]; if (!s || m.mp < s.mp) return false;
   m.mp -= s.mp;
-  var r = rankOf(m, i), P = RANK_POW[r], T = RANK_SEC[r], name = skillName(m.j, i, r, m.elem), fx = s.fx === 'elem' ? elemFx(m.elem) : s.fx, team = present(G);
+  var r = rankOf(m, i), P = RANK_POW[r], T = RANK_SEC[r], name = skillName(m.j, i, r, m.elem), fx = skillFx(m.j, i), team = present(G);
+  if (fx === 'elem') fx = elemFx(m.elem);
   emit(G, { t: 'skill', who: id, n: name, fx: fx, ult: s.ult ? 1 : 0 });
   if (s.heal) team.forEach(function (o) { if (o.dn && s.revive) { o.dn = 0; o.hp = o.mx; m.rw.heal += o.mx; } else if (!o.dn) { var h = Math.min(o.mx - o.hp, Math.ceil(o.mx * s.heal * P * (m.hx || 1))); o.hp += h; m.rw.heal += h; } });
   if (s.revive && !s.heal) team.forEach(function (o) { if (o.dn) { o.dn = 0; o.hp = Math.round(o.mx / 2); } });
@@ -256,7 +257,6 @@ export function useItem(G, id) {
   emit(G, { t: 'item', who: id, k: m.it, d: h, s: m.name + ' は ' + it.n + ' を使った！' + (it.hp ? ' HP +' + h : '') + (it.mp ? ' MP +' + Math.floor(p) : '') });
   return true;
 }
-function elemFx(e) { return { fire: '02', water: '06', wind: '05', earth: '07' }[e] || '02'; }
 function healOne(G, m, pct) {
   var lo = present(G).filter(function (o) { return !o.dn; }).sort(function (a, b) { return a.hp / a.mx - b.hp / b.mx; })[0]; if (!lo) return;
   var h = Math.min(lo.mx - lo.hp, Math.ceil(lo.mx * pct * (m.hx || 1))); lo.hp += h; m.rw.heal += h; emit(G, { t: 'heal', who: m.id, to: lo.id, d: h });
