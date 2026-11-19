@@ -429,6 +429,11 @@
             },
             "ubd": {
               ".validate": "newData.isNumber() && newData.val() >= 0"
+            },
+            "df": {
+              "$k": {
+                ".validate": "($k === 'matter' || $k === 'classify' || $k === 'force' || $k === 'earth' || $k === 'life' || $k === 'reaction' || $k === 'weather' || $k === 'electric' || $k === 'ion' || $k === 'space' || $k === 'heredity' || $k === 'energy') && newData.isNumber() && newData.val() >= 2 && newData.val() <= 5 && newData.val() % 1 === 0"
+              }
             }
           }
         },

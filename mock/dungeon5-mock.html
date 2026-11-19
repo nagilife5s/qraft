@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>5階のダンジョン（モック）</title>
+<style>
+  body { margin:0; background:#120d3a; color:#fff; font-family:system-ui, sans-serif; line-height:1.5; }
+  header { padding:.6em 1em; display:flex; flex-wrap:wrap; gap:.6em; align-items:center; background:#1a1450; }
+  header h1 { color:#ffe27a; font-size:1.1em; margin:0; }
+  select, button { font:inherit; font-weight:800; border-radius:999px; border:0; padding:.3em .9em; min-height:40px; }
+  button { background:#3a3170; color:#fff; cursor:pointer; } button.on { background:#ffe27a; color:#221a44; }
+  .wrap { display:grid; grid-template-columns:1fr 260px; gap:1em; padding:1em; max-width:1200px; margin:auto; }
+  @media (max-width:800px) { .wrap { grid-template-columns:1fr; } }
+  .view { position:relative; overflow:hidden; border-radius:.8em; border:3px solid #6a5bd6; background:#000; aspect-ratio:16/10; touch-action:none; }
+  #map { position:absolute; left:0; top:0; transition:transform .12s linear; }
+  .t { position:absolute; background-size:cover; image-rendering:auto; }
+  .fog { position:absolute; background:#05030f; }
+  .ic { position:absolute; display:grid; place-items:center; font-size:.8em; pointer-events:none; }
+  .ic img { width:120%; height:120%; object-fit:contain; }
+  .hero { z-index:5; }
+  .hud { position:absolute; left:.5em; top:.5em; background:rgba(10,6,40,.8); padding:.3em .7em; border-radius:.6em; font-weight:900; z-index:9; }
+  .msg { position:absolute; left:50%; bottom:.6em; translate:-50% 0; background:rgba(10,6,40,.9); border:2px solid #ffe27a; padding:.4em 1em; border-radius:.6em; z-index:9; white-space:nowrap; font-weight:800; }
+  aside .box { background:rgba(255,255,255,.06); border:2px solid #6a5bd6; border-radius:.8em; padding:.7em .9em; margin-bottom:.8em; }
+  aside h2 { margin:0 0 .3em; font-size:1em; color:#ffe27a; }
+  #mini { width:100%; image-rendering:pixelated; background:#05030f; border-radius:.4em; }
+  .floors { display:flex; gap:.3em; flex-wrap:wrap; }
+  .pad { display:none; grid-template-columns:repeat(3,56px); gap:6px; justify-content:center; margin-top:.5em; }
+  .pad button { min-height:56px; font-size:1.3em; }
+  @media (pointer:coarse), (max-width:800px) { .pad { display:grid; } }
+  ul { margin:.2em 0; padding-left:1.2em; } li { margin:.15em 0; }
+  .mocktag { position:fixed; right:.6em; bottom:.6em; background:#c0392b; color:#fff; padding:.2em .8em; border-radius:999px; font-weight:800; font-size:.8em; z-index:20; }
+</style>
+</head>
+<body>
+<header><h1>ひとりで冒険：5階のダンジョン（見本）</h1>
+  <select id="unit"></select>
+  <div class="floors" id="floors"></div>
+</header>
+<div class="wrap">
+  <div>
+    <div class="view" id="view"><div id="map"></div><div class="hud" id="hud"></div><div class="msg" id="msg"></div></div>
+    <div class="pad"><span></span><button data-d="0,-1">▲</button><span></span><button data-d="-1,0">◀</button><button data-d="0,1">▼</button><button data-d="1,0">▶</button></div>
+  </div>
+  <aside>
+    <div class="box"><h2>この階の地図</h2><canvas id="mini"></canvas><div style="font-size:.85em;color:#c9c0ea">歩いた所だけ見える。🔑鍵 🚪扉 🪜階段 💰宝箱</div></div>
+    <div class="box"><h2>しくみ（案）</h2><ul>
+      <li>単元ごとに<b>形がちがう迷路</b>（床・壁・置物はその単元の絵）。同じ単元はいつも同じ形</li>
+      <li>各階で<b>鍵</b>をさがす → 鍵の色の<b>扉</b>を開ける → <b>階段</b>で下へ</li>
+      <li>4階・5階は鍵が2本。5階の奥の大きな扉の先に<b>ボス</b>（その単元のボスの絵）</li>
+      <li>わき道に<b>宝箱</b>（ゴールド・道具）。行き止まりもある</li>
+      <li>魔物は歩き回っていて、ぶつかると戦闘（今と同じ）</li>
+      <li>町にもどっても、<b>たどり着いた一番深い階から</b>また始められる（鍵はその階でさがし直し）</li>
+      <li>見本は矢印キー（WASD）か、下のボタンで歩けます。魔物と戦闘は省略</li></ul></div>
+  </aside>
+</div>
+<div class="mocktag">モック（見本）</div>
+<script type="module">
+import { UNITS, bossImg } from '../rikaria-data.js';
+const $ = (i) => document.getElementById(i);
+const W = 41, H = 29, TS = 34;
+/* 単元と階で決まる乱数（同じ単元・同じ階なら、いつも同じ迷路） */
+function rng(seed) { let s = 0; for (const c of seed) s = (s * 31 + c.charCodeAt(0)) >>> 0; return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; }
+function build(uid, fl) {
+  const R = rng(uid + '#' + fl), g = Array.from({ length: H }, () => Array(W).fill('#'));
+  /* 1) 穴掘り迷路（奇数マス）で通路 */
+  const st = [[1, 1]]; g[1][1] = '.';
+  while (st.length) { const [x, y] = st[st.length - 1], n = [[2, 0], [-2, 0], [0, 2], [0, -2]].filter(([dx, dy]) => g[y + dy] && g[y + dy][x + dx] === '#' && x + dx > 0 && x + dx < W - 1 && y + dy > 0 && y + dy < H - 1);
+    if (!n.length) { st.pop(); continue; } const [dx, dy] = n[Math.floor(R() * n.length)]; g[y + dy / 2][x + dx / 2] = '.'; g[y + dy][x + dx] = '.'; st.push([x + dx, y + dy]); }
+  /* 2) 部屋をいくつか開ける（広間） */
+  const rooms = [];
+  for (let i = 0; i < 7; i++) { const w = 3 + 2 * Math.floor(R() * 3), h = 3 + 2 * Math.floor(R() * 2), x = 1 + 2 * Math.floor(R() * ((W - w - 2) / 2)), y = 1 + 2 * Math.floor(R() * ((H - h - 2) / 2));
+    for (let yy = y; yy < y + h; yy++) for (let xx = x; xx < x + w; xx++) g[yy][xx] = '.'; rooms.push({ x, y, w, h, cx: x + (w >> 1), cy: y + (h >> 1) }); }
+  /* 3) 行き止まりを少しつなぐ（ループで迷いやすく） */
+  for (let i = 0; i < 25; i++) { const x = 1 + Math.floor(R() * (W - 2)), y = 1 + Math.floor(R() * (H - 2)); if (g[y][x] === '#' && ((g[y][x - 1] === '.' && g[y][x + 1] === '.') || (g[y - 1][x] === '.' && g[y + 1][x] === '.'))) g[y][x] = '.'; }
+  /* 4) 入口（左上）からの距離 → 一番遠い所に階段、扉は階段の手前、鍵は扉の手前側の遠い所 */
+  const start = [1, 1], dist = bfs(g, start);
+  let far = start, fd = 0; /* 一番遠い所 */ for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (dist[y][x] > fd) { fd = dist[y][x]; far = [x, y]; }
+  /* 階段のまわりを「鍵の部屋」にする：5×5 の部屋を壁でかこみ、入口は扉1つだけ（抜け道ができない） */
+  const rx = Math.min(W - 6, Math.max(1, far[0] - 2)), ry = Math.min(H - 6, Math.max(1, far[1] - 2));
+  for (let y = ry - 1; y <= ry + 5; y++) for (let x = rx - 1; x <= rx + 5; x++) { if (y < 0 || x < 0 || y >= H || x >= W) continue;
+    g[y][x] = (y === ry - 1 || y === ry + 5 || x === rx - 1 || x === rx + 5) ? '#' : '.'; }
+  far = [rx + 2, ry + 2];
+  /* 扉：部屋のかべのうち、外側が通路になっていて入口に一番近い所 */
+  const dd = bfs(g, start); let door = null, bd = 1e9;
+  for (let y = ry - 1; y <= ry + 5; y++) for (let x = rx - 1; x <= rx + 5; x++) {
+    if (!(y === ry - 1 || y === ry + 5 || x === rx - 1 || x === rx + 5) || x <= 0 || y <= 0 || x >= W - 1 || y >= H - 1) continue;
+    if ((x === rx - 1 || x === rx + 5) && (y === ry - 1 || y === ry + 5)) continue;   /* かどはだめ */
+    const ox = x === rx - 1 ? x - 1 : x === rx + 5 ? x + 1 : x, oy = y === ry - 1 ? y - 1 : y === ry + 5 ? y + 1 : y;
+    if (dd[oy] && dd[oy][ox] >= 0 && dd[oy][ox] < bd) { bd = dd[oy][ox]; door = [x, y]; } }
+  if (!door) { door = [rx - 1, ry + 2]; for (let x = rx - 2; x >= 1 && dd[ry + 2][x] < 0; x--) g[ry + 2][x] = '.'; }   /* 外の通路がないときは、通路を掘ってつなぐ */
+  g[door[1]][door[0]] = 'D';
+  const d2 = bfs(g, start); let key = start, kd = 0;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (d2[y][x] > kd && g[y][x] === '.') { kd = d2[y][x]; key = [x, y]; }
+  const items = [{ k: 'stair', x: far[0], y: far[1] }, { k: 'key', x: key[0], y: key[1] }];
+  if (fl >= 4) { let k2 = start, best = 0; for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) { const v = d2[y][x], dk = Math.abs(x - key[0]) + Math.abs(y - key[1]); if (v > 0 && g[y][x] === '.' && dk > best && v > kd * .5) { best = dk; k2 = [x, y]; } } items.push({ k: 'key', x: k2[0], y: k2[1] }); }
+  rooms.slice(0, 3).forEach((r) => { if (g[r.y][r.x] === '.') items.push({ k: 'chest', x: r.x, y: r.y }); });
+  if (fl === 5) items[0].k = 'boss';
+  return { g, items, start, need: fl >= 4 ? 2 : 1 };
+}
+function bfs(g, [sx, sy]) { const d = g.map((r) => r.map(() => -1)); d[sy][sx] = 0; const q = [[sx, sy]];
+  while (q.length) { const [x, y] = q.shift(); for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const nx = x + dx, ny = y + dy; if (g[ny] && g[ny][nx] === '.' && d[ny][nx] < 0) { d[ny][nx] = d[y][x] + 1; q.push([nx, ny]); } } } return d; }
+function trace(g, d, [x, y]) { const p = [[x, y]]; while (d[y][x] > 0) { for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { if (d[y + dy] && d[y + dy][x + dx] === d[y][x] - 1) { x += dx; y += dy; break; } } p.push([x, y]); } return p; }
+/* 画面 */
+let U = UNITS[4], FL = 1, M, me, keys, seen, msgT;
+$('unit').innerHTML = UNITS.map((u, i) => `<option value="${i}" ${u === U ? 'selected' : ''}>${u.g}年 ${u.unit}</option>`).join('');
+$('unit').onchange = () => { U = UNITS[+$('unit').value]; load(1); };
+$('floors').innerHTML = [1, 2, 3, 4, 5].map((f) => `<button data-f="${f}">${f}階</button>`).join('');
+$('floors').onclick = (e) => { const b = e.target.closest('button'); if (b) load(+b.dataset.f); };
+function load(f) { FL = f; M = build(U.id, f); me = M.start.slice(); keys = 0; seen = new Set(); look(); draw(true); say(f === 1 ? U.area + '：1階。鍵をさがそう' : f + '階に下りた'); document.querySelectorAll('#floors button').forEach((b) => b.classList.toggle('on', +b.dataset.f === f)); }
+function look() { for (let dy = -3; dy <= 3; dy++) for (let dx = -3; dx <= 3; dx++) seen.add((me[0] + dx) + ',' + (me[1] + dy)); }
+function say(s) { $('msg').textContent = s; $('msg').hidden = false; clearTimeout(msgT); msgT = setTimeout(() => { $('msg').hidden = true; }, 2600); }
+const tile = (n) => `../img/rikaria/tile/${U.id}-${n}.webp`;
+function draw(all) {
+  const m = $('map'); let h = '';
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const c = M.g[y][x], s = `left:${x * TS}px;top:${y * TS}px;width:${TS}px;height:${TS}px`;
+    if (!seen.has(x + ',' + y)) { h += `<div class="fog" style="${s}"></div>`; continue; }
+    h += `<div class="t" style="${s};background-image:url(${c === '#' ? (M.g[y + 1] && M.g[y + 1][x] !== '#' ? tile('wall') : tile('walltop')) : tile((x * 7 + y * 3) % 5 ? 'floor' : 'floor2')})"></div>`;
+    if (c === 'D') h += `<div class="ic" style="${s};font-size:${TS * .7}px">🚪</div>`;
+  }
+  M.items.forEach((it) => { if (it.got || !seen.has(it.x + ',' + it.y)) return; const s = `left:${it.x * TS}px;top:${it.y * TS}px;width:${TS}px;height:${TS}px;font-size:${TS * .7}px`;
+    h += it.k === 'boss' ? `<div class="ic" style="${s.replace(`width:${TS}px;height:${TS}px`, `width:${TS * 2}px;height:${TS * 2}px`)};translate:-25% -40%"><img src="../${bossImg(U)}"></div>` : `<div class="ic" style="${s}">${{ key: '🔑', stair: '🪜', chest: '💰' }[it.k]}</div>`; });
+  h += `<div class="ic hero" style="left:${me[0] * TS}px;top:${me[1] * TS}px;width:${TS}px;height:${TS}px"><img src="../img/rikaria/chara/warrior-a.webp"></div>`;
+  m.innerHTML = h; m.style.width = W * TS + 'px'; m.style.height = H * TS + 'px';
+  const v = $('view').getBoundingClientRect(); m.style.transform = `translate(${Math.round(v.width / 2 - (me[0] + .5) * TS)}px,${Math.round(v.height / 2 - (me[1] + .5) * TS)}px)`;
+  $('hud').textContent = `${U.unit} ・ ${FL}階 / 5　🔑 ${keys} / ${M.need}`;
+  mini();
+}
+function mini() { const c = $('mini'), k = 5; c.width = W * k; c.height = H * k; const x = c.getContext('2d');
+  for (let y = 0; y < H; y++) for (let X = 0; X < W; X++) { if (!seen.has(X + ',' + y)) continue; const t = M.g[y][X]; x.fillStyle = t === '#' ? '#3a3170' : t === 'D' ? '#ff8a1c' : '#c9c0ea'; x.fillRect(X * k, y * k, k, k); }
+  M.items.forEach((it) => { if (it.got || !seen.has(it.x + ',' + it.y)) return; x.fillStyle = { key: '#ffe27a', stair: '#7fe3ff', chest: '#4cd07d', boss: '#ff4d6d' }[it.k]; x.fillRect(it.x * k - 1, it.y * k - 1, k + 2, k + 2); });
+  x.fillStyle = '#ff3b3b'; x.fillRect(me[0] * k, me[1] * k, k, k); }
+function step(dx, dy) {
+  const nx = me[0] + dx, ny = me[1] + dy, c = M.g[ny] && M.g[ny][nx];
+  if (!c || c === '#') return;
+  if (c === 'D') { if (keys >= M.need) { M.g[ny][nx] = '.'; say('🔑 鍵で扉が開いた！'); } else { say(`🚪 扉にかぎがかかっている（鍵 ${keys} / ${M.need}）`); return; } }
+  me = [nx, ny]; look();
+  const it = M.items.find((i) => !i.got && i.x === nx && i.y === ny);
+  if (it) { if (it.k === 'key') { it.got = true; keys++; say(`🔑 鍵を手に入れた！（${keys} / ${M.need}）`); }
+    else if (it.k === 'chest') { it.got = true; say('💰 宝箱！ 30ゴールドを手に入れた'); }
+    else if (it.k === 'stair') { draw(); setTimeout(() => load(FL + 1), 400); return; }
+    else if (it.k === 'boss') say('⚔ ' + U.boss.n + ' があらわれた！（ここでボス戦）'); }
+  draw();
+}
+addEventListener('keydown', (e) => { const d = { ArrowUp: [0, -1], w: [0, -1], ArrowDown: [0, 1], s: [0, 1], ArrowLeft: [-1, 0], a: [-1, 0], ArrowRight: [1, 0], d: [1, 0] }[e.key]; if (d) { e.preventDefault(); step(...d); } });
+document.querySelector('.pad').onclick = (e) => { const b = e.target.closest('button'); if (b) step(...b.dataset.d.split(',').map(Number)); };
+addEventListener('resize', () => draw());
+window.__build = build; window.__bfs = bfs;
+load(1);
+</script>
+</body>
+</html>

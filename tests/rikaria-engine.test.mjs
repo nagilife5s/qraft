@@ -373,3 +373,8 @@ test('クラスの図鑑：みんなのしるしを合わせ、戦った人の�
   assert.deepEqual(D.czkOf(null), { v: 0, got: 0, people: 0 });
   assert.equal(D.czkOf({ 1: 2047, 2: 5 }).got, 11);
 });
+
+test('MPの最大はLv30から10レベルごとに＋1、Lv160で20（装備なし）', () => {
+  const m = (lv) => D.statsOf({ j: 'mage', lv }).mmp;
+  assert.deepEqual([1, 29, 30, 39, 60, 100, 159, 160, 200].map(m), [6, 6, 7, 7, 10, 14, 19, 20, 20]);
+});

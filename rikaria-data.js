@@ -331,10 +331,12 @@ export function gearOf(job, eq, up) {
   }
   return g;
 }
+/* レベルで増えるMPの最大（2026-11-20）：Lv30から10レベルごとに＋1、Lv160で＋14（最大6→20）で止まる */
+export function mpBonus(lv) { return Math.max(0, Math.min(14, Math.floor(((Number(lv) || 1) - 20) / 10))); }
 /* 能力値（チーム戦はレベルでHPを増やさない）。atk は武器の倍率をかけたあとの値 */
 export function statsOf(ch, team) {
   var j = JOBS[ch.j] || JOBS.warrior, g = gearOf(JOBS[ch.j] ? ch.j : 'warrior', ch.eq, ch.up);
-  return { atk: Math.round(j.atk * g.atkX * 10) / 10, def: j.def, cut: g.cut, healX: g.healX, crit: g.crit, mmp: MP_MAX + g.mp,
+  return { atk: Math.round(j.atk * g.atkX * 10) / 10, def: j.def, cut: g.cut, healX: g.healX, crit: g.crit, mmp: MP_MAX + g.mp + mpBonus(ch.lv),
            mhp: j.hp + g.hp + (team ? 0 : 2 * ((ch.lv || 1) - 1)) };
 }
 

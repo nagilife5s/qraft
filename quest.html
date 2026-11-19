@@ -6,8 +6,8 @@
 <title>Qraft クエスト（ひとりで冒険）</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261120150000">
-<link rel="stylesheet" href="quest.css?v=20261120150000">
+<link rel="stylesheet" href="theme.css?v=20261120200000">
+<link rel="stylesheet" href="quest.css?v=20261120200000">
 <style>
   .hud-btns { display:flex; gap:.4em; }
   .hud-btns .btn { font-size:.85em; padding:.35em .9em; }
@@ -69,7 +69,7 @@
   .sk-wrap .skills:focus-visible { outline:.15em solid #ffd23f; outline-offset:.2em; }
   .sk-more { position:absolute; left:0; right:1em; bottom:0; padding:2.2em 0 .3em; text-align:center; font-weight:900; color:#ffe27a; pointer-events:none; background:linear-gradient(transparent, rgba(20,12,50,.95) 60%); transition:opacity .2s; }
   .sk-more.off { opacity:0; }
-  /* rikaria.css の窓・メニューの行（quest.css?v=20261120150000 と混ぜないよう .gm-bg の中だけ） */
+  /* rikaria.css の窓・メニューの行（quest.css?v=20261120200000 と混ぜないよう .gm-bg の中だけ） */
 .gm-bg .cur { position:absolute; top:50%; width:.62em; height:.95em; margin-top:-.475em; opacity:0; pointer-events:none;
   background:linear-gradient(135deg, #ffffff, #7ff0ff 40%, #1fb6e8 75%, #1a6fc0); clip-path:polygon(50% 0, 100% 50%, 50% 100%, 0 50%); filter:drop-shadow(0 0 .3em #35e0ff) drop-shadow(0 0 .15em #fff); }
 .gm-bg .win { position:relative; width:min(34em, 94%); margin-top:1.4em; background:rgba(10,12,44,.86); border:.18em solid #fff; border-radius:.7em; box-shadow:0 0 0 .22em rgba(10,12,44,.86), 0 .8em 2em rgba(0,0,0,.55); padding:1.5em .9em .8em; }
@@ -162,6 +162,9 @@
     <div class="hud-btns"><button class="btn ghost hide" id="goHome">町へもどる</button><button class="btn totitle" id="goMenu" type="button" aria-haspopup="dialog">メニュー</button></div>
   </div>
   <div class="fd-wrap"><div class="fd-map" id="map"></div></div>
+  <canvas class="dg-mini" id="dgMini" aria-hidden="true"></canvas>
+  <div class="dg-toast" id="dgToast" role="status"></div>
+  <div class="dg-pad" id="dgPad" aria-label="移動ボタン"><span></span><button type="button" data-d="0,-1" aria-label="上">▲</button><span></span><button type="button" data-d="-1,0" aria-label="左">◀</button><button type="button" data-d="0,1" aria-label="下">▼</button><button type="button" data-d="1,0" aria-label="右">▶</button></div>
   <div class="fd-help" id="fdHelp">矢印キー（WASD）か、行きたい場所をクリックで移動。</div>
   <div class="fd-msg hide" id="fdMsg"></div>
   <div class="fd-flash" id="fdFlash"></div>
@@ -225,19 +228,20 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261120150000"></script>
+<script src="firebase-config.js?v=20261120200000"></script>
 <script type="module">
-import { bgm, preload } from './sound.js?v=20261120150000';
-import { dungeonArt, autoTorches } from './dungeon-art.js?v=20261120150000';
-import { townArt } from './town-art.js?v=20261120150000';
-import { loadHomeSets, signIn, db, ref, set, get, $, el, showScreen, shuffle, prepareQuestion, maskOf, isTextCorrect, mountSetPicker, loadQEdits, applyQEdits, makeAdvLog, makeQStat, weakQueue, qstOf } from './lib.js?v=20261120150000';
+import { bgm, preload } from './sound.js?v=20261120200000';
+import { dungeonArt, autoTorches } from './dungeon-art.js?v=20261120200000';
+import { townArt } from './town-art.js?v=20261120200000';
+import { dgBuild, DG_FLOORS } from './dungeon5.js?v=20261120200000';
+import { loadHomeSets, signIn, db, ref, set, get, $, el, showScreen, shuffle, prepareQuestion, maskOf, isTextCorrect, mountSetPicker, loadQEdits, applyQEdits, makeAdvLog, makeQStat, weakQueue, qstOf } from './lib.js?v=20261120200000';
 import { addExp, expToNext, migrateChar, newChar, JOBS as RJOBS, JOB_KEYS, LEARN, RANK_POW, RANK_SEC, LOAD_N, ELEMS, ELEM, UNITS,
          heroImg, fieldImg, skillName, rankOf, rankCost, canRankUp, rankUp, spUsed, loadoutOf, weakOf, statsOf, unitOf, zakoImg, bossImg, battleBg, gearImg, itemImg, iconHtml,
          UP_PRICE, UP_MAX, upOf, canSmith, upName, zkAdd, zkBit, zkHas, zkCount, zkList, ZK_N, zkTitle, URA, uraName, uraTitle, extraTitles, unitsOf,
-         upPrice, MS, msClaim, UBB_GOLD, ubBetter, uraPerfectTitle, czkOf, czkTitle } from './rikaria-data.js?v=20261120150000';
+         upPrice, MS, msClaim, UBB_GOLD, ubBetter, uraPerfectTitle, czkOf, czkTitle } from './rikaria-data.js?v=20261120200000';
 import { fiscalYear, ENEMIES, TOWN, TOWN_DEFAULT,
          weaponList, armorList, weaponName, armorName, TOWN_MAX, soloDayCap, dayNo, ITEMS, ITEM_KEYS, FACS, RESPEC_COST, JOBCHG_GOLD, ensureOwner, battleGuide,
-         soloMult, soloReward, soloEnemyHp, soloBossHp, soloEnemyAtkX, BOSS, cmdImg, placeFacNpcs } from './quest.js?v=20261120150000';
+         soloMult, soloReward, soloEnemyHp, soloBossHp, soloEnemyAtkX, BOSS, cmdImg, placeFacNpcs } from './quest.js?v=20261120200000';
 
 var Y = fiscalYear(), me = { g: 0, c: 0, n: 0 }, sid = '', ch = null, CLS = {}, SETS = [], AREAS = [], look = 'a', job = 'mage';
 var curArea = null, HP = 0, MP = 0, RANGES = {};
@@ -493,7 +497,7 @@ function buildTown(st) {
   if (st < 10) look[4] = 'hut';
   if (st < 11) look[5] = 'castle-ruin'; else if (st < 12) look[5] = 'castle-scaffold';
   NPCS.forEach(function (n) { g[n.y][n.x] = 'N'; });
-  /* 施設の6人（全身の絵）を、それぞれの施設の前に立たせる。行けるマスを減らさない場所だけ（quest.js?v=20261120150000 placeFacNpcs。2026-11-17） */
+  /* 施設の6人（全身の絵）を、それぞれの施設の前に立たせる。行けるマスを減らさない場所だけ（quest.js?v=20261120200000 placeFacNpcs。2026-11-17） */
   var fnpc = placeFacNpcs(g, blds, [16, 11], function (c) { return BLOCK.has(c); }, [4, 11]);
   return { g: g, blds: blds, fountain: [16, 11], dry: st < 4, start: [4, 11], st: st, tiles: tiles, props: props, objs: objs, look: look, fog: st < 2 ? 2 : st < 4 ? 1 : 0, fnpc: fnpc };
 }
@@ -513,7 +517,7 @@ function buildArea() {
   return { g: g, blds: [], start: [1, 12] };
 }
 var TILE_CLS = { T: 't-tree', '.': 't-grass', ',': 't-flower', '=': 't-path', P: 't-plaza', '~': 't-water', H: 't-bridge', F: 't-fence', r: 't-rock', G: 't-gate', B: 't-grass', O: 't-plaza', h: 't-step', a: 't-field', X: 't-grass', W: 't-swall', K: 't-swall tower',
-  k: 't-floor', '#': 't-wall', c: 't-carpet', s: 't-shelf', t: 't-table', x: 't-crystal', f: 't-fog', '<': 't-exitw' };
+  k: 't-floor', D: 't-floor', '#': 't-wall', c: 't-carpet', s: 't-shelf', t: 't-table', x: 't-crystal', f: 't-fog', '<': 't-exitw' };
 var BLOCK = new Set(['T', '~', 'F', 'r', 'B', 'O', '#', 's', 't', 'x', 'U', 'L', 'R', 'C', 'S', 'V', 'q', 'y', 'p', 'z', 'N', 'd', 'e', 'a', 'X', 'W', 'K']);
 var PROPS = { T: ['prop-tree', 1.5, 't-grass'], r: ['prop-rock', 1, 't-grass'], U: ['prop-bush', 1.05, 't-grass'], L: ['prop-lamp', 1.6, 't-path'], R: ['prop-barrel', 1, 't-grass'], C: ['prop-crates', 1.15, 't-grass'], S: ['prop-sign', 1.25, 't-grass'], V: ['prop-flowers', .95, 't-plaza'], d: ['slot:rubble', 1, 't-path'], e: ['slot:rubble', 1, 't-dirt'],
   s: ['prop-shelf', 1.4, 't-floor'], t: ['prop-labtable', 1.15, 't-floor'], x: ['prop-crystal', 1.2, 't-floor'], q: ['prop-cauldron', 1.15, 't-floor'], y: ['prop-bookshelf', 1.8, 't-floor'], p: ['prop-pipes', 1.2, 't-floor'], z: ['prop-sacks', 1.1, 't-floor'] };
@@ -540,7 +544,7 @@ function slot(name, cls, style) {
 /* 絵が読めなかったら仮の絵に置きかえる（error は親に伝わらないので capture で受ける） */
 $('map').addEventListener('error', function (e) { var t = e.target, n = t && t.dataset && t.dataset.slot; if (!n) return; MISSING[n] = 1; t.outerHTML = fbHtml(n, t.dataset.cls, t.getAttribute('style')); }, true);
 $('map').addEventListener('load', function (e) { var t = e.target; if (t && t.classList && t.classList.contains('slot')) t.classList.add('ok'); }, true);
-var FD = { key: 'town', pos: [4, 11], dir: 'down', trail: [], mobs: [], path: [], hold: null, ts: 40, timers: [], busy: false };
+var FD = { key: 'town', pos: [4, 11], dir: 'down', trail: [], mobs: [], path: [], hold: null, ts: 40, timers: [], busy: false, dg: null };
 var ZAKO = Object.keys(ENEMIES);
 
 function cell(x, y) { var r = MAPS[FD.key].g[y]; return r ? r[x] : undefined; }
@@ -549,7 +553,7 @@ function enterTown(pos) {
   if (B && B.pend) { QST.skip(B.pend); B.pend = null; }   /* 問題が出たまま町へもどったら「まちがえた」と同じ */
   ADV.flush();
   HP = statsOf(ch).mhp; MP = 0;   /* 町にもどると全回復 */
-  FD.mobs = [];   /* エリアの魔物を町に持ちこまない（町に魔物が出ていた。もどると魔物は出直す） */
+  FD.mobs = []; FD.dg = null;   /* エリアの魔物を町に持ちこまない（町に魔物が出ていた。もどると魔物は出直す） */
   showScreen('s-town'); setTimeout(function () { openField('town', pos); refreshClass(); });
 }
 /* クラスの町の段階を読み直す。変わっていたら、町の地図を作り直す */
@@ -562,6 +566,8 @@ function refreshClass() {
 }
 function openField(key, start) {
   FD.timers.forEach(clearInterval); FD.timers = [];
+  if (key === 'area' && !FD.dg) dgLoad(dgFloorOf(unitOfArea(curArea)));   /* 5階のダンジョン：たどり着いた一番深い階から */
+  $('s-town').classList.toggle('dg-on', key === 'area');
   if (key === 'town' && (!MAPS.town || MAPS.town.st !== stage())) MAPS.town = buildTown(stage());
   FD.key = key; FD.pos = start || MAPS[key].start;
   music(key === 'town' ? 'r-town' : 'r-d-' + unitOfArea(curArea).id);
@@ -577,15 +583,13 @@ function openField(key, start) {
   $('fdHelp').innerHTML = key === 'town'
     ? '矢印キー（WASD）か、行きたい場所をクリックで移動。<b>右の門</b>から出ると、行くダンジョンをえらべる。<br>' +
       '🛒 建物に入ると<b>買い物</b>ができる（ゴールドを使う）。授業のボスを倒して町が発展すると、<b>品ぞろえが増える</b>。'
-    : '<b>魔物にぶつかると戦闘</b>。右の奥の<b>霧</b>に入ると、ボスにちょうせんできる。町へもどるには、<b>左はしの出口</b>へ歩くか、右上の「町へもどる」。町にもどるとHPが全回復する。';
+    : '🔑<b>鍵</b>をさがして🚪<b>扉</b>を開け、🪜<b>階段</b>で下へ。5階の奥に<b>ボス</b>。魔物にぶつかると戦闘。町へもどるには右上の「町へもどる」（HPが全回復。次は、たどり着いた一番深い階から）。';
   var fh = $('fdHelp'); fh.style.animation = 'none'; void fh.offsetWidth; fh.style.animation = '';   /* 場所が変わるたびに出し直す */
   if (key === 'area') {
-    if (!FD.mobs.length) FD.mobs = [[18, 10], [23, 15], [8, 4], [20, 19], [25, 9], [8, 21], [6, 14]].map(function (p, i) { return { id: (i + curArea.i) % 6, x: p[0], y: p[1] }; });
     FD.timers.push(setInterval(wander, 1100));
-    $('fdTimer').textContent = 'のこりの魔物 ' + FD.mobs.length + '体';
   }
   FD.timers.push(setInterval(tickWalk, STEP));
-  drawHud(); drawMap();
+  drawHud(); drawMap(); if (key === 'area') { dgLook(); dgHud(); }
 }
 function drawHud() {
   var s = statsOf(ch);
@@ -624,7 +628,19 @@ function drawMap() {
   });
   if (m.fog) h += '<div class="fd-fog f' + m.fog + '"></div>';
   if (FD.key === 'town') NPCS.concat(m.fnpc || []).forEach(function (n) { h += '<div class="npc" style="' + box(n.x, n.y) + ';z-index:' + (n.y * 10 + 5) + '"><img src="img/quest/' + n.img + (n.f != null ? '-full' : '') + '.webp" alt=""></div>'; });
-  if (FD.key === 'area') h += '<div class="mob boss" style="' + box(35, 11, 3, 3) + ';z-index:135"><img src="' + BOSS.img + '" style="scale:-1 1"></div>';
+  if (FD.key === 'area' && FD.dg) {   /* 5階のダンジョン：鍵・宝箱・階段・ボス・扉と、まだ見ていない所の暗やみ */
+    var dgu = unitOfArea(curArea), fog = '';
+    FD.dg.items.forEach(function (it, i) {
+      if (it.got) return;
+      if (it.k === 'boss') h += '<div class="mob boss dg-boss" style="' + box(it.x - .5, it.y - 1, 2, 2) + ';z-index:' + (it.y * 10 + 6) + '"><img src="' + bossImg(dgu) + '" alt="" style="scale:-1 1"></div>';
+      else h += '<div class="dg-it" id="dgi' + i + '" style="' + box(it.x, it.y) + ';z-index:' + (it.y * 10 + 3) + '">' + { key: '🔑', stair: '🪜', chest: '💰' }[it.k] + '</div>';
+    });
+    m.g.forEach(function (r, y) { r.forEach(function (c, x) {
+      if (c === 'D') h += '<div class="dg-it dg-door" id="dgDoor" style="' + box(x, y) + ';z-index:' + (y * 10 + 3) + '">🚪</div>';
+      if (!FD.dg.seen[x + ',' + y]) fog += '<i id="fg' + x + '_' + y + '" style="left:' + x * ts + 'px;top:' + y * ts + 'px;width:' + (ts + 1) + 'px;height:' + (ts + 1) + 'px"></i>';
+    }); });
+    h += '<div class="dk-fog" id="dkFog">' + fog + '</div>';
+  }
   h += '<div id="mobs">' + (FD.key === 'area' ? FD.mobs : []).map(function (mo, i) { return '<div class="mob" data-i="' + i + '" style="' + box(mo.x, mo.y) + ';z-index:' + (mo.y * 10 + 5) + '"><img src="' + foeOf(curArea, mo.id).img + '"></div>'; }).join('') + '</div>';
   h += '<div id="units"><div class="unit leader" style="' + box(FD.pos[0], FD.pos[1]) + ';z-index:' + (FD.pos[1] * 10 + 9) + '"><img class="hero" src="' + fieldImg(ch.j, ch.lk, FD.dir === 'left' ? 'right' : FD.dir) + '" alt=""></div></div>';
   map.innerHTML = h;
@@ -635,7 +651,7 @@ function drawMap() {
     var AW = function (c) { return c === '#'; };
     if (!m.torches) m.torches = autoTorches(m.g, AW, function (c) { return c === 'f' || !!PROPS[c]; });
     dungeonArt(map, { key: 'solo', g: m.g, unit: unitOfArea(curArea).id, ts: ts, wall: AW, carpet: function (c) { return c === 'c'; }, fog: function (c) { return c === 'f'; },
-      torches: m.torches, torchDom: true, lights: [[36.5, 12.5, 4.5], [1, 12.5, 2.5]] });
+      torches: m.torches, torchDom: true, lights: FD.dg ? [[FD.dg.items[0].x + .5, FD.dg.items[0].y + .5, 3.5], [1.5, 1.5, 2.5]] : [] });
   }
   var lu = map.querySelector('#units .unit'); if (lu) { lu.dataset.x = FD.pos[0]; lu.classList.toggle('left', FD.dir === 'left'); }
   camera(true);
@@ -645,6 +661,8 @@ function camera(instant) {
   var W = m.g[0].length * ts, H = m.g.length * ts;
   var cx = Math.min(0, Math.max(wrap.width - W, wrap.width / 2 - (FD.pos[0] + .5) * ts)), cy = Math.min(0, Math.max(wrap.height - H, wrap.height / 2 - (FD.pos[1] + .5) * ts));
   if (instant) { map.style.transition = 'none'; requestAnimationFrame(function () { requestAnimationFrame(function () { map.style.transition = ''; }); }); }
+  /* ダンジョンは暗やみがあるので、端でも止めずに、いつも自分を真ん中にする（スマホで左上に小さく出ていた。2026-11-20） */
+  if (FD.key === 'area' && FD.dg) { cx = wrap.width / 2 - (FD.pos[0] + .5) * ts; cy = wrap.height / 2 - (FD.pos[1] + .5) * ts; map.style.transform = 'translate(' + cx + 'px, ' + cy + 'px)'; return; }
   map.style.transform = 'translate(' + (W < wrap.width ? (wrap.width - W) / 2 : cx) + 'px, ' + (H < wrap.height ? (wrap.height - H) / 2 : cy) + 'px)';
 }
 function placeUnit(walking) {
@@ -664,13 +682,14 @@ function wander() {
       var e = document.querySelector('#mobs .mob[data-i="' + i + '"]'); if (e) { e.style.left = nx * FD.ts + 'px'; e.style.top = ny * FD.ts + 'px'; e.style.zIndex = ny * 10 + 5; }
     }
   });
-  checkTouch();
+  checkTouch(); if (FD.dg) dgHud();
 }
 function move(dx, dy) {
   if (FD.busy || Date.now() - (FD.last || 0) < STEP - 40) return false;
   var nx = FD.pos[0] + dx, ny = FD.pos[1] + dy, c = cell(nx, ny);
   FD.dir = dx < 0 ? 'left' : dx > 0 ? 'right' : dy < 0 ? 'up' : 'down';
   if (c === 'f') { FD.path = []; bossAsk(); return false; }
+  if (FD.key === 'area' && FD.dg && !dgEnter(nx, ny, c)) { FD.path = []; FD.hold = null; return false; }
   if (c === 'B') { FD.path = []; enter(MAPS.town.blds.filter(function (b) { return nx >= b.x && nx < b.x + b.w && ny >= b.y && ny < b.y + b.h; })[0]); return false; }
   if (c === 'N') {   /* 施設の人に話しかける＝その施設に入る（広場の村長は噴水を調べる）のと同じ */
     var fn = (MAPS.town.fnpc || []).filter(function (q) { return q.x === nx && q.y === ny; })[0];
@@ -683,7 +702,7 @@ function move(dx, dy) {
   $('fdMsg').classList.add('hide'); placeUnit(true); camera();
   if (c === 'G') { FD.busy = true; setTimeout(gateOut, STEP); }
   else if (c === '<') { FD.busy = true; setTimeout(function () { enterTown([32, 11]); }, STEP); }
-  else setTimeout(checkTouch, STEP * .6);
+  else if (!(FD.key === 'area' && FD.dg && dgPick(nx, ny))) setTimeout(checkTouch, STEP * .6);   /* 階段で下りるときは戦闘にしない */
   return true;
 }
 function tickWalk() {
@@ -741,7 +760,80 @@ function gateOut() {
   wmG = a ? a.g : me.g; wmSel = a ? a.id : null; wmPick = true;
   drawWorld(); showScreen('s-world');
 }
-function goArea(a, src) { curArea = Object.assign({}, a, { src: src || { k: 'unit' } }); ADV.flush(); ADV.start((unitOfArea(curArea) || {}).id); FD.mobs = []; showScreen('s-town'); setTimeout(function () { openField('area'); poolOf(curArea).catch(function () {}); }); }
+function goArea(a, src) { curArea = Object.assign({}, a, { src: src || { k: 'unit' } }); ADV.flush(); ADV.start((unitOfArea(curArea) || {}).id); FD.mobs = []; FD.dg = null; showScreen('s-town'); setTimeout(function () { openField('area'); poolOf(curArea).catch(function () {}); if (FD.dg.fl > 1) dgRestartAsk(); }); }
+
+/* ------------------------------------------------------------ 5階のダンジョン（2026-11-20。mock/dungeon5-mock.html と同じ迷路） */
+/* たどり着いた一番深い階は、キャラの df/<単元> に残す（2〜5）。町にもどっても、その階から始められる。鍵はその階でさがし直し */
+function dgFloorOf(u) { return Math.min(DG_FLOORS, Math.max(1, (ch.df && ch.df[u.id]) || 1)); }
+function dgLoad(fl) {
+  var M = dgBuild(unitOfArea(curArea).id, fl), g = M.g.map(function (r) { return r.map(function (c) { return c === '.' ? 'k' : c; }); });
+  MAPS.area = { g: g, blds: [], start: M.start.slice() };
+  FD.dg = { fl: fl, keys: 0, need: M.need, items: M.items, seen: {} };
+  var sp = M.spots.slice(); FD.mobs = [];
+  for (var i = 0; i < 5 + fl && sp.length; i++) { var p = sp.splice(Math.floor(Math.random() * sp.length), 1)[0]; FD.mobs.push({ id: Math.floor(Math.random() * 6), x: p[0], y: p[1] }); }
+}
+if (/emu=1/.test(location.search)) window.__dg = function () { return { fl: FD.dg && FD.dg.fl, keys: FD.dg && FD.dg.keys, need: FD.dg && FD.dg.need, items: FD.dg && FD.dg.items, pos: FD.pos, g: MAPS.area.g.map(function (r) { return r.join(''); }), mobs: FD.mobs.length }; };   /* 画面テスト用 */
+if (/emu=1/.test(location.search)) window.__dgWarp = function (x, y, noMobs) { if (noMobs) FD.mobs = []; FD.pos = [x, y]; FD.busy = false; FD.path = []; placeUnit(false); camera(true); dgLook(); };   /* 画面テスト用 */
+function dgHud() { var d = FD.dg; if (d) $('fdTimer').textContent = d.fl + '階 / ' + DG_FLOORS + '　🔑 ' + d.keys + ' / ' + d.need + '　魔物 ' + FD.mobs.length + '体'; }
+function dgLook() {
+  var d = FD.dg; if (!d) return;
+  for (var dy = -3; dy <= 3; dy++) for (var dx = -3; dx <= 3; dx++) { var x = FD.pos[0] + dx, y = FD.pos[1] + dy, k = x + ',' + y; if (d.seen[k]) continue; d.seen[k] = 1; var e = document.getElementById('fg' + x + '_' + y); if (e) e.remove(); }
+  dgMini();
+}
+function dgMini() {
+  var c = $('dgMini'), d = FD.dg; if (!c || !d) return;
+  var g = MAPS.area.g, W = g[0].length, H = g.length, k = 3; c.width = W * k; c.height = H * k; var x = c.getContext('2d'); if (!x) return;
+  for (var y = 0; y < H; y++) for (var X = 0; X < W; X++) { if (!d.seen[X + ',' + y]) continue; var t = g[y][X]; x.fillStyle = t === '#' ? '#3a3170' : t === 'D' ? '#ff8a1c' : '#c9c0ea'; x.fillRect(X * k, y * k, k, k); }
+  d.items.forEach(function (it) { if (it.got || !d.seen[it.x + ',' + it.y]) return; x.fillStyle = { key: '#ffe27a', stair: '#7fe3ff', chest: '#4cd07d', boss: '#ff4d6d' }[it.k]; x.fillRect(it.x * k - 1, it.y * k - 1, k + 2, k + 2); });
+  x.fillStyle = '#ff3b3b'; x.fillRect(FD.pos[0] * k - 1, FD.pos[1] * k - 1, k + 2, k + 2);
+}
+function dgToast(t) { var e = $('dgToast'); e.textContent = t; e.classList.remove('on'); void e.offsetWidth; e.classList.add('on'); }
+/* 入る前：扉（鍵がそろっていれば開く）・ボス（ちょうせんするか聞く）。false なら入らない */
+function dgEnter(x, y, c) {
+  var d = FD.dg;
+  if (c === 'D') {
+    if (d.keys < d.need) { say('<h3>🚪 扉にかぎがかかっている</h3>鍵 ' + d.keys + ' / ' + d.need + '。この階のどこかにある🔑をさがそう。'); return false; }
+    MAPS.area.g[y][x] = 'k'; var e = $('dgDoor'); if (e) e.remove(); dgToast('🔑 鍵で扉が開いた！'); dgMini(); return true;
+  }
+  var it = d.items.filter(function (i) { return !i.got && i.k === 'boss' && i.x === x && i.y === y; })[0];
+  if (it) { bossAsk(); return false; }
+  return true;
+}
+/* 入ったあと：鍵・宝箱・階段。true なら、このあとの魔物チェックはしない（階段で下りる） */
+function dgPick(x, y) {
+  var d = FD.dg; dgLook();
+  var i = -1; d.items.forEach(function (q, j) { if (!q.got && q.x === x && q.y === y && q.k !== 'boss') i = j; });
+  var it = d.items[i];
+  if (it && it.k === 'key') { it.got = true; d.keys++; var e = $('dgi' + i); if (e) e.remove(); dgToast('🔑 鍵を手に入れた！（' + d.keys + ' / ' + d.need + '）'); }
+  else if (it && it.k === 'chest') { it.got = true; var e2 = $('dgi' + i); if (e2) e2.remove(); var mh = statsOf(ch).mhp, h0 = HP; HP = Math.min(mh, HP + Math.ceil(mh * .3)); drawHud(); dgToast('💰 宝箱！ 薬草でHPが ' + (HP - h0) + ' 回復した'); }
+  else if (it && it.k === 'stair') { FD.busy = true; setTimeout(dgDown, STEP + 100); dgMini(); return true; }
+  dgHud(); dgMini();
+  return false;
+}
+function dgDown() {
+  var fl = FD.dg.fl + 1, u = unitOfArea(curArea);
+  if (fl > dgFloorOf(u)) { ch.df = Object.assign({}, ch.df || {}); ch.df[u.id] = fl; saveChar(); }   /* 一番深い階を残す（待たない） */
+  var fl0 = $('fdFlash'); fl0.classList.remove('on'); void fl0.offsetWidth; fl0.classList.add('on');
+  dgLoad(fl); openField('area');
+  dgToast('🪜 ' + fl + '階に下りた' + (fl === DG_FLOORS ? '。この階の奥にボスがいる' : ''));
+}
+function dgRestartAsk() {
+  var m = $('fdMsg'); m.textContent = '';
+  m.appendChild(el('h3', '', '🪜 ' + FD.dg.fl + '階から'));
+  m.appendChild(el('div', 'mut', '前に ' + FD.dg.fl + '階までたどり着いたので、そこから始める。鍵はこの階でさがし直し。'));
+  var ft = el('div', 'fd-foot'), ok = el('button', 'btn', 'このまま'), one = el('button', 'btn sub', '1階からはじめる'); ok.type = one.type = 'button'; ok.style.fontSize = one.style.fontSize = '1em';
+  ok.onclick = function () { m.classList.add('hide'); };
+  one.onclick = function () { m.classList.add('hide'); dgLoad(1); openField('area'); };
+  ft.appendChild(ok); ft.appendChild(one); m.appendChild(ft); m.classList.remove('hide');
+}
+/* さわって動かす十字ボタン（スマホ）。おしている間は歩きつづける */
+(function () {
+  var pad = $('dgPad'); if (!pad) return;
+  function stop() { FD.hold = null; }
+  pad.addEventListener('pointerdown', function (e) { var b = e.target.closest('button'); if (!b) return; e.preventDefault(); FD.path = []; FD.hold = b.dataset.d.split(',').map(Number); tickWalk(); });
+  ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (t) { pad.addEventListener(t, stop); });
+  pad.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+})();
 
 /* ------------------------------------------------------------ お店 */
 function enter(b) {
@@ -1015,7 +1107,7 @@ function srcBox(a) {
   opt('sets', '問題セットをえらぶ ', ed);
   return box;
 }
-/* 問題セットをえらぶ画面。先生の準備画面（rikaria-host.html）と同じ選び方（lib.js?v=20261120150000 の mountSetPicker：学年→題名でさがす→単元ごとの一覧）。2026-11-16 */
+/* 問題セットをえらぶ画面。先生の準備画面（rikaria-host.html）と同じ選び方（lib.js?v=20261120200000 の mountSetPicker：学年→題名でさがす→単元ごとの一覧）。2026-11-16 */
 function setDialog(a) {
   var bg = el('div', 'pk-bg'), box = el('div', 'pk'); bg.appendChild(box); bg.setAttribute('role', 'dialog'); bg.setAttribute('aria-modal', 'true'); bg.setAttribute('aria-label', '問題セットをえらぶ');
   var top = el('div', 'row'); top.appendChild(el('b', 'grow', '問題セットをえらぶ（いくつでも）'));
@@ -1030,7 +1122,9 @@ function setDialog(a) {
   ok.onclick = function () { bg.remove(); SRC = { k: 'sets' }; drawWorld(); };
   document.body.appendChild(bg); count();
 }
-$('wmMap').addEventListener('click', function (e) { var n = e.target.closest('[data-wm]'); if (n) { wmSel = n.dataset.wm; drawWorld(); } });
+$('wmMap').addEventListener('click', function (e) { var n = e.target.closest('[data-wm]'); if (n) { wmSel = n.dataset.wm; drawWorld();
+  /* スマホでは説明が地図の下に出るので、見える所までスクロールする（2026-11-20） */
+  if (matchMedia('(max-width: 640px)').matches) $('wmSide').scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } });
 
 /* ------------------------------------------------------------ ステータス・スキル */
 function openStat() { drawStat(); showScreen('s-stat'); $('skills').scrollTop = 0; setTimeout(skMore, 50); }
@@ -1317,7 +1411,8 @@ function judge(mask, text) {
     var d = 0, msg;
     if (f.stun > 0) { f.stun--; msg = '✕ ざんねん… でも ' + B.e.n + 'は動けない！'; }
     else {
-      d = Math.max(4, (B.boss ? 13 : 10) - J.def) * soloEnemyAtkX(ch.lv) * (B.ura ? URA.atk : 1) * st.cut; if (f.guard) d *= 1 - f.guard.cut; if (f.slow > 0) { d *= .5; f.slow--; }
+      /* 敵の攻撃は、自分の最大HPの割合（ボス18%・ふつう12%・裏ボス25%）×防具（2026-11-20。ボスに2発で倒されていた） */
+      d = Math.max(3, st.mhp * (B.ura ? .25 : B.boss ? .18 : .12) * st.cut); if (f.guard) d *= 1 - f.guard.cut; if (f.slow > 0) { d *= .5; f.slow--; }
       d = Math.max(1, Math.round(d)); HP = Math.max(0, HP - d);
       msg = '✕ ざんねん… ' + B.e.n + 'の攻撃！ ' + d + 'のダメージ';
       if (f.counter && HP > 0) { var cd = Math.max(1, Math.round(st.atk * soloMult(ch.lv) * f.counter.pow)); B.hp = Math.max(0, B.hp - cd); msg += '　カウンター！ ' + cd + 'のダメージ'; }
@@ -1394,6 +1489,7 @@ function act(i) {
     for (var k = 0; k < hits && B.hp > 0; k++) {
       var base = st.atk * soloMult(ch.lv) * (f.buff ? f.buff.x : 1) * (0.9 + Math.random() * 0.2);
       var d = s.hpPct ? Math.max(base, B.hp * s.hpPct * P) : base * (s.pow || 1) * P;
+      if (s.all) d *= 1.8;   /* ひとりで冒険は敵が1体なので、全体技は1体に ×1.8（MP1の単体技より弱かった。2026-11-20） */
       if (s.streakX) d *= 1 + s.streakX * B.streak;
       if (J.streakAtk && !s.useStreak) d *= 1 + J.streakAtk * Math.min(B.streak, J.streakMax);
       if (s.useStreak) d *= 1 + s.useStreak * B.streak;
@@ -1463,7 +1559,7 @@ async function win() {
   var nx = el('button', 'btn', 'フィールドにもどる'); nx.style.alignSelf = 'center';
   nx.onclick = function () {
     FD.mobs = FD.mobs.filter(function (m) { return m !== B.mob; });
-    showScreen('s-town'); setTimeout(function () { openField('area', B.boss ? [31, 12] : FD.pos); if (B.ura) say('<h3>👁 ' + B.e.n + 'をたおした！</h3>' + unitOfArea(curArea).unit + 'の影は、あなたの力で払われた。'); else if (B.boss) say('<h3>👑 ボスをたおした！</h3>' + unitOfArea(curArea).unit + 'の霧は、あなたの力で晴れた。'); else if (!FD.mobs.length) say('<h3>エリアの魔物をすべて倒した！</h3>町にもどると、また魔物があらわれる。'); });
+    showScreen('s-town'); setTimeout(function () { openField('area', FD.pos); if (B.ura) say('<h3>👁 ' + B.e.n + 'をたおした！</h3>' + unitOfArea(curArea).unit + 'の影は、あなたの力で払われた。'); else if (B.boss) say('<h3>👑 ボスをたおした！</h3>' + unitOfArea(curArea).unit + 'の霧は、あなたの力で晴れた。'); else if (!FD.mobs.length) say('<h3>エリアの魔物をすべて倒した！</h3>町にもどると、また魔物があらわれる。'); });
   };
   box.appendChild(nx);
 }

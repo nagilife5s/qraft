@@ -191,6 +191,8 @@ c['ms'] = {"$k": {".validate": "(" + " || ".join("$k === '%d'" % k for k in MS) 
 INT200 = "newData.isNumber() && newData.val() >= 0 && newData.val() <= 200 && newData.val() % 1 === 0"
 c['ubb'] = {"$k": {".validate": UKEY + " && newData.hasChildren(['m','q'])", "m": {".validate": INT200}, "q": {".validate": INT200}, "$other": {".validate": False}}}
 c['ubd'] = {".validate": "newData.isNumber() && newData.val() >= 0"}
+# 5階のダンジョンで、たどり着いた一番深い階（単元 → 2〜5 の整数）。2026-11-20。ごほうびではないので、ほかの書き込み（買い物の形など）といっしょに変わってよい
+c['df'] = {"$k": {".validate": UKEY + " && newData.isNumber() && newData.val() >= 2 && newData.val() <= 5 && newData.val() % 1 === 0"}}
 c['eq'] = {"w": {".validate": " || ".join("newData.val() === '%s'" % k for k in WEAP)},
            "a": {".validate": " || ".join("newData.val() === '%s'" % k for k in ARMO)}, "$other": {".validate": False}}
 c['inv'] = {"$k": {".validate": "(" + " || ".join("$k === '%s'" % k for k in ITEMS) + ") && newData.isNumber() && newData.val() >= 0 && newData.val() <= 9"}}

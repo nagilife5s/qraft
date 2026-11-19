@@ -100,6 +100,12 @@ await t('bc は消せない', () => assertFails(save(alice, { bc: null })));
 await age(SID);
 await t('bc に true 以外は書けない', () => assertFails(save(alice, { exp: 50, bc: { matter: 1 } })));
 await t('bc の単元名が変なものは書けない', () => assertFails(save(alice, { exp: 50, bc: { 'A B': true } })));
+// 5階のダンジョンの一番深い階 df（2026-11-20）
+await t('df（たどり着いた階）だけを書く保存はできる', () => assertSucceeds(save(alice, { df: { matter: 3 } })));
+await t('df は6階以上は書けない', () => assertFails(save(alice, { df: { matter: 6 } })));
+await t('df は1以下・小数は書けない', async () => { await assertFails(save(alice, { df: { matter: 1 } })); await assertFails(save(alice, { df: { matter: 2.5 } })); });
+await t('df の単元名が表にないものは書けない', () => assertFails(save(alice, { df: { zzz: 2 } })));
+await t('df といっしょにゴールドは増やせない（20秒たっていない）', () => assertFails(save(alice, { df: { matter: 4 }, gold: 9999 })));
 await seed(async (d) => d.ref(P('chars/' + SID)).update({ exp: 0, lv: 1, sp: 0, spt: 0 }));
 await age(SID);
 await t('経験値+301は弾く', async () => { await assertFails(save(alice, { exp: 331 })); });

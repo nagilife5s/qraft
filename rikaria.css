@@ -468,3 +468,39 @@
 .rk-skin .form-row, .rk-skin .frm { padding:.3em .4em .45em; border-bottom:.08em dashed rgba(255,255,255,.22); }
 .rk-skin .wrap > .frm { border-bottom:0; }
 .rk-skin .tc-note { padding:0 .4em; }
+
+/* ======================================================================
+   スマホ縦（幅640px以下）のチーム戦・なかまと冒険（2026-11-20）
+   上の帯：場所の名前が時計・HPに重なっていたので2段に。敵は名前を上・絵を下に縦に並べ、絵を大きく
+   ====================================================================== */
+@media (max-width: 640px) {
+  #s-battle { padding:.5em .55em; gap:.4em; }
+  #s-battle .topline { flex-wrap:wrap; gap:.25em .6em; padding:.3em .6em; border-radius:.8em; }
+  #s-battle .topline .midbar { order:5; flex:1 1 100%; min-width:0; }
+  #s-battle .topline .midbar .nm { overflow:hidden; text-overflow:ellipsis; }
+  #s-battle .topline .mystat { flex:1 1 8em; min-width:0; }
+  #s-battle .topline #btClock { flex:none; }
+  .foes { left:0; right:0; gap:.3em; }
+  .foes .enemy { display:flex; flex-direction:column; align-items:center; justify-content:flex-end; min-width:0; }
+  .foes .enemy img { order:2; flex:1 1 auto; height:auto; min-height:0; width:100%; max-height:none; object-fit:contain; justify-self:auto; }
+  .foes .enemy .windmark, .foes .enemy .aim, .foes .enemy .etag, .foes .enemy .weak { order:1; align-self:center; justify-self:auto; text-align:center; }
+  .foes .enemy .etag { align-items:center; max-width:100%; }
+  .foes .enemy .etag span { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
+  .foes .enemy .etag .bar { width:min(8em, 100%); }
+  .foes .enemy .aim { font-size:.8em; white-space:normal; }
+  .foes .enemy .eshadow { left:20%; width:60%; }
+  #s-battle .cmd { padding:.6em .7em; }
+  /* 探索中の練習問題：上の3つの箱を折り返す（場所の文が1行数文字になっていた）。問題の窓は中身の高さに */
+  #s-prac { padding:.8em .7em; gap:.6em; }
+  .prac-head { flex-wrap:wrap; gap:.4em; }
+  .prac-head > .panel.grow { flex:1 1 100%; }
+  #s-prac .mystat { flex:1 1 9em; width:auto; }
+  #s-prac .cmd { flex:0 1 auto; overflow-y:auto; }
+  /* 準備：名前・職業が1行数文字に折れていたので、見出しを横幅いっぱいに */
+  #s-prep { padding:1em .8em 1em; }
+  #s-prep > .row:first-child .grow { flex:1 1 10em; min-width:0; }
+  #s-prep > .row:first-child #ppSp { flex:1 1 100%; }
+  /* 結果：ごほうびの札が横にはみ出していた */
+  #s-result .reward, #s-clear .reward { flex-wrap:wrap; justify-content:center; max-width:100%; gap:.5em; }
+  #s-result .reward .card, #s-clear .reward .card { min-width:0; flex:1 1 40%; }
+}
