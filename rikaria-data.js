@@ -300,7 +300,11 @@ export function armorList(job, st) {
 /* 鍛冶屋（2026-11-19）。いちばん強い武器・防具（6段目）だけ、ゴールドで ＋1〜＋5 まで鍛えられる。武器と防具は別々。
  * ch.up = { w: 武器の＋, a: 防具の＋ }（0〜5）。鍛えた分は6段目の品のもの（6段目を付けているときだけ効く。外しても数は残る）
  *   武器：＋1ごとに攻撃 ＋8%（攻撃の倍率に足す）／防具：＋1ごとに受けるダメージの倍率 −0.04（0.2 より下にはしない） */
-export var UP_PRICE = [400, 600, 900, 1300, 1800];   /* ＋1〜＋5 にする値段（ルールの gen_rules.py と同じ） */
+export var UP_PRICE = [400, 600, 900, 1300, 1800];   /* ＋1〜＋5 にする3年の値段（もとの値段） */
+/* 鍛冶屋の値段を学年で（2026-11-20）。1日に稼げるゴールドが学年でちがうので、どの学年でもだいたい同じ日数で ＋5 に届くように。
+ * 値段＝ 四捨五入(もとの値段 × 倍率 ÷ 10) × 10。1年 140〜630・2年 260〜1170・3年 400〜1800（ルールの gen_rules.py と同じ） */
+export var UP_GX = { 1: .35, 2: .65, 3: 1 };
+export function upPrice(grade, k) { var b = UP_PRICE[k]; if (b == null) return 0; return Math.round(b * (UP_GX[Math.max(1, Math.min(3, Number(grade) || 1))]) / 10) * 10; }
 export var UP_MAX = 5, UP_ATK = .08, UP_CUT = .04, CUT_MIN = .2;
 export function upOf(ch, slot) { var k = Number(ch && ch.up && ch.up[slot]) || 0; return Math.max(0, Math.min(UP_MAX, Math.floor(k))); }
 /* 鍛えられるか（その欄に6段目を付けている）。slot は 'w' か 'a' */
@@ -492,10 +496,30 @@ export var URA = { hp: 2, atk: 1.5, sp: 5, gold: 100 };   /* hp＝ふつうの�
 export var URA_FILTER = 'hue-rotate(250deg) saturate(1.6) brightness(.85) drop-shadow(0 0 14px #b44cff)';
 export function uraName(u) { return '影の' + u.boss.n; }
 export function uraTitle(u) { return u.unit + 'の影を払う者'; }
-/* 図鑑・裏ボスの称号（ttl には書かず、zk・ub から作る。生徒の端末は ttl を書けないため） */
+/* 裏ボスの自己ベスト（2026-11-20）。ch.ubb = { <単元id>: { m: まちがいの数, q: 答えた問題の数 } }。
+ * まちがいが少ないほど上、同じなら答えた問題が少ないほど上。ベストを出すと ゴールド 学年×20（1日1回まで。ch.ubd＝最後にもらった日の番号 dayNo） */
+export var UBB_GOLD = 20;
+export function ubBetter(a, b) { if (!b) return true; return a.m < b.m || (a.m === b.m && a.q < b.q); }
+export function uraPerfectTitle(u) { return u.unit + 'の影を完全に払う者'; }
+/* レベルの節目（2026-11-20）。その レベルに上がると、称号と SP・ゴールド（学年×g）。ch.ms = { "90": true, … }（1回の保存で1つずつ。ルールも同じ） */
+export var MS = [{ lv: 90, t: '霧の探索者', sp: 2, g: 50 }, { lv: 100, t: '百の道を歩む者', sp: 3, g: 100 }, { lv: 110, t: '霧を知る者', sp: 2, g: 50 },
+  { lv: 120, t: '霧の賢者', sp: 3, g: 100 }, { lv: 150, t: 'リカリアの守り手', sp: 5, g: 150 }, { lv: 200, t: '伝説の勇者', sp: 10, g: 300 }];
+/* まだもらっていない節目のうち、いちばん低いもの（レベルが届いていなければ null） */
+export function msNext(ch) { var L = (ch && ch.lv) || 1; for (var i = 0; i < MS.length; i++) if (MS[i].lv <= L && !(ch.ms && ch.ms[MS[i].lv])) return MS[i]; return null; }
+/* 節目のごほうびを1つキャラに足す（足した節目を返す。なければ null） */
+export function msClaim(ch, grade) {
+  var m = msNext(ch); if (!m) return null; var g = Math.max(1, Math.min(3, Number(grade) || 1));
+  ch.ms = Object.assign({}, ch.ms || {}); ch.ms[m.lv] = true; ch.sp = (ch.sp || 0) + m.sp; ch.spt = (ch.spt || 0) + m.sp; ch.gold = (ch.gold || 0) + m.g * g; return m;
+}
+/* クラスの図鑑（2026-11-20）。quest/<年度>/czk/<学年-組>/<単元id>/<番号> = その人の図鑑のしるし（キャラの zk と同じ数）。
+ * クラスの図鑑＝みんなのしるしを合わせたもの。戦った人＝しるしが1つ以上ある人の数（だれかは出さない） */
+export function czkOf(o) { var v = 0, n = 0; Object.keys(o || {}).forEach(function (k) { var x = Number(o[k]) || 0; if (x > 0) { n++; v = zkOr(v, x); } }); var c = 0; for (var b = 0; b < ZK_N; b++) if (Math.floor(v / Math.pow(2, b)) % 2 === 1) c++; return { v: v, got: c, people: n }; }
+export function czkTitle(u) { return u.unit + 'の図鑑・クラス制覇'; }
+/* 図鑑・裏ボス・節目の称号（ttl には書かず、zk・ub・ubb・ms から作る。生徒の端末は ttl を書けないため） */
 export function extraTitles(ch) {
   var t = [];
-  UNITS.forEach(function (u) { if (zkCount(ch, u.id) === ZK_N) t.push(zkTitle(u)); if (ch && ch.ub && ch.ub[u.id]) t.push(uraTitle(u)); });
+  MS.forEach(function (m) { if (ch && ch.ms && ch.ms[m.lv]) t.push(m.t); });
+  UNITS.forEach(function (u) { if (zkCount(ch, u.id) === ZK_N) t.push(zkTitle(u)); if (ch && ch.ub && ch.ub[u.id]) t.push(uraTitle(u)); if (ch && ch.ubb && ch.ubb[u.id] && ch.ubb[u.id].m === 0) t.push(uraPerfectTitle(u)); });
   return t;
 }
 export function bossTitle(u, lap) { return u.unit + 'の霧を晴らす者' + (lap > 0 ? '★' + (lap + 1) : ''); }

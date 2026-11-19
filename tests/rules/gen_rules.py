@@ -1,7 +1,7 @@
 """ルールの quest（指摘2）と practice（指摘3）の部分を作り直して書く。
   python3 tests/rules/gen_rules.py tests/firebase-rules.json
 書いたら npm run test:rules で確かめてから、Firebaseコンソールに貼って公開する。"""
-import json, sys
+import json, sys, math
 P = sys.argv[1]
 R = json.load(open(P))
 q = R['rules']['quest']['$y']
@@ -60,33 +60,48 @@ gained = "((%s === 1 ? %s : 0) + %s - %s)" % (dl, need(D('lv')), N('exp'), D('ex
 # 単元の id（rikaria-data.js の UNITS と同じ12こ）。図鑑 zk・裏ボス ub は単元ごとなので、12こを並べて調べる（ルールでは子の数を数えられないため）
 UIDS = ['matter', 'classify', 'force', 'earth', 'life', 'reaction', 'weather', 'electric', 'ion', 'space', 'heredity', 'energy']
 GRADE = "($sid.beginsWith('1-') ? 1 : $sid.beginsWith('2-') ? 2 : 3)"
-# 鍛冶屋：＋1〜＋5 の値段（rikaria-data.js の UP_PRICE と同じ）
+# 鍛冶屋：＋1〜＋5 の値段（rikaria-data.js の UP_PRICE・upPrice と同じ）。2026-11-20 から学年で変える：四捨五入(もと×倍率÷10)×10（JS の Math.round と同じ丸め）
 UP_PRICE = [400, 600, 900, 1300, 1800]
+UP_GX = {1: .35, 2: .65, 3: 1}
+def up_price(g, k): return int(math.floor(UP_PRICE[k] * UP_GX[g] / 10 + .5)) * 10
+def up_price_expr(k): return "($sid.beginsWith('1-') ? %d : $sid.beginsWith('2-') ? %d : %d)" % (up_price(1, k), up_price(2, k), up_price(3, k))
+# レベルの節目（rikaria-data.js の MS と同じ。2026-11-20）：レベル → (SP, ゴールド×学年)
+MS = {90: (2, 50), 100: (3, 100), 110: (2, 50), 120: (3, 100), 150: (5, 150), 200: (10, 300)}
+def ms_add(k): return AND(NE('ms', str(k)), "!" + DE('ms', str(k)))
+ms_all_same = [OR("!" + NE('ms', str(k)), DE('ms', str(k))) for k in MS]
+# 裏ボスの自己ベスト（2026-11-20）：ubb/<単元> = { m: まちがい, q: 答えた問題 }・ubd＝ベストのゴールドをもらった日の番号
+UBB_GOLD = 20
+# ubb は消せない（keep_rec）・m と q がそろっている（.validate）ので、「新しく無い」か「前もあって m・q が同じ」ならそのまま
+def ubb_same(u): return OR("!" + NE('ubb', u), AND(DE('ubb', u), same('ubb', u, 'm'), same('ubb', u, 'q')))
+def ubb_chg(u): return AND(NE('ubb', u), "!" + ubb_same(u))
+ubb_all_same = [ubb_same(u) for u in UIDS] + [same_opt('ubd')]
 # 裏ボスをはじめて倒したときのごほうび（rikaria-data.js の URA と同じ）：SP＋5・ゴールド 学年×100
 URA_SP, URA_GOLD = 5, 100
 # 消せないこと（下の keep_rec）と合わせて、ub が増えていない＝そのまま
 def ub_add(u): return AND(NE('ub', u), "!" + DE('ub', u))
 ub_all_same = [OR("!" + NE('ub', u), DE('ub', u)) for u in UIDS]
 # 図鑑・裏ボスの記録は消せない（消して取り直すと、ごほうびをもう一度もらえてしまう）。どの書き込みでも調べる
-keep_rec = [OR("!" + DE(k, u), NE(k, u)) for k in ('zk', 'ub', 'bc') for u in UIDS]
+keep_rec = [OR("!" + DE(k, u), NE(k, u)) for k in ('zk', 'ub', 'bc', 'ubb') for u in UIDS] + [OR("!" + DE('ms', str(k)), NE('ms', str(k))) for k in MS]
 # ボスを倒した記録 bc（2026-11-19）：新しく書けるのは、ひとりで冒険の報酬の書き込みだけで、1回に1つまで。
 # そのとき、経験値が60以上増えていて（ボスの報酬。いちばん弱いボスでも約70）、図鑑のその単元のボスの印（zk の 1024）もついていること。
 # ほかの書き込み（買い物・振り直し・鍛冶屋・裏ボス）では増やせない。消せないのは keep_rec
 def bc_add(u): return AND(NE('bc', u), "!" + DE('bc', u))
 bc_all_same = [OR("!" + NE('bc', u), DE('bc', u)) for u in UIDS]
 up_same = [same_opt_p('up', 'w'), same_opt_p('up', 'a')]
+# 節目・自己ベストは、それぞれの道（下の mstone・ubest）だけで変えられる。ほかの書き込みではそのまま（update でまとめて調べる）
+yk_same = ms_all_same + ubb_all_same
 def smith_slot(slot, other):
     tier = "'%s6'" % slot
     steps = [AND(N('up', slot) + " === %d" % k, OR("!" + DE('up', slot), D('up', slot) + " === 0") if k == 1 else D('up', slot) + " === %d" % (k - 1),
-                 N('gold') + " === " + D('gold') + " - %d" % p) for k, p in enumerate(UP_PRICE, 1)]
+                 N('gold') + " === " + D('gold') + " - " + up_price_expr(k - 1)) for k in range(1, len(UP_PRICE) + 1)]
     return AND(N('eq', slot) + " === " + tier, OR(*steps), same_opt_p('up', other))
 # ---------------------------------------------------------------- 新しく作るキャラは学年の始まりの目安から（1年 Lv1・2年 Lv16・3年 Lv30。SPは Lv−1）。rikaria-data.js の START_LV・newChar と同じ（2026-11-13）
 START = "($sid.beginsWith('1-') ? 1 : $sid.beginsWith('2-') ? 16 : 30)"
 create = AND("!data.exists()", N('lv') + " === " + START, N('exp') + " === 0", N('gold') + " === 0", N('sp') + " === " + N('lv') + " - 1", N('spt') + " === " + N('lv') + " - 1",
-             "!" + NE('sr'), "!" + NE('eq'), "!" + NE('ttl'), "!" + NE('gd'), "!" + NE('gg'), "!" + NE('up'), "!" + NE('ub'), "!" + NE('bc'), *[inv_le(k) for k in ITEMS])
+             "!" + NE('sr'), "!" + NE('eq'), "!" + NE('ttl'), "!" + NE('gd'), "!" + NE('gg'), "!" + NE('up'), "!" + NE('ub'), "!" + NE('bc'), "!" + NE('ms'), "!" + NE('ubb'), "!" + NE('ubd'), *[inv_le(k) for k in ITEMS])
 # 第1版のキャラ（sk がある・spt がない）を移す：レベル・経験値・ゴールドはそのまま、振っていたポイントは全部返す（spt＝Lv−1）
 migrate = AND("data.exists()", OR(DE('sk'), "!" + DE('spt')), same('lv'), same('exp'), N('gold') + " <= " + D('gold'),
-              N('spt') + " === " + N('lv') + " - 1", "!" + NE('sr'), same('eq', 'w'), same('eq', 'a'), same_opt('gd'), same_opt('gg'), *up_same, *ub_all_same, *bc_all_same, *[inv_le(k) for k in ITEMS])
+              N('spt') + " === " + N('lv') + " - 1", "!" + NE('sr'), same('eq', 'w'), same('eq', 'a'), same_opt('gd'), same_opt('gg'), *up_same, *ub_all_same, *bc_all_same, *yk_same, *[inv_le(k) for k in ITEMS])
 # 戦闘の報酬（ひとりで冒険）：1回でレベル＋1まで・経験値300・ゴールド200まで、前の書き込みから20秒以上。もらったSPはレベルと同じだけ増える
 reward = AND(dl + " >= 0", dl + " <= 1", N('lv') + " <= %d" % LV_MAX, gained + " >= 0", gained + " <= 300", N('exp') + " < " + need(N('lv')),
              N('spt') + " === " + D('spt') + " + " + dl,
@@ -111,14 +126,32 @@ respec = AND(N('gold') + " === " + D('gold') + " - 100", "!" + NE('sr'), N('sp')
 # 鍛冶屋（2026-11-19）：6段目を付けている武器か防具を ＋1 だけ上げる。ゴールドはちょうど値段の分だけ減る。ほかは何も変えない
 nochange = [same('lv'), same('exp'), same('spt'), same('lk'), same('eq', 'w'), same('eq', 'a'), same_opt('gd'), same_opt('gg'),
             *[sr_same(i) for i in range(NSK)], *[same_opt_p('inv', k) for k in ITEMS]]
-smith = AND(*nochange, *ub_all_same, *bc_all_same, OR(smith_slot('w', 'a'), smith_slot('a', 'w')))
+smith = AND(same('spt'), *ub_all_same, OR(smith_slot('w', 'a'), smith_slot('a', 'w')))
 # 裏ボスをはじめて倒した（2026-11-19）：ボスを倒した単元（前の bc が true）の ub を1つだけ新しく書き、SP（spt）がちょうど＋5・ゴールドがちょうど＋学年×100。
 # ほかは何も変えない（1日の上限 gd・gg も変えない＝上限の外のごほうび）。2回目からは ub がもうあるので、この道は通れない（ふつうの reward だけ）
 ura_one = "(" + " + ".join("(%s ? 1 : 0)" % ub_add(u) for u in UIDS) + ") === 1"   # 新しく書いた ub はちょうど1つ
 ura_bc = ["(!%s || %s === true)" % (ub_add(u), D('bc', u)) for u in UIDS]            # それはボスを倒した単元
-ura = AND(*[c for c in nochange if c != same('spt')], *up_same, *bc_all_same, N('spt') + " === " + D('spt') + " + %d" % URA_SP,
+ura = AND(*up_same, N('spt') + " === " + D('spt') + " + %d" % URA_SP,
           N('gold') + " === " + D('gold') + " + " + GRADE + " * %d" % URA_GOLD, ura_one, *ura_bc)
-update = AND("data.exists()", DE('spt'), "!" + DE('sk'), same('n'), same('j'), *keep_rec, OR(reward, shop, respec, smith, ura))
+# レベルの節目（2026-11-20）：節目 ms を1つだけ新しく書き、レベルがそこに届いていて、SP（spt）がちょうど＋表の数・ゴールドがちょうど＋学年×表の数。
+# ほかは何も変えない（1日の上限 gd・gg の外のごほうび）。1回きりの決まった額なので、20秒の間隔は要らない。2つ目は次の保存で
+ms_one = "(" + " + ".join("(%s ? 1 : 0)" % ms_add(k) for k in MS) + ") === 1"
+mstone = AND(*up_same, *ub_all_same, *ubb_all_same, ms_one,
+             *["(!%s || (%s >= %d && %s === %s + %d && %s === %s + %s * %d))" % (ms_add(k), D('lv'), k, N('spt'), D('spt'), sp, N('gold'), D('gold'), GRADE, g) for k, (sp, g) in MS.items()])
+# 裏ボスの自己ベスト（2026-11-20）：ubb を1つの単元だけ、前より良く（まちがいが少ない・同じなら答えた問題が少ない）書く。その単元の裏ボスを倒していること（ub）。
+# その日はじめてのベストなら ubd を今日にしてゴールドちょうど＋学年×20、そうでなければ ubd・ゴールドはそのまま。ほかは何も変えない
+ubb_one = "(" + " + ".join("(%s ? 1 : 0)" % ubb_chg(u) for u in UIDS) + ") === 1"
+ubb_ok = ["(!%s || (%s === true && (!%s || %s < %s || (%s === %s && %s < %s))))" % (ubb_chg(u), D('ub', u), DE('ubb', u), N('ubb', u, 'm'), D('ubb', u, 'm'),
+          N('ubb', u, 'm'), D('ubb', u, 'm'), N('ubb', u, 'q'), D('ubb', u, 'q')) for u in UIDS]
+ubd_ok = AND(N('ubd') + " * %d <= now + %d" % (DAY, JST), "now + %d < (%s + 1) * %d" % (JST, N('ubd'), DAY))
+ubest = AND(same('spt'), *up_same, *ub_all_same, *ms_all_same, ubb_one, *ubb_ok,
+            OR(AND(N('gold') + " === " + D('gold'), same_opt('ubd')),
+               AND(OR("!" + DE('ubd'), D('ubd') + " !== " + N('ubd')), ubd_ok, N('gold') + " === " + D('gold') + " + " + GRADE + " * %d" % UBB_GOLD)))
+fixed0 = [c for c in nochange if c != same('spt')] + bc_all_same
+fixed = AND(*fixed0, OR(mstone, ubest))
+update = AND("data.exists()", DE('spt'), "!" + DE('sk'), same('n'), same('j'), *keep_rec, OR(AND(*yk_same, OR(reward, shop, respec, AND(*fixed0, OR(smith, ura)))), fixed))
+# ↑ smith・ura・mstone・ubest は「ほかは何も変えない（nochange・bc）」が同じなので、ルールを短くするため fixed にまとめて1回だけ調べる。
+#   節目・自己ベストは mstone・ubest のほかではそのまま（yk_same）
 
 ch = q['chars']
 ch.pop('.read', None)
@@ -146,6 +179,11 @@ zk_keep = " && ".join("(!(data.val() %% %d >= %d) || newData.val() %% %d >= %d)"
 UKEY = "(" + " || ".join("$k === '%s'" % u for u in UIDS) + ")"
 c['zk'] = {"$k": {".validate": UKEY + " && newData.isNumber() && newData.val() >= 0 && newData.val() <= 2047 && newData.val() % 1 === 0 && (!data.exists() || " + zk_keep + ")"}}
 c['ub'] = {"$k": {".validate": UKEY + " && newData.val() === true"}}
+# 節目（"90" など → true）・裏ボスの自己ベスト（単元 → { m, q }：0〜200 の整数）・ベストのゴールドの日（日の番号）。2026-11-20
+c['ms'] = {"$k": {".validate": "(" + " || ".join("$k === '%d'" % k for k in MS) + ") && newData.val() === true"}}
+INT200 = "newData.isNumber() && newData.val() >= 0 && newData.val() <= 200 && newData.val() % 1 === 0"
+c['ubb'] = {"$k": {".validate": UKEY + " && newData.hasChildren(['m','q'])", "m": {".validate": INT200}, "q": {".validate": INT200}, "$other": {".validate": False}}}
+c['ubd'] = {".validate": "newData.isNumber() && newData.val() >= 0"}
 c['eq'] = {"w": {".validate": " || ".join("newData.val() === '%s'" % k for k in WEAP)},
            "a": {".validate": " || ".join("newData.val() === '%s'" % k for k in ARMO)}, "$other": {".validate": False}}
 c['inv'] = {"$k": {".validate": "(" + " || ".join("$k === '%s'" % k for k in ITEMS) + ") && newData.isNumber() && newData.val() >= 0 && newData.val() <= 9"}}
@@ -158,6 +196,12 @@ c['ttl'] = {"$a": {".validate": "newData.isString() && newData.val().length <= 2
 # クラスの記録（町の名前 town・町の段階 stage・単元 areas・オブリオン ob/obDone など）。読むのは誰でも、書くのは先生だけ。
 # 中身の形は決めていない（先生の端末なら新しい項目を足せる）。生徒の端末からは書けない
 q['classes'] = {".read": "auth != null", ".write": "auth != null && " + A}
+# クラスの図鑑（2026-11-20）。quest/<年度>/czk/<学年-組>/<単元>/<番号> = その人の図鑑のしるし（キャラの zk/<単元> と同じ数）。
+# 読むのはログインした人みんな（画面には、合わせた数と人数だけを出す）。書けるのは先生と、その番号の持ち主だけで、値は自分のキャラの図鑑と同じ数だけ（ごまかせない）
+q['czk'] = {".read": "auth != null", ".write": "auth != null && " + A, "$gc": {".validate": "$gc.matches(/^[1-3]-[1-9]$/)", "$u": {".validate": UKEY.replace('$k', '$u'), "$n": {
+    ".write": "auth != null && $n.matches(/^[0-9]{1,2}$/) && root.child('quest').child($y).child('owners').child($gc + '-' + $n).child(auth.uid).exists()"
+              " && newData.val() === root.child('quest').child($y).child('chars').child($gc + '-' + $n).child('zk').child($u).val()",
+    ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 2047 && newData.val() % 1 === 0"}}}}
 # 班の進み具合（先生だけ）。quest/<年度>/teams/<学年-組>/<単元>/<班>
 q['teams'] = {".read": "auth != null && " + A, ".write": "auth != null && " + A}
 # テスト範囲（ひとりで冒険の出題範囲。先生が記録画面で作る）。quest/<年度>/ranges/<学年>/<id> = { n: 名前, u: { <単元id>: true } }

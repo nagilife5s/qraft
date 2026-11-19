@@ -340,3 +340,36 @@ test('図鑑：しるしは11こ、足すだけ・合わせられる。チーム
   for (let i = 0; i < 30 && G.ph === 'battle'; i++) E.step(G, .5);
   const r = E.results(G); assert.ok(Object.values(r).every((x) => x.zk % 2048 >= 1024), JSON.stringify(r));
 });
+
+/* やり込み 第2弾（節目・裏ボスの自己ベスト・鍛冶屋の値段・クラスの図鑑。2026-11-20） */
+test('鍛冶屋の値段は学年で：四捨五入(もと×倍率÷10)×10', () => {
+  assert.deepEqual([0, 1, 2, 3, 4].map((k) => D.upPrice(1, k)), [140, 210, 320, 450, 630]);
+  assert.deepEqual([0, 1, 2, 3, 4].map((k) => D.upPrice(2, k)), [260, 390, 590, 850, 1170]);
+  assert.deepEqual([0, 1, 2, 3, 4].map((k) => D.upPrice(3, k)), D.UP_PRICE);
+  assert.equal(D.upPrice(1, 5), 0);
+});
+test('レベルの節目：1回に1つずつ、届いた節目だけ。称号は ms から', () => {
+  const c = { lv: 89, sp: 0, spt: 0, gold: 0 };
+  assert.equal(D.msNext(c), null);
+  c.lv = 125;
+  assert.equal(D.msClaim(c, 2).lv, 90); assert.deepEqual([c.sp, c.spt, c.gold], [2, 2, 100]);
+  assert.equal(D.msClaim(c, 2).lv, 100); assert.equal(D.msClaim(c, 2).lv, 110); assert.equal(D.msClaim(c, 2).lv, 120);
+  assert.equal(D.msClaim(c, 2), null); assert.deepEqual(c.ms, { 90: true, 100: true, 110: true, 120: true });
+  assert.deepEqual([c.sp, c.gold], [10, 600]);
+  assert.ok(D.extraTitles(c).includes('霧の賢者') && !D.extraTitles(c).includes('伝説の勇者'));
+  assert.ok(D.MS.every((m) => m.t.length <= 20));
+});
+test('裏ボスの自己ベスト：まちがいが少ないほど上、同じなら答えた問題が少ないほど上。まちがい0で称号', () => {
+  assert.ok(D.ubBetter({ m: 1, q: 20 }, null));
+  assert.ok(D.ubBetter({ m: 1, q: 20 }, { m: 2, q: 5 }));
+  assert.ok(D.ubBetter({ m: 1, q: 9 }, { m: 1, q: 10 }));
+  assert.ok(!D.ubBetter({ m: 1, q: 10 }, { m: 1, q: 10 }) && !D.ubBetter({ m: 2, q: 1 }, { m: 1, q: 30 }));
+  assert.ok(D.extraTitles({ ub: { life: true }, ubb: { life: { m: 0, q: 9 } } }).includes('植物と動物の影を完全に払う者'));
+  assert.ok(!D.extraTitles({ ubb: { life: { m: 1, q: 9 } } }).some((t) => t.includes('完全')));
+  assert.ok(D.UNITS.every((u) => D.uraPerfectTitle(u).length <= 20));
+});
+test('クラスの図鑑：みんなのしるしを合わせ、戦った人の数だけ数える', () => {
+  assert.deepEqual(D.czkOf({ 3: 3, 5: 1024, 7: 0 }), { v: 1027, got: 3, people: 2 });
+  assert.deepEqual(D.czkOf(null), { v: 0, got: 0, people: 0 });
+  assert.equal(D.czkOf({ 1: 2047, 2: 5 }).got, 11);
+});

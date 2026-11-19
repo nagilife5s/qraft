@@ -236,9 +236,9 @@
 
 <script src="firebase-config.js"></script>
 <script type="module">
-import { loadHomeSets, signIn, db, ref, set, get, remove, loadQEdits, mountSetPicker, zoomImage } from './lib.js?v=20261119230000';
-import { fiscalYear, makeCode } from './quest.js?v=20261119230000';
-import { UNITS, LV_MAX, JOBS, expToNext, statsOf, weaponName, armorName, ITEMS, learned, rankOf, heroImg, migrateChar, upName, zkCount, ZK_N, uraName, extraTitles } from './rikaria-data.js?v=20261119230000';
+import { loadHomeSets, signIn, db, ref, set, get, remove, loadQEdits, mountSetPicker, zoomImage } from './lib.js?v=20261120090000';
+import { fiscalYear, makeCode } from './quest.js?v=20261120090000';
+import { UNITS, LV_MAX, JOBS, expToNext, statsOf, weaponName, armorName, ITEMS, learned, rankOf, heroImg, migrateChar, upName, zkCount, ZK_N, uraName, extraTitles, czkOf } from './rikaria-data.js?v=20261120090000';
 var $ = function (id) { return document.getElementById(id); };
 var uid = null, rows = [], titles = {}, open = {}, HS = [];
 
@@ -687,8 +687,10 @@ async function rkLoad() {
       if (ch || r[1].exists()) out.push({ no: n, ch: ch });
     }));
   })(n);
+  var czk = {}; jobs.push(get(ref(db, 'quest/' + QY + '/czk/' + g + '-' + c)).then(function (r) { czk = r.val() || {}; }));   /* クラスの図鑑（2026-11-20） */
   try { await Promise.all(jobs); } catch (e) { $('rkMsg').textContent = '読みこめませんでした：' + e.message; return; }
   if (g !== RK.g || c !== RK.c) return;
+  RK.czk = czk;
   RK.list = out; if (!out.some(function (s) { return s.no === RK.sel && s.ch; })) { var f = out.filter(function (s) { return s.ch; }).sort(function (a, b) { return a.no - b.no; })[0]; RK.sel = f ? f.no : 0; }
   $('rkMsg').textContent = out.length ? '' : 'このクラスには、まだ合言葉もキャラもありません';
   rkDraw();
@@ -703,6 +705,9 @@ var RK_COLS = [['no', '番号'], ['n', '名前'], ['j', '職業'], ['lv', 'レ�
 function rkDraw() {
   var has = RK.list.filter(function (s) { return s.ch; }), lvs = has.map(function (s) { return s.ch.lv || 1; }), us = rkUnits();
   $('rkSum').innerHTML = RK.list.length ? '<div>キャラあり <b>' + has.length + '</b> 人</div>' + (has.length ? '<div>平均レベル <b>' + (lvs.reduce(function (a, b) { return a + b; }, 0) / lvs.length).toFixed(1) + '</b></div><div>いちばん高い <b>Lv' + Math.max.apply(null, lvs) + '</b></div><div>SPを使っていない <b>' + has.filter(function (s) { return s.ch.sp > 0; }).length + '</b> 人</div>' : '') : '';
+  /* クラスの図鑑（2026-11-20）：単元ごとに、クラスでうめた数と戦った人の数（みんなでうめる目標。順位は出さない） */
+  var cz = us.map(function (u) { var o = czkOf((RK.czk || {})[u.id]); return '<span>' + (o.got === ZK_N ? '🚩 ' : '') + rkEsc(u.unit) + ' ' + o.got + '/' + ZK_N + '（' + o.people + '人）</span>'; }).join('');
+  if (RK.list.length) $('rkSum').innerHTML += '<div style="flex-basis:100%">クラスの図鑑 <span class="rkchips">' + cz + '</span></div>';
   $('rkHd').innerHTML = RK_COLS.map(function (x) { return '<th data-k="' + x[0] + '"' + (x[0] === 'eq' ? '' : ' aria-sort="' + (x[0] === RK.key ? (RK.dir > 0 ? 'ascending' : 'descending') : 'none') + '"') + '>' + x[1] + (x[0] === RK.key ? (RK.dir > 0 ? ' ▲' : ' ▼') : '') + '</th>'; }).join('');
   var rows = RK.list.slice().sort(function (a, b) { var x = rkVal(a, RK.key), y = rkVal(b, RK.key); return ((x > y) - (x < y)) * RK.dir || a.no - b.no; });
   $('rkTb').innerHTML = rows.map(function (s) {
@@ -731,7 +736,7 @@ function rkDetail() {
     '<h4>持ち物</h4><div class="rkchips">' + items + '</div>' +
     '<h4>ひとりで倒したボス</h4><div class="rkchips">' + rkUnits().map(function (u) { return '<span style="' + (bc[u.id] ? '' : 'opacity:.45') + '">' + (bc[u.id] ? '👑 ' : '') + rkEsc(u.unit) + '</span>'; }).join('') + '</div>' +
     '<h4>図鑑（倒した敵）</h4><div class="rkchips"><span>' + zkGot + ' / ' + zkAll + '</span>' + rkUnits().map(function (u) { return '<span>' + rkEsc(u.unit) + ' ' + zkCount(c, u.id) + '/' + ZK_N + '</span>'; }).join('') + '</div>' +
-    '<h4>裏ボス（ひとりで倒した）</h4><div class="rkchips">' + (rkUnits().filter(function (u) { return ub[u.id]; }).map(function (u) { return '<span>👁 ' + rkEsc(uraName(u)) + '</span>'; }).join('') || 'なし') + '</div>' +
+    '<h4>裏ボス（ひとりで倒した）</h4><div class="rkchips">' + (rkUnits().filter(function (u) { return ub[u.id]; }).map(function (u) { var b = (c.ubb || {})[u.id]; return '<span>👁 ' + rkEsc(uraName(u)) + (b ? '　ベスト：まちがい ' + b.m + '・' + b.q + '問' : '') + '</span>'; }).join('') || 'なし') + '</div>' +   /* 自己ベスト ubb（2026-11-20） */
     '<h4>称号</h4><div class="rkchips">' + ttl + '</div>';
 }
 $('rkG').onclick = function (e) { var b = e.target.closest('.mkpill'); if (!b) return; RK.g = +b.dataset.g; RK.sel = 0; rkPills(); rkLoad(); };

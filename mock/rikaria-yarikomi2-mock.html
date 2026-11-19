@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>やり込み 第2弾（モック）</title>
+<style>
+  body { margin:0; background:#120d3a; color:#fff; font-family:system-ui, sans-serif; line-height:1.55; }
+  header { background:linear-gradient(#1a1450,#120d3a); padding:.7em 1em; display:flex; align-items:center; gap:1em; flex-wrap:wrap; }
+  header h1 { color:#ffe27a; font-size:1.2em; margin:0; }
+  .tabs button { border:0; padding:.5em 1.1em; border-radius:999px; font-weight:900; background:#3a3170; color:#fff; margin:.15em .3em .15em 0; font-size:.95em; cursor:pointer; }
+  .tabs button.on { background:#ffe27a; color:#221a44; }
+  main { padding:1em; max-width:1000px; margin:auto; }
+  .win { background:rgba(255,255,255,.06); border:2px solid #6a5bd6; border-radius:.9em; padding:1em; margin-bottom:1em; }
+  .win h2 { margin:.1em 0 .5em; font-size:1.1em; color:#ffe27a; }
+  .note { color:#c9c0ea; font-size:.92em; margin:.2em 0 .8em; }
+  table { width:100%; border-collapse:collapse; font-size:.92em; }
+  th { text-align:left; color:#c9c0ea; font-weight:700; padding:.35em .5em; border-bottom:1px solid #4b4380; }
+  td { padding:.4em .5em; border-bottom:1px solid #2a2260; }
+  tr.got td { color:#ffe27a; } tr.next td { background:rgba(255,226,122,.08); }
+  .road { display:flex; align-items:center; gap:0; margin:1em 0 1.4em; overflow-x:auto; padding-bottom:.4em; }
+  .dot { flex:0 0 auto; width:54px; text-align:center; font-size:.8em; color:#9a93b8; }
+  .dot b { display:block; width:30px; height:30px; margin:0 auto .2em; border-radius:50%; background:#2a2260; border:2px solid #4b4380; line-height:26px; }
+  .dot.got { color:#ffe27a; } .dot.got b { background:#ffe27a; color:#221a44; border-color:#ffe27a; }
+  .line { flex:1 0 24px; height:4px; background:#4b4380; } .line.got { background:#ffe27a; }
+  .me { color:#7fe3ff; font-weight:900; }
+  .boss { display:flex; gap:1em; align-items:center; background:radial-gradient(circle at 30% 40%, #3b0f4f, #12051c); border:2px solid #9b3cff; border-radius:.9em; padding:1em; flex-wrap:wrap; }
+  .boss img { width:130px; height:130px; object-fit:contain; filter:hue-rotate(250deg) saturate(1.6) brightness(.85) drop-shadow(0 0 14px #b44cff); }
+  .best { display:grid; grid-template-columns:auto auto; gap:.2em 1em; font-size:.95em; }
+  .best b { color:#ffe27a; font-size:1.15em; }
+  .new { display:inline-block; background:#ff8a1c; border-radius:999px; padding:.15em .8em; font-weight:900; margin-top:.5em; animation:pop 1s ease-in-out infinite alternate; }
+  @keyframes pop { from { transform:scale(1); } to { transform:scale(1.08); } }
+  .grade { display:inline-flex; gap:.3em; margin-bottom:.6em; }
+  .pill { border:1px solid #6a5bd6; background:transparent; color:#fff; border-radius:999px; padding:.25em .9em; font-weight:800; cursor:pointer; }
+  .pill.on { background:#6a5bd6; }
+  .units { display:grid; grid-template-columns:repeat(auto-fill, minmax(220px,1fr)); gap:.6em; }
+  .u { background:rgba(0,0,0,.3); border-radius:.7em; padding:.6em .8em; }
+  .u .h { display:flex; justify-content:space-between; font-weight:800; }
+  .bar { height:.6em; background:#2a2260; border-radius:9px; overflow:hidden; margin:.35em 0 .2em; }
+  .bar i { display:block; height:100%; background:linear-gradient(90deg,#7b5cff,#7fe3ff); }
+  .u.done { border:2px solid #ffe27a; } .u.done .bar i { background:#ffe27a; }
+  .u small { color:#c9c0ea; }
+  .big { font-size:1.4em; font-weight:900; color:#7fe3ff; }
+  .mocktag { position:fixed; right:.6em; bottom:.6em; background:#c0392b; color:#fff; padding:.2em .8em; border-radius:999px; font-weight:800; font-size:.8em; }
+</style>
+</head>
+<body>
+<header><h1>リカリア：やり込み 第2弾（見本）</h1>
+  <div class="tabs"><button data-t="t1" class="on">① レベルの節目</button><button data-t="t2">② 裏ボスの記録</button><button data-t="t3">③ 鍛冶屋の値段</button><button data-t="t4">④ クラスの図鑑</button></div></header>
+<main>
+  <section id="t1">
+    <div class="win"><h2>① レベルの節目のごほうび</h2>
+      <div class="note">新しい技がない区間（Lv80〜100、Lv100から先）にも、目指すものを置きます。節目のレベルに上がると、称号と少しのSP・ゴールド。新しい絵は要りません。見本は <span class="me">Lv94</span> の生徒。</div>
+      <div class="road" id="road"></div>
+      <table><thead><tr><th>レベル</th><th>称号</th><th>ごほうび</th><th>目安（Lv30から）</th></tr></thead><tbody id="ms"></tbody></table>
+      <p class="note">SP は技のランク上げに、ゴールドは鍛冶屋や道具に使えます。称号は城と先生の記録画面に出ます。</p>
+    </div>
+  </section>
+
+  <section id="t2" hidden>
+    <div class="win"><h2>② 裏ボスの自己ベスト</h2>
+      <div class="note">裏ボスを倒すたびに「まちがいの数」と「倒すまでに答えた問題の数」を記録。<b>自己ベストを出すとごほうび</b>。もう一度挑む理由になり、ていねいに答える練習にもなります。</div>
+      <div class="boss"><img src="../img/rikaria/enemy/life-boss.webp" alt="" onerror="this.style.visibility='hidden'">
+        <div style="flex:1;min-width:220px"><div style="color:#e7b8ff;font-weight:900;font-size:1.1em">影の生命の樹王イノチノキ をたおした！</div>
+          <div class="best" style="margin-top:.5em"><span>まちがい</span><span><b>1</b>　（前のベスト 3）</span><span>答えた問題</span><span><b>12問</b>　（前のベスト 15問）</span></div>
+          <div class="new">🏆 自己ベスト！ ゴールド ＋60</div></div></div>
+      <table style="margin-top:1em"><tr><th>決まり（案）</th><th></th></tr>
+        <tr><td>記録するもの</td><td>まちがいの数（少ないほど上）。同じなら、答えた問題の数（少ないほど上）</td></tr>
+        <tr><td>ごほうび</td><td>自己ベストを出したとき：ゴールド 学年×20（1日1回まで）。経験値はいつもどおり</td></tr>
+        <tr><td>見える所</td><td>裏ボスの前の画面・城・先生の記録画面（単元ごとのベスト）</td></tr>
+        <tr><td>称号</td><td>まちがい0で倒すと「〇〇の影を完全に払う者」</td></tr></table>
+    </div>
+  </section>
+
+  <section id="t3" hidden>
+    <div class="win"><h2>③ 鍛冶屋の値段を学年で変える</h2>
+      <div class="note">ひとりで冒険で1日に稼げるゴールドは、1年50G・2年100G・3年150G。値段も学年に合わせ、<b>どの学年でもだいたい同じ日数</b>で＋5に届くようにします。</div>
+      <div class="grade" id="gp"></div>
+      <table><thead><tr><th>段階</th><th>武器・防具それぞれの値段</th></tr></thead><tbody id="pr"></tbody></table>
+      <p id="days" style="margin-top:.8em"></p>
+    </div>
+  </section>
+
+  <section id="t4" hidden>
+    <div class="win"><h2>④ クラスの図鑑（みんなでうめる）</h2>
+      <div class="note">クラスのだれかが倒した敵は、クラスの図鑑にのります。<b>順位は出しません</b>（協力の目標）。単元をクラスでうめると、クラス全員の城に「〇〇の図鑑・クラス制覇」の旗が立ちます。見本は 3年1組。</div>
+      <div style="margin-bottom:.8em">クラスの図鑑 <span class="big" id="tot"></span></div>
+      <div class="units" id="units"></div>
+      <p class="note" style="margin-top:.8em">まだ倒していない敵の名前は「？？？」のまま。だれが倒したかは出さず、何人が倒したかだけを出します。</p>
+    </div>
+  </section>
+</main>
+<div class="mocktag">モック（見本）</div>
+<script type="module">
+import { UNITS } from '../rikaria-data.js';
+const $ = (i) => document.getElementById(i);
+document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('.tabs button').forEach(x => x.classList.toggle('on', x === b));
+  ['t1', 't2', 't3', 't4'].forEach(t => $(t).hidden = t !== b.dataset.t);
+});
+/* ① 節目 */
+const LV = 94;
+const M = [[90, '霧の探索者', 'SP+2・ゴールド 学年×50', 'ー'], [100, '百の道を歩む者', 'SP+3・ゴールド 学年×100', '約770戦'], [110, '霧を知る者', 'SP+2・ゴールド 学年×50', '約1,050戦'],
+  [120, '霧の賢者', 'SP+3・ゴールド 学年×100', '約1,390戦'], [150, 'リカリアの守り手', 'SP+5・ゴールド 学年×150', '約2,870戦'], [200, '伝説の勇者', 'SP+10・ゴールド 学年×300', '約7,100戦']];
+function need(L) { if (L >= 30) { const k = L - 30; return 650 + 30 * k + k * k; } return Math.min(650, 100 + 50 * L); }
+M[0][3] = '約' + Math.round(Array.from({ length: 60 }, (_, i) => need(30 + i)).reduce((a, b) => a + b) / 300) + '戦';
+const nx = M.find(m => m[0] > LV)[0];
+$('ms').innerHTML = M.map(([l, t, r, w]) => `<tr class="${l <= LV ? 'got' : l === nx ? 'next' : ''}"><td>Lv${l}${l <= LV ? ' ✔' : l === nx ? ' ← 次' : ''}</td><td>🏅 ${t}</td><td>${r}</td><td>${w}</td></tr>`).join('');
+$('road').innerHTML = M.map(([l], i) => (i ? `<div class="line${l <= LV ? ' got' : ''}"></div>` : '') + `<div class="dot${l <= LV ? ' got' : ''}"><b>${l <= LV ? '★' : ''}</b>Lv${l}</div>`).join('') ;
+/* ③ 値段 */
+const BASE = [400, 600, 900, 1300, 1800], GX = { 1: .35, 2: .65, 3: 1 }, CAP = { 1: 50, 2: 100, 3: 150 };
+let g = 1;
+function price() {
+  $('gp').innerHTML = [1, 2, 3].map(x => `<button class="pill${x === g ? ' on' : ''}" data-g="${x}">${x}年</button>`).join('');
+  $('gp').querySelectorAll('button').forEach(b => b.onclick = () => { g = +b.dataset.g; price(); });
+  const P = BASE.map(p => Math.round(p * GX[g] / 10) * 10), sum = P.reduce((a, b) => a + b) * 2;
+  $('pr').innerHTML = P.map((p, i) => `<tr><td>＋${i + 1}</td><td>${p} G <small style="color:#9a93b8">（今は ${BASE[i]} G）</small></td></tr>`).join('');
+  const now = BASE.reduce((a, b) => a + b) * 2;
+  $('days').innerHTML = `武器と防具を両方＋5：<b>${sum.toLocaleString()} G</b>。ひとりで冒険だけなら約 <b>${Math.ceil(sum / CAP[g])}日</b>（今の値段だと ${Math.ceil(now / CAP[g])}日）。チーム戦のゴールドも足せば、もっと早い。`;
+}
+price();
+/* ④ クラスの図鑑（見本の数はでたらめ） */
+const U = UNITS; let all = 0, got = 0;
+$('units').innerHTML = U.map((u, i) => { const n = Math.min(11, (i * 5 + 3) % 12 + (i % 3 === 0 ? 4 : 0)), people = (i * 7) % 13 + 1; all += 11; got += n;
+  return `<div class="u${n >= 11 ? ' done' : ''}"><div class="h"><span>${u.g}年 ${u.unit}</span><span>${n} / 11</span></div><div class="bar"><i style="width:${n / 11 * 100}%"></i></div>
+    <small>${n >= 11 ? '🚩 クラス制覇！' : 'あと ' + (11 - n) + ' 体'}　・ この単元で戦った人 ${people}人</small></div>`; }).join('');
+$('tot').textContent = got + ' / ' + all;
+</script>
+</body>
+</html>
