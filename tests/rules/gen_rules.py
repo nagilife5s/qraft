@@ -68,7 +68,12 @@ URA_SP, URA_GOLD = 5, 100
 def ub_add(u): return AND(NE('ub', u), "!" + DE('ub', u))
 ub_all_same = [OR("!" + NE('ub', u), DE('ub', u)) for u in UIDS]
 # 図鑑・裏ボスの記録は消せない（消して取り直すと、ごほうびをもう一度もらえてしまう）。どの書き込みでも調べる
-keep_rec = [OR("!" + DE(k, u), NE(k, u)) for k in ('zk', 'ub') for u in UIDS]
+keep_rec = [OR("!" + DE(k, u), NE(k, u)) for k in ('zk', 'ub', 'bc') for u in UIDS]
+# ボスを倒した記録 bc（2026-11-19）：新しく書けるのは、ひとりで冒険の報酬の書き込みだけで、1回に1つまで。
+# そのとき、経験値が60以上増えていて（ボスの報酬。いちばん弱いボスでも約70）、図鑑のその単元のボスの印（zk の 1024）もついていること。
+# ほかの書き込み（買い物・振り直し・鍛冶屋・裏ボス）では増やせない。消せないのは keep_rec
+def bc_add(u): return AND(NE('bc', u), "!" + DE('bc', u))
+bc_all_same = [OR("!" + NE('bc', u), DE('bc', u)) for u in UIDS]
 up_same = [same_opt_p('up', 'w'), same_opt_p('up', 'a')]
 def smith_slot(slot, other):
     tier = "'%s6'" % slot
@@ -78,14 +83,16 @@ def smith_slot(slot, other):
 # ---------------------------------------------------------------- 新しく作るキャラは学年の始まりの目安から（1年 Lv1・2年 Lv16・3年 Lv30。SPは Lv−1）。rikaria-data.js の START_LV・newChar と同じ（2026-11-13）
 START = "($sid.beginsWith('1-') ? 1 : $sid.beginsWith('2-') ? 16 : 30)"
 create = AND("!data.exists()", N('lv') + " === " + START, N('exp') + " === 0", N('gold') + " === 0", N('sp') + " === " + N('lv') + " - 1", N('spt') + " === " + N('lv') + " - 1",
-             "!" + NE('sr'), "!" + NE('eq'), "!" + NE('ttl'), "!" + NE('gd'), "!" + NE('gg'), "!" + NE('up'), "!" + NE('ub'), *[inv_le(k) for k in ITEMS])
+             "!" + NE('sr'), "!" + NE('eq'), "!" + NE('ttl'), "!" + NE('gd'), "!" + NE('gg'), "!" + NE('up'), "!" + NE('ub'), "!" + NE('bc'), *[inv_le(k) for k in ITEMS])
 # 第1版のキャラ（sk がある・spt がない）を移す：レベル・経験値・ゴールドはそのまま、振っていたポイントは全部返す（spt＝Lv−1）
 migrate = AND("data.exists()", OR(DE('sk'), "!" + DE('spt')), same('lv'), same('exp'), N('gold') + " <= " + D('gold'),
-              N('spt') + " === " + N('lv') + " - 1", "!" + NE('sr'), same('eq', 'w'), same('eq', 'a'), same_opt('gd'), same_opt('gg'), *up_same, *ub_all_same, *[inv_le(k) for k in ITEMS])
+              N('spt') + " === " + N('lv') + " - 1", "!" + NE('sr'), same('eq', 'w'), same('eq', 'a'), same_opt('gd'), same_opt('gg'), *up_same, *ub_all_same, *bc_all_same, *[inv_le(k) for k in ITEMS])
 # 戦闘の報酬（ひとりで冒険）：1回でレベル＋1まで・経験値300・ゴールド200まで、前の書き込みから20秒以上。もらったSPはレベルと同じだけ増える
 reward = AND(dl + " >= 0", dl + " <= 1", N('lv') + " <= %d" % LV_MAX, gained + " >= 0", gained + " <= 300", N('exp') + " < " + need(N('lv')),
              N('spt') + " === " + D('spt') + " + " + dl,
              N('gold') + " <= " + D('gold') + " + 200", day_cap,
+             "(" + " + ".join("(%s ? 1 : 0)" % bc_add(u) for u in UIDS) + ") <= 1",
+             *["(!%s || ((%s >= 60 || %s === %d) && %s %% 2048 >= 1024))" % (bc_add(u), gained, N('lv'), LV_MAX, N('zk', u)) for u in UIDS],
              OR("!" + DE('u'), D('u') + " + 20000 <= now"),
              same('eq', 'w'), same('eq', 'a'), same('lk'), *up_same, *ub_all_same, *[sr_same(i) for i in range(NSK)], *[inv_le(k) for k in ITEMS])
 # 買い物・技のランクアップ・見た目・持っていく技：レベル・経験値・もらったSPはそのまま、ゴールドは値段の分だけ減る
@@ -93,23 +100,23 @@ def buy_eq(slot, table):
     return OR(same('eq', slot), *[AND(N('eq', slot) + " === '%s'" % i, N('gold') + " <= " + D('gold') + " - %d" % p) for i, p in table.items()])
 ks = list(ITEMS)
 shop = AND(same('lv'), same('exp'), same('spt'), N('gold') + " <= " + D('gold'), same_opt('gd'), same_opt('gg'),
-           buy_eq('w', WEAP), buy_eq('a', ARMO), *up_same, *ub_all_same,
+           buy_eq('w', WEAP), buy_eq('a', ARMO), *up_same, *ub_all_same, *bc_all_same,
            *[OR(inv_le(k), AND(inv_inc(k), N('gold') + " <= " + D('gold') + " - %d" % ITEMS[k])) for k in ks],
            *["!(%s && %s)" % (inv_inc(a), inv_inc(b)) for i, a in enumerate(ks) for b in ks[i + 1:]],
            *[sr_ge(i) for i in range(NSK)])   # 買い物ではランクを下げられない（下げるのは下の「振り直し」だけ）
 # 教会の振り直し：ちょうど100ゴールドで、振ったポイントを全部戻す（sr を消して SP＝もらったSPの合計）。ほかは何も変えない（2026-11-13）
 respec = AND(N('gold') + " === " + D('gold') + " - 100", "!" + NE('sr'), N('sp') + " === " + N('spt'),
              same('lv'), same('exp'), same('spt'), same('lk'), same('eq', 'w'), same('eq', 'a'), same_opt('gd'), same_opt('gg'),
-             *up_same, *ub_all_same, *[same_opt_p('inv', k) for k in ITEMS])
+             *up_same, *ub_all_same, *bc_all_same, *[same_opt_p('inv', k) for k in ITEMS])
 # 鍛冶屋（2026-11-19）：6段目を付けている武器か防具を ＋1 だけ上げる。ゴールドはちょうど値段の分だけ減る。ほかは何も変えない
 nochange = [same('lv'), same('exp'), same('spt'), same('lk'), same('eq', 'w'), same('eq', 'a'), same_opt('gd'), same_opt('gg'),
             *[sr_same(i) for i in range(NSK)], *[same_opt_p('inv', k) for k in ITEMS]]
-smith = AND(*nochange, *ub_all_same, OR(smith_slot('w', 'a'), smith_slot('a', 'w')))
+smith = AND(*nochange, *ub_all_same, *bc_all_same, OR(smith_slot('w', 'a'), smith_slot('a', 'w')))
 # 裏ボスをはじめて倒した（2026-11-19）：ボスを倒した単元（前の bc が true）の ub を1つだけ新しく書き、SP（spt）がちょうど＋5・ゴールドがちょうど＋学年×100。
 # ほかは何も変えない（1日の上限 gd・gg も変えない＝上限の外のごほうび）。2回目からは ub がもうあるので、この道は通れない（ふつうの reward だけ）
 ura_one = "(" + " + ".join("(%s ? 1 : 0)" % ub_add(u) for u in UIDS) + ") === 1"   # 新しく書いた ub はちょうど1つ
 ura_bc = ["(!%s || %s === true)" % (ub_add(u), D('bc', u)) for u in UIDS]            # それはボスを倒した単元
-ura = AND(*[c for c in nochange if c != same('spt')], *up_same, N('spt') + " === " + D('spt') + " + %d" % URA_SP,
+ura = AND(*[c for c in nochange if c != same('spt')], *up_same, *bc_all_same, N('spt') + " === " + D('spt') + " + %d" % URA_SP,
           N('gold') + " === " + D('gold') + " + " + GRADE + " * %d" % URA_GOLD, ura_one, *ura_bc)
 update = AND("data.exists()", DE('spt'), "!" + DE('sk'), same('n'), same('j'), *keep_rec, OR(reward, shop, respec, smith, ura))
 

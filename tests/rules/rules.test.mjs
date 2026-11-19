@@ -90,7 +90,13 @@ await t('3年は1日150Gまで', async () => { await seed(async (d) => { await d
   await assertFails(alice.ref(P('chars/3-2-3')).set(Object.assign({}, base, { gold: 6, gd: DAYNO(), gg: 151 })));
   await assertSucceeds(alice.ref(P('chars/3-2-3')).set(Object.assign({}, base, { gold: 5, gd: DAYNO(), gg: 150 }))); });
 await age(SID);
-await t('ボスをたおした記録（bc）つきの報酬（ゴールド3倍＝1年6G）は保存できる', () => assertSucceeds(save(alice, { exp: 40, gold: 56 + 6, gd: DAYNO(), gg: 12, bc: { matter: true } })));
+await t('bc は経験値が少ない書き込みではつけられない', () => assertFails(save(alice, { exp: 60, bc: { matter: true }, zk: { matter: 1024 } })));
+await t('bc は図鑑のボスの印がないとつけられない', () => assertFails(save(alice, { exp: 110, bc: { matter: true } })));
+await t('bc は1回に2つはつけられない', () => assertFails(save(alice, { exp: 110, bc: { matter: true, force: true }, zk: { matter: 1024, force: 1024 } })));
+await t('bc は買い物の書き込みではつけられない', () => assertFails(save(alice, { bc: { matter: true }, zk: { matter: 1024 } })));
+await t('ボスをたおした記録（bc）つきの報酬（ゴールド3倍＝1年6G）は保存できる', () => assertSucceeds(save(alice, { exp: 110, gold: 56 + 6, gd: DAYNO(), gg: 12, bc: { matter: true }, zk: { matter: 1024 } })));
+await age(SID);
+await t('bc は消せない', () => assertFails(save(alice, { bc: null })));
 await age(SID);
 await t('bc に true 以外は書けない', () => assertFails(save(alice, { exp: 50, bc: { matter: 1 } })));
 await t('bc の単元名が変なものは書けない', () => assertFails(save(alice, { exp: 50, bc: { 'A B': true } })));
