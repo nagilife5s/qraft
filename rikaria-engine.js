@@ -4,7 +4,7 @@
  * 生徒の画面には view() の中身を送る。node で単体テストできる（tests/rikaria-engine.test.mjs）。
  */
 import { lapX, goldOf, JOBS, N, REWARD, RANK_POW, RANK_SEC, MP_MAX, lvMult, weakOf, ELEMS, ELEM, skillName, rankOf, loadoutOf,
-  zakoImg, guardImg, bossImg, bossTitle, BOSS_SK, BSK_SAY, OBLION, oblionImg, ITEMS, isCarry } from './rikaria-data.js';
+  zakoImg, guardImg, bossImg, bossTitle, BOSS_SK, BSK_SAY, OBLION, oblionImg, ITEMS, isCarry, zkAdd } from './rikaria-data.js';
 
 var rnd = function (a) { return a[Math.floor(Math.random() * a.length)]; };
 var clamp = function (v, a, b) { return Math.max(a, Math.min(b, v)); };
@@ -62,7 +62,7 @@ export function addMember(G, m) {
   var J = JOBS[m.j] || JOBS.warrior;
   G.mem[m.id] = { id: m.id, name: m.name, j: JOBS[m.j] ? m.j : 'warrior', lk: m.lk, lv: m.lv || 1, atk: m.atk || J.atk, def: m.def != null ? m.def : J.def,
     mx: m.mhp || J.hp, hp: m.mhp || J.hp, mp: 0, mm: m.mmp || MP_MAX, cut: m.cut || 1, hx: m.healX || 1, cr: m.crit || 0, dn: 0, tg: 0, streak: 0, sr: m.sr || {}, ld: loadoutOf({ j: m.j, lv: m.lv, ld: m.ld }),
-    elem: 'fire', mode: 'atk', nextCrit: 0, keep: 0, gs: null, counter: null, rw: { exp: 0, gold: 0, ok: 0, ans: 0, dmg: 0, heal: 0 }, here: true,
+    elem: 'fire', mode: 'atk', nextCrit: 0, keep: 0, gs: null, counter: null, rw: { exp: 0, gold: 0, ok: 0, ans: 0, dmg: 0, heal: 0, zk: 0 }, here: true,
     it: isCarry(m.it) ? m.it : '', itUsed: false };   /* it＝持っていく持ち物（回復系を1つ。1回の授業で1回だけ使える） */
   if (G.order.indexOf(m.id) < 0) G.order.push(m.id);
 }
@@ -131,11 +131,11 @@ function foe(G, kind, n, t, img, hpBase, extra) {
 }
 export function startBattle(G, kind, mob) {
   var U = G.unit; G.kind = kind; G.ph = 'battle'; G.guardCnt = 0; G.summoned = false; G.bt = 0;
-  if (kind === 'boss') G.foes = [foe(G, 'boss', U.boss.n, U.boss.t, bossImg(U), N.hp.boss, bossExtra(BOSS_SK[U.id]))];
-  else if (kind === 'guard') { var gd = U.guards[G.fl - 1] || U.guards[0]; G.foes = [foe(G, 'guard', gd.n, gd.t, guardImg(U, G.fl), N.hp.guard, { gd: 1 })]; }
+  if (kind === 'boss') G.foes = [foe(G, 'boss', U.boss.n, U.boss.t, bossImg(U), N.hp.boss, Object.assign(bossExtra(BOSS_SK[U.id]), { zb: 10 }))];
+  else if (kind === 'guard') { var gd = U.guards[G.fl - 1] || U.guards[0]; G.foes = [foe(G, 'guard', gd.n, gd.t, guardImg(U, G.fl), N.hp.guard, { gd: 1, zb: 6 + Math.max(0, Math.min(3, G.fl - 1)) })]; }
   else {
     var n = 2 + (Math.random() < .5 ? 1 : 0), first = mob ? mob.z : Math.floor(Math.random() * 6); G.foes = [];
-    for (var i = 0; i < n; i++) { var zi = i === 0 ? first : Math.floor(Math.random() * 6), z = U.z[zi]; G.foes.push(foe(G, 'zako', z.n, z.t, zakoImg(U, zi), N.hp.zako)); }
+    for (var i = 0; i < n; i++) { var zi = i === 0 ? first : Math.floor(Math.random() * 6), z = U.z[zi]; G.foes.push(foe(G, 'zako', z.n, z.t, zakoImg(U, zi), N.hp.zako, { zb: zi })); }
   }
   present(G).forEach(function (m) { m.tg = Math.floor(Math.random() * G.foes.length); });
   emit(G, { t: 'start', kind: kind, s: kind === 'boss' ? U.boss.n + ' があらわれた！' : kind === 'guard' ? '番人 ' + G.foes[0].n + ' があらわれた！' : 'ワスレモノが ' + G.foes.length + '体 あらわれた！' });
@@ -341,7 +341,7 @@ function battleTick(G, dt) {
     /* ボス：HP70%で手下を2体よんでバリア（オブリオンはよばない） */
     if (f.fin && !f.ob && !G.summoned && f.hp < f.mx * .7) {
       G.summoned = true; f.barrier = true;
-      [0, 1].forEach(function () { var zi = Math.floor(Math.random() * 6), z = G.unit.z[zi]; G.foes.push(foe(G, 'zako', z.n, z.t, zakoImg(G.unit, zi), N.hp.zako, { charged: true })); });
+      [0, 1].forEach(function () { var zi = Math.floor(Math.random() * 6), z = G.unit.z[zi]; G.foes.push(foe(G, 'zako', z.n, z.t, zakoImg(G.unit, zi), N.hp.zako, { charged: true, zb: zi })); });
       present(G).forEach(function (m) { m.tg = 1 + Math.floor(Math.random() * 2); });
       emit(G, { t: 'summon', s: f.n + ' が手下をよんだ！ バリアをはった' }); return;
     }
@@ -432,6 +432,8 @@ function win(G) {
   if (G.ph !== 'battle') return;
   G.ph = 'result'; G.resT = 3; G.grp.reveal = 0;
   if (G.kind === 'oblion') { G.resT = 1e9; G.obDown = true; emit(G, { t: 'clear', s: G.foes[0].n + ' をたおした！', ob: 1, big: 1 }); return; }
+  /* 図鑑（2026-11-19）：倒した敵のしるし（zb）を、その場にいた人に付ける */
+  G.foes.forEach(function (f) { if (f.zb != null) present(G).forEach(function (m) { m.rw.zk = zkAdd(m.rw.zk || 0, f.zb); }); });
   if (G.kind === 'boss') {
     give(G, REWARD.boss, 'boss'); G.bossDown = true; G.resT = 8;
     emit(G, { t: 'clear', s: G.unit.boss.n + ' をたおした！', title: bossTitle(G.unit, G.lap) });
@@ -517,6 +519,6 @@ function restore(G, s) {
 }
 /* その日の結果（先生のPCが保存する） */
 export function results(G) {
-  var out = {}; G.order.forEach(function (id) { var m = G.mem[id]; out[id] = { exp: Math.round(m.rw.exp + REWARD.ok * m.rw.ok), gold: Math.round(m.rw.gold), ok: m.rw.ok, ans: m.rw.ans, dmg: m.rw.dmg, heal: m.rw.heal }; });
+  var out = {}; G.order.forEach(function (id) { var m = G.mem[id]; out[id] = { exp: Math.round(m.rw.exp + REWARD.ok * m.rw.ok), gold: Math.round(m.rw.gold), ok: m.rw.ok, ans: m.rw.ans, dmg: m.rw.dmg, heal: m.rw.heal, zk: m.rw.zk || 0 }; });
   return out;
 }

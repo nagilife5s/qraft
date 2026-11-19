@@ -305,3 +305,38 @@ test('Lv200まで：Lv30から必要な経験値が 650＋30k＋k²、倍率はL
   assert.deepEqual(D.lapX(0), { hp: 1, hit: 1, exp: 1 }); assert.equal(D.lapX(1).hp, 1.4); assert.ok(Math.abs(D.lapX(3).hp - 2.0) < 1e-9); assert.deepEqual(D.lapX(9), D.lapX(5));
   const c = { lv: 199, exp: 0, sp: 0, spt: 0 }; D.addExp(c, 99999); assert.equal(c.lv, 200); assert.equal(c.exp, 0);
 });
+
+/* やり込み（鍛冶屋・図鑑・裏ボス。2026-11-19） */
+test('鍛冶屋：6段目だけ、武器は＋1ごとに攻撃+8%・防具は受けるダメージ−0.04（0.2より下にしない）', () => {
+  assert.deepEqual(D.UP_PRICE, [400, 600, 900, 1300, 1800]);
+  const g = (job, eq, up) => D.gearOf(job, eq, up);
+  assert.ok(Math.abs(g('warrior', { w: 'w6' }, { w: 5 }).atkX - 2.4) < 1e-9);
+  assert.ok(Math.abs(g('warrior', { w: 'w6' }, { w: 1 }).atkX - 2.08) < 1e-9);
+  assert.equal(g('warrior', { w: 'w5' }, { w: 5 }).atkX, 1.8);            // 6段目でなければ効かない
+  assert.equal(g('warrior', { a: 'a6' }, { a: 5 }).cut, .3);
+  assert.equal(g('mage', { a: 'a6' }, { a: 5 }).cut, .5);
+  assert.equal(g('mage', { a: 'a6' }, { a: 2 }).cut, .62);
+  assert.equal(g('warrior', { a: 'a5' }, { a: 5 }).cut, .6);
+  assert.equal(g('warrior', { w: 'w6', a: 'a6' }, { w: 9, a: 9 }).cut, .3);   // 5より上は5
+  assert.deepEqual(g('warrior', { w: 'w6' }), g('warrior', { w: 'w6' }, {}));
+  const ch = { j: 'warrior', lv: 1, eq: { w: 'w6', a: 'a6' }, up: { w: 5, a: 5 } };
+  assert.equal(D.statsOf(ch).atk, Math.round(D.JOBS.warrior.atk * 2.4 * 10) / 10);
+  assert.equal(D.statsOf(ch, true).cut, .3);                                 // チーム戦（memOf）も同じ statsOf
+  assert.equal(D.upName('光の聖剣', ch, 'w'), '光の聖剣 +5');
+  assert.equal(D.upName('鉄の剣', { eq: { w: 'w2' }, up: { w: 3 } }, 'w'), '鉄の剣');
+  assert.ok(D.canSmith(ch, 'w') && !D.canSmith({ eq: { w: 'w5' } }, 'w'));
+});
+test('図鑑：しるしは11こ、足すだけ・合わせられる。チーム戦で倒した敵が results の zk に出る', () => {
+  assert.equal(D.zkAdd(0, 10), 1024); assert.equal(D.zkAdd(1024, 10), 1024); assert.equal(D.zkOr(5, 3), 7);
+  const ch = { zk: { matter: 0 } };
+  for (let b = 0; b < 11; b++) D.zkMerge(ch, 'matter', Math.pow(2, b));
+  assert.equal(ch.zk.matter, D.ZK_ALL); assert.equal(D.zkCount(ch, 'matter'), 11);
+  assert.ok(D.extraTitles(ch).includes('物質の図鑑マスター'));
+  assert.equal(D.zkList(D.UNITS[1]).length, 11);
+  assert.ok(D.extraTitles({ ub: { force: true } }).includes('音・光・力の影を払う者'));
+  assert.ok(D.extraTitles({ ub: { force: true } }).every((t) => t.length <= 20));
+  const G = E.newGroup({ unit: D.UNITS[0], mem: team(2) }); G.mobs = []; E.startBattle(G, 'boss');
+  G.foes.forEach((f) => { f.hp = 0; });
+  for (let i = 0; i < 30 && G.ph === 'battle'; i++) E.step(G, .5);
+  const r = E.results(G); assert.ok(Object.values(r).every((x) => x.zk % 2048 >= 1024), JSON.stringify(r));
+});

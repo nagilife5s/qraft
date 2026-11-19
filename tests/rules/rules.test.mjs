@@ -224,6 +224,18 @@ await t('問題の番号が数字でないと書けない', () => assertFails(te
 await t('先生は直しを消せる（元にもどす）', () => assertSucceeds(teacher.ref('qedits/3642fe2b/4').remove()));
 await t('生徒は直しを消せない', async () => { await seed(async (d) => d.ref('qedits/aa/1').set(ed)); await assertFails(alice.ref('qedits/aa/1').remove()); });
 
+console.log('生徒ごとの問題の色（qstat）');
+await reset(); await claim(alice, 'alice');
+const QP = (sid, set) => `qstat/${Y}/${sid}/${set}`;
+await t('持ち主は自分の色を書ける', () => assertSucceeds(alice.ref(QP(SID, 'matter-1')).set('0123')));
+await t('持ち主は自分の色を読める', () => assertSucceeds(alice.ref(`qstat/${Y}/${SID}`).get()));
+await t('ほかの番号の色は書けない', () => assertFails(alice.ref(QP(OTHER, 'matter-1')).set('1')));
+await t('ほかの生徒は読めない', () => assertFails(bob.ref(`qstat/${Y}/${SID}`).get()));
+await t('先生は読める', () => assertSucceeds(teacher.ref(`qstat/${Y}/${SID}`).get()));
+await t('0〜3以外の字は書けない', () => assertFails(alice.ref(QP(SID, 'matter-1')).set('014')));
+await t('401字以上は書けない', () => assertFails(alice.ref(QP(SID, 'matter-1')).set('1'.repeat(401))));
+await t('先生は番号ごと消せる', () => assertSucceeds(teacher.ref(`qstat/${Y}/${SID}`).remove()));
+
 console.log('新しく作るキャラは学年の目安のレベルから（1年 Lv1・2年 Lv16・3年 Lv30）');
 await reset();
 await seed(async (d) => { await d.ref(P('keys/2-1-5')).set('key222'); await d.ref(P('keys/3-1-5')).set('key333'); await d.ref(P('keys/3-1-6')).set('key336'); });
@@ -289,6 +301,49 @@ await t('先生は外す問題つきのテスト範囲を作れる（2026-11-17�
 await t('外す問題の番号・値・セットidの形がちがうと書けない', async () => { await assertFails(teacher.ref(P('ranges/1/r6')).set({ n: 'x', u: { matter: true }, s: { je746318: true }, x: { je746318: { a: true } } })); await assertFails(teacher.ref(P('ranges/1/r6')).set({ n: 'x', u: { matter: true }, s: { je746318: true }, x: { je746318: { 1: 5 } } })); await assertFails(teacher.ref(P('ranges/1/r6')).set({ n: 'x', u: { matter: true }, s: { je746318: true }, x: { ABC: { 1: true } } })); });
 await t('生徒は外す問題を書きかえられない', () => assertFails(alice.ref(P('ranges/1/r5/x/je746318/1')).set(true)));
 await t('先生はテスト範囲を消せる', () => assertSucceeds(teacher.ref(P('ranges/2/r1')).remove()));
+
+console.log('鍛冶屋（6段目を ＋1〜＋5。2026-11-19）');
+await reset(); await make();
+await seed(async (d) => d.ref(P('chars/' + SID)).update({ gold: 5000, eq: { w: 'w6', a: 'a5' } }));
+await t('作るときに ＋ を付けて作れない', async () => { await seed(async (d) => d.ref(P('chars/' + OTHER)).remove()); await claim(bob, 'bob', OTHER, 'zzz999'); await assertFails(bob.ref(P('chars/' + OTHER)).set(Object.assign({}, base, { up: { w: 1 } }))); });
+await t('6段目の武器を ＋1（400G）にできる', () => assertSucceeds(save(alice, { gold: 4600, up: { w: 1 } })));
+await t('＋1 から ＋3 へは飛ばせない', () => assertFails(save(alice, { gold: 3700, up: { w: 3 } })));
+await t('値段より少ない減り方ではだめ（＋2 は600G）', () => assertFails(save(alice, { gold: 4100, up: { w: 2 } })));
+await t('値段より多く減らすのもだめ（ちょうど）', () => assertFails(save(alice, { gold: 3000, up: { w: 2 } })));
+await t('＋2（600G）にできる', () => assertSucceeds(save(alice, { gold: 4000, up: { w: 2 } })));
+await t('6段目でない防具は鍛えられない', () => assertFails(save(alice, { gold: 3600, up: { w: 2, a: 1 } })));
+await seed(async (d) => d.ref(P('chars/' + SID + '/eq/a')).set('a6'));
+await t('武器と防具を1回で両方は上げられない', () => assertFails(save(alice, { gold: 3000, up: { w: 3, a: 1 } })));
+await t('6段目の防具を ＋1 にできる', () => assertSucceeds(save(alice, { gold: 3600, up: { w: 2, a: 1 } })));
+await t('鍛えた ＋ は消せない・下げられない', async () => { await assertFails(save(alice, { up: null })); await assertFails(save(alice, { up: { w: 1, a: 1 } })); });
+await t('鍛えるときにレベルは変えられない', () => assertFails(save(alice, { gold: 2700, up: { w: 3, a: 1 }, lv: 2, spt: 1, sp: 1 })));
+await seed(async (d) => d.ref(P('chars/' + SID + '/up/w')).set(5));
+await t('＋5 より上はない', () => assertFails(save(alice, { gold: 1800, up: { w: 6, a: 1 } })));
+await t('鍛えたあとも買い物はできる（＋ はそのまま）', () => assertSucceeds(save(alice, { gold: 3570, inv: { potion: 1 } })));
+
+console.log('図鑑（倒した敵のしるし。2026-11-19）');
+await t('図鑑のしるしを書ける', () => assertSucceeds(save(alice, { zk: { matter: 1 } })));
+await t('しるしを足せる', () => assertSucceeds(save(alice, { zk: { matter: 3, force: 1024 } })));
+await t('数が大きくても、前のしるしが消えるならだめ（3 → 4）', () => assertFails(save(alice, { zk: { matter: 4, force: 1024 } })));
+await t('しるしを減らせない（3 → 2）', () => assertFails(save(alice, { zk: { matter: 2, force: 1024 } })));
+await t('単元ごと消せない', () => assertFails(save(alice, { zk: { matter: 3 } })));
+await t('2047 より大きい・小数・知らない単元はだめ', async () => { await assertFails(save(alice, { zk: { matter: 2048, force: 1024 } })); await assertFails(save(alice, { zk: { matter: 3.5, force: 1024 } })); await assertFails(save(alice, { zk: { matter: 3, force: 1024, foo: 1 } })); });
+await t('全部うめられる（2047）', () => assertSucceeds(save(alice, { zk: { matter: 2047, force: 1024 } })));
+
+console.log('裏ボス（はじめて倒すと SP＋5・ゴールド 学年×100。2026-11-19）');
+await seed(async (d) => d.ref(P('chars/' + SID)).update({ gold: 0, sp: 0, spt: 0, bc: { force: true } }));
+await t('ボスを倒していない単元の裏ボスはだめ', () => assertFails(save(alice, { ub: { matter: true }, sp: 5, spt: 5, gold: 100 })));
+await t('ゴールドが多すぎるとだめ（1年は100）', () => assertFails(save(alice, { ub: { force: true }, sp: 5, spt: 5, gold: 200 })));
+await t('SP が多すぎるとだめ', () => assertFails(save(alice, { ub: { force: true }, sp: 6, spt: 6, gold: 100 })));
+await t('いっしょに経験値は増やせない', () => assertFails(save(alice, { ub: { force: true }, sp: 5, spt: 5, gold: 100, exp: 50 })));
+await t('ごほうびなしで裏ボスの記録だけは書けない', () => assertFails(save(alice, { ub: { force: true } })));
+await t('はじめて倒した：SP＋5・ゴールド＋100 で保存できる', () => assertSucceeds(save(alice, { ub: { force: true }, sp: 5, spt: 5, gold: 100 })));
+await t('2回目はごほうびをもらえない', () => assertFails(save(alice, { sp: 10, spt: 10, gold: 200 })));
+await t('記録を消して取り直せない（消すこと自体できない）', () => assertFails(save(alice, { ub: null })));
+await seed(async (d) => d.ref(P('chars/' + SID + '/bc/matter')).set(true));
+await t('2つ同時には書けない', async () => { await seed(async (d) => d.ref(P('chars/' + SID + '/bc/classify')).set(true)); await assertFails(save(alice, { ub: { force: true, matter: true, classify: true }, sp: 10, spt: 10, gold: 300 })); });
+await t('別の単元もはじめてなら保存できる', () => assertSucceeds(save(alice, { ub: { force: true, matter: true }, sp: 10, spt: 10, gold: 200 })));
+await t('先生は裏ボスの記録を直せる', () => assertSucceeds(teacher.ref(P('chars/' + SID + '/ub')).remove()));
 
 console.log('なかまと冒険（生徒が開く部屋）');
 await t('生徒（先生でない）が自分で部屋の持ち主になれる', () => assertSucceeds(alice.ref('rooms/654321/hostUid').set('alice')));

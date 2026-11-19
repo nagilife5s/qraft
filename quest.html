@@ -6,8 +6,8 @@
 <title>Qraft クエスト（ひとりで冒険）</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261119200000">
-<link rel="stylesheet" href="quest.css?v=20261119200000">
+<link rel="stylesheet" href="theme.css?v=20261119230000">
+<link rel="stylesheet" href="quest.css?v=20261119230000">
 <style>
   .hud-btns { display:flex; gap:.4em; }
   .hud-btns .btn { font-size:.85em; padding:.35em .9em; }
@@ -28,6 +28,27 @@
   .tin { font:inherit; font-size:1.1em; font-weight:800; padding:.5em .8em; border-radius:.6em; border:0; width:100%; }
   .wm-side { max-height:calc(100% - 1.6em); overflow:auto; }
   .titles { display:flex; flex-direction:column; gap:.3em; }
+  /* やり込み（鍛冶屋・図鑑・裏ボス。mock/rikaria-yarikomi-mock.html。2026-11-19） */
+  .smith { display:grid; grid-template-columns:1fr 1fr; gap:.8em; margin:.5em 0; }
+  .smith .gear { display:flex; gap:.7em; align-items:center; background:rgba(0,0,0,.25); border-radius:.7em; padding:.7em; }
+  .smith .gear img { width:64px; height:64px; object-fit:contain; background:#2a2260; border-radius:.6em; flex:none; }
+  .smith .plus { font-size:1.4em; font-weight:900; color:#7fe3ff; }
+  .smith .pips { letter-spacing:.15em; color:#7fe3ff; } .smith .pips i { color:#4b4380; font-style:normal; }
+  .smith button.go { border:0; border-radius:999px; padding:.45em 1.1em; font:inherit; font-weight:900; background:#ff8a1c; color:#fff; cursor:pointer; margin-top:.4em; min-height:44px; }
+  .smith button.go:disabled { background:#4b4380; color:#9a93b8; cursor:default; }
+  @media (max-width:640px) { .smith { grid-template-columns:1fr; } }
+  .zk-bar { display:flex; gap:.4em; flex-wrap:wrap; margin:.4em 0 .7em; }
+  .zk-bar button { border:1px solid #6a5bd6; background:transparent; color:#fff; border-radius:999px; padding:.25em .9em; font:inherit; font-weight:800; cursor:pointer; min-height:40px; }
+  .zk-bar button.on { background:#6a5bd6; }
+  .zk-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(104px,1fr)); gap:.5em; overflow-y:auto; min-height:0; }
+  .zk-card { background:rgba(0,0,0,.3); border-radius:.7em; padding:.45em; text-align:center; font-size:.85em; color:#fff; }
+  .zk-card img { width:76px; height:76px; object-fit:contain; }
+  .zk-card.no img { filter:brightness(0) opacity(.5); } .zk-card.no b { color:#6b6390; }
+  .zk-card small { display:block; font-size:.8em; color:#c9c0ea; }
+  .zk-prog { height:.6em; background:#2a2260; border-radius:9px; overflow:hidden; margin:.3em 0 .2em; }
+  .zk-prog i { display:block; height:100%; background:linear-gradient(90deg,#7b5cff,#7fe3ff); }
+  .pk.zk { background:#120d3a; color:#fff; }
+  .ura-img { filter:hue-rotate(250deg) saturate(1.6) brightness(.85) drop-shadow(0 0 14px #b44cff); }
   /* 技の一覧：スクロールできることが分かるように（スクロールバーを見せる・下に「まだあります」。2026-11-16） */
   .sk-wrap { position:relative; min-width:18em; min-height:0; overflow:hidden; display:flex; flex-direction:column; align-self:stretch; }
   .sk-wrap .skills { flex:1; min-height:0; overflow-y:scroll; align-content:start; padding-right:.5em; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; scrollbar-width:auto; scrollbar-color:#ffd23f rgba(255,255,255,.15); }
@@ -35,7 +56,7 @@
   .sk-wrap .skills:focus-visible { outline:.15em solid #ffd23f; outline-offset:.2em; }
   .sk-more { position:absolute; left:0; right:1em; bottom:0; padding:2.2em 0 .3em; text-align:center; font-weight:900; color:#ffe27a; pointer-events:none; background:linear-gradient(transparent, rgba(20,12,50,.95) 60%); transition:opacity .2s; }
   .sk-more.off { opacity:0; }
-  /* rikaria.css の窓・メニューの行（quest.css?v=20261119200000 と混ぜないよう .gm-bg の中だけ） */
+  /* rikaria.css の窓・メニューの行（quest.css?v=20261119230000 と混ぜないよう .gm-bg の中だけ） */
 .gm-bg .cur { position:absolute; top:50%; width:.62em; height:.95em; margin-top:-.475em; opacity:0; pointer-events:none;
   background:linear-gradient(135deg, #ffffff, #7ff0ff 40%, #1fb6e8 75%, #1a6fc0); clip-path:polygon(50% 0, 100% 50%, 50% 100%, 0 50%); filter:drop-shadow(0 0 .3em #35e0ff) drop-shadow(0 0 .15em #fff); }
 .gm-bg .win { position:relative; width:min(34em, 94%); margin-top:1.4em; background:rgba(10,12,44,.86); border:.18em solid #fff; border-radius:.7em; box-shadow:0 0 0 .22em rgba(10,12,44,.86), 0 .8em 2em rgba(0,0,0,.55); padding:1.5em .9em .8em; }
@@ -191,23 +212,25 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261119200000"></script>
+<script src="firebase-config.js?v=20261119230000"></script>
 <script type="module">
-import { bgm, preload } from './sound.js?v=20261119200000';
-import { dungeonArt, autoTorches } from './dungeon-art.js?v=20261119200000';
-import { townArt } from './town-art.js?v=20261119200000';
-import { loadHomeSets, signIn, db, ref, set, get, $, el, showScreen, shuffle, prepareQuestion, maskOf, isTextCorrect, mountSetPicker, loadQEdits, applyQEdits, makeAdvLog } from './lib.js?v=20261119200000';
+import { bgm, preload } from './sound.js?v=20261119230000';
+import { dungeonArt, autoTorches } from './dungeon-art.js?v=20261119230000';
+import { townArt } from './town-art.js?v=20261119230000';
+import { loadHomeSets, signIn, db, ref, set, get, $, el, showScreen, shuffle, prepareQuestion, maskOf, isTextCorrect, mountSetPicker, loadQEdits, applyQEdits, makeAdvLog, makeQStat, weakQueue, qstOf } from './lib.js?v=20261119230000';
 import { addExp, expToNext, migrateChar, newChar, JOBS as RJOBS, JOB_KEYS, LEARN, RANK_POW, RANK_SEC, LOAD_N, ELEMS, ELEM, UNITS,
-         heroImg, fieldImg, skillName, rankOf, rankCost, canRankUp, rankUp, spUsed, loadoutOf, weakOf, statsOf, unitOf, zakoImg, bossImg, battleBg, gearImg, itemImg, iconHtml } from './rikaria-data.js?v=20261119200000';
+         heroImg, fieldImg, skillName, rankOf, rankCost, canRankUp, rankUp, spUsed, loadoutOf, weakOf, statsOf, unitOf, zakoImg, bossImg, battleBg, gearImg, itemImg, iconHtml,
+         UP_PRICE, UP_MAX, upOf, canSmith, upName, zkAdd, zkBit, zkHas, zkCount, zkList, ZK_N, zkTitle, URA, uraName, uraTitle, extraTitles, unitsOf } from './rikaria-data.js?v=20261119230000';
 import { fiscalYear, ENEMIES, TOWN, TOWN_DEFAULT,
          weaponList, armorList, weaponName, armorName, TOWN_MAX, soloDayCap, dayNo, ITEMS, ITEM_KEYS, FACS, RESPEC_COST, ensureOwner, battleGuide,
-         soloMult, soloReward, soloEnemyHp, soloBossHp, soloEnemyAtkX, BOSS, cmdImg, placeFacNpcs } from './quest.js?v=20261119200000';
+         soloMult, soloReward, soloEnemyHp, soloBossHp, soloEnemyAtkX, BOSS, cmdImg, placeFacNpcs } from './quest.js?v=20261119230000';
 
 var Y = fiscalYear(), me = { g: 0, c: 0, n: 0 }, sid = '', ch = null, CLS = {}, SETS = [], AREAS = [], look = 'a', job = 'mage';
 var curArea = null, HP = 0, MP = 0, RANGES = {};
 /* 冒険の記録（先生の記録画面へ）。エリアに入ってから町にもどるまでを1件で書く（2026-11-17） */
 var ADV = makeAdvLog('q', function () { return sid; }, function () { return Y; });
-addEventListener('pagehide', function () { ADV.flush(); });
+var QST = makeQStat(function () { return sid; }, function () { return Y; });   /* 生徒ごとの問題の色（まちがえた・まだの問題を多めに出す。2026-11-19） */
+addEventListener('pagehide', function () { if (B && B.pend) QST.skip(B.pend); ADV.flush(); });
 document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden' && ADV.count) { ADV.flush(); if (curArea) ADV.start((unitOfArea(curArea) || {}).id); } });
 /* 曲（はじめは鳴らさない。「🔊 音楽」で鳴らす。端末ごとに覚える。2026-11-16）。場面が変わったときだけ切りかえる */
 var MUS = null, MUS_ON = false;
@@ -428,7 +451,7 @@ function buildTown(st) {
   if (st < 10) look[4] = 'hut';
   if (st < 11) look[5] = 'castle-ruin'; else if (st < 12) look[5] = 'castle-scaffold';
   NPCS.forEach(function (n) { g[n.y][n.x] = 'N'; });
-  /* 施設の6人（全身の絵）を、それぞれの施設の前に立たせる。行けるマスを減らさない場所だけ（quest.js?v=20261119200000 placeFacNpcs。2026-11-17） */
+  /* 施設の6人（全身の絵）を、それぞれの施設の前に立たせる。行けるマスを減らさない場所だけ（quest.js?v=20261119230000 placeFacNpcs。2026-11-17） */
   var fnpc = placeFacNpcs(g, blds, [16, 11], function (c) { return BLOCK.has(c); }, [4, 11]);
   return { g: g, blds: blds, fountain: [16, 11], dry: st < 4, start: [4, 11], st: st, tiles: tiles, props: props, objs: objs, look: look, fog: st < 2 ? 2 : st < 4 ? 1 : 0, fnpc: fnpc };
 }
@@ -481,6 +504,7 @@ var ZAKO = Object.keys(ENEMIES);
 function cell(x, y) { var r = MAPS[FD.key].g[y]; return r ? r[x] : undefined; }
 function blocked(x, y) { var c = cell(x, y); return c === undefined || BLOCK.has(c); }
 function enterTown(pos) {
+  if (B && B.pend) { QST.skip(B.pend); B.pend = null; }   /* 問題が出たまま町へもどったら「まちがえた」と同じ */
   ADV.flush();
   HP = statsOf(ch).mhp; MP = 0;   /* 町にもどると全回復 */
   FD.mobs = [];   /* エリアの魔物を町に持ちこまない（町に魔物が出ていた。もどると魔物は出直す） */
@@ -732,13 +756,78 @@ function shop(fi) {
     m.appendChild(el('div', 'mut', 'クリアしたエリアには、地図から復習しに行ける（経験値は半分）。'));
   }
   if (fi === 5) {
-    var t = Object.keys(ch.ttl || {}).map(function (k) { return ch.ttl[k]; });
+    var t = Object.keys(ch.ttl || {}).map(function (k) { return ch.ttl[k]; }).concat(extraTitles(ch));   /* 図鑑・裏ボスの称号は zk・ub から（2026-11-19） */
     m.appendChild(el('div', '', t.length ? 'これまでに手に入れた称号' : 'まだ称号はない。ボスを倒すと手に入る。'));
     var tl = el('div', 'titles'); t.forEach(function (x) { tl.appendChild(el('span', 'pill', '🏅 ' + x)); }); m.appendChild(tl);
   }
   if (list.children.length) m.appendChild(list);
   var out = el('button', 'btn sub', fi >= 1 && fi <= 3 ? '店を出る' : '外へ出る'); out.style.fontSize = '1em'; out.onclick = function () { m.classList.add('hide'); }; var ft = el('div', 'fd-foot'); ft.appendChild(out); m.appendChild(ft);
   m.classList.remove('hide');
+}
+
+/* ------------------------------------------------------------ 鍛冶屋（メニューから。2026-11-19）
+ * 6段目の武器・防具を ＋1〜＋5 まで鍛える（ch.up = { w, a }）。1回の保存で ＋1 だけ・ゴールドはちょうど値段の分だけ減る（ルールも同じ） */
+function smithCut(k) { return statsOf(Object.assign({}, ch, { up: { w: upOf(ch, 'w'), a: k } })).cut; }
+function smithShop() {
+  var m = $('fdMsg'); m.textContent = '';
+  m.appendChild(el('h3', '', '⚒ 鍛冶屋'));
+  m.appendChild(npcHead(3));
+  m.appendChild(el('div', 'mut', 'いちばん強い武器・防具（6段目）を付けていると、ゴールドで ＋1〜＋5 まで鍛えられる。所持金 💰 ' + (ch.gold || 0)));
+  var box = el('div', 'smith'), eq = ch.eq || {};
+  [['w', '武器', weaponName(ch.j, eq.w), gearImg(ch.j, eq.w), function (k) { return '攻撃 +' + (100 + 8 * k) + '%'; }],
+   ['a', '防具', armorName(ch.j, eq.a), gearImg(ch.j, eq.a), function (k) { return '受けるダメージ ×' + smithCut(k).toFixed(2); }]].forEach(function (x) {
+    var sl = x[0], k = upOf(ch, sl), ok = canSmith(ch, sl), c = UP_PRICE[k], g = el('div', 'gear');
+    var im = el('img'); im.alt = ''; if (x[3]) im.src = x[3]; else im.style.visibility = 'hidden'; im.onerror = function () { im.style.visibility = 'hidden'; }; g.appendChild(im);
+    var d = el('div'); d.style.flex = '1'; d.appendChild(el('div', 'mut', x[1]));
+    var nm = el('div'); nm.appendChild(el('b', '', x[2])); nm.appendChild(document.createTextNode(' ')); nm.appendChild(el('span', 'plus', '+' + k)); d.appendChild(nm);
+    var pp = el('div', 'pips', '◆'.repeat(k)); pp.appendChild(el('i', '', '◇'.repeat(UP_MAX - k))); d.appendChild(pp);
+    if (ok) d.appendChild(el('div', '', x[4](k) + (k < UP_MAX ? ' → ' + x[4](k + 1) : '')));
+    else d.appendChild(el('div', 'mut', '6段目（' + (sl === 'w' ? weaponList : armorList)(ch.j)[5].n + '）を付けると鍛えられる'));
+    var b = el('button', 'go', !ok ? 'まだ鍛えられない' : k >= UP_MAX ? '最大まで鍛えた！' : '鍛える（💰 ' + c + '）'); b.type = 'button';
+    b.disabled = !ok || k >= UP_MAX || (ch.gold || 0) < c;
+    b.onclick = async function () {
+      if (b.disabled) return; b.disabled = true; var back = clone(ch);
+      ch.gold -= c; ch.up = Object.assign({}, ch.up || {}); ch.up[sl] = k + 1;
+      if (!(await saveChar())) ch = back;
+      smithShop(); drawHud();
+    };
+    d.appendChild(b); g.appendChild(d); box.appendChild(g);
+  });
+  m.appendChild(box);
+  m.appendChild(el('div', 'mut', '値段：＋1 400 → ＋2 600 → ＋3 900 → ＋4 1300 → ＋5 1800（武器・防具それぞれ）。ひとりで冒険・なかまと冒険・チーム戦のすべてで効く。'));
+  var out = el('button', 'btn sub', '店を出る'); out.style.fontSize = '1em'; out.onclick = function () { m.classList.add('hide'); }; var ft = el('div', 'fd-foot'); ft.appendChild(out); m.appendChild(ft);
+  m.classList.remove('hide');
+}
+/* ------------------------------------------------------------ 図鑑（メニューから。2026-11-19）
+ * 一度でも倒した敵がのる（ch.zk。ひとりで冒険・なかまと冒険・チーム戦）。まだの敵は影だけ。単元の11体を全部うめると「〇〇の図鑑マスター」 */
+var zkG = 0, zkU = '';
+function openZukan() {
+  zkG = zkG || me.g;
+  var bg = el('div', 'pk-bg'), box = el('div', 'pk zk'); bg.appendChild(box); bg.setAttribute('role', 'dialog'); bg.setAttribute('aria-modal', 'true'); bg.setAttribute('aria-label', '図鑑');
+  function draw() {
+    var G = unitsOf(zkG); if (!G.some(function (u) { return u.id === zkU; })) zkU = G[0].id;
+    box.textContent = '';
+    var top = el('div', 'row'); top.appendChild(el('b', 'grow', '📖 ワスレモノ図鑑'));
+    var tabs = el('div', 'seg'); [1, 2, 3].forEach(function (g) { var b = el('button', g === zkG ? 'on' : '', g + '年'); b.type = 'button'; b.onclick = function () { zkG = g; draw(); }; tabs.appendChild(b); }); top.appendChild(tabs);
+    var x = el('button', 'btn ghost', 'とじる'); x.type = 'button'; x.id = 'zkClose'; x.onclick = function () { bg.remove(); }; top.appendChild(x); box.appendChild(top);
+    box.appendChild(el('div', 'mut', '一度でも倒した敵が、図鑑にのる。まだの敵は影だけ。単元を全部うめると、その単元の「図鑑マスター」の称号。番人は、なかまと冒険・チーム戦で倒すとのる。'));
+    var got = G.reduce(function (n, u) { return n + zkCount(ch, u.id); }, 0), all = G.length * ZK_N;
+    box.appendChild(el('b', '', zkG + '年の図鑑：' + got + ' / ' + all));
+    var pg = el('div', 'zk-prog'), pi = el('i'); pi.style.width = (got / all * 100) + '%'; pg.appendChild(pi); box.appendChild(pg);
+    var bar = el('div', 'zk-bar');
+    G.forEach(function (u) { var b = el('button', u.id === zkU ? 'on' : '', u.unit + '（' + zkCount(ch, u.id) + '/' + ZK_N + '）'); b.type = 'button'; b.onclick = function () { zkU = u.id; draw(); }; bar.appendChild(b); });
+    box.appendChild(bar);
+    var u = G.filter(function (v) { return v.id === zkU; })[0];
+    if (zkCount(ch, u.id) === ZK_N) box.appendChild(el('div', '', '🏅 ' + zkTitle(u)));
+    var grid = el('div', 'zk-grid');
+    zkList(u).forEach(function (e) {
+      var ok = zkHas(ch, u.id, e[3]), c = el('div', 'zk-card' + (ok ? '' : ' no')), im = el('img'); im.alt = ''; im.src = e[1]; c.appendChild(im);
+      c.appendChild(el('b', '', ok ? e[0] : '？？？')); c.appendChild(el('small', '', e[2])); grid.appendChild(c);
+    });
+    box.appendChild(grid);
+  }
+  bg.addEventListener('click', function (e) { if (e.target === bg) bg.remove(); });
+  document.body.appendChild(bg); draw();
 }
 
 /* ------------------------------------------------------------ 冒険の地図 */
@@ -822,7 +911,7 @@ function srcBox(a) {
   opt('sets', '問題セットをえらぶ ', ed);
   return box;
 }
-/* 問題セットをえらぶ画面。先生の準備画面（rikaria-host.html）と同じ選び方（lib.js?v=20261119200000 の mountSetPicker：学年→題名でさがす→単元ごとの一覧）。2026-11-16 */
+/* 問題セットをえらぶ画面。先生の準備画面（rikaria-host.html）と同じ選び方（lib.js?v=20261119230000 の mountSetPicker：学年→題名でさがす→単元ごとの一覧）。2026-11-16 */
 function setDialog(a) {
   var bg = el('div', 'pk-bg'), box = el('div', 'pk'); bg.appendChild(box); bg.setAttribute('role', 'dialog'); bg.setAttribute('aria-modal', 'true'); bg.setAttribute('aria-label', '問題セットをえらぶ');
   var top = el('div', 'row'); top.appendChild(el('b', 'grow', '問題セットをえらぶ（いくつでも）'));
@@ -856,6 +945,8 @@ function openMenu() {
   }
   item('ステータス', function () { closeMenu(); openStat(); });
   item('地図', function () { closeMenu(); openWorld(); });
+  item('鍛冶屋', function () { closeMenu(); smithShop(); });
+  item('図鑑', function () { closeMenu(); openZukan(); });
   item('なかまと冒険', function () { location.href = 'quest-party.html' + (/emu=1/.test(location.search) ? '?emu=1' : ''); });
   var mb = item('音楽：' + (MUS_ON ? 'ON' : 'OFF'), function () { toggleMus(); mb.querySelector('b').textContent = '音楽：' + (MUS_ON ? 'ON' : 'OFF'); });
   item('タイトルへもどる', function () {
@@ -892,7 +983,7 @@ function drawStat() {
   $('stHero').src = heroImg(ch.j, ch.lk); $('stName').textContent = ch.n; $('stJob').textContent = jobName() + ' Lv.' + ch.lv;
   $('stGrid').innerHTML = '<span>HP</span><span>' + s.mhp + '</span><span>MP</span><span>' + s.mmp + '</span><span>攻撃</span><span>' + s.atk + '</span><span>防御</span><span>' + s.def + '</span><span>💰</span><span>' + (ch.gold || 0) + '</span>';
   var nx = expToNext(ch.lv); $('stXp').style.width = ((ch.exp || 0) / nx * 100) + '%'; $('stXpT').textContent = 'つぎのレベルまで ' + (nx - (ch.exp || 0));
-  $('stEq').innerHTML = '<div class="eq-row"><span>武器</span><span>' + iconHtml(gearImg(ch.j, eq.w)) + weaponName(ch.j, eq.w) + '</span></div><div class="eq-row"><span>防具</span><span>' + iconHtml(gearImg(ch.j, eq.a)) + armorName(ch.j, eq.a) + '</span></div>';
+  $('stEq').innerHTML = '<div class="eq-row"><span>武器</span><span>' + iconHtml(gearImg(ch.j, eq.w)) + upName(weaponName(ch.j, eq.w), ch, 'w') + '</span></div><div class="eq-row"><span>防具</span><span>' + iconHtml(gearImg(ch.j, eq.a)) + upName(armorName(ch.j, eq.a), ch, 'a') + '</span></div>';
   $('stInv').innerHTML = ITEM_KEYS.map(function (k) { return '<span>' + iconHtml(itemImg(k)) + ITEMS[k].n + ' ×' + inv(k) + '</span>'; }).join('');
   $('spLeft').textContent = 'スキルポイント ' + (ch.sp || 0);
   /* 技15個。押すと「持っていく技」（技4つ＋必殺技1つ。チーム戦の準備画面と同じ ld）を切りかえる。SPでランクを上げる */
@@ -977,6 +1068,7 @@ async function poolOf(a) {
   if (src.k === 'sets') sets = SETS.filter(function (x) { return (src.ids || []).indexOf(x.id) >= 0; });
   var rx = src.k === 'range' ? ((RANGES[src.id] || {}).x || {}) : {};   /* 範囲から外した問題（2026-11-17） */
   for (var i = 0; i < sets.length; i++) { var qs = await qsOf(sets[i].id), ex = rx[sets[i].id]; pool = pool.concat(ex ? qs.filter(function (q, j) { return !ex[j]; }) : qs); }
+  await QST.load(sets.map(function (x) { return x.id; }));
   POOLS[key] = { q: pool, queue: [] }; return POOLS[key];
 }
 /* エリアのボスにひとりでちょうせん（霧に入ったとき）。たおすと、その単元は自分のキャラの「ボスをたおした」記録になる */
@@ -991,18 +1083,37 @@ function bossAsk() {
   var ft = el('div', 'fd-foot'), go = el('button', 'btn', 'ちょうせんする'), no = el('button', 'btn sub', 'やめる'); go.type = no.type = 'button'; go.style.fontSize = no.style.fontSize = '1em';
   go.onclick = function () { m.classList.add('hide'); FD.busy = true; FD.path = []; FD.hold = null; var fl = $('fdFlash'); fl.classList.remove('on'); void fl.offsetWidth; fl.classList.add('on'); setTimeout(function () { startBattle(null, true); }, 350); };
   no.onclick = function () { m.classList.add('hide'); };
+  ft.appendChild(go);
+  /* 裏ボス（2026-11-19）：この単元のボスをひとりで倒したあとに出る */
+  if (ch.bc && ch.bc[u.id]) {
+    var ub = el('button', 'btn', '👁 ' + uraName(u)); ub.type = 'button'; ub.id = 'uraGo'; ub.style.fontSize = '1em'; ub.style.background = '#9b3cff';
+    ub.onclick = function () { m.classList.add('hide'); uraAsk(); };
+    ft.appendChild(ub);
+  }
+  ft.appendChild(no); m.appendChild(ft); m.classList.remove('hide');
+}
+function uraAsk() {
+  var u = unitOfArea(curArea), m = $('fdMsg'), done = !!(ch.ub && ch.ub[u.id]); m.textContent = '';
+  m.appendChild(el('h3', '', '👁 裏ボス ' + uraName(u)));
+  var d = el('div', 'who'), im = el('img', 'npc6 ura-img'); im.src = bossImg(u); im.alt = ''; d.appendChild(im);
+  d.appendChild(el('div', 'line', '霧の力で強くなった' + u.boss.n + '。HPはボスの2倍、攻撃は1.5倍。苦手の精霊が毎ターン変わる。おすすめは Lv60 くらいから。' +
+    (done ? '（もう倒した：🏅 ' + uraTitle(u) + '。もう一度なら経験値だけ）' : 'はじめて倒すと、称号「' + uraTitle(u) + '」・スキルポイント +' + URA.sp + '・💰 ' + URA.gold * me.g)));
+  m.appendChild(d);
+  var ft = el('div', 'fd-foot'), go = el('button', 'btn', 'ちょうせんする'), no = el('button', 'btn sub', 'やめる'); go.type = no.type = 'button'; go.style.fontSize = no.style.fontSize = '1em';
+  go.onclick = function () { m.classList.add('hide'); FD.busy = true; FD.path = []; FD.hold = null; var fl = $('fdFlash'); fl.classList.remove('on'); void fl.offsetWidth; fl.classList.add('on'); setTimeout(function () { startBattle(null, true, true); }, 350); };
+  no.onclick = function () { m.classList.add('hide'); };
   ft.appendChild(go); ft.appendChild(no); m.appendChild(ft); m.classList.remove('hide');
 }
-async function startBattle(mob, boss) {
+async function startBattle(mob, boss, ura) {
   var P = await poolOf(curArea);
   if (!P.q.length) { FD.busy = false; say('<h3>問題が読めない</h3>通信を確かめて、もう一度ためしてください。'); return; }
-  var max = boss ? soloBossHp(curArea.i, ch.lv) : soloEnemyHp(curArea.i, ch.lv);   /* 敵の強さは自分のレベルに合わせる（単元の学年ではない） */
+  var max = boss ? soloBossHp(curArea.i, ch.lv) * (ura ? URA.hp : 1) : soloEnemyHp(curArea.i, ch.lv);   /* 裏ボスはボスの2倍（ふつうの敵の6倍） */   /* 敵の強さは自分のレベルに合わせる（単元の学年ではない） */
   /* fx＝続いている効果。t は「あと何問」。stun・slow は敵の攻撃の回数 */
-  var foe = boss ? { n: unitOfArea(curArea).boss.n, t: unitOfArea(curArea).boss.t, img: bossImg(unitOfArea(curArea)) } : foeOf(curArea, mob.id);
-  B = { mob: mob, boss: !!boss, e: foe, hp: max, max: max, streak: 0, P: P, t: foe.t || 'earth',
+  var foe = boss ? { n: ura ? uraName(unitOfArea(curArea)) : unitOfArea(curArea).boss.n, t: unitOfArea(curArea).boss.t, img: bossImg(unitOfArea(curArea)) } : foeOf(curArea, mob.id);
+  B = { mob: mob, boss: !!boss, ura: !!ura, e: foe, hp: max, max: max, streak: 0, P: P, t: foe.t || 'earth',
         fx: { guard: null, buff: null, regen: null, counter: null, dot: null, mpRate: 0, stun: 0, slow: 0, nextCrit: 0, keep: 0, reveal: 0 } };
   $('bArea').textContent = curArea.name;
-  document.querySelector('#s-battle .bt-bg').style.backgroundImage = "url('" + battleBg(unitOfArea(curArea)) + "')";   /* 背景もその単元の絵 */ $('eimg').src = B.e.img; $('ename').textContent = B.e.n; $('enemy').className = 'enemy';
+  document.querySelector('#s-battle .bt-bg').style.backgroundImage = "url('" + battleBg(unitOfArea(curArea)) + "')";   /* 背景もその単元の絵 */ $('eimg').src = B.e.img; $('eimg').classList.toggle('ura-img', !!ura); $('ename').textContent = B.e.n; $('enemy').className = 'enemy';
   $('party').innerHTML = '<div class="mate me"><span class="you">あなた</span><img class="hero" src="' + heroImg(ch.j, ch.lk) + '" alt="">' + ch.n + '</div>';
   showScreen('s-battle'); music(boss ? 'r-boss' : 'r-battle'); drawMe(); await battleGuide('solo'); askQ();   /* はじめての戦闘だけ、たたかい方の案内 */
 }
@@ -1048,10 +1159,11 @@ function itemBar(box) {
   return bar;
 }
 function askQ() {
-  var P = B.P; if (!P.queue.length) P.queue = shuffle(P.q.map(function (_, i) { return i; }));
-  var qi = P.queue.pop(), q = prepareQuestion(P.q[qi], true); q.qi = qi; B.q = q;
+  if (B.ura) B.t = ELEMS[Math.floor(Math.random() * ELEMS.length)];   /* 裏ボスは苦手の精霊が毎ターン変わる */
+  var P = B.P; if (!P.queue.length) P.queue = weakQueue(P.q, QST.st);
+  var qi = P.queue.pop(), q = prepareQuestion(P.q[qi], true); q.qi = qi; B.q = q; B.pend = P.q[qi];
   var box = $('cmd'); box.textContent = ''; box.classList.remove('res-on');
-  var qb = el('div', 'qbox'); qb.appendChild(el('span', 'qnum', B.e.n + 'の問題' + (q.multi ? '（あてはまるものを すべて）' : '')));
+  var qb = el('div', 'qbox'); qb.appendChild(el('span', 'qnum', B.e.n + 'の問題' + (qstOf(QST.st, P.q[qi]) === 1 ? ' 📌' : '') + (q.multi ? '（あてはまるものを すべて）' : '')));
   qb.appendChild(document.createTextNode(q.text));
   box.appendChild(qb);
   box.classList.toggle('has-img', !!q.image);   /* 図があるときは、図を左に大きく・選択肢を右に（2026-11-12 授業での指摘） */
@@ -1080,7 +1192,7 @@ function judge(mask, text) {
   var q = B.q, ok = q.type === 'text' ? isTextCorrect(text, q.accept) : mask === maskOf(q.correct), box = $('cmd');
   box.querySelectorAll('button, input').forEach(function (b) { b.disabled = true; });
   box.querySelectorAll('.choices button').forEach(function (b, i) { var c = q.correct.indexOf(i) >= 0, mine = mask != null && !!(mask & (1 << i)); b.classList.remove('sel'); b.classList.add(c ? 'right' : 'dim'); if (c) b.classList.add('ans-ok'); else if (mine) b.classList.add('ans-ng'); });
-  ADV.add(B.P.q[q.qi], ok);
+  ADV.add(B.P.q[q.qi], ok); QST.mark(B.P.q[q.qi], ok); B.pend = null;
   var J = RJ(), f = B.fx, st = statsOf(ch);
   if (ok) {
     /* 正解：連続が1つ増え、MPがたまる（魔法使いは1.5ずつ）。そのあと、こうげきか技をえらぶ */
@@ -1095,7 +1207,7 @@ function judge(mask, text) {
     var d = 0, msg;
     if (f.stun > 0) { f.stun--; msg = '✕ ざんねん… でも ' + B.e.n + 'は動けない！'; }
     else {
-      d = Math.max(4, (B.boss ? 13 : 10) - J.def) * soloEnemyAtkX(ch.lv) * st.cut; if (f.guard) d *= 1 - f.guard.cut; if (f.slow > 0) { d *= .5; f.slow--; }
+      d = Math.max(4, (B.boss ? 13 : 10) - J.def) * soloEnemyAtkX(ch.lv) * (B.ura ? URA.atk : 1) * st.cut; if (f.guard) d *= 1 - f.guard.cut; if (f.slow > 0) { d *= .5; f.slow--; }
       d = Math.max(1, Math.round(d)); HP = Math.max(0, HP - d);
       msg = '✕ ざんねん… ' + B.e.n + 'の攻撃！ ' + d + 'のダメージ';
       if (f.counter && HP > 0) { var cd = Math.max(1, Math.round(st.atk * soloMult(ch.lv) * f.counter.pow)); B.hp = Math.max(0, B.hp - cd); msg += '　カウンター！ ' + cd + 'のダメージ'; }
@@ -1199,6 +1311,10 @@ function act(i) {
 async function win() {
   $('enemy').classList.add('down'); music('r-victory');
   var uid0 = unitOfArea(curArea).id, again = !!(ch.bc && ch.bc[uid0]);   /* ボスは、自分がもう倒したことがあれば復習（半分） */
+  var uraFirst = B.ura && !(ch.ub && ch.ub[uid0]);   /* 裏ボスをはじめて倒した（このあと別の保存で SP・ゴールド・称号） */
+  if (B.ura) again = !uraFirst;
+  /* 図鑑：倒した敵のしるし（ワスレモノ＝0〜5・ボス＝10。裏ボスは図鑑にのせない）。2026-11-19 */
+  if (!B.ura) { var bit = B.boss ? zkBit('boss') : zkBit('zako', B.mob.id % 6), zv = (ch.zk && ch.zk[uid0]) || 0, zn = zkAdd(zv, bit); if (zn !== zv) { ch.zk = Object.assign({}, ch.zk || {}); ch.zk[uid0] = zn; } }
   var rw = soloReward(B.max, B.boss ? again : curArea.st === 'clear', me.g, B.boss), lv0 = ch.lv, today = dayNo();
   if (B.boss) ch.bc = Object.assign({}, ch.bc || {}, (function (o) { o[uid0] = true; return o; })({}));
   /* 1日に稼げるゴールドの上限（gd＝日の番号・gg＝その日に稼いだ額。ルールでも同じ計算で止める） */
@@ -1207,14 +1323,21 @@ async function win() {
   ch.gold = (ch.gold || 0) + rw.gold; var up = addExp(ch, rw.exp);
   var box = $('cmd'); box.textContent = ''; box.classList.remove('has-img');   /* 図つきの問題のあとは、右半分に寄ってしまっていた */
   box.appendChild(el('div', 'banner ok', B.e.n + 'を たおした！　記録しています…'));   /* 前の記録から20秒たつまで待つことがある */
-  var saved = await saveChar(true);
+  var saved = await saveChar(true), uraMsg = '';
+  if (saved && uraFirst) {
+    /* 裏ボスのごほうび（1回だけ）：ub・SP＋5・ゴールド 学年×100 を、ほかは変えずに保存（ルールの ura と同じ形） */
+    var back = clone(ch);
+    ch.ub = Object.assign({}, ch.ub || {}); ch.ub[uid0] = true; ch.sp = (ch.sp || 0) + URA.sp; ch.spt = (ch.spt || 0) + URA.sp; ch.gold = (ch.gold || 0) + URA.gold * me.g;
+    if (await saveChar()) uraMsg = '　🏅 称号「' + uraTitle(unitOfArea(curArea)) + '」・スキルポイント +' + URA.sp + '・💰 +' + URA.gold * me.g;
+    else { ch = back; uraMsg = '（裏ボスのごほうびを保存できませんでした。もう一度倒すと、もらえます）'; }
+  }
   box.textContent = '';
-  box.appendChild(el('div', 'banner ok', B.e.n + 'を たおした！' + (B.boss ? '　👑 ボスをたおした！' : '') + '　けいけんち +' + rw.exp + (rw.gold ? '　💰 +' + rw.gold : '　💰 今日の上限に達しました') + (up ? '　LEVEL UP! Lv.' + lv0 + '→' + ch.lv + '（スキルポイント +' + up + '）' : '') + (saved ? '' : '（保存できませんでした）')));
+  box.appendChild(el('div', 'banner ok', B.e.n + 'を たおした！' + (B.ura ? '　👁 裏ボスをたおした！' : B.boss ? '　👑 ボスをたおした！' : '') + '　けいけんち +' + rw.exp + (rw.gold ? '　💰 +' + rw.gold : '　💰 今日の上限に達しました') + (up ? '　LEVEL UP! Lv.' + lv0 + '→' + ch.lv + '（スキルポイント +' + up + '）' : '') + (saved ? '' : '（保存できませんでした）') + uraMsg));
   if (up) HP = statsOf(ch).mhp;
   var nx = el('button', 'btn', 'フィールドにもどる'); nx.style.alignSelf = 'center';
   nx.onclick = function () {
     FD.mobs = FD.mobs.filter(function (m) { return m !== B.mob; });
-    showScreen('s-town'); setTimeout(function () { openField('area', B.boss ? [31, 12] : FD.pos); if (B.boss) say('<h3>👑 ボスをたおした！</h3>' + unitOfArea(curArea).unit + 'の霧は、あなたの力で晴れた。'); else if (!FD.mobs.length) say('<h3>エリアの魔物をすべて倒した！</h3>町にもどると、また魔物があらわれる。'); });
+    showScreen('s-town'); setTimeout(function () { openField('area', B.boss ? [31, 12] : FD.pos); if (B.ura) say('<h3>👁 ' + B.e.n + 'をたおした！</h3>' + unitOfArea(curArea).unit + 'の影は、あなたの力で払われた。'); else if (B.boss) say('<h3>👑 ボスをたおした！</h3>' + unitOfArea(curArea).unit + 'の霧は、あなたの力で晴れた。'); else if (!FD.mobs.length) say('<h3>エリアの魔物をすべて倒した！</h3>町にもどると、また魔物があらわれる。'); });
   };
   box.appendChild(nx);
 }

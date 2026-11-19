@@ -297,12 +297,23 @@ export function armorList(job, st) {
   }
   return out;
 }
-/* 装備の効果。atkX 攻撃の倍率・healX 回復の倍率・cut 受けるダメージの倍率・hp 最大HP・mp 最大MP・crit 会心 */
-export function gearOf(job, eq) {
-  eq = eq || {}; var w = weaponTier(eq.w), a = armorTier(eq.a), t = A_TYPE[job] || 'cut';
+/* 鍛冶屋（2026-11-19）。いちばん強い武器・防具（6段目）だけ、ゴールドで ＋1〜＋5 まで鍛えられる。武器と防具は別々。
+ * ch.up = { w: 武器の＋, a: 防具の＋ }（0〜5）。鍛えた分は6段目の品のもの（6段目を付けているときだけ効く。外しても数は残る）
+ *   武器：＋1ごとに攻撃 ＋8%（攻撃の倍率に足す）／防具：＋1ごとに受けるダメージの倍率 −0.04（0.2 より下にはしない） */
+export var UP_PRICE = [400, 600, 900, 1300, 1800];   /* ＋1〜＋5 にする値段（ルールの gen_rules.py と同じ） */
+export var UP_MAX = 5, UP_ATK = .08, UP_CUT = .04, CUT_MIN = .2;
+export function upOf(ch, slot) { var k = Number(ch && ch.up && ch.up[slot]) || 0; return Math.max(0, Math.min(UP_MAX, Math.floor(k))); }
+/* 鍛えられるか（その欄に6段目を付けている）。slot は 'w' か 'a' */
+export function canSmith(ch, slot) { var eq = (ch && ch.eq) || {}; return (slot === 'w' ? weaponTier(eq.w) : armorTier(eq.a)) === GEAR_TIERS; }
+/* 名前に ＋N を付ける（6段目で ＋1 以上のときだけ） */
+export function upName(name, ch, slot) { var k = upOf(ch, slot); return k && canSmith(ch, slot) ? name + ' +' + k : name; }
+/* 装備の効果。atkX 攻撃の倍率・healX 回復の倍率・cut 受けるダメージの倍率・hp 最大HP・mp 最大MP・crit 会心。up＝鍛冶屋の ＋（{ w, a }） */
+export function gearOf(job, eq, up) {
+  eq = eq || {}; up = up || {}; var w = weaponTier(eq.w), a = armorTier(eq.a), t = A_TYPE[job] || 'cut';
+  var uw = Math.max(0, Math.min(UP_MAX, Number(up.w) || 0)), ua = Math.max(0, Math.min(UP_MAX, Number(up.a) || 0));
   var g = { atkX: 1, healX: 1, cut: 1, hp: 0, mp: 0, crit: 0 };
   if (w) {
-    g.atkX = 1 + GEAR_PCT[w - 1];
+    g.atkX = 1 + GEAR_PCT[w - 1] + (w === GEAR_TIERS ? Math.round(UP_ATK * uw * 100) / 100 : 0);
     if (job === 'mage' || job === 'summoner') g.mp += W_MP[w - 1];
     if (job === 'priest') g.healX = 1 + GEAR_PCT[w - 1];
     if (job === 'hunter') g.crit = W_CRIT[w - 1];
@@ -310,6 +321,7 @@ export function gearOf(job, eq) {
   }
   if (a) {
     g.cut = (t === 'cut' ? CUT_W : CUT_O)[a - 1];
+    if (a === GEAR_TIERS && ua) g.cut = Math.max(CUT_MIN, Math.round((g.cut - UP_CUT * ua) * 100) / 100);
     if (t === 'mp') g.mp += A_MP[a - 1];
     if (t === 'hp') g.hp += A_HP[a - 1];
   }
@@ -317,7 +329,7 @@ export function gearOf(job, eq) {
 }
 /* 能力値（チーム戦はレベルでHPを増やさない）。atk は武器の倍率をかけたあとの値 */
 export function statsOf(ch, team) {
-  var j = JOBS[ch.j] || JOBS.warrior, g = gearOf(JOBS[ch.j] ? ch.j : 'warrior', ch.eq);
+  var j = JOBS[ch.j] || JOBS.warrior, g = gearOf(JOBS[ch.j] ? ch.j : 'warrior', ch.eq, ch.up);
   return { atk: Math.round(j.atk * g.atkX * 10) / 10, def: j.def, cut: g.cut, healX: g.healX, crit: g.crit, mmp: MP_MAX + g.mp,
            mhp: j.hp + g.hp + (team ? 0 : 2 * ((ch.lv || 1) - 1)) };
 }
@@ -454,6 +466,38 @@ export var N = {
 export var REWARD = { zako: { exp: 30, gold: 5 }, guard: { exp: 80, gold: 15 }, boss: { exp: 250, gold: 60 }, ob: { exp: 400, gold: 100, sp: 3 }, ok: 6, wipeExp: .8 };
 /* 称号 */
 /* 称号（ルールで20文字まで） */
+/* 図鑑（2026-11-19）。ch.zk = { <単元id>: 倒した敵のしるし（整数） }。ワスレモノ6体＝0〜5・番人4体＝6〜9・ボス＝10 の11こ（全部で 2047） */
+export var ZK_N = 11, ZK_ALL = 2047;
+export function zkBit(kind, i) { return kind === 'boss' ? 10 : kind === 'guard' ? 6 + i : i; }
+export function zkHas(ch, uid, bit) { var v = Number(ch && ch.zk && ch.zk[uid]) || 0; return Math.floor(v / Math.pow(2, bit)) % 2 === 1; }
+/* しるしを1つ足した新しい数（もうあれば同じ数） */
+export function zkAdd(v, bit) { v = Number(v) || 0; return Math.floor(v / Math.pow(2, bit)) % 2 === 1 ? v : v + Math.pow(2, bit); }
+/* 2つのしるしを合わせる（どちらかで倒した敵が全部のる） */
+export function zkOr(a, b) { var v = Number(a) || 0; for (var i = 0; i < ZK_N; i++) if (Math.floor((Number(b) || 0) / Math.pow(2, i)) % 2 === 1) v = zkAdd(v, i); return v; }
+/* キャラの図鑑に、倒した敵のしるし bits を足す（変わったら true） */
+export function zkMerge(ch, uid, bits) {
+  var o = Number(ch.zk && ch.zk[uid]) || 0, v = zkOr(o, bits); if (v === o) return false;
+  ch.zk = Object.assign({}, ch.zk || {}); ch.zk[uid] = v; return true;
+}
+export function zkCount(ch, uid) { var n = 0; for (var b = 0; b < ZK_N; b++) if (zkHas(ch, uid, b)) n++; return n; }
+/* 単元の敵11体の一覧（図鑑の並び）。[名前, 絵, 種類, しるしの番号] */
+export function zkList(u) {
+  return u.z.map(function (e, i) { return [e.n, zakoImg(u, i), 'ワスレモノ', i]; })
+    .concat(u.guards.map(function (e, i) { return [e.n, guardImg(u, i + 1), '番人', 6 + i]; }))
+    .concat([[u.boss.n, bossImg(u), 'ボス', 10]]);
+}
+export function zkTitle(u) { return u.unit + 'の図鑑マスター'; }
+/* 裏ボス「影の○○」（2026-11-19）。その単元のボスをひとりで冒険で倒す（ch.bc）と出る。倒すと ch.ub[単元id] = true */
+export var URA = { hp: 2, atk: 1.5, sp: 5, gold: 100 };   /* hp＝ふつうのボス（soloBossHp）の何倍か・攻撃の倍率・はじめて倒したときの SP・ゴールド（×学年） */
+export var URA_FILTER = 'hue-rotate(250deg) saturate(1.6) brightness(.85) drop-shadow(0 0 14px #b44cff)';
+export function uraName(u) { return '影の' + u.boss.n; }
+export function uraTitle(u) { return u.unit + 'の影を払う者'; }
+/* 図鑑・裏ボスの称号（ttl には書かず、zk・ub から作る。生徒の端末は ttl を書けないため） */
+export function extraTitles(ch) {
+  var t = [];
+  UNITS.forEach(function (u) { if (zkCount(ch, u.id) === ZK_N) t.push(zkTitle(u)); if (ch && ch.ub && ch.ub[u.id]) t.push(uraTitle(u)); });
+  return t;
+}
 export function bossTitle(u, lap) { return u.unit + 'の霧を晴らす者' + (lap > 0 ? '★' + (lap + 1) : ''); }
 
 /* ------------------------------------------------------------ ボスの技（2026-11-13 決定。ボスの技.md）

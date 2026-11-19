@@ -1,0 +1,43 @@
+<!DOCTYPE html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>苦手を多く出す案</title>
+<style>body{font-family:system-ui,sans-serif;background:#f4f2fb;color:#221a44;margin:0;padding:1em 1.2em;max-width:900px;line-height:1.7}h1{font-size:1.3em}h2{font-size:1.1em;border-left:.4em solid #4320b0;padding-left:.5em;margin:1.6em 0 .5em}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:.6em;overflow:hidden}th{background:#ebe5ff;text-align:left;padding:.4em .6em;font-size:.9em}td{padding:.45em .6em;border-top:1px solid #eee}
+.dot{display:inline-block;width:1em;height:1em;border-radius:.25em;vertical-align:-.15em;margin-right:.3em}
+.c0{background:#bbb}.c1{background:#e5484d}.c2{background:#f5a623}.c3{background:#30a46c}
+.grid{display:flex;flex-wrap:wrap;gap:4px;background:#fff;padding:.7em;border-radius:.6em}.grid span{width:26px;height:26px;border-radius:5px;font-size:.7em;color:#fff;display:flex;align-items:center;justify-content:center}
+.bar{display:flex;height:2em;border-radius:.5em;overflow:hidden;font-size:.8em;color:#fff}.bar div{display:flex;align-items:center;justify-content:center}
+.qbox{background:#1d1640;color:#fff;border-radius:.8em;padding:1em;max-width:520px}.tag{display:inline-block;background:#e5484d;font-size:.8em;padding:.1em .6em;border-radius:1em;margin-bottom:.4em}
+.note{background:#fff8e1;border-radius:.6em;padding:.6em .9em;font-size:.92em}</style>
+<h1>わからない問題を、多めに出す案</h1>
+<p class="note">いまは、毎回すべての問題を同じ回数ずつ出しています（まちがえた問題だけ、3〜6問あとにもう一度）。でも、町にもどったり、次の日に開き直したりすると、どの問題が苦手だったかは忘れてしまいます。</p>
+
+<h2>① 生徒ごとに、1問ずつ「色」を覚えておく</h2>
+<table><tr><th>色</th><th>意味</th><th>出やすさ</th></tr>
+<tr><td><span class="dot c1"></span>赤</td><td>まちがえた／問題が出たまま逃げた・町へもどった</td><td><b>いちばん出る</b>（4）</td></tr>
+<tr><td><span class="dot c0"></span>灰</td><td>まだ1回も答えていない</td><td>よく出る（3）</td></tr>
+<tr><td><span class="dot c2"></span>黄</td><td>1回だけ正解</td><td>ふつう（2）</td></tr>
+<tr><td><span class="dot c3"></span>緑</td><td>2回続けて正解（身についた）</td><td><b>たまに出る</b>（0.5）</td></tr></table>
+<p>正解すると 赤→黄→緑 と1つずつ上がり、まちがえると すぐ赤にもどります。ひとりで冒険・なかまと冒険・チーム戦で同じ記録を使うので、どこで答えても続きになります。</p>
+
+<h2>② ある生徒（1年 3組 12番）の「物質のすがた」40問</h2>
+<div class="grid" id="g"></div>
+<p>この子が次に戦うと、出る問題のわりあいはこうなります：</p>
+<div class="bar"><div class="c1" style="width:38%">赤 38%</div><div class="c0" style="width:24%">灰 24%</div><div class="c2" style="width:30%">黄 30%</div><div class="c3" style="width:8%">緑 8%</div></div>
+<p style="font-size:.9em">（緑は全体の4割あるのに、出るのは1割ほど。ぜんぶ緑になったら、ふつうに全部から出ます）</p>
+
+<h2>③ 生徒の画面（少しだけ変わる）</h2>
+<div class="qbox"><span style="font-size:.8em;opacity:.8">スライムの問題</span> <span style="font-size:.9em" title="まえにまちがえた問題">🔁</span><br>水が氷になるとき、体積はどうなる？</div>
+<p><b>マークの候補</b>（同じ見出しに付けた場合）</p>
+<table><tr><th>マーク</th><th>見え方</th><th>伝わる意味</th></tr>
+<tr><td style="font-size:1.5em">🔥</td><td><span style="background:#1d1640;color:#fff;padding:.2em .6em;border-radius:.4em">スライムの問題 🔥</span></td><td><b>リベンジ戦！（おすすめ）</b>　ゲームらしく、前向き</td></tr>
+<tr><td style="font-size:1.5em">🎯</td><td><span style="background:#1d1640;color:#fff;padding:.2em .6em;border-radius:.4em">スライムの問題 🎯</span></td><td>ねらい目・ここが的</td></tr>
+<tr><td style="font-size:1.5em">📌</td><td><span style="background:#1d1640;color:#fff;padding:.2em .6em;border-radius:.4em">スライムの問題 📌</span></td><td>覚えておこう</td></tr>
+<tr><td style="font-size:1.5em">🔁</td><td><span style="background:#1d1640;color:#fff;padding:.2em .6em;border-radius:.4em">スライムの問題 🔁</span></td><td>もう一度（今の案）</td></tr></table>
+<p>赤の問題が出たときだけ、「〇〇の問題」の横に <b>🔁</b> を1つ付けます。文字は出しません。意味は、最初の冒険の説明に1行だけ書きます（「🔁＝まえにまちがえた問題」）。ほかの見た目は今のままです。</p>
+
+<h2>④ 先生の記録画面</h2>
+<p>記録画面の生徒ごとの欄に、②のような色のマス（セットごと）を出します。だれがどこでつまずいているか、ひと目で見られます。<br><i>※ ここは本体が動いてから、別に見ていただく予定です。</i></p>
+
+<h2>必要なこと</h2>
+<ul><li>Firebase に「生徒ごとの問題の色」を書く場所を1つ足します（書けるのは本人の端末だけ。今の練習記録と同じしくみ）。<b>ルールの反映が要るので、そのときにもう一度確認します。</b></li>
+<li>先生の操作は増えません。</li></ul>
+<script>var s='3311202130003111220233301221003101123302',g=document.getElementById('g');for(var i=0;i<40;i++){var b=document.createElement('span');b.className='c'+({0:1,1:0,2:2,3:3})[s[i]] ;b.textContent=i+1;g.appendChild(b)}</script>

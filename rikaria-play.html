@@ -6,9 +6,9 @@
 <title>リカリア チーム戦</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261119200000">
-<link rel="stylesheet" href="quest.css?v=20261119200000">
-<link rel="stylesheet" href="rikaria.css?v=20261119200000">
+<link rel="stylesheet" href="theme.css?v=20261119230000">
+<link rel="stylesheet" href="quest.css?v=20261119230000">
+<link rel="stylesheet" href="rikaria.css?v=20261119230000">
 <style>
   #app { background:url(img/rikaria/title-bg.webp) center/cover no-repeat, #1d1648; }
   .q-bg-r { background:rgba(10,6,36,.55); }
@@ -143,13 +143,13 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261119200000"></script>
+<script src="firebase-config.js?v=20261119230000"></script>
 <script type="module">
-import { signIn, db, ref, set, get, update, onValue, serverNow, $, showScreen, confetti, makeAdvLog } from './lib.js?v=20261119200000';
-import { fiscalYear, ensureOwner, cmdImg } from './quest.js?v=20261119200000';
+import { signIn, db, ref, set, get, update, onValue, serverNow, $, showScreen, confetti, makeAdvLog, makeQStat } from './lib.js?v=20261119230000';
+import { fiscalYear, ensureOwner, cmdImg } from './quest.js?v=20261119230000';
 import { JOBS, JOB_KEYS, MP_MAX, LEARN, ELEMS, ELEM, heroImg, skillName, rankOf, rankCost, canRankUp, rankUp, loadoutOf, learned, migrateChar, expToNext, unitById, battleBg, weakOf, LOAD_N, OBLION,
-         newChar, ITEMS, carryList, spiritImg, storyBoss, storyOb, TOWN_DEFAULT , itemImg, iconHtml, statsOf, addExp, dayNo, soloDayCap } from './rikaria-data.js?v=20261119200000';
-import { el, esc, drawField, moveField, cameraOf, cellAt, dmgFx, supportFx, ovban, redflash, MAP, spiritHtml } from './rikaria-view.js?v=20261119200000';
+         newChar, ITEMS, carryList, spiritImg, storyBoss, storyOb, TOWN_DEFAULT , itemImg, iconHtml, statsOf, addExp, zkMerge, dayNo, soloDayCap } from './rikaria-data.js?v=20261119230000';
+import { el, esc, drawField, moveField, cameraOf, cellAt, dmgFx, supportFx, ovban, redflash, MAP, spiritHtml } from './rikaria-view.js?v=20261119230000';
 
 var TS = { '.sv': 'timestamp' };
 var uid = null, pin = null, state = null, sid = '', ch = null, look = 'a', job = 'warrior', gp = 0;
@@ -158,6 +158,7 @@ var players = {}, gv = null, qs = null, U = null, ready = false, done = false, a
 /* なかまと冒険（生徒が開く部屋。?party=1）：ひとりで冒険のログインの番号をそのまま使い、班は1つ。強さの写し m を部屋に出し、ごほうびは自分のキャラに自分で書く（2026-11-16） */
 var PARTY = new URLSearchParams(location.search).get('party') === '1', MYQ = null, lastWrite = Date.now();
 /* 答えた結果を先生の記録画面へ（家庭練習と同じ practice/<番号>。1つの部屋で1件・終わったときと画面を閉じたときに書く。2026-11-17） */
+var QST = makeQStat(function () { return sid; }, function () { return (state && state.y) || fiscalYear(); });   /* 生徒ごとの問題の色（2026-11-19） */
 var advN = 0, ADV = makeAdvLog(PARTY ? 'p' : 't', function () { return sid; }, function () { return (state && state.y) || fiscalYear(); });
 addEventListener('pagehide', function () { ADV.flush(); });
 if (PARTY) { try { MYQ = JSON.parse(localStorage.getItem('qraft.quest.me') || 'null'); } catch (e) {} }
@@ -273,7 +274,7 @@ async function joinRoom() {
   onValue(ref(db, 'rooms/' + pin + '/state'), function (s) { state = s.val(); render(); });
   onValue(ref(db, 'rooms/' + pin + '/players'), function (s) { players = s.val() || {}; if (view === 's-prep') drawPrep(); });
   ADV.start((state && state.unit) || '');
-  onValue(ref(db, 'rooms/' + pin + '/qs/' + uid), function (s) { qs = s.val(); if (qs && qs.r && qs.r.n === qs.n && qs.n > advN) { advN = qs.n; ADV.add(null, !!qs.r.ok, qs.id || ''); } drawQ(); });
+  onValue(ref(db, 'rooms/' + pin + '/qs/' + uid), function (s) { qs = s.val(); if (qs && qs.r && qs.r.n === qs.n && qs.n > advN) { advN = qs.n; ADV.add(null, !!qs.r.ok, qs.id || ''); QST.markId(qs.id, !!qs.r.ok); } drawQ(); });
   onValue(ref(db, 'rooms/' + pin + '/gv/' + gp), function (s) { gv = s.val(); render(); });
   onValue(ref(db, 'rooms/' + pin + '/kicked/' + uid), function (s) { if (s.val()) msg('この部屋から退出になりました'); });
 }
@@ -432,7 +433,7 @@ function drawQ() {
   var me = gv && gv.mem && gv.mem[uid];
   if (view === 's-battle' && me && me.dn) box.appendChild(el('div', 'downbox', '💤 たおれてしまった…　あと ' + (3 - me.dn) + '問 正解で復活'));
   box.classList.toggle('isdown', !!(view === 's-battle' && me && me.dn));   /* 倒れている間：図つきの問題では、技の行の場所に案内を出す（rikaria.css） */
-  var qb = el('div', 'qbox'); qb.appendChild(el('span', 'qnum', (view === 's-battle' ? (me && me.dn ? '復活の問題' : 'ねらい：' + tgtName()) : '練習問題（正解でMP +1）') + (qs.mu ? '（あてはまるものを すべて）' : '')));
+  var qb = el('div', 'qbox'); qb.appendChild(el('span', 'qnum', (view === 's-battle' ? (me && me.dn ? '復活の問題' : 'ねらい：' + tgtName()) : '練習問題（正解でMP +1）') + (qs.wk ? ' 📌' : '') + (qs.mu ? '（あてはまるものを すべて）' : '')));
   qb.appendChild(document.createTextNode(qs.t)); box.appendChild(qb);
   box.classList.toggle('has-img', !!qs.img);
   if (qs.img) box.appendChild(cmdImg(qs.img, qs.imgAlt));
@@ -504,7 +505,7 @@ function syncDown(me) {
   if (dn && d && d.textContent === t) return; if (!dn && !d) return;
   if (dn) { if (!d) { d = el('div', 'downbox'); box.insertBefore(d, box.firstChild); } d.textContent = t; } else d.remove();
   box.classList.toggle('isdown', !!dn);
-  var qn = box.querySelector('.qnum'); if (qn && qs) qn.textContent = (dn ? '復活の問題' : 'ねらい：' + tgtName()) + (qs.mu ? '（あてはまるものを すべて）' : '');
+  var qn = box.querySelector('.qnum'); if (qn && qs) qn.textContent = (dn ? '復活の問題' : 'ねらい：' + tgtName()) + (qs.wk ? ' 📌' : '') + (qs.mu ? '（あてはまるものを すべて）' : '');
   fitBox(box, box.querySelector('.res'));
 }
 function buildFoes() {
@@ -626,6 +627,7 @@ async function applyPartyReward(r) {
   var g = Number(sid.charAt(0)) || 1, want = Math.max(0, Number(r.gold) || 0), exp = Math.min(300, Math.max(0, Number(r.exp) || 0)), today = dayNo(), gg = c.gd === today ? (c.gg || 0) : 0;
   var gold = Math.max(0, Math.min(want, soloDayCap(g) - gg, 200));
   if (gold > 0) { c.gd = today; c.gg = gg + gold; c.gold = (c.gold || 0) + gold; }   /* ゴールドが増えるときだけ、その日の記録（gd・gg）を書く（ルールの決まり） */
+  if (r.zk && /^[a-z]{2,12}$/.test(r.uid || '')) zkMerge(c, r.uid, r.zk);   /* 図鑑：なかまと冒険で倒した敵ものせる（2026-11-19） */
   out.up = addExp(c, exp); out.exp = exp; out.gold = gold; out.capped = gold < want; out.lv = c.lv;
   out.saved = false;
   for (var i = 0; i < 3 && !out.saved; i++) {

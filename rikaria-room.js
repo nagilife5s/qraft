@@ -6,9 +6,9 @@
  *
  * cx = { pin: ()=>参加コード, players: ()=>players, GR: {班→{G, lead…}}, P: {uid→出題の状態}, CH: {uid→キャラ}, pool: ()=>問題の配列, ended: ()=>終わったか, phase: ()=>state.phase }
  */
-import { db, ref, set, shuffle, prepareQuestion, maskOf } from './lib.js?v=20261119200000';
+import { db, ref, set, shuffle, prepareQuestion, maskOf, weakQueue, qstOf, qstSet, qstNext } from './lib.js?v=20261119230000';
 import { onChildAdded, onChildChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-import * as E from './rikaria-engine.js?v=20261119200000';
+import * as E from './rikaria-engine.js?v=20261119230000';
 
 export function makeRoomDriver(cx) {
   var ITU = {};
@@ -16,10 +16,11 @@ export function makeRoomDriver(cx) {
     var players = cx.players(), GR = cx.GR;
     if (cx.ended() || !players[u] || !GR[players[u].gp]) return;
     var POOL = cx.pool(), p = cx.P[u] = cx.P[u] || { n: 0, queue: [] };
-    if (!p.queue || !p.queue.length) p.queue = shuffle(POOL.map(function (_, i) { return i; }));
+    var st = cx.qst ? cx.qst(u) : null;   /* 生徒ごとの問題の色（2026-11-19） */
+    if (!p.queue || !p.queue.length) p.queue = weakQueue(POOL, st);
     var qi = p.queue.pop(), q = prepareQuestion(POOL[qi], true); q.qi = qi;
     p.n++; p.cur = q; p.wait = true;
-    set(ref(db, 'rooms/' + cx.pin() + '/qs/' + u), { n: p.n, t: q.text, img: q.image || '', imgAlt: q.imageAlt || '', ch: q.choices, mu: q.multi ? 1 : 0, id: POOL[qi]._s != null ? POOL[qi]._s + '-' + (POOL[qi]._i + 1) : '' });
+    set(ref(db, 'rooms/' + cx.pin() + '/qs/' + u), { n: p.n, t: q.text, img: q.image || '', imgAlt: q.imageAlt || '', ch: q.choices, mu: q.multi ? 1 : 0, id: POOL[qi]._s != null ? POOL[qi]._s + '-' + (POOL[qi]._i + 1) : '', wk: qstOf(st, POOL[qi]) === 1 ? 1 : 0 });
   }
   function onAnsBucket(snap) { var n = Number(snap.key), v = snap.val() || {}; Object.keys(v).forEach(function (u) { var p = cx.P[u]; if (p && p.n === n && p.wait) grade(u, v[u]); }); }
   function grade(u, a) {
@@ -27,6 +28,7 @@ export function makeRoomDriver(cx) {
     p.wait = false;
     var wasDown = R && R.G.mem[u] && R.G.mem[u].dn, mm = R && R.G.mem[u], wasBad = mm && !mm.dn && (mm.seal > 0 || mm.psn > 0) && R.G.ph === 'battle';
     if (R) E.answer(R.G, u, ok);
+    var st = cx.qst ? cx.qst(u) : null, pq = cx.pool()[q.qi]; if (st && pq) qstSet(st, pq, qstNext(qstOf(st, pq), ok));
     set(ref(db, 'rooms/' + cx.pin() + '/qs/' + u + '/r'), { n: p.n, ok: ok ? 1 : 0, cor: cor, ex: q.ex || '', rv: wasDown ? 1 : 0, cu: ok && wasBad ? 1 : 0 });
     if (!ok) { var pos = Math.min(p.queue.length, 3 + Math.floor(Math.random() * 4)); p.queue.splice(p.queue.length - pos, 0, q.qi); }   /* まちがえた問題は数問あとに */
     setTimeout(function () { sendQ(u); }, ok ? 900 : q.ex ? 5000 : 2600);   /* まちがえて解説が出るときは、読めるように5秒 */

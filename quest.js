@@ -7,7 +7,7 @@
  *   ・シングルモードの書き込み上限：経験値＋300・ゴールド＋200（firebase-rules.json）
  */
 
-import { TOWN, TOWN_DEFAULT, TOWN_MAX, ITEMS, ITEM_KEYS, weaponName, armorName, weaponList, armorList, gearOf, goldOf, soloGold, soloDayCap, dayNo } from './rikaria-data.js?v=20261119200000';
+import { TOWN, TOWN_DEFAULT, TOWN_MAX, ITEMS, ITEM_KEYS, weaponName, armorName, weaponList, armorList, gearOf, goldOf, soloGold, soloDayCap, dayNo } from './rikaria-data.js?v=20261119230000';
 /* 町・装備・道具は rikaria-data.js が正本（2026-11-13 確定の数値の表） */
 export { goldOf, TOWN, TOWN_DEFAULT, TOWN_MAX, ITEMS, ITEM_KEYS, weaponName, armorName, weaponList, armorList, soloGold, soloDayCap, dayNo };
 
@@ -167,7 +167,7 @@ export function normChar(c) { var s = skOf(c); c.sk = { 0: s[0], 1: s[1], 2: s[2
 
 /* 能力値。team=true のときはレベルでHPを増やさない（チームモードはレベル差をおさえる） */
 export function statsOf(ch, team) {
-  var j = JOBS[ch.j] || JOBS.warrior, g = gearOf(JOBS[ch.j] ? ch.j : 'warrior', ch.eq);
+  var j = JOBS[ch.j] || JOBS.warrior, g = gearOf(JOBS[ch.j] ? ch.j : 'warrior', ch.eq, ch.up);
   return { atk: j.atk * g.atkX, def: j.def, cut: g.cut, healX: g.healX, mhp: j.hp + g.hp + (team ? 0 : 2 * ((ch.lv || 1) - 1)) };
 }
 /* ひとりで冒険の攻撃倍率（上限なし。育てた分だけ強くなる） */
@@ -193,7 +193,7 @@ export function battleGuide(mode) {
   var key = 'qraft.quest.guide.' + mode;
   try { if (localStorage.getItem(key)) return Promise.resolve(); } catch (e) { return Promise.resolve(); }
   var steps = [
-    ['❓', '問題に答える', '正解すると MP が 1 たまります。まちがえると、敵の攻撃を受けます。'],
+    ['❓', '問題に答える', '正解すると MP が 1 たまります。まちがえると、敵の攻撃を受けます。📌は、まえにまちがえた問題です。'],
     ['✨', '技をえらぶ', '正解したら技をえらびます。MP を使う技ほど強力です。' + (mode === 'team' ? '僧侶の回復や、仲間を起こすのも大事な活躍です。' : '')],
     ['⭐', '経験値がもらえる', mode === 'team' ? '経験値は、正解した数と活躍（ダメージ・回復）で決まります。職業による差はほとんどありません。' : '敵をたおすと経験値とゴールド。レベルが上がるとスキルポイントがもらえます。']
   ];

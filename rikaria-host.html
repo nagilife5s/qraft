@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>リカリア チーム戦（先生）</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
-<link rel="stylesheet" href="theme.css?v=20261119200000">
-<link rel="stylesheet" href="quest.css?v=20261119200000">
-<link rel="stylesheet" href="rikaria.css?v=20261119200000">
+<link rel="stylesheet" href="theme.css?v=20261119230000">
+<link rel="stylesheet" href="quest.css?v=20261119230000">
+<link rel="stylesheet" href="rikaria.css?v=20261119230000">
 <style>
   #app { background:url(img/rikaria/title-bg.webp) center/cover no-repeat, #1d1648; }
   .q-bg-r { background:rgba(10,6,36,.6); }
@@ -116,19 +116,19 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261119200000"></script>
+<script src="firebase-config.js?v=20261119230000"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script type="module">
 import { signIn, db, ref, set, get, update, remove, onValue, serverNow, shuffle, mountSetPicker,
-         decryptSet, prepareQuestion, maskOf, $, showScreen, confetti, qrSvg, loadQEdits, applyQEdits, setIdOf } from './lib.js?v=20261119200000';
+         decryptSet, prepareQuestion, maskOf, $, showScreen, confetti, qrSvg, loadQEdits, applyQEdits, setIdOf, loadQStatOf } from './lib.js?v=20261119230000';
 import { onChildAdded, onChildChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-import { fiscalYear } from './quest.js?v=20261119200000';
-import { TOWN, TOWN_DEFAULT, TOWN_MAX, townStart, JOBS, heroImg, statsOf, unitOf, addExp, bossSp, bossTitle, migrateChar, battleBg, LV_MAX, OBLION, OB_FORMS, obNext, obFirst, obTitle, oblionImg, REWARD, ELEM,
-         unitById, unitsOf, advMap, townName, goldOf, isCarry, storyOpen, storyBoss, storyOb, storyEnding } from './rikaria-data.js?v=20261119200000';
-import { makeRoomDriver } from './rikaria-room.js?v=20261119200000';
-import * as E from './rikaria-engine.js?v=20261119200000';
-import { el, esc, drawField, moveField, cameraOf, ovban, MAP, spiritHtml } from './rikaria-view.js?v=20261119200000';
-import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261119200000';
+import { fiscalYear } from './quest.js?v=20261119230000';
+import { TOWN, TOWN_DEFAULT, TOWN_MAX, townStart, JOBS, heroImg, statsOf, unitOf, addExp, bossSp, bossTitle, zkMerge, migrateChar, battleBg, LV_MAX, OBLION, OB_FORMS, obNext, obFirst, obTitle, oblionImg, REWARD, ELEM,
+         unitById, unitsOf, advMap, townName, goldOf, isCarry, storyOpen, storyBoss, storyOb, storyEnding } from './rikaria-data.js?v=20261119230000';
+import { makeRoomDriver } from './rikaria-room.js?v=20261119230000';
+import * as E from './rikaria-engine.js?v=20261119230000';
+import { el, esc, drawField, moveField, cameraOf, ovban, MAP, spiritHtml } from './rikaria-view.js?v=20261119230000';
+import { bgm, sfx, preload, wireSoundButtons } from './sound.js?v=20261119230000';
 
 wireSoundButtons(); preload(['r-title']); MUS = 'r-title'; bgm('r-title');   /* リカリアの曲（2026-11-16）。部屋作りと待機は r-title、冒険中は r-battle */
 var TS = { '.sv': 'timestamp' };
@@ -313,13 +313,15 @@ $('btnQuit').onclick = async function () { ended = true; await remove(ref(db, 'r
 
 /* ------------------------------------------------------------ 出発：班ごとにエンジンを作る */
 var OWN = {}, CH = {};
-var D = makeRoomDriver({ pin: function () { return pin; }, players: function () { return players; }, GR: GR, P: P, CH: CH, pool: function () { return POOL; }, ended: function () { return ended; }, phase: function () { return S ? S.phase : ''; } });
+var D = makeRoomDriver({ pin: function () { return pin; }, players: function () { return players; }, GR: GR, P: P, CH: CH, pool: function () { return POOL; }, ended: function () { return ended; }, phase: function () { return S ? S.phase : ''; }, qst: function (u) { return QSTAT[u]; } });
+var QSTAT = {};   /* 生徒ごとの問題の色（まちがえた・まだの問題を多めに出す。2026-11-19） */
 async function owns(u, sid) { var k = sid + '/' + u; if (OWN[k] == null) { try { OWN[k] = (await get(ref(db, qpath('owners/' + k)))).exists(); } catch (e) { OWN[k] = false; } } return OWN[k]; }
 async function loadChar(u) {
   if (CH[u]) return CH[u];
   var p = players[u], ch = null;
   if (await owns(u, p.sid)) { ch = (await get(ref(db, qpath('chars/' + p.sid)))).val(); if (ch) migrateChar(ch); }
   CH[u] = ch || { n: p.nick, j: p.j, lk: p.lk, lv: p.lv || 1, guest: true };
+  if (!QSTAT[u]) QSTAT[u] = await loadQStatOf(YEAR, p.sid, Object.keys(POOL.reduce(function (o, q) { if (q._s != null) o[q._s] = 1; return o; }, {})));
   return CH[u];
 }
 /* 授業のチーム戦も、班の平均レベルで敵のHPを上げる（なかまと冒険と同じ。2026-11-19） */
@@ -543,6 +545,7 @@ async function finish() {
         c2.gold = (c2.gold || 0) + o.gold;
         R.bossLaps.forEach(function (l) { var b = bossSp(l); c2.sp = (c2.sp || 0) + b; c2.spt = (c2.spt || 0) + b; r.sp += b; });
         if (R.bossLaps.length) { r.ttl = bossTitle(U, Math.max.apply(null, R.bossLaps)); c2.ttl = Object.assign({}, c2.ttl || {}); c2.ttl[U.id] = r.ttl; }
+        if (o.zk) zkMerge(c2, U.id, o.zk);   /* 図鑑：チーム戦で倒した敵ものせる（2026-11-19） */
         c2.u = TS; up[qpath('chars/' + p.sid)] = c2;
       }
       res[u] = r;

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>やり込み（モック）</title>
+<style>
+  body { margin:0; background:#120d3a; color:#fff; font-family:system-ui, sans-serif; }
+  header { background:linear-gradient(#1a1450,#120d3a); padding:.7em 1em; display:flex; align-items:center; gap:1em; flex-wrap:wrap; }
+  header h1 { color:#ffe27a; font-size:1.2em; margin:0; }
+  .tabs button { border:0; padding:.55em 1.2em; border-radius:999px; font-weight:900; background:#3a3170; color:#fff; margin-right:.3em; font-size:1em; cursor:pointer; }
+  .tabs button.on { background:#ffe27a; color:#221a44; }
+  main { padding:1em; max-width:1000px; margin:auto; }
+  .win { background:rgba(255,255,255,.06); border:2px solid #6a5bd6; border-radius:.9em; padding:1em; margin-bottom:1em; }
+  .win h2 { margin:.1em 0 .5em; font-size:1.1em; color:#ffe27a; }
+  .note { color:#c9c0ea; font-size:.92em; margin:.2em 0 .8em; }
+  .gold { color:#ffe27a; font-weight:900; }
+  /* 鍛冶屋 */
+  .smith { display:grid; grid-template-columns:1fr 1fr; gap:1em; }
+  .gear { display:flex; gap:.8em; align-items:center; background:rgba(0,0,0,.25); border-radius:.7em; padding:.8em; }
+  .gear img { width:72px; height:72px; object-fit:contain; background:#2a2260; border-radius:.6em; }
+  .plus { font-size:1.6em; font-weight:900; color:#7fe3ff; }
+  .pips { letter-spacing:.15em; color:#7fe3ff; }
+  .pips i { color:#4b4380; font-style:normal; }
+  button.go { border:0; border-radius:999px; padding:.55em 1.3em; font-weight:900; font-size:1em; background:#ff8a1c; color:#fff; cursor:pointer; margin-top:.5em; }
+  button.go:disabled { background:#4b4380; color:#9a93b8; cursor:default; }
+  .kv { display:grid; grid-template-columns:auto 1fr; gap:.1em .8em; font-size:.92em; }
+  /* 図鑑 */
+  .bar { display:flex; gap:.4em; flex-wrap:wrap; margin-bottom:.8em; }
+  .pill { border:1px solid #6a5bd6; background:transparent; color:#fff; border-radius:999px; padding:.25em .9em; font-weight:800; cursor:pointer; }
+  .pill.on { background:#6a5bd6; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(110px,1fr)); gap:.6em; }
+  .card { background:rgba(0,0,0,.3); border-radius:.7em; padding:.5em; text-align:center; font-size:.85em; }
+  .card img { width:84px; height:84px; object-fit:contain; }
+  .card.no img { filter:brightness(0) opacity(.5); }
+  .card.no .nm { color:#6b6390; }
+  .card .k { font-size:.75em; color:#c9c0ea; }
+  .prog { height:.6em; background:#2a2260; border-radius:9px; overflow:hidden; margin:.3em 0 .8em; }
+  .prog i { display:block; height:100%; background:linear-gradient(90deg,#7b5cff,#7fe3ff); }
+  /* 裏ボス */
+  .ura { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px,1fr)); gap:1em; }
+  .boss { background:radial-gradient(circle at 50% 30%, #3b0f4f, #12051c); border:2px solid #9b3cff; border-radius:.9em; padding:1em; text-align:center; position:relative; }
+  .boss img { width:150px; height:150px; object-fit:contain; filter:hue-rotate(250deg) saturate(1.6) brightness(.85) drop-shadow(0 0 14px #b44cff); }
+  .boss.lock img { filter:brightness(0) drop-shadow(0 0 10px #6b2a99); }
+  .boss h3 { margin:.3em 0; color:#e7b8ff; }
+  .tag { display:inline-block; background:#9b3cff; border-radius:999px; padding:.1em .7em; font-size:.8em; font-weight:800; margin:.15em; }
+  .boss.lock .tag { background:#4b4380; }
+  .mocktag { position:fixed; right:.6em; bottom:.6em; background:#c0392b; color:#fff; padding:.2em .8em; border-radius:999px; font-weight:800; font-size:.8em; }
+  @media (max-width:640px) { .smith { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<header><h1>リカリア：やり込み（見本）</h1>
+  <div class="tabs"><button data-t="smith" class="on">⚒ 鍛冶屋</button><button data-t="zukan">📖 図鑑</button><button data-t="ura">👁 裏ボス</button></div></header>
+<main>
+  <section id="smith">
+    <div class="win"><h2>⚒ 鍛冶屋（町のメニュー）</h2>
+      <div class="note">いちばん強い武器・防具（6段目）を買うと、ゴールドで <b>＋1〜＋5</b> まで鍛えられます。最強の装備をそろえたあとのゴールドの使い道です。今の持ち金 <span class="gold" id="gold"></span></div>
+      <div class="smith" id="gears"></div>
+    </div>
+    <div class="win"><h2>決まり（案）</h2><div class="kv">
+      <span>上がる強さ</span><b>武器：＋1ごとに攻撃 ＋8%（＋5で ＋40%）／防具：＋1ごとに受けるダメージ −4%</b>
+      <span>値段</span><b>＋1：400G → ＋2：600G → ＋3：900G → ＋4：1300G → ＋5：1800G（武器・防具それぞれ）</b>
+      <span>全部で</span><b>武器と防具を＋5にするまで 10,000G（ひとりで冒険のゴールドは1日に 3年で150G までなので、ゆっくりの目標）</b>
+      <span>使える所</span><b>ひとりで冒険・なかまと冒険・チーム戦のすべて</b></div></div>
+  </section>
+
+  <section id="zukan" hidden>
+    <div class="win"><h2>📖 ワスレモノ図鑑</h2>
+      <div class="note">一度でも倒した敵が、図鑑にのります。まだの敵は影だけ。単元を全部うめると、その単元の「図鑑マスター」の称号。</div>
+      <div><b id="cnt"></b><div class="prog"><i id="pg"></i></div></div>
+      <div class="bar" id="ubar"></div>
+      <div class="grid" id="cards"></div>
+    </div>
+  </section>
+
+  <section id="ura" hidden>
+    <div class="win"><h2>👁 裏ボス「影の○○」</h2>
+      <div class="note">単元のボスを<b>ひとりで冒険</b>で倒すと、その単元に裏ボスが出てきます。今のボスが霧の力で強くなった姿（絵は今のボスの色を変えて使うので、新しい絵は要りません）。</div>
+      <div class="kv" style="margin-bottom:.8em">
+        <span>出る条件</span><b>その単元のボスを、ひとりで冒険で倒す</b>
+        <span>強さ</span><b>自分のレベルの敵の 6倍のHP・攻撃 1.5倍。苦手の精霊が毎ターン変わる</b>
+        <span>ごほうび</span><b>称号「影を払う者」・SP5・ゴールド 学年×100</b>
+        <span>おすすめ</span><b>Lv60くらいから（新しい上がり方で、3年生がじっくり育てたころ）</b></div>
+      <div class="ura" id="bosses"></div>
+    </div>
+  </section>
+</main>
+<div class="mocktag">モック（見本）</div>
+<script type="module">
+import { UNITS, zakoImg, guardImg, bossImg, weaponName, armorName } from '../rikaria-data.js';
+const $ = (i) => document.getElementById(i);
+document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('.tabs button').forEach(x => x.classList.toggle('on', x === b));
+  ['smith', 'zukan', 'ura'].forEach(t => $(t).hidden = t !== b.dataset.t);
+});
+/* 鍛冶屋 */
+let gold = 2350; const lv = { w: 2, a: 0 }, PRICE = [400, 600, 900, 1300, 1800];
+function smith() {
+  $('gold').textContent = gold + ' G';
+  $('gears').innerHTML = [['w', '武器', weaponName('warrior', 'w6'), 'img/rikaria/gear/warrior-w6.webp', (k) => '攻撃 +' + (100 + 8 * k) + '%'],
+                          ['a', '防具', armorName('warrior', 'a6'), 'img/rikaria/gear/warrior-a6.webp', (k) => '受けるダメージ ×' + (0.5 - .04 * k).toFixed(2)]].map(([k, t, n, img, eff]) => {
+    const p = lv[k], c = PRICE[p];
+    return `<div class="gear"><img src="../${img}" alt="" onerror="this.style.visibility='hidden'"><div style="flex:1"><div style="color:#c9c0ea;font-size:.85em">${t}</div>
+      <div><b>${n}</b> <span class="plus">+${p}</span></div><div class="pips">${'◆'.repeat(p)}<i>${'◇'.repeat(5 - p)}</i></div>
+      <div style="font-size:.9em">${eff(p)}${p < 5 ? ' → <b>' + eff(p + 1) + '</b>' : ''}</div>
+      <button class="go" data-k="${k}" ${p >= 5 || gold < c ? 'disabled' : ''}>${p >= 5 ? '最大まで鍛えた！' : '鍛える（' + c + 'G）'}</button></div></div>`;
+  }).join('');
+  $('gears').querySelectorAll('button.go').forEach(b => b.onclick = () => { const k = b.dataset.k; gold -= PRICE[lv[k]]; lv[k]++; smith(); });
+}
+smith();
+/* 図鑑（見本：2年の単元。倒した敵はでたらめ） */
+const G = UNITS.filter(u => u.g === 2); let cur = G[0].id;
+const seen = (u, i) => (u.id.length * 7 + i * 3) % 5 !== 0;
+function zukan() {
+  const all = [], got = [];
+  G.forEach(u => { const L = [...u.z.map((e, i) => [e.n, zakoImg(u, i), 'ワスレモノ']), ...u.guards.map((e, i) => [e.n, guardImg(u, i + 1), '番人']), [u.boss.n, bossImg(u), 'ボス']];
+    L.forEach((x, i) => { all.push(1); if (seen(u, i)) got.push(1); }); });
+  $('cnt').textContent = `2年の図鑑：${got.length} / ${all.length}`; $('pg').style.width = (got.length / all.length * 100) + '%';
+  $('ubar').innerHTML = G.map(u => `<button class="pill${u.id === cur ? ' on' : ''}" data-u="${u.id}">${u.unit}</button>`).join('');
+  $('ubar').querySelectorAll('button').forEach(b => b.onclick = () => { cur = b.dataset.u; zukan(); });
+  const u = G.find(x => x.id === cur);
+  const L = [...u.z.map((e, i) => [e.n, zakoImg(u, i), 'ワスレモノ']), ...u.guards.map((e, i) => [e.n, guardImg(u, i + 1), '番人']), [u.boss.n, bossImg(u), 'ボス']];
+  $('cards').innerHTML = L.map(([n, img, k], i) => { const ok = seen(u, i);
+    return `<div class="card${ok ? '' : ' no'}"><img src="../${img}" alt=""><div class="nm"><b>${ok ? n : '？？？'}</b></div><div class="k">${k}${ok ? '・' + (1 + i * 3 % 9) + '回たおした' : ''}</div></div>`; }).join('');
+}
+zukan();
+/* 裏ボス */
+$('bosses').innerHTML = G.map((u, i) => { const open = i < 2;
+  return `<div class="boss${open ? '' : ' lock'}"><img src="../${bossImg(u)}" alt=""><h3>${open ? '影の' + u.boss.n : '？？？'}</h3>
+    <div>${u.unit}</div><div>${open ? '<span class="tag">挑める！</span><span class="tag">推奨 Lv60</span>' : '<span class="tag">ボスをひとりで倒すと出る</span>'}</div>
+    ${open && i === 0 ? '<div style="margin-top:.4em;color:#ffe27a">🏅 影を払う者（たおした）</div>' : ''}</div>`; }).join('');
+</script>
+</body>
+</html>

@@ -789,3 +789,43 @@ export function makeAdvLog(mode, sidFn, yFn) {
   }
   return { start: start, add: add, flush: flush, get count() { return L ? L.n : 0; } };
 }
+
+/* ---------------------------------------------------------------- 生徒ごとの問題の色（2026-11-19）
+   qstat/<年度>/<番号>/<セットid> = 文字列（1問1字）。0 まだ答えていない・1 まちがえた／問題が出たまま逃げた・2 1回正解・3 2回続けて正解
+   出やすさは 1＞0＞2＞3。1（赤）の問題には 📌 を付ける */
+export var QST_W = [3, 4, 2, 0.5];
+export function qstOf(st, q) { var s = st && q && q._s != null ? st[q._s] : ''; return s ? Number(s.charAt(q._i)) || 0 : 0; }
+export function qstNext(v, ok) { return ok ? (v >= 2 ? 3 : 2) : 1; }
+/* 出す順（pop で後ろから出す）。重みつきでえらんだ上から n 問だけ。なくなったら最新の色で作り直す */
+export function weakQueue(pool, st, n) {
+  var k = pool.map(function (q, i) { return [Math.pow(Math.random(), 1 / QST_W[qstOf(st, q)]), i]; });
+  k.sort(function (a, b) { return b[0] - a[0]; });
+  return k.slice(0, n || 10).map(function (x) { return x[1]; }).reverse();
+}
+export function qstSet(st, q, v) {
+  if (!st || !q || q._s == null || !/^[a-z0-9-]{1,24}$/.test(q._s) || q._i > 399) return false;
+  var s = st[q._s] || ''; while (s.length <= q._i) s += '0';
+  st[q._s] = s.slice(0, q._i) + v + s.slice(q._i + 1); return true;
+}
+/* 本人の端末用：読みこみ・答えたら書く */
+export function makeQStat(sidFn, yFn) {
+  var ST = {}, loaded = {};
+  function path() { var sid = sidFn(); return /^[1-3]-[1-9]-[0-9]{1,2}$/.test(sid || '') ? 'qstat/' + yFn() + '/' + sid : ''; }
+  async function load(setIds) {
+    var p = path(); if (!p) return ST;
+    await Promise.all((setIds || []).filter(function (id) { return !loaded[id]; }).map(async function (id) {
+      try { var v = (await get(ref(db, p + '/' + id))).val(); if (typeof v === 'string') ST[id] = v; loaded[id] = 1; } catch (e) {}
+    }));
+    return ST;
+  }
+  function mark(q, ok) { var p = path(); if (!p || !qstSet(ST, q, qstNext(qstOf(ST, q), ok))) return; set(ref(db, p + '/' + q._s), ST[q._s]).catch(function () {}); }
+  function skip(q) { var p = path(); if (!p || !qstSet(ST, q, 1)) return; set(ref(db, p + '/' + q._s), ST[q._s]).catch(function () {}); }
+  function markId(id, ok) { var m = /^([a-z0-9-]{1,24})-([0-9]{1,3})$/.exec(id || ''); if (m) mark({ _s: m[1], _i: Number(m[2]) - 1 }, ok); }
+  return { st: ST, load: load, mark: mark, skip: skip, markId: markId };
+}
+/* 先生の端末（チーム戦）用：生徒の色を読む。読めなければ空（ふつうの出し方になる） */
+export async function loadQStatOf(y, sid, setIds) {
+  var st = {}; if (!/^[1-3]-[1-9]-[0-9]{1,2}$/.test(sid || '')) return st;
+  await Promise.all((setIds || []).map(async function (id) { try { var v = (await get(ref(db, 'qstat/' + y + '/' + sid + '/' + id))).val(); if (typeof v === 'string') st[id] = v; } catch (e) {} }));
+  return st;
+}
