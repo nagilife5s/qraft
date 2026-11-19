@@ -26,15 +26,17 @@ DAY = 86400000
 JST = 32400000
 CAP = "($sid.beginsWith('1-') ? 50 : $sid.beginsWith('2-') ? 100 : 150)"
 # ---------------------------------------------------------------- キャラ第2版（リカリア・2026-11-13）
-# 6職業・技10個（ランク sr/<i> は 1 か 2）・もらったSPの合計 spt。数値は rikaria-data.js と同じ
+# 6職業・技15個（ランク sr/<i> は 1 か 2）・もらったSPの合計 spt。数値は rikaria-data.js と同じ
 JOBS = ['warrior', 'mage', 'priest', 'hunter', 'monk', 'summoner']
-LEARN = [1, 3, 5, 8, 12, 16, 20, 25, 30, 36]
-MP = [1, 2, 1, 2, 5, 3, 2, 3, 3, 5]
+LEARN = [1, 3, 5, 8, 12, 16, 20, 25, 30, 36, 50, 60, 70, 80, 100]
+NSK = len(LEARN)
+# 技ごとのMP（6職業とも同じ並び。rikaria-data.js と合わせる）
+MP = [1, 2, 1, 2, 5, 3, 2, 3, 3, 5, 3, 3, 3, 3, 5]
 def cost(mp): return [6, 12] if mp >= 5 else [4, 8] if mp >= 3 else [3, 6] if mp >= 2 else [2, 4]
 LV_MAX = 100
 def need(L): return "(%s >= 11 ? 650 : 100 + 50 * %s)" % (L, L)
 def sr(i, w='newData'): return "%s.child('sr').child('%d')" % (w, i)
-used = "(" + " + ".join("(%s.exists() ? (%s.val() >= 2 ? %d : %d) : 0)" % (sr(i), sr(i), sum(cost(MP[i])), cost(MP[i])[0]) for i in range(10)) + ")"
+used = "(" + " + ".join("(%s.exists() ? (%s.val() >= 2 ? %d : %d) : 0)" % (sr(i), sr(i), sum(cost(MP[i])), cost(MP[i])[0]) for i in range(NSK)) + ")"
 sr_ok = AND("!" + NE('sk'), N('spt') + " >= 0", "%s + %s === %s" % (N('sp'), used, N('spt')))
 def inv_le(k):   # 持ち物が増えていない（使った・そのまま）
     return OR("!" + NE('inv', k), N('inv', k) + " === 0", AND(DE('inv', k), N('inv', k) + " <= " + D('inv', k)))
@@ -66,7 +68,7 @@ reward = AND(dl + " >= 0", dl + " <= 1", N('lv') + " <= %d" % LV_MAX, gained + "
              N('spt') + " === " + D('spt') + " + " + dl,
              N('gold') + " <= " + D('gold') + " + 200", day_cap,
              OR("!" + DE('u'), D('u') + " + 20000 <= now"),
-             same('eq', 'w'), same('eq', 'a'), same('lk'), *[sr_same(i) for i in range(10)], *[inv_le(k) for k in ITEMS])
+             same('eq', 'w'), same('eq', 'a'), same('lk'), *[sr_same(i) for i in range(NSK)], *[inv_le(k) for k in ITEMS])
 # 買い物・技のランクアップ・見た目・持っていく技：レベル・経験値・もらったSPはそのまま、ゴールドは値段の分だけ減る
 def buy_eq(slot, table):
     return OR(same('eq', slot), *[AND(N('eq', slot) + " === '%s'" % i, N('gold') + " <= " + D('gold') + " - %d" % p) for i, p in table.items()])
@@ -75,7 +77,7 @@ shop = AND(same('lv'), same('exp'), same('spt'), N('gold') + " <= " + D('gold'),
            buy_eq('w', WEAP), buy_eq('a', ARMO),
            *[OR(inv_le(k), AND(inv_inc(k), N('gold') + " <= " + D('gold') + " - %d" % ITEMS[k])) for k in ks],
            *["!(%s && %s)" % (inv_inc(a), inv_inc(b)) for i, a in enumerate(ks) for b in ks[i + 1:]],
-           *[sr_ge(i) for i in range(10)])   # 買い物ではランクを下げられない（下げるのは下の「振り直し」だけ）
+           *[sr_ge(i) for i in range(NSK)])   # 買い物ではランクを下げられない（下げるのは下の「振り直し」だけ）
 # 教会の振り直し：ちょうど100ゴールドで、振ったポイントを全部戻す（sr を消して SP＝もらったSPの合計）。ほかは何も変えない（2026-11-13）
 respec = AND(N('gold') + " === " + D('gold') + " - 100", "!" + NE('sr'), N('sp') + " === " + N('spt'),
              same('lv'), same('exp'), same('spt'), same('lk'), same('eq', 'w'), same('eq', 'a'), same_opt('gd'), same_opt('gg'),
@@ -104,7 +106,7 @@ c['eq'] = {"w": {".validate": " || ".join("newData.val() === '%s'" % k for k in 
 c['inv'] = {"$k": {".validate": "(" + " || ".join("$k === '%s'" % k for k in ITEMS) + ") && newData.isNumber() && newData.val() >= 0 && newData.val() <= 9"}}
 c['j'] = {".validate": " || ".join("newData.val() === '%s'" % j for j in JOBS)}
 c.pop('sk', None)
-c['sr'] = {**{str(i): {".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 2 && newData.parent().parent().child('lv').val() >= %d" % LEARN[i]} for i in range(10)}, "$other": {".validate": False}}
+c['sr'] = {**{str(i): {".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 2 && newData.parent().parent().child('lv').val() >= %d" % LEARN[i]} for i in range(NSK)}, "$other": {".validate": False}}
 c['ld'] = {"a": {"$k": {".validate": "$k.matches(/^[0-3]$/) && newData.isNumber() && newData.val() >= 0 && newData.val() <= 9"}},
            "u": {".validate": "newData.isNumber() && newData.val() >= -1 && newData.val() <= 9"}, "$other": {".validate": False}}
 c['ttl'] = {"$a": {".validate": "newData.isString() && newData.val().length <= 20 && (%s || newData.val() === data.val())" % A}}

@@ -10,12 +10,12 @@ function team(lv = 12, jobs = JOBS6) {
   return jobs.map((j, i) => { const s = D.statsOf({ j, lv }, true); return { id: 'u' + i, name: (i + 1) + '番', j, lk: 'a', lv, atk: s.atk, def: s.def, mhp: s.mhp, sr: {}, ld: null }; });
 }
 
-test('データ：6職業に技が10個ずつ、名前はランク3つ、効果の部品がある', () => {
+test('データ：6職業に技が15個ずつ、名前はランク3つ、効果の部品がある', () => {
   assert.deepEqual(D.JOB_KEYS.sort(), Object.keys(D.JOBS).sort());
   for (const j of D.JOB_KEYS) {
-    const sk = D.JOBS[j].sk; assert.equal(sk.length, 10, j);
+    const sk = D.JOBS[j].sk; assert.equal(sk.length, 15, j);
     sk.forEach((s, i) => { assert.equal(s.lv, D.LEARN[i], j + i); assert.equal(s.names.length, 3); assert.ok(s.mp >= 1 && s.mp <= 5); });
-    assert.equal(sk.filter(s => s.ult).length, 2, j + 'の必殺技は2つ');
+    assert.equal(sk.filter(s => s.ult).length, 3, j + 'の必殺技は3つ');
   }
   assert.equal(D.UNITS.length, 12);
   D.UNITS.forEach(u => { assert.equal(u.z.length, 6); assert.equal(u.guards.length, 4); [...u.z, ...u.guards, u.boss].forEach(e => assert.ok(D.ELEM[e.t], u.id + e.n)); });
