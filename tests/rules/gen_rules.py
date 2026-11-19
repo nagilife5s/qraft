@@ -31,7 +31,7 @@ JOBS = ['warrior', 'mage', 'priest', 'hunter', 'monk', 'summoner']
 LEARN = [1, 3, 5, 8, 12, 16, 20, 25, 30, 36]
 MP = [1, 2, 1, 2, 5, 3, 2, 3, 3, 5]
 def cost(mp): return [6, 12] if mp >= 5 else [4, 8] if mp >= 3 else [3, 6] if mp >= 2 else [2, 4]
-LV_MAX = 50
+LV_MAX = 100
 def need(L): return "(%s >= 11 ? 650 : 100 + 50 * %s)" % (L, L)
 def sr(i, w='newData'): return "%s.child('sr').child('%d')" % (w, i)
 used = "(" + " + ".join("(%s.exists() ? (%s.val() >= 2 ? %d : %d) : 0)" % (sr(i), sr(i), sum(cost(MP[i])), cost(MP[i])[0]) for i in range(10)) + ")"
