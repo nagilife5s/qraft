@@ -79,6 +79,7 @@ test('なかまと冒険：1年のホストと2年の参加者で、部屋づく
   expect(recs.length).toBe(1); expect(recs[0].m).toBe('p'); expect(recs[0].n).toBe(1); expect(recs[0].u).toMatch(/^[a-z]+$/);
   if (recs[0].k === 0) expect(recs[0].w).toMatch(/^[0-9a-z]+-\d+$/);
   expect(errs).toEqual([]);
+  await A.ctx.close(); await B.ctx.close();   // 開いたままだと、あとのテストのページがうしろ扱いになり、タイマーが遅れる
 });
 
 test('なかまと冒険：ホストが画面を閉じると、参加者に「冒険はおわりました」と出る', async ({ browser }) => {
@@ -91,6 +92,7 @@ test('なかまと冒険：ホストが画面を閉じると、参加者に「�
   await expect(B.p.locator('#s-prep')).toBeVisible({ timeout: 30000 });
   await A.ctx.close();   // ホストの端末が閉じる（つながりが切れる）
   await expect(B.p.locator('#msgT')).toContainText('冒険はおわりました', { timeout: 30000 });
+  await B.ctx.close();
 });
 
 test('なかまと冒険：「ひとりで冒険」でログインしていないと入れない', async ({ page }) => {

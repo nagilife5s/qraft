@@ -165,6 +165,9 @@ function openMenu(btn) {
   m.querySelector('[data-k=sfx]').onchange = function () { ac(); setSfx(this.checked); if (this.checked) sfx('ok'); };
   m.querySelector('[data-k=vol]').oninput = function () { ac(); setVolume(this.value / 100); };
   m.dataset.btn = '1'; menuBtn = btn; btn.setAttribute('aria-expanded', 'true');
+  /* メニューの中で押した Esc は、すぐ効くようにする（下の setTimeout は、開いたときのキーやクリックで閉じないための待ち。
+     画面がうしろにあると setTimeout が1秒近く遅れ、その前の Esc が効かなかった。2026-11-20） */
+  m.addEventListener('keydown', function (e) { if (e.key === 'Escape') { e.stopPropagation(); closeMenu(); if (menuBtn) menuBtn.focus(); } });
   paint(); m.querySelector('[data-k=bgm]').focus();
   setTimeout(function () { document.addEventListener('pointerdown', outside, true); document.addEventListener('keydown', esc, true); });
 }
