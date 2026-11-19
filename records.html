@@ -89,6 +89,21 @@
   .chmv { display:flex; flex-wrap:wrap; gap:.8em; align-items:center; margin:-.2em 0 .8em; font-weight:700; font-size:.92em; }
   .chmv select { font:inherit; padding:.2em .4em; border-radius:.4em; border:1px solid #c9c0ea; }
   .chmv-n { color:#6b6390; font-weight:600; font-size:.9em; }
+  .rksum { display:flex; gap:.8em; flex-wrap:wrap; margin-bottom:.8em; } .rksum div { background:#fff; border-radius:.6em; padding:.5em 1em; border:1px solid #e3ddf6; } .rksum b { font-size:1.3em; color:#4320b0; }
+  .rkwrap { display:grid; grid-template-columns:minmax(0,1fr) 340px; gap:1em; align-items:start; } @media (max-width:900px) { .rkwrap { grid-template-columns:1fr; } }
+  .rktbl { overflow-x:auto; } .rktbl table { width:100%; border-collapse:collapse; background:#fff; font-size:.95em; }
+  .rktbl th { background:#ebe5ff; text-align:left; padding:.45em .6em; font-size:.85em; cursor:pointer; white-space:nowrap; } .rktbl td { padding:.4em .6em; border-top:1px solid #eee9fa; white-space:nowrap; }
+  .rktbl tr.rkrow { cursor:pointer; } .rktbl tr.rkrow:hover td { background:#f6f2ff; } .rktbl tr.sel td { background:#e8e0ff; } .rktbl tr.rknone td { color:#9a93b8; }
+  .rkjob { display:inline-flex; align-items:center; gap:.35em; } .rkjob i { width:.7em; height:.7em; border-radius:50%; }
+  .rkxp { display:inline-block; width:4.5em; height:.45em; background:#eee; border-radius:9px; vertical-align:middle; margin-left:.4em; overflow:hidden; } .rkxp i { display:block; height:100%; background:#7b5cff; }
+  .rksp { color:#c0392b; font-weight:800; }
+  .rkdet { background:#fff; border-radius:.8em; padding:1em; border:1px solid #e3ddf6; position:sticky; top:1em; }
+  .rkdet h3 { margin:.1em 0 .2em; font-size:1.15em; } .rkdet .sub { color:#6b6390; font-size:.9em; }
+  .rkdet h4 { font-size:.9em; margin:.9em 0 .3em; color:#4320b0; border-bottom:1px solid #eee9fa; padding-bottom:.2em; }
+  .rkhero { display:flex; gap:.8em; align-items:center; } .rkhero img { width:72px; height:72px; object-fit:contain; background:#f1edff; border-radius:.6em; }
+  .rkkv { display:grid; grid-template-columns:auto 1fr; gap:.15em .8em; font-size:.92em; }
+  .rksk { display:flex; justify-content:space-between; font-size:.9em; padding:.1em 0; } .rksk.no { color:#b5afcc; } .rkstar { color:#f0a500; }
+  .rkchips span { display:inline-block; background:#f2effd; border-radius:999px; padding:.1em .7em; margin:.15em .2em 0 0; font-size:.85em; }
   .mksrow { border-bottom:1px solid #ece7fb; }
   .mkshead { display:flex; align-items:center; gap:.6em; padding:.45em .7em; cursor:pointer; }
   .mkshead:hover { background:#f6f2ff; } .mksrow.on > .mkshead { background:#e8e0ff; }
@@ -118,6 +133,7 @@
   <nav class="tabs" role="tablist" id="tabs" hidden>
     <button role="tab" id="tab-rec" aria-controls="p-rec" data-tab="rec">記録</button>
     <button role="tab" id="tab-q" aria-controls="p-q" data-tab="q">問題</button>
+    <button role="tab" id="tab-rk" aria-controls="p-rk" data-tab="rk">リカリア</button>
     <button role="tab" id="tab-set" aria-controls="p-set" data-tab="set">設定</button>
   </nav>
 </div></header>
@@ -180,6 +196,14 @@
     <div style="overflow:auto"><table id="tblRangeMk"></table></div>
   </div>
 </section>
+<!-- ============================================================ リカリア（生徒のキャラを見る。2026-11-19） -->
+<section role="tabpanel" id="p-rk" aria-labelledby="tab-rk" hidden>
+  <div class="note">クラスをえらぶと、生徒のキャラが並びます。見出しを押すと並べかえ、行を押すと右に詳しく出ます（見るだけで、ここでは変えられません）。</div>
+  <div class="mkbar">学年 <span id="rkG"><button type="button" class="mkpill" data-g="1">1年</button> <button type="button" class="mkpill" data-g="2">2年</button> <button type="button" class="mkpill" data-g="3">3年</button></span>
+    組 <span id="rkC"></span> <button type="button" class="mkpill" id="rkReload">読み直す</button> <span id="rkMsg"></span></div>
+  <div class="rksum" id="rkSum"></div>
+  <div class="rkwrap"><div class="rktbl"><table><thead><tr id="rkHd"></tr></thead><tbody id="rkTb"></tbody></table></div><aside class="rkdet" id="rkDet">行を押すと、ここに詳しく出ます</aside></div>
+</section>
 <!-- ============================================================ 設定 -->
 <section role="tabpanel" id="p-set" aria-labelledby="tab-set" hidden>
   <h2>合言葉・キャラ（リカリア・家庭練習）</h2>
@@ -212,9 +236,9 @@
 
 <script src="firebase-config.js"></script>
 <script type="module">
-import { loadHomeSets, signIn, db, ref, set, get, remove, loadQEdits, mountSetPicker, zoomImage } from './lib.js?v=20261119090000';
-import { fiscalYear, makeCode } from './quest.js?v=20261119090000';
-import { UNITS, LV_MAX } from './rikaria-data.js?v=20261119090000';
+import { loadHomeSets, signIn, db, ref, set, get, remove, loadQEdits, mountSetPicker, zoomImage } from './lib.js?v=20261119100000';
+import { fiscalYear, makeCode } from './quest.js?v=20261119100000';
+import { UNITS, LV_MAX, JOBS, expToNext, statsOf, weaponName, armorName, ITEMS, learned, rankOf, heroImg, migrateChar } from './rikaria-data.js?v=20261119100000';
 var $ = function (id) { return document.getElementById(id); };
 var uid = null, rows = [], titles = {}, open = {}, HS = [];
 
@@ -639,17 +663,92 @@ $('qsub').onclick = function (e) {
   if (mk) { $('mkTo').value = String(MK.g); mkDraw(); loadRanges(); }
 };
 
+
+/* ------------------------------------------------------------ リカリア：生徒のキャラを見る（2026-11-19）。quest/<年度>/chars/<学年-組-番号> を1人ずつ読む（見るだけ） */
+var RK = { g: 1, c: 1, list: [], key: 'no', dir: 1, sel: 0, ready: false };
+function rkEsc(t) { return esc(String(t == null ? '' : t)); }
+function rkOpen() {
+  if (!RK.ready) { RK.ready = true; try { var v = JSON.parse(localStorage.getItem('qraft.records.rk') || 'null'); if (v) { RK.g = v.g; RK.c = v.c; } } catch (e) {} }
+  rkPills(); rkLoad();
+}
+function rkPills() {
+  $('rkG').querySelectorAll('.mkpill').forEach(function (b) { var on = +b.dataset.g === RK.g; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
+  var h = ''; for (var c = 1; c <= 9; c++) h += '<button type="button" class="mkpill' + (c === RK.c ? ' on' : '') + '" aria-pressed="' + (c === RK.c) + '" data-c="' + c + '">' + c + '組</button> ';
+  $('rkC').innerHTML = h;
+}
+async function rkLoad() {
+  var g = RK.g, c = RK.c, jobs = [], out = [];
+  try { localStorage.setItem('qraft.records.rk', JSON.stringify({ g: g, c: c })); } catch (e) {}
+  $('rkMsg').textContent = '読み込み中…'; $('rkTb').innerHTML = ''; $('rkSum').innerHTML = '';
+  for (var n = 1; n <= 40; n++) (function (n) {
+    var sid = g + '-' + c + '-' + n;
+    jobs.push(Promise.all([get(ref(db, 'quest/' + QY + '/chars/' + sid)), get(ref(db, 'quest/' + QY + '/keys/' + sid))]).then(function (r) {
+      var ch = r[0].val(); if (ch) migrateChar(ch);
+      if (ch || r[1].exists()) out.push({ no: n, ch: ch });
+    }));
+  })(n);
+  try { await Promise.all(jobs); } catch (e) { $('rkMsg').textContent = '読みこめませんでした：' + e.message; return; }
+  if (g !== RK.g || c !== RK.c) return;
+  RK.list = out; if (!out.some(function (s) { return s.no === RK.sel && s.ch; })) { var f = out.filter(function (s) { return s.ch; }).sort(function (a, b) { return a.no - b.no; })[0]; RK.sel = f ? f.no : 0; }
+  $('rkMsg').textContent = out.length ? '' : 'このクラスには、まだ合言葉もキャラもありません';
+  rkDraw();
+}
+function rkUnits() { return UNITS.filter(function (u) { return u.g === RK.g; }); }
+function rkN(o) { return Object.keys(o || {}).length; }
+function rkVal(s, k) {
+  var c = s.ch; if (k === 'no') return s.no; if (!c) return -1e9;
+  return k === 'n' ? (c.n || '') : k === 'j' ? (c.j || '') : k === 'lv' ? (c.lv || 1) * 1e5 + (c.exp || 0) : k === 'gold' ? (c.gold || 0) : k === 'sp' ? (c.sp || 0) : k === 'bc' ? rkN(c.bc) : k === 'ttl' ? rkN(c.ttl) : 0;
+}
+var RK_COLS = [['no', '番号'], ['n', '名前'], ['j', '職業'], ['lv', 'レベル'], ['gold', 'ゴールド'], ['sp', 'SP（残り／合計）'], ['eq', '武器・防具'], ['bc', 'ボス（ひとり）'], ['ttl', '称号']];
+function rkDraw() {
+  var has = RK.list.filter(function (s) { return s.ch; }), lvs = has.map(function (s) { return s.ch.lv || 1; }), us = rkUnits();
+  $('rkSum').innerHTML = RK.list.length ? '<div>キャラあり <b>' + has.length + '</b> 人</div>' + (has.length ? '<div>平均レベル <b>' + (lvs.reduce(function (a, b) { return a + b; }, 0) / lvs.length).toFixed(1) + '</b></div><div>いちばん高い <b>Lv' + Math.max.apply(null, lvs) + '</b></div><div>SPを使っていない <b>' + has.filter(function (s) { return s.ch.sp > 0; }).length + '</b> 人</div>' : '') : '';
+  $('rkHd').innerHTML = RK_COLS.map(function (x) { return '<th data-k="' + x[0] + '"' + (x[0] === 'eq' ? '' : ' aria-sort="' + (x[0] === RK.key ? (RK.dir > 0 ? 'ascending' : 'descending') : 'none') + '"') + '>' + x[1] + (x[0] === RK.key ? (RK.dir > 0 ? ' ▲' : ' ▼') : '') + '</th>'; }).join('');
+  var rows = RK.list.slice().sort(function (a, b) { var x = rkVal(a, RK.key), y = rkVal(b, RK.key); return ((x > y) - (x < y)) * RK.dir || a.no - b.no; });
+  $('rkTb').innerHTML = rows.map(function (s) {
+    var c = s.ch; if (!c) return '<tr class="rknone"><td>' + s.no + '</td><td colspan="8">キャラをまだ作っていない</td></tr>';
+    var J = JOBS[c.j] || JOBS.warrior, lv = c.lv || 1, p = lv >= LV_MAX ? 100 : Math.round((c.exp || 0) / expToNext(lv) * 100), eq = c.eq || {};
+    return '<tr class="rkrow' + (s.no === RK.sel ? ' sel' : '') + '" data-no="' + s.no + '" tabindex="0"><td>' + s.no + '</td><td>' + rkEsc(c.n) + '</td><td><span class="rkjob"><i style="background:' + J.color + '"></i>' + J.n + '</span></td>' +
+      '<td><b>Lv' + lv + '</b><span class="rkxp" title="次のレベルまで ' + p + '%"><i style="width:' + p + '%"></i></span></td><td>' + (c.gold || 0) + ' G</td>' +
+      '<td>' + (c.sp > 0 ? '<span class="rksp">' + c.sp + '</span>' : 0) + ' / ' + (c.spt || 0) + '</td><td>' + weaponName(c.j, eq.w) + '・' + armorName(c.j, eq.a) + '</td>' +
+      '<td>' + us.filter(function (u) { return (c.bc || {})[u.id]; }).length + ' / ' + us.length + '</td><td>' + rkN(c.ttl) + '</td></tr>';
+  }).join('');
+  rkDetail();
+}
+function rkDetail() {
+  var s = RK.list.filter(function (x) { return x.no === RK.sel; })[0], c = s && s.ch, box = $('rkDet');
+  if (!c) { box.innerHTML = '行を押すと、ここに詳しく出ます'; return; }
+  var J = JOBS[c.j] || JOBS.warrior, st = statsOf(c), got = learned(c.lv), lv = c.lv || 1, eq = c.eq || {}, inv = c.inv || {}, bc = c.bc || {};
+  var sk = J.sk.map(function (k, i) { var r = rankOf(c, i), on = got.indexOf(i) >= 0;
+    return '<div class="rksk' + (on ? '' : ' no') + '"><span>' + rkEsc(k.names[Math.max(0, r - 1)] || k.names[0]) + '</span><span>' + (on ? '<span class="rkstar">' + '★'.repeat(r + 1) + '</span>' + '☆'.repeat(2 - r) : 'Lv' + k.lv + 'で覚える') + '</span></div>'; }).join('');
+  var items = Object.keys(inv).filter(function (k) { return inv[k] > 0 && ITEMS[k]; }).map(function (k) { return '<span>' + ITEMS[k].ic + ' ' + ITEMS[k].n + ' ×' + inv[k] + '</span>'; }).join('') || 'なし';
+  var ttl = Object.keys(c.ttl || {}).map(function (k) { return '<span>🏅 ' + rkEsc(c.ttl[k]) + '</span>'; }).join('') || 'なし';
+  box.innerHTML = '<div class="rkhero"><img src="' + heroImg(c.j, c.lk) + '" alt=""><div><h3>' + s.no + '番 ' + rkEsc(c.n) + '</h3><div class="sub">' + J.n + '・Lv' + lv + (lv >= LV_MAX ? '（最高レベル）' : '（次まで ' + (expToNext(lv) - (c.exp || 0)) + ' 経験値）') + '</div></div></div>' +
+    '<h4>能力</h4><div class="rkkv"><span>HP</span><b>' + st.mhp + '</b><span>攻撃</span><b>' + st.atk + '</b><span>MP</span><b>' + st.mmp + '</b><span>ゴールド</span><b>' + (c.gold || 0) + ' G</b></div>' +
+    '<h4>技（SP 残り ' + (c.sp || 0) + '／もらった合計 ' + (c.spt || 0) + '）</h4>' + sk +
+    '<h4>装備</h4><div class="rkkv"><span>武器</span><b>' + weaponName(c.j, eq.w) + '</b><span>防具</span><b>' + armorName(c.j, eq.a) + '</b></div>' +
+    '<h4>持ち物</h4><div class="rkchips">' + items + '</div>' +
+    '<h4>ひとりで倒したボス</h4><div class="rkchips">' + rkUnits().map(function (u) { return '<span style="' + (bc[u.id] ? '' : 'opacity:.45') + '">' + (bc[u.id] ? '👑 ' : '') + rkEsc(u.unit) + '</span>'; }).join('') + '</div>' +
+    '<h4>称号</h4><div class="rkchips">' + ttl + '</div>';
+}
+$('rkG').onclick = function (e) { var b = e.target.closest('.mkpill'); if (!b) return; RK.g = +b.dataset.g; RK.sel = 0; rkPills(); rkLoad(); };
+$('rkC').onclick = function (e) { var b = e.target.closest('.mkpill'); if (!b) return; RK.c = +b.dataset.c; RK.sel = 0; rkPills(); rkLoad(); };
+$('rkReload').onclick = rkLoad;
+$('rkHd').onclick = function (e) { var th = e.target.closest('th'); var k = th && th.dataset.k; if (!k || k === 'eq') return; RK.dir = k === RK.key ? -RK.dir : (k === 'no' || k === 'n' || k === 'j' ? 1 : -1); RK.key = k; rkDraw(); };
+$('rkTb').onclick = function (e) { var r = e.target.closest('tr.rkrow'); if (r) { RK.sel = +r.dataset.no; rkDraw(); } };
+$('rkTb').onkeydown = function (e) { if (e.key === 'Enter' || e.key === ' ') { var r = e.target.closest('tr.rkrow'); if (r) { e.preventDefault(); RK.sel = +r.dataset.no; rkDraw(); } } };
 /* ------------------------------------------------------------ タブ（記録・問題・設定。2026-11-17）。最後に開いたタブを端末ごとに覚える */
-var TABS = ['rec', 'q', 'set'];
+var TABS = ['rec', 'q', 'rk', 'set'];
 function savedTab() { try { var t = localStorage.getItem('qraft.records.tab'); return TABS.indexOf(t) >= 0 ? t : 'rec'; } catch (e) { return 'rec'; } }
 function showTab(t) {
   TABS.forEach(function (k) { $('p-' + k).hidden = k !== t; $('tab-' + k).setAttribute('aria-selected', k === t ? 'true' : 'false'); $('tab-' + k).tabIndex = k === t ? 0 : -1; });
   try { localStorage.setItem('qraft.records.tab', t); } catch (e) {}
   if (t === 'q') openQTab();
+  if (t === 'rk') rkOpen();
 }
 document.querySelectorAll('#tabs button').forEach(function (b) {
   b.onclick = function () { showTab(b.dataset.tab); };
-  b.onkeydown = function (e) { var i = TABS.indexOf(b.dataset.tab), d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0; if (!d) return; var t = TABS[(i + d + 3) % 3]; showTab(t); $('tab-' + t).focus(); };
+  b.onkeydown = function (e) { var i = TABS.indexOf(b.dataset.tab), d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0; if (!d) return; var t = TABS[(i + d + TABS.length) % TABS.length]; showTab(t); $('tab-' + t).focus(); };
 });
 
 /* ------------------------------------------------------------ 問題（2026-11-17）

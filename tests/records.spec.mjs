@@ -199,3 +199,27 @@ test('記録画面：セットを別の章に移す・もとにもどす（章�
   expect(await rest('GET', 'chedits')).toBeNull();
   expect(errs).toEqual([]);
 });
+
+test('記録画面：リカリアタブで、クラスのキャラが並び、1人を押すと詳しく出る', async ({ browser }) => {
+  const errs = [];
+  for (const n of [1, 2, 3]) { await rest('DELETE', `quest/${Y}/chars/3-8-${n}`); await rest('DELETE', `quest/${Y}/keys/3-8-${n}`); }
+  await rest('PUT', `quest/${Y}/chars/3-8-1`, { n: 'ゆうしゃ', j: 'mage', lk: 'a', lv: 62, exp: 100, gold: 321, sp: 4, spt: 61, sr: { 0: 2 }, eq: { w: 'w2' }, inv: { potion: 3 }, ttl: { ob1: '霧影オブリオンを封じた者' }, bc: { ion: true } });
+  await rest('PUT', `quest/${Y}/chars/3-8-2`, { n: 'せんし', j: 'warrior', lk: 'b', lv: 31, exp: 0, gold: 10, sp: 0, spt: 30 });
+  await rest('PUT', `quest/${Y}/keys/3-8-3`, 'abc123');
+  const t = await (await browser.newContext({ viewport: { width: 1366, height: 800 } })).newPage();
+  t.on('pageerror', e => errs.push('T ' + e));
+  await asTeacher(t);
+  await t.locator('#tab-rk').click();
+  await t.locator('#rkG .mkpill', { hasText: '3年' }).click(); await t.locator('#rkC .mkpill', { hasText: '8組' }).click();
+  await expect(t.locator('#rkTb tr')).toHaveCount(3, { timeout: 15000 });
+  await expect(t.locator('#rkTb tr.rknone')).toContainText('キャラをまだ作っていない');
+  await expect(t.locator('#rkSum')).toContainText('Lv62');
+  await t.locator('#rkHd th[data-k="lv"]').click();   // レベルの高い順
+  await expect(t.locator('#rkTb tr').first()).toContainText('ゆうしゃ');
+  await t.locator('#rkTb tr', { hasText: 'ゆうしゃ' }).click();
+  await expect(t.locator('#rkDet')).toContainText('回復のしずく ×3');
+  await expect(t.locator('#rkDet')).toContainText('霧影オブリオンを封じた者');
+  await expect(t.locator('#rkDet')).toContainText('👑 イオン');
+  if (SHOT) await t.screenshot({ path: SHOT + '/rec-7-rikaria.png' });
+  expect(errs).toEqual([]);
+});

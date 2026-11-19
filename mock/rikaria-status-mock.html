@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>リカリアタブ（モック）</title>
+<link rel="stylesheet" href="../theme.css">
+<style>
+  body { background:#f4f2fb; color:#221a44; margin:0; font-family:system-ui, sans-serif; }
+  .top { background:linear-gradient(#1a1450,#120d3a); padding:.6em 1em 0; display:flex; align-items:flex-end; gap:1em; }
+  .top h1 { color:#ffe27a; font-size:1.2em; margin:0 0 .5em; }
+  .tabs button { border:0; padding:.55em 1.4em; border-radius:.6em .6em 0 0; font-weight:900; background:#3a3170; color:#fff; margin-right:.3em; }
+  .tabs button.on { background:#f4f2fb; color:#221a44; }
+  main { padding:1em; max-width:1300px; }
+  .note { background:#fff; padding:.7em 1em; border-radius:.6em; margin-bottom:1em; }
+  .bar { display:flex; flex-wrap:wrap; gap:.6em; align-items:center; margin-bottom:.8em; font-weight:700; }
+  .pill { border:1px solid #c9c0ea; background:#fff; border-radius:999px; padding:.25em .9em; font-weight:800; }
+  .pill.on { background:#4320b0; color:#fff; border-color:#4320b0; }
+  .sum { display:flex; gap:.8em; flex-wrap:wrap; margin-bottom:.8em; }
+  .sum div { background:#fff; border-radius:.6em; padding:.5em 1em; border:1px solid #e3ddf6; }
+  .sum b { font-size:1.3em; color:#4320b0; }
+  .wrap { display:grid; grid-template-columns: 1fr 360px; gap:1em; align-items:start; }
+  table { width:100%; border-collapse:collapse; background:#fff; border-radius:.6em; overflow:hidden; font-size:.95em; }
+  th { background:#ebe5ff; text-align:left; padding:.45em .6em; font-size:.85em; cursor:pointer; white-space:nowrap; }
+  td { padding:.4em .6em; border-top:1px solid #eee9fa; white-space:nowrap; }
+  tr.row { cursor:pointer; } tr.row:hover td { background:#f6f2ff; } tr.sel td { background:#e8e0ff; }
+  .job { display:inline-flex; align-items:center; gap:.35em; } .job i { width:.7em; height:.7em; border-radius:50%; }
+  .lv { font-weight:900; }
+  .xp { display:inline-block; width:4.5em; height:.45em; background:#eee; border-radius:9px; vertical-align:middle; margin-left:.4em; overflow:hidden; }
+  .xp i { display:block; height:100%; background:#7b5cff; }
+  .none td { color:#9a93b8; }
+  .sp { color:#c0392b; font-weight:800; }
+  aside { background:#fff; border-radius:.8em; padding:1em; border:1px solid #e3ddf6; position:sticky; top:1em; }
+  aside h2 { margin:.1em 0 .2em; font-size:1.15em; } aside .sub { color:#6b6390; font-size:.9em; margin-bottom:.6em; }
+  aside h3 { font-size:.9em; margin:.9em 0 .3em; color:#4320b0; border-bottom:1px solid #eee9fa; padding-bottom:.2em; }
+  .hero { display:flex; gap:.8em; align-items:center; } .hero img { width:72px; height:72px; object-fit:contain; background:#f1edff; border-radius:.6em; }
+  .kv { display:grid; grid-template-columns:auto 1fr; gap:.15em .8em; font-size:.92em; }
+  .sk { display:flex; justify-content:space-between; font-size:.9em; padding:.1em 0; } .sk.no { color:#b5afcc; }
+  .stars { color:#f0a500; letter-spacing:.05em; }
+  .chips span { display:inline-block; background:#f2effd; border-radius:999px; padding:.1em .7em; margin:.15em .2em 0 0; font-size:.85em; }
+  .mocktag { position:fixed; right:.6em; bottom:.6em; background:#c0392b; color:#fff; padding:.2em .8em; border-radius:999px; font-weight:800; font-size:.8em; }
+</style>
+</head>
+<body>
+<div class="top"><h1>Qraft 先生の記録画面</h1><div class="tabs"><button>記録</button><button>問題</button><button class="on">リカリア</button><button>設定</button></div></div>
+<main>
+  <div class="note">クラスをえらぶと、生徒のキャラが並びます。見出しを押すと並べかえ、行を押すと右に詳しく出ます（見るだけで、ここでは変えられません）。</div>
+  <div class="bar">学年 <span id="g"><button class="pill">1年</button> <button class="pill on">2年</button> <button class="pill">3年</button></span>
+    組 <span id="c"><button class="pill">1組</button> <button class="pill on">2組</button> <button class="pill">3組</button> <button class="pill">4組</button></span></div>
+  <div class="sum" id="sum"></div>
+  <div class="wrap">
+    <table><thead><tr id="hd"></tr></thead><tbody id="tb"></tbody></table>
+    <aside id="det"></aside>
+  </div>
+</main>
+<div class="mocktag">モック（見本のデータ）</div>
+<script type="module">
+import { JOBS, LV_MAX, expToNext, statsOf, weaponName, armorName, ITEMS, learned, rankOf, heroImg, UNITS } from '../rikaria-data.js';
+const $ = (i) => document.getElementById(i);
+const names = ['あおい', 'ゆうと', 'さくら', 'はると', 'みお', 'そうた', 'ひなた', 'れん', 'こはる', 'いつき'];
+const jobs = Object.keys(JOBS);
+const U2 = UNITS.filter(u => u.g === 2);
+const S = names.map((n, i) => {
+  if (i === 7) return { no: i + 1, ch: null };
+  const lv = [18, 24, 16, 31, 20, 17, 27, 0, 22, 19][i];
+  return { no: i + 1, ch: { n, j: jobs[i % jobs.length], lk: i % 2 ? 'b' : 'a', lv, exp: Math.floor(expToNext(lv) * ((i * 37) % 100) / 100), gold: 40 + i * 63 % 400,
+    sp: i % 3, spt: lv - 1, sr: { 0: 2, 1: 1, 2: i % 3, 3: 1 }, eq: { w: 'w' + (1 + i % 3), a: i % 2 ? 'a2' : '' },
+    inv: { potion: i % 4, ether: i % 2, wing: 1 }, ttl: i % 3 ? { x: U2[0].unit + 'の霧を晴らす者' } : { x: U2[0].unit + 'の霧を晴らす者', y: '霧影オブリオンを封じた者' },
+    bc: Object.fromEntries(U2.slice(0, i % 4).map(u => [u.id, true])) } };
+});
+const cols = [['no', '番号'], ['n', '名前'], ['j', '職業'], ['lv', 'レベル'], ['gold', 'ゴールド'], ['sp', 'SP（残り）'], ['eq', '武器・防具'], ['bc', 'ボス（ひとり）'], ['ttl', '称号']];
+let key = 'no', dir = 1, sel = 1;
+function val(s, k) { const c = s.ch; if (!c) return k === 'no' ? s.no : -1; return k === 'no' ? s.no : k === 'n' ? c.n : k === 'j' ? c.j : k === 'lv' ? c.lv * 1e4 + c.exp : k === 'gold' ? c.gold : k === 'sp' ? c.sp : k === 'bc' ? Object.keys(c.bc).length : k === 'ttl' ? Object.keys(c.ttl).length : 0; }
+function draw() {
+  const has = S.filter(s => s.ch), lvs = has.map(s => s.ch.lv);
+  $('sum').innerHTML = `<div>キャラあり <b>${has.length}</b> / ${S.length}人</div><div>平均レベル <b>${(lvs.reduce((a, b) => a + b, 0) / lvs.length).toFixed(1)}</b></div><div>いちばん高い <b>Lv${Math.max(...lvs)}</b></div><div>SPを使っていない <b>${has.filter(s => s.ch.sp > 0).length}</b>人</div>`;
+  $('hd').innerHTML = cols.map(([k, t]) => `<th data-k="${k}">${t}${k === key ? (dir > 0 ? ' ▲' : ' ▼') : ''}</th>`).join('');
+  const rows = S.slice().sort((a, b) => { const x = val(a, key), y = val(b, key); return (x > y ? 1 : x < y ? -1 : 0) * dir; });
+  $('tb').innerHTML = rows.map(s => {
+    const c = s.ch; if (!c) return `<tr class="none"><td>${s.no}</td><td colspan="8">キャラをまだ作っていない</td></tr>`;
+    const J = JOBS[c.j], p = c.lv >= LV_MAX ? 100 : Math.round(c.exp / expToNext(c.lv) * 100);
+    return `<tr class="row${s.no === sel ? ' sel' : ''}" data-no="${s.no}"><td>${s.no}</td><td>${c.n}</td><td><span class="job"><i style="background:${J.color}"></i>${J.n}</span></td>
+      <td><span class="lv">Lv${c.lv}</span><span class="xp" title="次のレベルまで ${p}%"><i style="width:${p}%"></i></span></td><td>${c.gold} G</td>
+      <td>${c.sp ? `<span class="sp">${c.sp}</span>` : 0} / ${c.spt}</td><td>${weaponName(c.j, c.eq.w)}・${armorName(c.j, c.eq.a)}</td><td>${Object.keys(c.bc).length} / ${U2.length}</td><td>${Object.keys(c.ttl).length}</td></tr>`;
+  }).join('');
+  detail();
+}
+function detail() {
+  const s = S.find(x => x.no === sel), c = s && s.ch; if (!c) { $('det').innerHTML = '行を押すと、ここに詳しく出ます'; return; }
+  const J = JOBS[c.j], st = statsOf(c), got = learned(c.lv);
+  const sk = J.sk.map((k, i) => { const r = rankOf(c, i), on = got.indexOf(i) >= 0; return `<div class="sk${on ? '' : ' no'}"><span>${k.names[Math.max(0, r - 1)] || k.names[0]}</span><span>${on ? `<span class="stars">${'★'.repeat(r + 1)}${'☆'.repeat(2 - r)}</span>` : 'Lv' + k.lv + 'で覚える'}</span></div>`; }).join('');
+  const inv = Object.keys(c.inv).filter(k => c.inv[k] > 0).map(k => `<span>${ITEMS[k].ic} ${ITEMS[k].n} ×${c.inv[k]}</span>`).join('') || 'なし';
+  $('det').innerHTML = `<div class="hero"><img src="../${heroImg(c.j, c.lk)}" alt=""><div><h2>${s.no}番 ${c.n}</h2><div class="sub">${J.n}・Lv${c.lv}（次まで ${c.lv >= LV_MAX ? '—' : expToNext(c.lv) - c.exp} 経験値）</div></div></div>
+    <h3>能力</h3><div class="kv"><span>HP</span><b>${st.mhp}</b><span>攻撃</span><b>${st.atk}</b><span>MP</span><b>${st.mmp}</b><span>ゴールド</span><b>${c.gold} G</b></div>
+    <h3>技（SP 残り ${c.sp} / もらった合計 ${c.spt}）</h3>${sk}
+    <h3>装備</h3><div class="kv"><span>武器</span><b>${weaponName(c.j, c.eq.w)}</b><span>防具</span><b>${armorName(c.j, c.eq.a)}</b></div>
+    <h3>持ち物</h3><div class="chips">${inv}</div>
+    <h3>ひとりで倒したボス</h3><div class="chips">${U2.map(u => `<span style="${c.bc[u.id] ? '' : 'opacity:.4'}">${c.bc[u.id] ? '👑' : '・'} ${u.unit}</span>`).join('')}</div>
+    <h3>称号</h3><div class="chips">${Object.values(c.ttl).map(t => `<span>🏅 ${t}</span>`).join('')}</div>`;
+}
+$('hd').onclick = e => { const k = e.target.dataset.k; if (!k) return; dir = k === key ? -dir : (k === 'no' || k === 'n' ? 1 : -1); key = k; draw(); };
+$('tb').onclick = e => { const r = e.target.closest('tr.row'); if (r) { sel = +r.dataset.no; draw(); } };
+draw();
+</script>
+</body>
+</html>
