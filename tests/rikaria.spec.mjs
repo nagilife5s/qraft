@@ -274,13 +274,13 @@ test('町の名前と冒険の地図、持ち物と精霊（2年）', async ({ b
   await expect(host.locator('#lbTitle')).toContainText('雷鳴の発電所');
   const pin = (await host.locator('#pin').textContent()).replace(/\s/g, '');
 
-  // 生徒1：精霊使い。回復のしずくを持っていく（帰還の羽は出ない）
+  // 生徒1：精霊使い。ブドウ糖のしずくを持っていく（方位磁針の羽は出ない）
   const a = await browser.newContext({ viewport: { width: 1366, height: 854 } }).then((c) => c.newPage());
   await a.goto('rikaria-play.html?emu=1&pin=' + pin);
   await a.locator('#nums button', { hasText: /^1$/ }).click();
   await a.locator('input[aria-label="合言葉"]').fill('abc123'); await a.getByRole('button', { name: 'OK' }).click();
   await a.locator('#gpgrid button', { hasText: '1班' }).click(); await a.locator('#btnGp').click();
-  await expect(a.locator('#ppItems button')).toHaveCount(2);   // 持っていかない・回復のしずく
+  await expect(a.locator('#ppItems button')).toHaveCount(2);   // 持っていかない・ブドウ糖のしずく
   await a.locator('#ppItems button[data-it="potion"]').click();
   await expect(a.locator('#ppItems button[data-it="potion"]')).toHaveAttribute('aria-pressed', 'true');
   await shot(a, 'item-1-prep');

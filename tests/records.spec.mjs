@@ -217,7 +217,7 @@ test('記録画面：リカリアタブで、クラスのキャラが並び、1�
   await t.locator('#rkHd th[data-k="lv"]').click();   // レベルの高い順
   await expect(t.locator('#rkTb tr').first()).toContainText('ゆうしゃ');
   await t.locator('#rkTb tr', { hasText: 'ゆうしゃ' }).click();
-  await expect(t.locator('#rkDet')).toContainText('回復のしずく ×3');
+  await expect(t.locator('#rkDet')).toContainText('ブドウ糖のしずく ×3');
   await expect(t.locator('#rkDet')).toContainText('霧影オブリオンを封じた者');
   await expect(t.locator('#rkDet')).toContainText('👑 イオン');
   if (SHOT) await t.screenshot({ path: SHOT + '/rec-7-rikaria.png' });

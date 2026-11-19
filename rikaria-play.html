@@ -6,9 +6,9 @@
 <title>リカリア チーム戦</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261121010000">
-<link rel="stylesheet" href="quest.css?v=20261121010000">
-<link rel="stylesheet" href="rikaria.css?v=20261121010000">
+<link rel="stylesheet" href="theme.css?v=20261121030000">
+<link rel="stylesheet" href="quest.css?v=20261121030000">
+<link rel="stylesheet" href="rikaria.css?v=20261121030000">
 <style>
   #app { background:url(img/rikaria/title-bg.webp) center/cover no-repeat, #1d1648; }
   .q-bg-r { background:rgba(10,6,36,.55); }
@@ -143,13 +143,13 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261121010000"></script>
+<script src="firebase-config.js?v=20261121030000"></script>
 <script type="module">
-import { signIn, db, ref, set, get, update, onValue, serverNow, $, showScreen, confetti, makeAdvLog, makeQStat } from './lib.js?v=20261121010000';
-import { fiscalYear, ensureOwner, cmdImg } from './quest.js?v=20261121010000';
+import { signIn, db, ref, set, get, update, onValue, serverNow, $, showScreen, confetti, makeAdvLog, makeQStat } from './lib.js?v=20261121030000';
+import { fiscalYear, ensureOwner, cmdImg } from './quest.js?v=20261121030000';
 import { JOBS, JOB_KEYS, MP_MAX, LEARN, ELEMS, ELEM, heroImg, skillName, rankOf, rankCost, canRankUp, rankUp, loadoutOf, learned, migrateChar, expToNext, unitById, battleBg, weakOf, LOAD_N, OBLION,
-         newChar, ITEMS, carryList, spiritImg, storyBoss, storyOb, TOWN_DEFAULT , itemImg, iconHtml, statsOf, addExp, zkMerge, dayNo, soloDayCap } from './rikaria-data.js?v=20261121010000';
-import { el, esc, drawField, moveField, cameraOf, cellAt, dmgFx, supportFx, ovban, redflash, MAP, spiritHtml } from './rikaria-view.js?v=20261121010000';
+         newChar, ITEMS, carryList, spiritImg, storyBoss, storyOb, TOWN_DEFAULT , itemImg, iconHtml, statsOf, addExp, zkMerge, dayNo, soloDayCap } from './rikaria-data.js?v=20261121030000';
+import { el, esc, drawField, moveField, cameraOf, cellAt, dmgFx, supportFx, ovban, redflash, MAP, spiritHtml } from './rikaria-view.js?v=20261121030000';
 
 var TS = { '.sv': 'timestamp' };
 var uid = null, pin = null, state = null, sid = '', ch = null, look = 'a', job = 'warrior', gp = 0;
@@ -345,7 +345,7 @@ function drawPrep() {
   /* 持っていく持ち物（回復系を1つ） */
   var ib = $('ppItems'), list = carryList(ch); ib.textContent = '';
   if (list.indexOf(item) < 0) item = '';
-  if (!list.length) ib.appendChild(el('span', 'mut', '持っていける持ち物がありません（回復のしずく・マナの実は、町の道具屋で買えます）'));
+  if (!list.length) ib.appendChild(el('span', 'mut', '持っていける持ち物がありません（ブドウ糖のしずく・電解質の実は、町の道具屋で買えます）'));
   else [''].concat(list).forEach(function (k) {
     var it = ITEMS[k], b = el('button', item === k ? 'on' : ''); b.type = 'button'; b.dataset.it = k; b.setAttribute('aria-pressed', item === k ? 'true' : 'false'); b.disabled = ready;
     var lb = el('span'); if (it) { lb.innerHTML = iconHtml(itemImg(k)); lb.appendChild(document.createTextNode(it.n + ' ×' + ch.inv[k])); } else lb.textContent = '持っていかない'; b.appendChild(lb); if (it) b.appendChild(el('small', '', it.d));

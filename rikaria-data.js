@@ -342,13 +342,13 @@ export function statsOf(ch, team) {
 
 /* 道具屋。st＝並ぶ町の段階（1年＝0・2年＝4・3年＝8）。team＝チーム戦に持っていける */
 export var ITEMS = {
-  potion:  { ic: '🧪', n: '回復のしずく', d: 'HPを20回復', p: 30, st: 0, team: true, hp: 20 },
-  ether:   { ic: '🔷', n: 'マナの実', d: 'MPを3回復', p: 40, st: 0, team: true, mp: 3 },
-  wing:    { ic: '🪶', n: '帰還の羽', d: 'エリアから町へ一瞬でもどる（ひとりで冒険だけ）', p: 20, st: 0 },
-  potion2: { ic: '🧪', n: '大きなしずく', d: 'HPを35回復', p: 55, st: 4, team: true, hp: 35 },
-  ether2:  { ic: '🔷', n: '大きなマナの実', d: 'MPを5回復', p: 70, st: 4, team: true, mp: 5 },
-  potion3: { ic: '✨', n: 'ひかりのしずく', d: 'HPを全回復', p: 90, st: 8, team: true, hp: 999 },
-  ether3:  { ic: '🌟', n: '星のマナの実', d: 'MPを全回復', p: 110, st: 8, team: true, mp: 99 }
+  potion:  { ic: '🧪', n: 'ブドウ糖のしずく', d: 'HPを20回復', p: 30, st: 0, team: true, hp: 20 },
+  ether:   { ic: '🔷', n: '電解質の実', d: 'MPを3回復', p: 40, st: 0, team: true, mp: 3 },
+  wing:    { ic: '🪶', n: '方位磁針の羽', d: 'エリアから町へ一瞬でもどる（ひとりで冒険だけ）', p: 20, st: 0 },
+  potion2: { ic: '🧪', n: 'デンプンのかたまり', d: 'HPを35回復', p: 55, st: 4, team: true, hp: 35 },
+  ether2:  { ic: '🔷', n: '陽イオンの実', d: 'MPを5回復', p: 70, st: 4, team: true, mp: 5 },
+  potion3: { ic: '✨', n: '光合成の葉', d: 'HPを全回復', p: 90, st: 8, team: true, hp: 999 },
+  ether3:  { ic: '🌟', n: 'ダニエル電池のかけら', d: 'MPを全回復', p: 110, st: 8, team: true, mp: 99 }
 };
 export var ITEM_KEYS = ['potion', 'ether', 'wing', 'potion2', 'ether2', 'potion3', 'ether3'];
 /* チーム戦に1つだけ持っていける持ち物（回復系＝HPかMPがもどるもの） */

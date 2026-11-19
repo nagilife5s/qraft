@@ -210,18 +210,18 @@ test('持ち物：回復系を1つ持っていける。戦闘中に1回だけ使
   assert.deepEqual(D.carryList({ inv: { potion: 2, wing: 3, ether2: 1, potion3: 0 } }), ['potion', 'ether2']);
   const mem = team(12, ['warrior', 'mage', 'priest']); mem[0].it = 'potion'; mem[1].it = 'ether'; mem[2].it = 'wing';
   const G = E.newGroup({ unit: D.UNITS[0], mem });
-  assert.equal(G.mem.u2.it, '', '帰還の羽は持っていけない');
+  assert.equal(G.mem.u2.it, '', '方位磁針の羽は持っていけない');
   assert.equal(E.useItem(G, 'u0'), false, '探索中は使えない');
   E.startBattle(G, 'zako');
   assert.equal(E.view(G).mem.u0.it, 'potion');
   G.mem.u0.hp = 5; assert.ok(E.useItem(G, 'u0')); assert.equal(G.mem.u0.hp, 25);
-  assert.ok(G.ev.some(e => e.t === 'item' && e.who === 'u0' && /回復のしずく/.test(e.s)));
+  assert.ok(G.ev.some(e => e.t === 'item' && e.who === 'u0' && /ブドウ糖のしずく/.test(e.s)));
   assert.equal(E.useItem(G, 'u0'), false, '2回目は使えない'); assert.equal(E.view(G).mem.u0.it, '', '使ったらボタンが消える');
   G.mem.u1.mp = 5; assert.ok(E.useItem(G, 'u1')); assert.equal(G.mem.u1.mp, G.mem.u1.mm, 'MPは上限まで');
   assert.equal(E.useItem(G, 'u2'), false);
   const H = E.newGroup({ unit: D.UNITS[0], mem: team(12, ['warrior']).map(m => ({ ...m, it: 'potion3' })) }); E.startBattle(H, 'zako');
   H.mem.u0.hp = 1; H.mem.u0.dn = 1; assert.equal(E.useItem(H, 'u0'), false, 'たおれているときは使えない');
-  H.mem.u0.dn = 0; assert.ok(E.useItem(H, 'u0')); assert.equal(H.mem.u0.hp, H.mem.u0.mx, 'ひかりのしずくは全回復');
+  H.mem.u0.dn = 0; assert.ok(E.useItem(H, 'u0')); assert.equal(H.mem.u0.hp, H.mem.u0.mx, '光合成の葉は全回復');
 });
 
 test('オブリオンを倒したときのゴールドは学年で決まる（100・190・300）', () => {

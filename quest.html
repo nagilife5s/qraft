@@ -6,8 +6,8 @@
 <title>Qraft クエスト（ひとりで冒険）</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261121010000">
-<link rel="stylesheet" href="quest.css?v=20261121010000">
+<link rel="stylesheet" href="theme.css?v=20261121030000">
+<link rel="stylesheet" href="quest.css?v=20261121030000">
 <style>
   .hud-btns { display:flex; gap:.4em; }
   .hud-btns .btn { font-size:.85em; padding:.35em .9em; }
@@ -71,7 +71,7 @@
   .sk-wrap .skills:focus-visible { outline:.15em solid #ffd23f; outline-offset:.2em; }
   .sk-more { position:absolute; left:0; right:1em; bottom:0; padding:2.2em 0 .3em; text-align:center; font-weight:900; color:#ffe27a; pointer-events:none; background:linear-gradient(transparent, rgba(20,12,50,.95) 60%); transition:opacity .2s; }
   .sk-more.off { opacity:0; }
-  /* rikaria.css の窓・メニューの行（quest.css?v=20261121010000 と混ぜないよう .gm-bg の中だけ） */
+  /* rikaria.css の窓・メニューの行（quest.css?v=20261121030000 と混ぜないよう .gm-bg の中だけ） */
 .gm-bg .cur { position:absolute; top:50%; width:.62em; height:.95em; margin-top:-.475em; opacity:0; pointer-events:none;
   background:linear-gradient(135deg, #ffffff, #7ff0ff 40%, #1fb6e8 75%, #1a6fc0); clip-path:polygon(50% 0, 100% 50%, 50% 100%, 0 50%); filter:drop-shadow(0 0 .3em #35e0ff) drop-shadow(0 0 .15em #fff); }
 .gm-bg .win { position:relative; width:min(34em, 94%); margin-top:1.4em; background:rgba(10,12,44,.86); border:.18em solid #fff; border-radius:.7em; box-shadow:0 0 0 .22em rgba(10,12,44,.86), 0 .8em 2em rgba(0,0,0,.55); padding:1.5em .9em .8em; }
@@ -230,21 +230,21 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261121010000"></script>
+<script src="firebase-config.js?v=20261121030000"></script>
 <script type="module">
-import { bgm, preload } from './sound.js?v=20261121010000';
-import { dungeonArt, autoTorches } from './dungeon-art.js?v=20261121010000';
-import { townArt } from './town-art.js?v=20261121010000';
-import { dgBuild, DG_FLOORS } from './dungeon5.js?v=20261121010000';
-import { loadHomeSets, signIn, db, ref, set, get, $, el, showScreen, shuffle, prepareQuestion, maskOf, isTextCorrect, mountSetPicker, loadQEdits, applyQEdits, makeAdvLog, makeQStat, weakQueue, qstOf } from './lib.js?v=20261121010000';
+import { bgm, preload } from './sound.js?v=20261121030000';
+import { dungeonArt, autoTorches } from './dungeon-art.js?v=20261121030000';
+import { townArt } from './town-art.js?v=20261121030000';
+import { dgBuild, DG_FLOORS } from './dungeon5.js?v=20261121030000';
+import { loadHomeSets, signIn, db, ref, set, get, $, el, showScreen, shuffle, prepareQuestion, maskOf, isTextCorrect, mountSetPicker, loadQEdits, applyQEdits, makeAdvLog, makeQStat, weakQueue, qstOf } from './lib.js?v=20261121030000';
 import { addExp, expToNext, migrateChar, newChar, JOBS as RJOBS, JOB_KEYS, LEARN, RANK_POW, RANK_SEC, LOAD_N, ELEMS, ELEM, UNITS,
          heroImg, fieldImg, skillName, rankOf, rankCost, canRankUp, rankUp, spUsed, loadoutOf, weakOf, statsOf, unitOf, zakoImg, bossImg, battleBg, gearImg, itemImg, iconHtml,
          UP_PRICE, UP_MAX, upOf, canSmith, upName, zkAdd, zkBit, zkHas, zkCount, zkList, ZK_N, zkTitle, URA, uraName, uraTitle, extraTitles, unitsOf,
-         upPrice, MS, msClaim, UBB_GOLD, ubBetter, uraPerfectTitle, czkOf, czkTitle, rollZako, zakoOf, RARE, skillFx, elemFx, ATK_FX } from './rikaria-data.js?v=20261121010000';
-import { fxImg } from './rikaria-view.js?v=20261121010000';
+         upPrice, MS, msClaim, UBB_GOLD, ubBetter, uraPerfectTitle, czkOf, czkTitle, rollZako, zakoOf, RARE, skillFx, elemFx, ATK_FX } from './rikaria-data.js?v=20261121030000';
+import { fxImg } from './rikaria-view.js?v=20261121030000';
 import { fiscalYear, ENEMIES, TOWN, TOWN_DEFAULT,
          weaponList, armorList, weaponName, armorName, TOWN_MAX, soloDayCap, dayNo, ITEMS, ITEM_KEYS, FACS, RESPEC_COST, JOBCHG_GOLD, ensureOwner, battleGuide,
-         soloMult, soloReward, soloEnemyHp, soloBossHp, soloEnemyAtkX, BOSS, cmdImg, placeFacNpcs } from './quest.js?v=20261121010000';
+         soloMult, soloReward, soloEnemyHp, soloBossHp, soloEnemyAtkX, BOSS, cmdImg, placeFacNpcs } from './quest.js?v=20261121030000';
 
 var Y = fiscalYear(), me = { g: 0, c: 0, n: 0 }, sid = '', ch = null, CLS = {}, SETS = [], AREAS = [], look = 'a', job = 'mage';
 var curArea = null, HP = 0, MP = 0, RANGES = {};
@@ -288,7 +288,7 @@ function pickMob() { if (window.__rareNext != null) { var k = window.__rareNext;
 /* 施設の人（町の絵とNPC.md 2. 2026-11-13 確定）。FACS と同じ順。say＝村（0〜4）／にぎわう村（5〜8）／町（9〜12） */
 var FAC_NPC = [
   { id: 'chief', nm: '村長ロウ', say: ['この村も、霧にのまれてしまった。だが、きみたちが答えるたびに、少しずつ景色がもどってくる', '見てごらん、人が帰ってきた。きみたちの正解が、この広場をにぎやかにしたんだ', 'もう村とは呼べんな。ここは、きみたちが三年かけて建てた町だ'] },
-  { id: 'item', nm: '店主ミナ', say: ['品物は少ないけど、回復のしずくならあるよ。むりしないでね', '新しいしずくが入ったよ！ 町が育つと、仕入れも増えるんだ', 'いちばん効くのをそろえておいたよ。最後の冒険、気をつけて'] },
+  { id: 'item', nm: '店主ミナ', say: ['品物は少ないけど、ブドウ糖のしずくならあるよ。むりしないでね', '新しいしずくが入ったよ！ 町が育つと、仕入れも増えるんだ', 'いちばん効くのをそろえておいたよ。最後の冒険、気をつけて'] },
   { id: 'sister', nm: 'シスター・エル', say: ['よく来ましたね。ここでは、見た目を変えられますよ', '技のランクは、ここで見直せますよ。迷ったら、仲間と相談を', 'あなたたちの歩みを、ずっと見守っています'] },
   { id: 'smith', nm: '鍛冶屋ガルド', say: ['炉の火がやっと戻った。まずは基本の一本からだ', '腕が鳴るぜ。前より強い品を打てるようになった', 'これがおれの最高の仕事だ。持っていけ'] },
   { id: 'librarian', nm: '司書ノート', say: ['棚はほとんど白紙。取りもどした知識の書が、ここに並んでいくよ', '書がずいぶん増えたね。読み返すと、忘れにくくなるよ', '全部の棚がうまった。これはきみたちの三年間そのものだ'] },
@@ -437,7 +437,7 @@ function fill(g, x0, y0, x1, y1, c) { for (var y = y0; y <= y1; y++) for (var x 
 var NPCS = [
   { x: 10, y: 14, img: 'npc-child', nm: '村の子ども', say: '魔物は、封印された知識が姿を変えたものなんだって。正解すると、知識が元にもどるんだよ！' },
   { x: 21, y: 16, img: 'npc-scholar', nm: '物知りじいさん', say: 'まちがえた問題こそ宝じゃ。同じ問題がまた出てきたら、こんどは必ず倒せるぞ。' },
-  { x: 8, y: 10, img: 'npc-shop', nm: '道具屋のミナ', say: 'エリアに行くなら回復のしずくを持っていきな。帰還の羽があれば、すぐ町にもどれるよ。' },
+  { x: 8, y: 10, img: 'npc-shop', nm: '道具屋のミナ', say: 'エリアに行くならブドウ糖のしずくを持っていきな。方位磁針の羽があれば、すぐ町にもどれるよ。' },
   { x: 31, y: 10, img: 'npc-merchant', nm: '旅の商人', say: 'この門の先がエリアさ。門を出ると行き先の地図が出るよ。エリアの奥の霧には、ボスがいる。ひとりでも倒せるぞ。' }
 ];
 /*
@@ -502,7 +502,7 @@ function buildTown(st) {
   if (st < 10) look[4] = 'hut';
   if (st < 11) look[5] = 'castle-ruin'; else if (st < 12) look[5] = 'castle-scaffold';
   NPCS.forEach(function (n) { g[n.y][n.x] = 'N'; });
-  /* 施設の6人（全身の絵）を、それぞれの施設の前に立たせる。行けるマスを減らさない場所だけ（quest.js?v=20261121010000 placeFacNpcs。2026-11-17） */
+  /* 施設の6人（全身の絵）を、それぞれの施設の前に立たせる。行けるマスを減らさない場所だけ（quest.js?v=20261121030000 placeFacNpcs。2026-11-17） */
   var fnpc = placeFacNpcs(g, blds, [16, 11], function (c) { return BLOCK.has(c); }, [4, 11]);
   return { g: g, blds: blds, fountain: [16, 11], dry: st < 4, start: [4, 11], st: st, tiles: tiles, props: props, objs: objs, look: look, fog: st < 2 ? 2 : st < 4 ? 1 : 0, fnpc: fnpc };
 }
@@ -1140,7 +1140,7 @@ function srcBox(a) {
   opt('sets', '問題セットをえらぶ ', ed);
   return box;
 }
-/* 問題セットをえらぶ画面。先生の準備画面（rikaria-host.html）と同じ選び方（lib.js?v=20261121010000 の mountSetPicker：学年→題名でさがす→単元ごとの一覧）。2026-11-16 */
+/* 問題セットをえらぶ画面。先生の準備画面（rikaria-host.html）と同じ選び方（lib.js?v=20261121030000 の mountSetPicker：学年→題名でさがす→単元ごとの一覧）。2026-11-16 */
 function setDialog(a) {
   var bg = el('div', 'pk-bg'), box = el('div', 'pk'); bg.appendChild(box); bg.setAttribute('role', 'dialog'); bg.setAttribute('aria-modal', 'true'); bg.setAttribute('aria-label', '問題セットをえらぶ');
   var top = el('div', 'row'); top.appendChild(el('b', 'grow', '問題セットをえらぶ（いくつでも）'));
@@ -1259,10 +1259,13 @@ function soloDesc(s, r) {
   if (teamOnly(s)) return '使えない（仲間が要る技）';
   var P = RANK_POW[r], a = [], x1 = function (v) { return Math.round(v * 10) / 10; }, pc = function (v) { return Math.round(v * 100) + '%'; };
   if (s.hpPct) a.push('敵の残りHPに合わせたダメージ');
-  else if (s.pow) a.push('攻撃 ×' + x1(s.pow * P) + (s.hitsStreak ? '×連続正解の数' : s.hits > 1 ? '×' + s.hits + '回' : ''));
+  else if (s.pow) a.push('攻撃 ×' + x1(s.pow * P * soloOneX(s)) +   /* 全体技などは、ひとりでは強く（act と同じ）。表示にも入れる */ (s.hitsStreak ? '×連続正解の数' : s.hits > 1 ? '×' + s.hits + '回' : ''));
+  if (s.bossX) a.push('ボスには ×' + s.bossX);
   if (s.crit) a.push('必ず会心');
   if (s.streakX || s.useStreak) a.push('連続正解で強くなる');
   if (s.elem || s.dual) a.push('苦手な精霊なら2倍'); if (s.quad) a.push('苦手が必ず当たる');
+  if (s.cancel) a.push('ためを打ち消す'); if (s.vsChg) a.push('ためている敵に ×' + s.vsChg);
+  if (s.pierce) a.push('バリアをつらぬく'); if (s.barrierX) a.push('バリアに ×' + s.barrierX + '（こわす）');
   if (s.stun) a.push('敵の次の攻撃を止める'); if (s.slow) a.push('敵の攻撃を弱める'); if (s.dot) a.push('毎問 少しずつダメージ');
   if (s.revive) a.push('HP全回復'); else if (s.heal || s.healOne) a.push('HPを' + pc(Math.min(1, Math.max(s.heal || 0, s.healOne || 0) * P)) + '回復');
   if (s.selfHeal) a.push('HPを' + pc(s.selfHeal * P) + '回復');
@@ -1278,6 +1281,8 @@ function soloDesc(s, r) {
   if (s.trap) a.push('敵の攻撃を' + (r >= 2 ? 3 : 2) + '回止める');
   return a.join('・');
 }
+/* ひとりで冒険で、敵1体に当てるときの倍率：全体技 ×1.8、2体に当たる技 ×1.4、3体に当たる技 ×1.6 */
+function soloOneX(s) { return s.all ? 1.8 : s.multi ? 1 + .2 * (s.multi) : 1; }
 function guardCut(s, r) { return s.guardSelf ? Math.min(.85, s.guardSelf.cut * (r ? 1.1 : 1)) : Math.min(.8, s.shield.cut * (1 + .15 * r)); }
 
 /* ------------------------------------------------------------ 戦闘（ひとりで冒険。正解は手元で判定する：家庭学習と同じ公開セットを使う） */
@@ -1306,7 +1311,7 @@ async function poolOf(a) {
 /* エリアのボスにひとりでちょうせん（霧に入ったとき）。たおすと、その単元は自分のキャラの「ボスをたおした」記録になる */
 if (/emu=1/.test(location.search)) window.__bossAsk = function () { bossAsk(); };   /* 画面テスト用 */
 if (/emu=1/.test(location.search)) window.__shop = function (i) { shop(i); };   /* 画面テスト用（施設を開く） */
-if (/emu=1/.test(location.search)) { window.__rareBattle = function (k) { FD.busy = true; var m = { id: k, x: -9, y: -9 }; FD.mobs.push(m); startBattle(m); }; window.__winNow = function () { B.hp = 0; win(); }; window.__okNow = function () { MP = statsOf(ch).mmp; var q = B.q; judge(q.type === 'text' ? null : maskOf(q.correct), q.type === 'text' ? q.accept[0] : null); }; }   /* 画面テスト用（レアの敵と戦う・すぐ勝つ。2026-11-20） */
+if (/emu=1/.test(location.search)) { window.__rareBattle = function (k) { FD.busy = true; var m = { id: k, x: -9, y: -9 }; FD.mobs.push(m); startBattle(m); }; window.__winNow = function () { B.hp = 0; win(); }; window.__bossBattle = function () { FD.busy = true; startBattle(null, true); }; window.__foeChg = function () { B.chg = 2; drawMe(); }; window.__foeBar = function () { B.bar = 2; drawMe(); }; window.__foe = function () { return { chg: B.chg, bar: B.bar, hp: B.hp, max: B.max }; }; window.__okNow = function () { MP = statsOf(ch).mmp; var q = B.q; judge(q.type === 'text' ? null : maskOf(q.correct), q.type === 'text' ? q.accept[0] : null); }; }   /* 画面テスト用（レアの敵と戦う・すぐ勝つ。2026-11-20） */
 if (/emu=1/.test(location.search)) window.__adv = ADV;   /* 画面テスト用（冒険の記録） */
 function bossAsk() {
   var u = unitOfArea(curArea), m = $('fdMsg'); m.textContent = '';
@@ -1350,6 +1355,7 @@ async function startBattle(mob, boss, ura) {
   var foe = boss ? { n: ura ? uraName(unitOfArea(curArea)) : unitOfArea(curArea).boss.n, t: unitOfArea(curArea).boss.t, img: bossImg(unitOfArea(curArea)) } : foeOf(curArea, mob.id);
   B = { mob: mob, boss: !!boss, ura: !!ura, rk: rk, e: foe, hp: max, max: max, streak: 0, nm: 0, nq: 0,   /* nm まちがい・nq 答えた問題（裏ボスの自己ベスト。2026-11-20） */
         P: P, t: foe.t || 'earth',
+        chg: 0, bar: 0,   /* chg＝ため（あと何問で強い攻撃）・bar＝バリア（あと何問）。2026-11-21 */
         fx: { guard: null, buff: null, regen: null, counter: null, dot: null, mpRate: 0, stun: 0, slow: 0, nextCrit: 0, keep: 0, reveal: 0 } };
   $('bArea').textContent = curArea.name;
   document.querySelector('#s-battle .bt-bg').style.backgroundImage = "url('" + battleBg(unitOfArea(curArea)) + "')";   /* 背景もその単元の絵 */ $('eimg').src = B.e.img; $('eimg').classList.toggle('ura-img', !!ura); $('ename').textContent = (rk >= 0 ? '★' + RARE.lab[rk] + ' ' : '') + B.e.n; $('enemy').className = 'enemy' + (rk >= 0 ? ' rare r' + (rk === 2 ? 2 : 1) : '');
@@ -1372,10 +1378,13 @@ function drawMe() {
   if (f.nextCrit > 0) a.push('🎯 会心 ×' + f.nextCrit);
   if (f.keep) a.push('💪 連続キープ');
   if (f.reveal) e.push('苦手 ' + ELEM[weakOf(B.t)].ic + ELEM[weakOf(B.t)].n);
-  if (f.stun > 0) e.push('💫 動けない ×' + f.stun);
+  if (B.chg > 0) e.push(['chg', '⚡ためている！ あと' + B.chg + '問']);
+  if (B.bar > 0) e.push(['brr', '🔰 バリア あと' + B.bar + '問']);
+  if (f.stun > 0) e.push(['stn', '💫 動けない ×' + f.stun]);
+  var en = $('enemy'); en.classList.toggle('chg', B.chg > 0); en.classList.toggle('barrier', B.bar > 0); en.classList.toggle('stn', f.stun > 0);
   if (f.slow > 0) e.push('🐢 攻撃ダウン ×' + f.slow);
   if (f.dot) e.push('☠️ 毒 あと' + f.dot.t + '問');
-  function chips(id, list) { var b = $(id); b.textContent = ''; list.forEach(function (t) { b.appendChild(el('span', '', t)); }); }
+  function chips(id, list) { var b = $(id); b.textContent = ''; list.forEach(function (t) { b.appendChild(Array.isArray(t) ? el('span', t[0], t[1]) : el('span', '', t)); }); }
   chips('bfx', a); chips('eweak', e);
 }
 /* 1問ごとに、続いている効果を進める。毒で倒れたら勝ち */
@@ -1385,9 +1394,30 @@ function nextTurn() {
   if (f.regen) { HP = Math.min(s.mhp, HP + f.regen.h); if (--f.regen.t <= 0) f.regen = null; }
   ['guard', 'buff', 'counter'].forEach(function (k) { if (f[k] && --f[k].t <= 0) f[k] = null; });
   if (f.mpRate > 0) f.mpRate--;
+  if (B.hp <= 0) { drawMe(); win(); return; }
+  /* ため・バリア（2026-11-21）：前からのものを1問すすめ、なければ ときどき始める */
+  var msg = '';
+  if (B.bar > 0) { if (--B.bar <= 0) msg = B.e.n + 'のバリアが消えた'; }
+  if (B.chg > 0 && --B.chg <= 0) {
+    if (f.stun > 0) { f.stun--; B.chg = 1; popE('💫 動けない！'); msg = B.e.n + 'は動けない！ ためた力を出せない'; }
+    else {
+      var d = Math.min(s.mhp * .4, foeDmg(s) * 2.2); d = Math.max(1, Math.round(d)); HP = Math.max(0, HP - d); ouch();
+      msg = '⚡ ' + B.e.n + 'の強い攻撃！ ' + d + 'のダメージ';
+    }
+  } else if (!B.chg && !B.bar && !msg && !window.__noRoll) {   /* __noRoll：画面テスト用 */
+    var pc = B.boss ? .22 : B.rk >= 0 ? .18 : .1, pb = B.boss ? .18 : B.rk >= 1 ? .1 : 0, rn = Math.random();
+    if (rn < pc) { B.chg = 2; msg = '⚡ ' + B.e.n + 'は力をためている！ 2問後に強い攻撃'; }
+    else if (rn < pc + pb) { B.bar = 2; msg = '🔰 ' + B.e.n + 'はバリアをはった！ 2問のあいだ ダメージが減る'; }
+  }
   drawMe();
-  if (B.hp <= 0) win(); else askQ();
+  if (!msg) { askQ(); return; }
+  var box = $('cmd'); box.textContent = ''; box.classList.remove('has-img'); box.appendChild(el('div', 'banner ' + (/強い攻撃！/.test(msg) ? 'ng' : 'ok'), msg));
+  setTimeout(function () { if (HP) askQ(); else faint(); }, 1400);
 }
+/* 敵のふつうの攻撃：自分の最大HPの割合（ボス18%・ふつう12%・裏ボス25%）×防具・守り・攻撃ダウン */
+function foeDmg(st) { var f = B.fx, d = Math.max(3, st.mhp * (B.ura ? .25 : B.boss ? .18 : .12) * st.cut); if (f.guard) d *= 1 - f.guard.cut; if (f.slow > 0) { d *= .5; f.slow--; } return d; }
+/* 敵の上に、ひとこと出す（動けない！ など） */
+function popE(t) { var en = $('enemy'); if (!en) return; var p = el('div', 'epop', t); en.appendChild(p); setTimeout(function () { p.remove(); }, 1600); }
 function itemBar(box) {
   var bar = el('div', 'itembar');
   ITEM_KEYS.filter(function (k) { return ITEMS[k].team && inv(k); }).forEach(function (k) {
@@ -1396,7 +1426,7 @@ function itemBar(box) {
     b.onclick = async function () { ch.inv = Object.assign({}, ch.inv); ch.inv[k]--; if (it.hp) HP = Math.min(statsOf(ch).mhp, HP + it.hp); else MP = Math.min(statsOf(ch).mmp, MP + it.mp); drawMe(); bar.replaceWith(itemBar(box)); await saveChar(); };
     bar.appendChild(b);
   });
-  if (inv('wing')) { var w = el('button', '', '🪶 帰還の羽 ×' + inv('wing')); w.type = 'button'; w.onclick = async function () { ch.inv = Object.assign({}, ch.inv); ch.inv.wing--; await saveChar(); enterTown(); }; bar.appendChild(w); }
+  if (inv('wing')) { var w = el('button', '', '🪶 方位磁針の羽 ×' + inv('wing')); w.type = 'button'; w.onclick = async function () { ch.inv = Object.assign({}, ch.inv); ch.inv.wing--; await saveChar(); enterTown(); }; bar.appendChild(w); }
   return bar;
 }
 function askQ() {
@@ -1446,10 +1476,10 @@ function judge(mask, text) {
   } else {
     if (f.keep) f.keep = 0; else B.streak = 0;
     var d = 0, msg;
-    if (f.stun > 0) { f.stun--; msg = '✕ ざんねん… でも ' + B.e.n + 'は動けない！'; }
+    if (f.stun > 0) { f.stun--; popE('💫 動けない！'); msg = '✕ ざんねん… でも ' + B.e.n + 'は動けない！ 攻撃を止めた'; }
     else {
       /* 敵の攻撃は、自分の最大HPの割合（ボス18%・ふつう12%・裏ボス25%）×防具（2026-11-20。ボスに2発で倒されていた） */
-      d = Math.max(3, st.mhp * (B.ura ? .25 : B.boss ? .18 : .12) * st.cut); if (f.guard) d *= 1 - f.guard.cut; if (f.slow > 0) { d *= .5; f.slow--; }
+      d = foeDmg(st);
       d = Math.max(1, Math.round(d)); HP = Math.max(0, HP - d); ouch();
       msg = '✕ ざんねん… ' + B.e.n + 'の攻撃！ ' + d + 'のダメージ';
       if (f.counter && HP > 0) { var cd = Math.max(1, Math.round(st.atk * soloMult(ch.lv) * f.counter.pow)); B.hp = Math.max(0, B.hp - cd); msg += '　カウンター！ ' + cd + 'のダメージ'; }
@@ -1496,7 +1526,7 @@ function showActs() {
 }
 /*
  * 行動する。i＝技の番号（−1 こうげき・−2 僧侶のいのり）。計算はチーム戦のエンジン（rikaria-engine.js）に合わせ、
- * 班 → 自分、秒 → 問題の数、敵全体・2体 → 目の前の1体、ため・バリア・ボス向けの効果 → なし、と読みかえる。
+ * 班 → 自分、秒 → 問題の数、敵全体・2体 → 目の前の1体（soloOneX で強く）、と読みかえる。ため・バリアは nextTurn で敵が ときどき使う。
  */
 /* 技のエフェクト番号（専用の絵が届いていればそれ。精霊使いの 'elem' は今の精霊）。2026-11-20 */
 function actFx(i) { var fx = skillFx(ch.j, i); return fx === 'elem' ? elemFx(ELM) : fx || '10'; }
@@ -1531,7 +1561,10 @@ function act(i) {
     for (var k = 0; k < hits && B.hp > 0; k++) {
       var base = st.atk * soloMult(ch.lv) * (f.buff ? f.buff.x : 1) * (0.9 + Math.random() * 0.2);
       var d = s.hpPct ? Math.max(base, B.hp * s.hpPct * P) : base * (s.pow || 1) * P;
-      if (s.all) d *= 1.8;   /* ひとりで冒険は敵が1体なので、全体技は1体に ×1.8（MP1の単体技より弱かった。2026-11-20） */
+      d *= soloOneX(s);   /* ひとりで冒険は敵が1体なので、全体技・何体かに当たる技は1体に強く（MP1の単体技より弱かった。2026-11-20） */
+      if (s.bossX && B.boss) d *= s.bossX;
+      if (s.vsChg && B.chg > 0) d *= s.vsChg;   /* ためている敵に強い */
+      if (B.bar > 0) d *= s.pierce ? (s.barrierX || 1) : .4;   /* バリア：ダメージ −60%。つらぬく技は減らない */   /* 「ボスに強い」技（チーム戦と同じ。ひとりでは入っていなかった。2026-11-21） */
       if (s.streakX) d *= 1 + s.streakX * B.streak;
       if (J.streakAtk && !s.useStreak) d *= 1 + J.streakAtk * Math.min(B.streak, J.streakMax);
       if (s.useStreak) d *= 1 + s.useStreak * B.streak;
@@ -1545,7 +1578,10 @@ function act(i) {
       d = Math.max(1, Math.round(d)); B.hp = Math.max(0, B.hp - d); total += d; done++;
     }
     if (s.useStreak) B.streak = 0;
-    if (s.stun) f.stun = Math.max(f.stun, r >= 2 ? 2 : 1);
+    if (B.bar > 0 && !s.pierce) notes.push('バリアでダメージが減った');
+    if (s.barrierX && B.bar > 0) { B.bar = 0; notes.push('バリアをこわした！'); }
+    if (s.cancel && B.chg > 0) { B.chg = 0; notes.push('ためを打ち消した！'); popE('ためを打ち消した！'); }
+    if (s.stun) { f.stun = Math.max(f.stun, r >= 2 ? 2 : 1); notes.push(B.e.n + 'の動きを止めた'); }
     if (s.slow) f.slow = Math.max(f.slow, 2 + r);
     if (s.dot) f.dot = { d: Math.max(1, Math.round(st.atk * soloMult(ch.lv) * s.dot.pow * P)), t: turnsOf(s.dot.sec, r) };
     msg += ' ' + (done > 1 ? done + '回で ' : '') + total + 'のダメージ' + (anyCrit ? '　会心の一撃！' : '') + (anyWeak ? '　苦手をついた！' : '');
