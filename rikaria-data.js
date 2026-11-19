@@ -24,7 +24,8 @@ export function addExp(c, gain) {
 /* ボスを倒したときのSP（1周目2・周回3） */
 export function bossSp(lap) { return lap > 0 ? 3 : 2; }
 /* チーム戦のレベル差をおさえる倍率（上限1.5倍） */
-export function lvMult(lv) { return Math.min(1.5, 1 + 0.012 * (Math.max(1, lv) - 1)); }
+/* Lv43で1.5倍。そこから先はゆっくり伸ばし、Lv100で1.8倍（2026-11-19。上限を100にしたため） */
+export function lvMult(lv) { lv = Math.max(1, Number(lv) || 1); var a = 1 + 0.012 * (lv - 1); return a <= 1.5 ? a : 1.5 + 0.3 * Math.min(1, (lv - 1 - 0.5 / 0.012) / (100 - 1 - 0.5 / 0.012)); }
 
 /* 技を覚えるレベル（10個の並び順） */
 export var LEARN = [1, 3, 5, 8, 12, 16, 20, 25, 30, 36];
