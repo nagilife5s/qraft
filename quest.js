@@ -7,7 +7,7 @@
  *   ・シングルモードの書き込み上限：経験値＋300・ゴールド＋200（firebase-rules.json）
  */
 
-import { TOWN, TOWN_DEFAULT, TOWN_MAX, ITEMS, ITEM_KEYS, weaponName, armorName, weaponList, armorList, gearOf, goldOf, soloGold, soloDayCap, dayNo } from './rikaria-data.js?v=20261120130000';
+import { TOWN, TOWN_DEFAULT, TOWN_MAX, ITEMS, ITEM_KEYS, weaponName, armorName, weaponList, armorList, gearOf, goldOf, soloGold, soloDayCap, dayNo } from './rikaria-data.js?v=20261120150000';
 /* 町・装備・道具は rikaria-data.js が正本（2026-11-13 確定の数値の表） */
 export { goldOf, TOWN, TOWN_DEFAULT, TOWN_MAX, ITEMS, ITEM_KEYS, weaponName, armorName, weaponList, armorList, soloGold, soloDayCap, dayNo };
 
@@ -121,6 +121,8 @@ export var FACS = [
   { ic: '📚', nm: '図書館', ds: '知識の書を読む', st: 0 }, { ic: '🏰', nm: '城', ds: '称号を見る', st: 0 }
 ];
 export var RESPEC_COST = 100;
+/* 教会で職業を変える値段＝学年×これ（ルール gen_rules.py の JOBCHG_GOLD と同じ。2026-11-20） */
+export var JOBCHG_GOLD = 100;
 
 /* ====================================================================
    合言葉（2026-11-11 レビュー指摘2）

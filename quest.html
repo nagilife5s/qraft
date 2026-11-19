@@ -6,8 +6,8 @@
 <title>Qraft クエスト（ひとりで冒険）</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261120130000">
-<link rel="stylesheet" href="quest.css?v=20261120130000">
+<link rel="stylesheet" href="theme.css?v=20261120150000">
+<link rel="stylesheet" href="quest.css?v=20261120150000">
 <style>
   .hud-btns { display:flex; gap:.4em; }
   .hud-btns .btn { font-size:.85em; padding:.35em .9em; }
@@ -69,7 +69,7 @@
   .sk-wrap .skills:focus-visible { outline:.15em solid #ffd23f; outline-offset:.2em; }
   .sk-more { position:absolute; left:0; right:1em; bottom:0; padding:2.2em 0 .3em; text-align:center; font-weight:900; color:#ffe27a; pointer-events:none; background:linear-gradient(transparent, rgba(20,12,50,.95) 60%); transition:opacity .2s; }
   .sk-more.off { opacity:0; }
-  /* rikaria.css の窓・メニューの行（quest.css?v=20261120130000 と混ぜないよう .gm-bg の中だけ） */
+  /* rikaria.css の窓・メニューの行（quest.css?v=20261120150000 と混ぜないよう .gm-bg の中だけ） */
 .gm-bg .cur { position:absolute; top:50%; width:.62em; height:.95em; margin-top:-.475em; opacity:0; pointer-events:none;
   background:linear-gradient(135deg, #ffffff, #7ff0ff 40%, #1fb6e8 75%, #1a6fc0); clip-path:polygon(50% 0, 100% 50%, 50% 100%, 0 50%); filter:drop-shadow(0 0 .3em #35e0ff) drop-shadow(0 0 .15em #fff); }
 .gm-bg .win { position:relative; width:min(34em, 94%); margin-top:1.4em; background:rgba(10,12,44,.86); border:.18em solid #fff; border-radius:.7em; box-shadow:0 0 0 .22em rgba(10,12,44,.86), 0 .8em 2em rgba(0,0,0,.55); padding:1.5em .9em .8em; }
@@ -225,19 +225,19 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261120130000"></script>
+<script src="firebase-config.js?v=20261120150000"></script>
 <script type="module">
-import { bgm, preload } from './sound.js?v=20261120130000';
-import { dungeonArt, autoTorches } from './dungeon-art.js?v=20261120130000';
-import { townArt } from './town-art.js?v=20261120130000';
-import { loadHomeSets, signIn, db, ref, set, get, $, el, showScreen, shuffle, prepareQuestion, maskOf, isTextCorrect, mountSetPicker, loadQEdits, applyQEdits, makeAdvLog, makeQStat, weakQueue, qstOf } from './lib.js?v=20261120130000';
+import { bgm, preload } from './sound.js?v=20261120150000';
+import { dungeonArt, autoTorches } from './dungeon-art.js?v=20261120150000';
+import { townArt } from './town-art.js?v=20261120150000';
+import { loadHomeSets, signIn, db, ref, set, get, $, el, showScreen, shuffle, prepareQuestion, maskOf, isTextCorrect, mountSetPicker, loadQEdits, applyQEdits, makeAdvLog, makeQStat, weakQueue, qstOf } from './lib.js?v=20261120150000';
 import { addExp, expToNext, migrateChar, newChar, JOBS as RJOBS, JOB_KEYS, LEARN, RANK_POW, RANK_SEC, LOAD_N, ELEMS, ELEM, UNITS,
          heroImg, fieldImg, skillName, rankOf, rankCost, canRankUp, rankUp, spUsed, loadoutOf, weakOf, statsOf, unitOf, zakoImg, bossImg, battleBg, gearImg, itemImg, iconHtml,
          UP_PRICE, UP_MAX, upOf, canSmith, upName, zkAdd, zkBit, zkHas, zkCount, zkList, ZK_N, zkTitle, URA, uraName, uraTitle, extraTitles, unitsOf,
-         upPrice, MS, msClaim, UBB_GOLD, ubBetter, uraPerfectTitle, czkOf, czkTitle } from './rikaria-data.js?v=20261120130000';
+         upPrice, MS, msClaim, UBB_GOLD, ubBetter, uraPerfectTitle, czkOf, czkTitle } from './rikaria-data.js?v=20261120150000';
 import { fiscalYear, ENEMIES, TOWN, TOWN_DEFAULT,
-         weaponList, armorList, weaponName, armorName, TOWN_MAX, soloDayCap, dayNo, ITEMS, ITEM_KEYS, FACS, RESPEC_COST, ensureOwner, battleGuide,
-         soloMult, soloReward, soloEnemyHp, soloBossHp, soloEnemyAtkX, BOSS, cmdImg, placeFacNpcs } from './quest.js?v=20261120130000';
+         weaponList, armorList, weaponName, armorName, TOWN_MAX, soloDayCap, dayNo, ITEMS, ITEM_KEYS, FACS, RESPEC_COST, JOBCHG_GOLD, ensureOwner, battleGuide,
+         soloMult, soloReward, soloEnemyHp, soloBossHp, soloEnemyAtkX, BOSS, cmdImg, placeFacNpcs } from './quest.js?v=20261120150000';
 
 var Y = fiscalYear(), me = { g: 0, c: 0, n: 0 }, sid = '', ch = null, CLS = {}, SETS = [], AREAS = [], look = 'a', job = 'mage';
 var curArea = null, HP = 0, MP = 0, RANGES = {};
@@ -493,7 +493,7 @@ function buildTown(st) {
   if (st < 10) look[4] = 'hut';
   if (st < 11) look[5] = 'castle-ruin'; else if (st < 12) look[5] = 'castle-scaffold';
   NPCS.forEach(function (n) { g[n.y][n.x] = 'N'; });
-  /* 施設の6人（全身の絵）を、それぞれの施設の前に立たせる。行けるマスを減らさない場所だけ（quest.js?v=20261120130000 placeFacNpcs。2026-11-17） */
+  /* 施設の6人（全身の絵）を、それぞれの施設の前に立たせる。行けるマスを減らさない場所だけ（quest.js?v=20261120150000 placeFacNpcs。2026-11-17） */
   var fnpc = placeFacNpcs(g, blds, [16, 11], function (c) { return BLOCK.has(c); }, [4, 11]);
   return { g: g, blds: blds, fountain: [16, 11], dry: st < 4, start: [4, 11], st: st, tiles: tiles, props: props, objs: objs, look: look, fog: st < 2 ? 2 : st < 4 ? 1 : 0, fnpc: fnpc };
 }
@@ -782,6 +782,14 @@ function shop(fi) {
     var used = spUsed(ch);
     row('🔄', '技のランクを振り直す', used ? '使ったスキルポイント ' + used + ' が、ぜんぶ戻る（技のランクは最初にもどる）' : 'ランクを上げた技があるときに使える', RESPEC_COST, used ? '' : 'まだ使えない',
       async function () { ch.gold -= RESPEC_COST; delete ch.sr; ch.sp = ch.spt || 0; return await saveChar(); });
+    /* 職業を変える（2026-11-20）：学年×100ゴールド。レベル・装備・図鑑などはそのまま、技のランクは最初にもどってSPがぜんぶ戻る */
+    var jc = JOBCHG_GOLD * me.g;
+    row('🔀', '職業を変える', 'いまは' + RJ().n + '。レベル・装備・ゴールド以外はそのまま。技のランクは最初にもどり、スキルポイントがぜんぶ戻る', jc, '',
+      async function () {
+        var pick = await pickJob(); if (!pick) return false;
+        ch.gold -= jc; ch.j = pick.j; ch.lk = pick.lk; delete ch.sr; delete ch.ld; ch.sp = ch.spt || 0;
+        var ok = await saveChar(); if (ok) { HP = statsOf(ch).mhp; drawMap(); drawHud(); } return ok;
+      });
     row('🪞', '見た目を変える', 'タイプ' + (ch.lk === 'b' ? 'A（短い髪）' : 'B（長い髪）') + 'にする（無料）', 0, '', async function () { ch.lk = ch.lk === 'b' ? 'a' : 'b'; var ok = await saveChar(); if (ok) drawMap(); return ok; });
   }
   if (fi === 3) {
@@ -822,6 +830,30 @@ function shop(fi) {
 /* ------------------------------------------------------------ 鍛冶屋（メニューから。2026-11-19）
  * 6段目の武器・防具を ＋1〜＋5 まで鍛える（ch.up = { w, a }）。1回の保存で ＋1 だけ・ゴールドはちょうど値段の分だけ減る（ルールも同じ） */
 function smithCut(k) { return statsOf(Object.assign({}, ch, { up: { w: upOf(ch, 'w'), a: k } })).cut; }
+/* 教会で新しい職業と見た目をえらぶ。えらんだら {j, lk}、やめたら null（2026-11-20） */
+function pickJob() {
+  return new Promise(function (done) {
+    var bg = el('div', 'gm-bg'); bg.setAttribute('role', 'dialog'); bg.setAttribute('aria-modal', 'true'); bg.setAttribute('aria-label', '職業を変える');
+    var w = el('div', 'win'); w.style.cssText = 'width:min(94vw,780px);max-width:none;background:#1a1450'; w.appendChild(el('div', 'wtitle', '新しい職業をえらぶ'));
+    var grid = el('div', ''); grid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:.4em;margin:.5em 0';
+    var sel = null, info = el('div', 'mut', '職業と見た目をえらんでください（いまの職業はえらべません）。'), ok = el('button', 'btn', 'この職業になる'), no = el('button', 'btn ghost', 'やめる');
+    ok.disabled = true;
+    JOB_KEYS.forEach(function (k) { ['a', 'b'].forEach(function (lk) {
+      var c = el('button', 'jc'); c.type = 'button'; c.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:.2em;padding:.4em;border-radius:.8em;border:3px solid transparent;background:rgba(255,255,255,.08);color:inherit;font:inherit;cursor:pointer';
+      var im = el('img', ''); im.src = heroImg(k, lk); im.alt = ''; im.style.cssText = 'width:64px;height:64px;object-fit:contain'; c.appendChild(im);
+      var nb = el('b', '', RJOBS[k].n + '（' + lk.toUpperCase() + '）'); nb.style.whiteSpace = 'nowrap'; c.appendChild(nb);
+      if (k === ch.j) { c.disabled = true; c.style.opacity = '.35'; }
+      c.onclick = function () { sel = { j: k, lk: lk }; grid.querySelectorAll('.jc').forEach(function (x) { x.style.borderColor = 'transparent'; }); c.style.borderColor = '#ffe27a';
+        info.textContent = RJOBS[k].n + '：' + RJOBS[k].trait; ok.disabled = false; };
+      grid.appendChild(c); }); });
+    w.appendChild(grid); w.appendChild(info);
+    var bar = el('div', 'row'); bar.style.cssText = 'gap:.6em;justify-content:flex-end;margin-top:.6em;white-space:nowrap'; bar.appendChild(no); bar.appendChild(ok); w.appendChild(bar);
+    function end(v) { bg.remove(); done(v); }
+    ok.onclick = function () { if (sel) end(sel); }; no.onclick = function () { end(null); };
+    bg.addEventListener('keydown', function (e) { if (e.key === 'Escape') end(null); });
+    bg.appendChild(w); document.body.appendChild(bg); no.focus();
+  });
+}
 function smithShop() {
   var m = $('fdMsg'); m.textContent = '';
   m.appendChild(el('h3', '', '⚒ 鍛冶屋'));
@@ -983,7 +1015,7 @@ function srcBox(a) {
   opt('sets', '問題セットをえらぶ ', ed);
   return box;
 }
-/* 問題セットをえらぶ画面。先生の準備画面（rikaria-host.html）と同じ選び方（lib.js?v=20261120130000 の mountSetPicker：学年→題名でさがす→単元ごとの一覧）。2026-11-16 */
+/* 問題セットをえらぶ画面。先生の準備画面（rikaria-host.html）と同じ選び方（lib.js?v=20261120150000 の mountSetPicker：学年→題名でさがす→単元ごとの一覧）。2026-11-16 */
 function setDialog(a) {
   var bg = el('div', 'pk-bg'), box = el('div', 'pk'); bg.appendChild(box); bg.setAttribute('role', 'dialog'); bg.setAttribute('aria-modal', 'true'); bg.setAttribute('aria-label', '問題セットをえらぶ');
   var top = el('div', 'row'); top.appendChild(el('b', 'grow', '問題セットをえらぶ（いくつでも）'));
@@ -1146,6 +1178,7 @@ async function poolOf(a) {
 }
 /* エリアのボスにひとりでちょうせん（霧に入ったとき）。たおすと、その単元は自分のキャラの「ボスをたおした」記録になる */
 if (/emu=1/.test(location.search)) window.__bossAsk = function () { bossAsk(); };   /* 画面テスト用 */
+if (/emu=1/.test(location.search)) window.__shop = function (i) { shop(i); };   /* 画面テスト用（施設を開く） */
 if (/emu=1/.test(location.search)) window.__adv = ADV;   /* 画面テスト用（冒険の記録） */
 function bossAsk() {
   var u = unitOfArea(curArea), m = $('fdMsg'); m.textContent = '';

@@ -149,7 +149,14 @@ ubest = AND(same('spt'), *up_same, *ub_all_same, *ms_all_same, ubb_one, *ubb_ok,
                AND(OR("!" + DE('ubd'), D('ubd') + " !== " + N('ubd')), ubd_ok, N('gold') + " === " + D('gold') + " + " + GRADE + " * %d" % UBB_GOLD)))
 fixed0 = [c for c in nochange if c != same('spt')] + bc_all_same
 fixed = AND(*fixed0, OR(mstone, ubest))
-update = AND("data.exists()", DE('spt'), "!" + DE('sk'), same('n'), same('j'), *keep_rec, OR(AND(*yk_same, OR(reward, shop, respec, AND(*fixed0, OR(smith, ura)))), fixed))
+# 教会で職業を変える（2026-11-20）：ちょうど 学年×100ゴールドで、職業 j（と見た目 lk）を変える。技のランク sr を消して SP＝もらったSPの合計（新しい職業で選び直す）。
+# 持っていく技 ld は消す。レベル・経験値・装備（段階は職業に関係ない）・鍛冶屋・図鑑・称号などは そのまま
+JOBCHG_GOLD = 100
+jobchg = AND(N('j') + " !== " + D('j'), N('gold') + " === " + D('gold') + " - " + GRADE + " * %d" % JOBCHG_GOLD, "!" + NE('sr'), "!" + NE('ld'), N('sp') + " === " + N('spt'),
+             same('lv'), same('exp'), same('spt'), same('eq', 'w'), same('eq', 'a'), same_opt('gd'), same_opt('gg'),
+             *up_same, *ub_all_same, *bc_all_same, *yk_same, *[same_opt_p('inv', k) for k in ITEMS])
+update = AND("data.exists()", DE('spt'), "!" + DE('sk'), same('n'), *keep_rec,
+             OR(AND(same('j'), OR(AND(*yk_same, OR(reward, shop, respec, AND(*fixed0, OR(smith, ura)))), fixed)), jobchg))
 # ↑ smith・ura・mstone・ubest は「ほかは何も変えない（nochange・bc）」が同じなので、ルールを短くするため fixed にまとめて1回だけ調べる。
 #   節目・自己ベストは mstone・ubest のほかではそのまま（yk_same）
 
@@ -190,8 +197,8 @@ c['inv'] = {"$k": {".validate": "(" + " || ".join("$k === '%s'" % k for k in ITE
 c['j'] = {".validate": " || ".join("newData.val() === '%s'" % j for j in JOBS)}
 c.pop('sk', None)
 c['sr'] = {**{str(i): {".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 2 && newData.parent().parent().child('lv').val() >= %d" % LEARN[i]} for i in range(NSK)}, "$other": {".validate": False}}
-c['ld'] = {"a": {"$k": {".validate": "$k.matches(/^[0-3]$/) && newData.isNumber() && newData.val() >= 0 && newData.val() <= 9"}},
-           "u": {".validate": "newData.isNumber() && newData.val() >= -1 && newData.val() <= 9"}, "$other": {".validate": False}}
+c['ld'] = {"a": {"$k": {".validate": "$k.matches(/^[0-3]$/) && newData.isNumber() && newData.val() >= 0 && newData.val() <= %d" % (NSK - 1)}},
+           "u": {".validate": "newData.isNumber() && newData.val() >= -1 && newData.val() <= %d" % (NSK - 1)}, "$other": {".validate": False}}
 c['ttl'] = {"$a": {".validate": "newData.isString() && newData.val().length <= 20 && (%s || newData.val() === data.val())" % A}}
 # クラスの記録（町の名前 town・町の段階 stage・単元 areas・オブリオン ob/obDone など）。読むのは誰でも、書くのは先生だけ。
 # 中身の形は決めていない（先生の端末なら新しい項目を足せる）。生徒の端末からは書けない

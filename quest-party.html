@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>リカリア なかまと冒険</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
-<link rel="stylesheet" href="theme.css?v=20261120130000">
-<link rel="stylesheet" href="quest.css?v=20261120130000">
-<link rel="stylesheet" href="rikaria.css?v=20261120130000">
+<link rel="stylesheet" href="theme.css?v=20261120150000">
+<link rel="stylesheet" href="quest.css?v=20261120150000">
+<link rel="stylesheet" href="rikaria.css?v=20261120150000">
 <style>
   /* なかまと冒険（2026-11-16）：生徒が部屋を開く。この端末がエンジンを動かし（見えない）、自分もふつうの参加者として遊ぶ。2〜5人 */
   #app { background:url(img/rikaria/title-bg.webp) center/cover no-repeat, #1d1648; }
@@ -82,14 +82,14 @@
 </section>
 </div>
 
-<script src="firebase-config.js?v=20261120130000"></script>
+<script src="firebase-config.js?v=20261120150000"></script>
 <script type="module">
-import { loadHomeSets, signIn, db, ref, set, get, update, remove, onValue, serverNow, mountSetPicker, $, showScreen, loadQEdits, applyQEdits } from './lib.js?v=20261120130000';
+import { loadHomeSets, signIn, db, ref, set, get, update, remove, onValue, serverNow, mountSetPicker, $, showScreen, loadQEdits, applyQEdits } from './lib.js?v=20261120150000';
 import { onDisconnect } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-import { fiscalYear } from './quest.js?v=20261120130000';
-import { UNITS, unitById } from './rikaria-data.js?v=20261120130000';
-import * as E from './rikaria-engine.js?v=20261120130000';
-import { makeRoomDriver } from './rikaria-room.js?v=20261120130000';
+import { fiscalYear } from './quest.js?v=20261120150000';
+import { UNITS, unitById } from './rikaria-data.js?v=20261120150000';
+import * as E from './rikaria-engine.js?v=20261120150000';
+import { makeRoomDriver } from './rikaria-room.js?v=20261120150000';
 
 var Y = fiscalYear(), uid = null, me = null, SETS = [], picked = {}, picker = null, selUnit = '';
 var pin = null, S = null, U = null, players = {}, GR = {}, P = {}, CH = {}, POOL = [], ended = false, started = false, loopId = null, endsAt = 0;

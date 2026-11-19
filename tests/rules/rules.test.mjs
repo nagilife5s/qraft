@@ -127,7 +127,7 @@ await t('まだ覚えていない技（Lv8）は上げられない', () => asser
 await t('ブレイズエッジ（MP2）を2つ目へ：SP3', () => assertSucceeds(save(alice, { sp: 2, sr: { 0: 1, 1: 1 } })));
 await t('ランク3（4つ目の名前）はない', () => assertFails(save(alice, { sp: 0, sr: { 0: 3, 1: 1 } })));
 await t('持っていく技を選べる', () => assertSucceeds(save(alice, { ld: { a: [0, 1, 2], u: -1 } })));
-await t('持っていく技の番号は0〜9', () => assertFails(save(alice, { ld: { a: [0, 12], u: -1 } })));
+await t('持っていく技の番号は0〜14', () => assertFails(save(alice, { ld: { a: [0, 15], u: -1 } })));
 await t('振り直し（100ゴールド）でSPが戻る', () => assertSucceeds(save(alice, { gold: 400, sp: 7, sr: null })));
 await t('お金を払わない振り直しは弾く', async () => { await save(alice, { sp: 5, sr: { 0: 1 } }); await assertFails(save(alice, { sp: 7, sr: null })); });
 await t('振り直しの値段がちがうと弾く（150G払う）', () => assertFails(save(alice, { gold: 250, sp: 7, sr: null })));
@@ -139,6 +139,14 @@ await t('振り直しでSPを多く取れない', () => assertFails(save(alice, 
 await t('一部だけ下げる（ランク2→1）ことはできない', async () => { await seed(async (d) => d.ref(P('chars/' + SID)).update({ sp: 3, sr: { 0: 2 } })); await assertFails(save(alice, { gold: 300, sp: 5, sr: { 0: 1 } })); });
 await t('100G持っていないと振り直せない', async () => { await seed(async (d) => d.ref(P('chars/' + SID)).update({ gold: 50 })); await assertFails(save(alice, { gold: 0, sp: 7, sr: null })); await assertFails(save(alice, { gold: -50, sp: 7, sr: null })); });
 await t('ちょうど100Gなら振り直せる（残り0G）', async () => { await seed(async (d) => d.ref(P('chars/' + SID)).update({ gold: 100 })); await assertSucceeds(save(alice, { gold: 0, sp: 7, sr: null })); await seed(async (d) => d.ref(P('chars/' + SID)).update({ gold: 400, sp: 5, sr: { 0: 1 } })); });
+// 教会で職業を変える（2026-11-20）：1年は100G。sr・ld を消して SP＝spt。見た目も変えてよい
+await t('職業を変える（1年100G・技のランクが戻る）', async () => { await assertSucceeds(save(alice, { j: 'mage', lk: 'b', gold: 300, sp: 7, sr: null, ld: null })); await seed(async (d) => d.ref(P('chars/' + SID)).update({ j: 'warrior', lk: 'a', gold: 400, sp: 5, sr: { 0: 1 } })); });
+await t('職業を変えるのにお金を払わないと弾く', () => assertFails(save(alice, { j: 'mage', sp: 7, sr: null })));
+await t('職業を変えるとき技のランクを残せない', () => assertFails(save(alice, { j: 'mage', gold: 300 })));
+await t('職業を変えるとき経験値は増やせない', () => assertFails(save(alice, { j: 'mage', gold: 300, sp: 7, sr: null, exp: 30 })));
+await t('職業を変えるとき装備は変えられない', () => assertFails(save(alice, { j: 'mage', gold: 300, sp: 7, sr: null, eq: { w: 'w1' } })));
+await t('知らない職業にはなれない', () => assertFails(save(alice, { j: 'ninja', gold: 300, sp: 7, sr: null })));
+await t('持っていく技に Lv100 の必殺技（14番）を入れられる', async () => { await assertSucceeds(save(alice, { ld: { a: { 0: 10 }, u: 14 } })); await seed(async (d) => d.ref(P('chars/' + SID + '/ld')).remove()); });
 await t('武器の段階1（150）を買える', () => assertSucceeds(save(alice, { gold: 250, eq: { w: 'w1' } })));
 await t('お金を払わずに武器を変えられない', () => assertFails(save(alice, { eq: { w: 'w3' } })));
 await t('足りない額で防具を買えない', () => assertFails(save(alice, { gold: 100, eq: { w: 'w1', a: 'a2' } })));
