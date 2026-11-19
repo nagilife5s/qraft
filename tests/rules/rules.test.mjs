@@ -105,7 +105,7 @@ await t('次のレベルに必要な分を超える経験値は弾く', () => as
 await t('レベルが上がらないのにSPを増やせない', () => assertFails(save(alice, { sp: 3, spt: 3 })));
 await t('もらったSPの合計だけを増やせない', () => assertFails(save(alice, { spt: 5 })));
 await t('レベルを下げられない', () => assertFails(save(alice, { lv: 1, sp: 0, spt: 0 })));
-await t('Lv100をこえられない', async () => { await seed(async (d) => d.ref(P('chars/' + SID)).update({ lv: 100, exp: 0, sp: 99, spt: 99 })); await age(SID); await assertFails(save(alice, { lv: 101, exp: 0, sp: 100, spt: 100 })); await seed(async (d) => d.ref(P('chars/' + SID)).set(lv2)); });
+await t('Lv200をこえられない', async () => { await seed(async (d) => d.ref(P('chars/' + SID)).update({ lv: 200, exp: 0, sp: 199, spt: 199 })); await age(SID); await assertFails(save(alice, { lv: 201, exp: 0, sp: 200, spt: 200 })); await seed(async (d) => d.ref(P('chars/' + SID)).set(lv2)); });
 await t('名前は変えられない', () => assertFails(save(alice, { n: 'べつの名前' })));
 await t('職業は変えられない', () => assertFails(save(alice, { j: 'mage' })));
 await t('称号は自分で付けられない', () => assertFails(save(alice, { ttl: { matter: '物質の霧を晴らす者' } })));

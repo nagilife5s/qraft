@@ -297,3 +297,11 @@ test('なかまと冒険：hpX で敵のHPが平均レベルに合わせて増�
   assert.ok(Math.abs(hp(E.partyHpX(30)) - hp(1) * E.partyHpX(30)) <= 1);
   assert.ok(hp(E.partyHpX(16)) > hp(E.partyHpX(1)));
 });
+
+test('Lv200まで：Lv30から必要な経験値が 650＋30k＋k²、倍率はLv100で1.8・Lv200で2.1、周回は6周目で止まる', () => {
+  assert.equal(D.LV_MAX, 200);
+  assert.equal(D.expToNext(29), 650); assert.equal(D.expToNext(30), 650); assert.equal(D.expToNext(50), 1650); assert.equal(D.expToNext(100), 7650); assert.equal(D.expToNext(199), 34281);
+  assert.ok(Math.abs(D.lvMult(100) - 1.8) < 1e-9); assert.ok(Math.abs(D.lvMult(200) - 2.1) < 1e-9); assert.ok(D.lvMult(150) > 1.8 && D.lvMult(150) < 2.1);
+  assert.deepEqual(D.lapX(0), { hp: 1, hit: 1, exp: 1 }); assert.equal(D.lapX(1).hp, 1.4); assert.ok(Math.abs(D.lapX(3).hp - 2.0) < 1e-9); assert.deepEqual(D.lapX(9), D.lapX(5));
+  const c = { lv: 199, exp: 0, sp: 0, spt: 0 }; D.addExp(c, 99999); assert.equal(c.lv, 200); assert.equal(c.exp, 0);
+});

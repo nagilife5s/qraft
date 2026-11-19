@@ -6,9 +6,10 @@
  */
 
 /* ------------------------------------------------------------ レベル・経験値・スキルポイント */
-export var LV_MAX = 100;   /* 2026-11-19 50→100 */
-/* 次のレベルまでの経験値：100＋50×Lv（650で頭打ち） */
-export function expToNext(lv) { return Math.min(650, 100 + 50 * lv); }
+export var LV_MAX = 200;   /* 2026-11-19 50→100→200 */
+/* 次のレベルまでの経験値：100＋50×Lv（Lv11〜29は650）。Lv30から先は 650＋30k＋k²（k＝Lv−30）で、ゆっくりゆっくり上がる。
+   Lv50で1650、Lv100で7650、Lv199で34281。Lv200は、ほぼ届かない目標（2026-11-19） */
+export function expToNext(lv) { if (lv >= 30) { var k = lv - 30; return 650 + 30 * k + k * k; } return Math.min(650, 100 + 50 * lv); }
 /* 経験値を足して、レベル・残りSP・もらったSPの合計を進める。上がったレベルの数を返す */
 /* 新しく作るキャラは、学年の始まりの目安のレベルから（2026-11-13 決定。転入生・3年から受け持つクラスも同じ）。
    その分のスキルポイントを持った状態で始まる。ルール（gen_rules.py）の「作るとき」と同じ値にすること */
@@ -22,10 +23,12 @@ export function addExp(c, gain) {
   return up;
 }
 /* ボスを倒したときのSP（1周目2・周回3） */
+/* 周回の強さ（2026-11-19）：2周目 HP×1.4・攻撃×1.3・経験値×1.3。周ごとに HP+0.3・攻撃と経験値+0.1、6周目で止まる */
+export function lapX(lap) { var k = Math.min(Math.max(0, lap || 0), 5); return k === 0 ? { hp: 1, hit: 1, exp: 1 } : { hp: 1.4 + .3 * (k - 1), hit: 1.3 + .1 * (k - 1), exp: 1.3 + .1 * (k - 1) }; }
 export function bossSp(lap) { return lap > 0 ? 3 : 2; }
 /* チーム戦のレベル差をおさえる倍率（上限1.5倍） */
-/* Lv43で1.5倍。そこから先はゆっくり伸ばし、Lv100で1.8倍（2026-11-19。上限を100にしたため） */
-export function lvMult(lv) { lv = Math.max(1, Number(lv) || 1); var a = 1 + 0.012 * (lv - 1); return a <= 1.5 ? a : 1.5 + 0.3 * Math.min(1, (lv - 1 - 0.5 / 0.012) / (100 - 1 - 0.5 / 0.012)); }
+/* Lv43で1.5倍。そこから先はゆっくり伸ばし、Lv100で1.8倍、Lv200で2.1倍（2026-11-19） */
+export function lvMult(lv) { lv = Math.max(1, Number(lv) || 1); var a = 1 + 0.012 * (lv - 1); if (a <= 1.5) return a; if (lv <= 100) return 1.5 + 0.3 * (lv - 1 - 0.5 / 0.012) / (100 - 1 - 0.5 / 0.012); return 1.8 + 0.3 * Math.min(1, (lv - 100) / 100); }
 
 /* 技を覚えるレベル（15個の並び順） */
 export var LEARN = [1, 3, 5, 8, 12, 16, 20, 25, 30, 36, 50, 60, 70, 80, 100];
@@ -439,7 +442,7 @@ export var N = {
   floors: 4,                                         /* 階の数（4階＋ボス） */
   revive: 2,                                         /* 倒れた人が復活するのに要る正解 */
   base: 6.2,                                         /* ふつうの攻撃の基準のダメージ（atk 9 のとき。技を使う前提で、表の時間に合わせた） */
-  lapHp: 1.4, lapHit: 1.3,                           /* 2周目からの強さ */
+  lapHp: 1.4, lapHit: 1.3,                           /* 2周目の強さ。3周目から lapX で少しずつ上がる */
   /* ボスの技：every 秒ごと（はじめは first 秒後）・予兆 cast 秒。効果の強さ（ふつうの攻撃の何倍か・秒） */
   bsk: { every: 20, first: 10, cast: 2, all: .5, big: 1.3, multi: 3, multiPow: .5, seal: 25, poison: 15, psnDmg: 1, drain: 2, drainHeal: .03,
          heal: .06, heals: 2, ward: 15, wardCut: .5, rage: 15, rageX: 1.4, rageSpd: .6 },

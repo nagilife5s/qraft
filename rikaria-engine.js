@@ -3,7 +3,7 @@
  * 先生のPC（rikaria-host.html）が班ごとに1つ持ち、0.5秒ごとに step() で進める。生徒の入力は answer / skill / target / moveTo などで入れる。
  * 生徒の画面には view() の中身を送る。node で単体テストできる（tests/rikaria-engine.test.mjs）。
  */
-import { goldOf, JOBS, N, REWARD, RANK_POW, RANK_SEC, MP_MAX, lvMult, weakOf, ELEMS, ELEM, skillName, rankOf, loadoutOf,
+import { lapX, goldOf, JOBS, N, REWARD, RANK_POW, RANK_SEC, MP_MAX, lvMult, weakOf, ELEMS, ELEM, skillName, rankOf, loadoutOf,
   zakoImg, guardImg, bossImg, bossTitle, BOSS_SK, BSK_SAY, OBLION, oblionImg, ITEMS, isCarry } from './rikaria-data.js';
 
 var rnd = function (a) { return a[Math.floor(Math.random() * a.length)]; };
@@ -126,7 +126,7 @@ function encounter(G, kind, mob) { G.ph = 'enc'; G.encT = .9; G.encKind = kind; 
 
 /* ------------------------------------------------------------ 戦闘のはじまり */
 function foe(G, kind, n, t, img, hpBase, extra) {
-  var hp = Math.round(hpBase * people(G) * (G.lap > 0 ? N.lapHp : 1) * (G.hpX || 1));
+  var hp = Math.round(hpBase * people(G) * lapX(G.lap).hp * (G.hpX || 1));
   return Object.assign({ n: n, t: t, img: img, hp: hp, mx: hp, chg: 0, charged: false, atk: 3 + Math.random() * 3, aim: null, stun: 0, dots: [], kind: kind }, extra || {});
 }
 export function startBattle(G, kind, mob) {
@@ -353,7 +353,7 @@ function battleTick(G, dt) {
     }
     if (f.chg > 0) {
       f.chg -= dt;
-      if (f.chg <= 0) { f.chg = 0; var dd = N.chg[kk] * (G.lap > 0 ? N.lapHit : 1) * obUp(f); alive(G).forEach(function (m) { hurt(G, m, dd, f); }); emit(G, { t: 'ban', s: f.n + ' の強い攻撃！ 全員にダメージ', big: 1 }); }
+      if (f.chg <= 0) { f.chg = 0; var dd = N.chg[kk] * lapX(G.lap).hit * obUp(f); alive(G).forEach(function (m) { hurt(G, m, dd, f); }); emit(G, { t: 'ban', s: f.n + ' の強い攻撃！ 全員にダメージ', big: 1 }); }
       return;
     }
     f.atk -= dt;
@@ -374,7 +374,7 @@ function battleTick(G, dt) {
 }
 /* ふつうの攻撃1回のダメージ（怒り・オブリオンの形態で上がる） */
 function obUp(f) { return f.ob ? 1 + N.ob.hitUp * (f.ob.k - 1) : 1; }
-function hitOf(G, f) { return N.hit[kindKey(G, f)] * (G.lap > 0 ? N.lapHit : 1) * (f.rage > 0 ? N.bsk.rageX : 1) * obUp(f); }
+function hitOf(G, f) { return N.hit[kindKey(G, f)] * lapX(G.lap).hit * (f.rage > 0 ? N.bsk.rageX : 1) * obUp(f); }
 
 /* ------------------------------------------------------------ ボスの技（単元のボスは班ごと、オブリオンは全班いっせい）
  * B＝技を持つもの（単元のボスの敵、またはオブリオンの共有の体 O）。Gs＝効果をかける班。戻り値 true＝この0.5秒は予兆で手が止まる */
@@ -427,7 +427,7 @@ function hurt(G, m, d, f) {
 
 /* ------------------------------------------------------------ 勝ち・全滅 */
 /* ゴールドは学年の倍率をかける（goldOf） */
-function give(G, r, kind) { var gd = kind ? goldOf(kind, G.unit && G.unit.g) : r.gold; present(G).forEach(function (m) { m.rw.exp += r.exp * (G.lap > 0 ? 1.3 : 1); m.rw.gold += gd; }); }
+function give(G, r, kind) { var gd = kind ? goldOf(kind, G.unit && G.unit.g) : r.gold; present(G).forEach(function (m) { m.rw.exp += r.exp * lapX(G.lap).exp; m.rw.gold += gd; }); }
 function win(G) {
   if (G.ph !== 'battle') return;
   G.ph = 'result'; G.resT = 3; G.grp.reveal = 0;

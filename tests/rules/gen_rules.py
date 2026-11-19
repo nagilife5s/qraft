@@ -33,8 +33,8 @@ NSK = len(LEARN)
 # 技ごとのMP（6職業とも同じ並び。rikaria-data.js と合わせる）
 MP = [1, 2, 1, 2, 5, 3, 2, 3, 3, 5, 3, 3, 3, 3, 5]
 def cost(mp): return [6, 12] if mp >= 5 else [4, 8] if mp >= 3 else [3, 6] if mp >= 2 else [2, 4]
-LV_MAX = 100
-def need(L): return "(%s >= 11 ? 650 : 100 + 50 * %s)" % (L, L)
+LV_MAX = 200
+def need(L): return "(%s >= 30 ? 650 + 30 * (%s - 30) + (%s - 30) * (%s - 30) : %s >= 11 ? 650 : 100 + 50 * %s)" % (L, L, L, L, L, L)
 def sr(i, w='newData'): return "%s.child('sr').child('%d')" % (w, i)
 used = "(" + " + ".join("(%s.exists() ? (%s.val() >= 2 ? %d : %d) : 0)" % (sr(i), sr(i), sum(cost(MP[i])), cost(MP[i])[0]) for i in range(NSK)) + ")"
 sr_ok = AND("!" + NE('sk'), N('spt') + " >= 0", "%s + %s === %s" % (N('sp'), used, N('spt')))
@@ -92,10 +92,10 @@ c['.read'] = "auth != null && (%s || %s)" % (A, O)
 c['.write'] = "auth != null && %s && (%s || (newData.exists() && %s && %s && %s))" % (SID, A, O, sr_ok, OR(create, migrate, update))
 c['.validate'] = ("newData.hasChildren(['n','j','lv','exp','gold','sp','spt']) && newData.child('n').isString() && newData.child('n').val().length >= 1 && newData.child('n').val().length <= 8"
                   " && newData.child('lv').isNumber() && newData.child('lv').val() >= 1 && newData.child('lv').val() <= %d" % LV_MAX +
-                  " && newData.child('exp').isNumber() && newData.child('exp').val() >= 0 && newData.child('exp').val() <= 100000"
+                  " && newData.child('exp').isNumber() && newData.child('exp').val() >= 0 && newData.child('exp').val() <= 1000000"
                   " && newData.child('gold').isNumber() && newData.child('gold').val() >= 0 && newData.child('gold').val() <= 1000000"
-                  " && newData.child('sp').isNumber() && newData.child('sp').val() >= 0 && newData.child('sp').val() <= 300"
-                  " && newData.child('spt').isNumber() && newData.child('spt').val() >= 0 && newData.child('spt').val() <= 300")
+                  " && newData.child('sp').isNumber() && newData.child('sp').val() >= 0 && newData.child('sp').val() <= 600"
+                  " && newData.child('spt').isNumber() && newData.child('spt').val() >= 0 && newData.child('spt').val() <= 600")
 c['spt'] = {".validate": True}
 c['gd'] = {".validate": "newData.isNumber() && newData.val() >= 0"}
 c['gg'] = {".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 150"}
