@@ -102,6 +102,13 @@ create = AND("!data.exists()", N('lv') + " === " + START, N('exp') + " === 0", N
 # 第1版のキャラ（sk がある・spt がない）を移す：レベル・経験値・ゴールドはそのまま、振っていたポイントは全部返す（spt＝Lv−1）
 migrate = AND("data.exists()", OR(DE('sk'), "!" + DE('spt')), same('lv'), same('exp'), N('gold') + " <= " + D('gold'),
               N('spt') + " === " + N('lv') + " - 1", "!" + NE('sr'), same('eq', 'w'), same('eq', 'a'), same_opt('gd'), same_opt('gg'), *up_same, *ub_all_same, *bc_all_same, *yk_same, *[inv_le(k) for k in ITEMS])
+# レアな敵のおたから（2026-11-20）：報酬の書き込みで、持ち物を1つだけ＋1できる（potion2・ether2・potion3・ether3 のどれか）。
+# その持ち物を落とすレアの図鑑のしるし（r1＝17・r2＝18・超レア＝19）が、どれかの単元についていること（一度も倒していないのに増やせない）
+ZK_BITS = 20
+DROP = {'potion2': [17], 'ether2': [18], 'potion3': [19], 'ether3': [19]}
+def zk_bit_any(b): return OR(*[AND(NE('zk', u), "%s %% %d >= %d" % (N('zk', u), 2 ** (b + 1), 2 ** b)) for u in UIDS])   # 無い単元の値（null）で計算しないように exists を先に
+drop_ok = [OR(inv_le(k), AND(inv_inc(k), OR(*[zk_bit_any(b) for b in bs]))) for k, bs in DROP.items()]
+drop_one = "(" + " + ".join("(%s ? 1 : 0)" % inv_inc(k) for k in DROP) + ") <= 1"
 # 戦闘の報酬（ひとりで冒険）：1回でレベル＋1まで・経験値300・ゴールド200まで、前の書き込みから20秒以上。もらったSPはレベルと同じだけ増える
 reward = AND(dl + " >= 0", dl + " <= 1", N('lv') + " <= %d" % LV_MAX, gained + " >= 0", gained + " <= 300", N('exp') + " < " + need(N('lv')),
              N('spt') + " === " + D('spt') + " + " + dl,
@@ -109,7 +116,7 @@ reward = AND(dl + " >= 0", dl + " <= 1", N('lv') + " <= %d" % LV_MAX, gained + "
              "(" + " + ".join("(%s ? 1 : 0)" % bc_add(u) for u in UIDS) + ") <= 1",
              *["(!%s || ((%s >= 60 || %s === %d) && %s %% 2048 >= 1024))" % (bc_add(u), gained, N('lv'), LV_MAX, N('zk', u)) for u in UIDS],
              OR("!" + DE('u'), D('u') + " + 20000 <= now"),
-             same('eq', 'w'), same('eq', 'a'), same('lk'), *up_same, *ub_all_same, *[sr_same(i) for i in range(NSK)], *[inv_le(k) for k in ITEMS])
+             same('eq', 'w'), same('eq', 'a'), same('lk'), *up_same, *ub_all_same, *[sr_same(i) for i in range(NSK)], *[inv_le(k) for k in ITEMS if k not in DROP], *drop_ok, drop_one)
 # 買い物・技のランクアップ・見た目・持っていく技：レベル・経験値・もらったSPはそのまま、ゴールドは値段の分だけ減る
 def buy_eq(slot, table):
     return OR(same('eq', slot), *[AND(N('eq', slot) + " === '%s'" % i, N('gold') + " <= " + D('gold') + " - %d" % p) for i, p in table.items()])
@@ -180,11 +187,11 @@ c['bc'] = {"$k": {".validate": "$k.matches(/^[a-z]{2,12}$/) && newData.val() ===
 # 鍛冶屋の ＋（0〜5 の整数）・図鑑（単元ごとの 0〜2047 の整数。しるしは増えるだけ）・裏ボス（単元 → true）。2026-11-19
 c['up'] = {k: {".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 5 && newData.val() % 1 === 0"} for k in ('w', 'a')}
 c['up']['$other'] = {".validate": False}
-# 図鑑のしるしは「前にあったしるしが全部残っている」ことを、11このしるしごとに割り算の余りで調べる（ルールにビット演算がないため）。
+# 図鑑のしるしは「前にあったしるしが全部残っている」ことを、20このしるしごとに（2026-11-20 に11→20。0〜10 の番号は前と同じなので、前の値もそのまま通る）割り算の余りで調べる（ルールにビット演算がないため）。
 # しるし b があるのは (数 % 2^(b+1)) >= 2^b のとき
-zk_keep = " && ".join("(!(data.val() %% %d >= %d) || newData.val() %% %d >= %d)" % (2 ** (b + 1), 2 ** b, 2 ** (b + 1), 2 ** b) for b in range(11))
+zk_keep = " && ".join("(!(data.val() %% %d >= %d) || newData.val() %% %d >= %d)" % (2 ** (b + 1), 2 ** b, 2 ** (b + 1), 2 ** b) for b in range(ZK_BITS))
 UKEY = "(" + " || ".join("$k === '%s'" % u for u in UIDS) + ")"
-c['zk'] = {"$k": {".validate": UKEY + " && newData.isNumber() && newData.val() >= 0 && newData.val() <= 2047 && newData.val() % 1 === 0 && (!data.exists() || " + zk_keep + ")"}}
+c['zk'] = {"$k": {".validate": UKEY + " && newData.isNumber() && newData.val() >= 0 && newData.val() <= %d && newData.val() %% 1 === 0 && (!data.exists()" % (2 ** ZK_BITS - 1) + " || " + zk_keep + ")"}}
 c['ub'] = {"$k": {".validate": UKEY + " && newData.val() === true"}}
 # 節目（"90" など → true）・裏ボスの自己ベスト（単元 → { m, q }：0〜200 の整数）・ベストのゴールドの日（日の番号）。2026-11-20
 c['ms'] = {"$k": {".validate": "(" + " || ".join("$k === '%d'" % k for k in MS) + ") && newData.val() === true"}}
@@ -210,7 +217,7 @@ q['classes'] = {".read": "auth != null", ".write": "auth != null && " + A}
 q['czk'] = {".read": "auth != null", ".write": "auth != null && " + A, "$gc": {".validate": "$gc.matches(/^[1-3]-[1-9]$/)", "$u": {".validate": UKEY.replace('$k', '$u'), "$n": {
     ".write": "auth != null && $n.matches(/^[0-9]{1,2}$/) && root.child('quest').child($y).child('owners').child($gc + '-' + $n).child(auth.uid).exists()"
               " && newData.val() === root.child('quest').child($y).child('chars').child($gc + '-' + $n).child('zk').child($u).val()",
-    ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 2047 && newData.val() % 1 === 0"}}}}
+    ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= %d && newData.val() %% 1 === 0" % (2 ** ZK_BITS - 1)}}}}
 # 班の進み具合（先生だけ）。quest/<年度>/teams/<学年-組>/<単元>/<班>
 q['teams'] = {".read": "auth != null && " + A, ".write": "auth != null && " + A}
 # テスト範囲（ひとりで冒険の出題範囲。先生が記録画面で作る）。quest/<年度>/ranges/<学年>/<id> = { n: 名前, u: { <単元id>: true } }

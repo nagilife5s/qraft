@@ -98,6 +98,20 @@ await t('ボスをたおした記録（bc）つきの報酬（ゴールド3倍�
 await age(SID);
 await t('bc は消せない', () => assertFails(save(alice, { bc: null })));
 await age(SID);
+
+console.log('レアな敵のおたから（報酬で持ち物を1つ＋1。2026-11-20）');
+const R1 = 1024 + 131072, R12 = R1 + 262144, SR = 1024 + 524288;   // 17＝レア1・18＝レア2・19＝超レア
+await t('レアを倒したしるしがないと、おたからは増やせない', () => assertFails(save(alice, { exp: 140, inv: { potion2: 1 } })));
+await t('レア1のしるしがあれば、大きなしずくを1つ増やせる', () => assertSucceeds(save(alice, { exp: 140, inv: { potion2: 1 }, zk: { matter: R1 } })));
+await age(SID);
+await t('2つの持ち物を同時には増やせない', () => assertFails(save(alice, { inv: { potion2: 2, ether2: 1 }, zk: { matter: R12 } })));
+await t('1つの持ち物を2つ増やせない', () => assertFails(save(alice, { inv: { potion2: 3 } })));
+await t('しるしの合わないおたから（超レアの星のマナの実）はだめ', () => assertFails(save(alice, { inv: { potion2: 1, ether3: 1 } })));
+await t('ふつうの持ち物（potion）は報酬で増やせない', () => assertFails(save(alice, { inv: { potion2: 1, potion: 1 } })));
+await t('別の単元の超レアのしるしで、星のマナの実を増やせる', () => assertSucceeds(save(alice, { inv: { potion2: 1, ether3: 1 }, zk: { matter: R1, force: SR } })));
+await t('20秒たたずに次のおたからはだめ', () => assertFails(save(alice, { inv: { potion2: 1, ether3: 1, potion3: 1 } })));
+await seed(async (d) => d.ref(P('chars/' + SID)).update({ inv: null, zk: { matter: 1024 } }));
+await age(SID);
 await t('bc に true 以外は書けない', () => assertFails(save(alice, { exp: 50, bc: { matter: 1 } })));
 await t('bc の単元名が変なものは書けない', () => assertFails(save(alice, { exp: 50, bc: { 'A B': true } })));
 // 5階のダンジョンの一番深い階 df（2026-11-20）
@@ -355,8 +369,11 @@ await t('しるしを足せる', () => assertSucceeds(save(alice, { zk: { matter
 await t('数が大きくても、前のしるしが消えるならだめ（3 → 4）', () => assertFails(save(alice, { zk: { matter: 4, force: 1024 } })));
 await t('しるしを減らせない（3 → 2）', () => assertFails(save(alice, { zk: { matter: 2, force: 1024 } })));
 await t('単元ごと消せない', () => assertFails(save(alice, { zk: { matter: 3 } })));
-await t('2047 より大きい・小数・知らない単元はだめ', async () => { await assertFails(save(alice, { zk: { matter: 2048, force: 1024 } })); await assertFails(save(alice, { zk: { matter: 3.5, force: 1024 } })); await assertFails(save(alice, { zk: { matter: 3, force: 1024, foo: 1 } })); });
+await t('1048575 より大きい・小数・知らない単元はだめ', async () => { await assertFails(save(alice, { zk: { matter: 1048576 + 3, force: 1024 } })); await assertFails(save(alice, { zk: { matter: 3.5, force: 1024 } })); await assertFails(save(alice, { zk: { matter: 3, force: 1024, foo: 1 } })); });
 await t('全部うめられる（2047）', () => assertSucceeds(save(alice, { zk: { matter: 2047, force: 1024 } })));
+await t('前の11このしるし（2047）のまま、新しいしるし（11〜19）を足せる', () => assertSucceeds(save(alice, { zk: { matter: 2047 + 2048 + 524288, force: 1024 } })));
+await t('新しいしるしも消せない', () => assertFails(save(alice, { zk: { matter: 2047, force: 1024 } })));
+await t('20こ全部うめられる（1048575）', () => assertSucceeds(save(alice, { zk: { matter: 1048575, force: 1024 } })));
 
 console.log('裏ボス（はじめて倒すと SP＋5・ゴールド 学年×100。2026-11-19）');
 await seed(async (d) => d.ref(P('chars/' + SID)).update({ gold: 0, sp: 0, spt: 0, bc: { force: true } }));
@@ -410,6 +427,7 @@ await seed(async (d) => d.ref(P('chars/' + SID + '/zk')).set({ matter: 2047, for
 await t('自分の番号に、自分の図鑑と同じ数を書ける', () => assertSucceeds(alice.ref(P('czk/1-2/matter/3')).set(2047)));
 await t('自分の図鑑とちがう数（少ない・多い）は書けない', async () => { await assertFails(alice.ref(P('czk/1-2/force/3')).set(1023)); await assertFails(alice.ref(P('czk/1-2/force/3')).set(2047)); });
 await t('自分の図鑑と同じなら別の単元も書ける', () => assertSucceeds(alice.ref(P('czk/1-2/force/3')).set(1024)));
+await t('20このしるし（1048575）もクラスの図鑑に書ける', async () => { await seed(async (d) => d.ref(P('chars/' + SID + '/zk/energy')).set(1048575)); await assertSucceeds(alice.ref(P('czk/1-2/energy/3')).set(1048575)); await assertFails(alice.ref(P('czk/1-2/energy/3')).set(1048576)); });
 await t('ほかの人の番号には書けない', () => assertFails(alice.ref(P('czk/1-2/matter/4')).set(2047)));
 await t('ほかのクラスには書けない', () => assertFails(alice.ref(P('czk/1-3/matter/3')).set(2047)));
 await t('知らない単元・形のちがう組は書けない', async () => { await assertFails(alice.ref(P('czk/1-2/foo/3')).set(1)); await assertFails(teacher.ref(P('czk/4-2/matter/3')).set(1)); });

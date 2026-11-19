@@ -6,8 +6,8 @@
 <title>Qraft クエスト（ひとりで冒険）</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261120200000">
-<link rel="stylesheet" href="quest.css?v=20261120200000">
+<link rel="stylesheet" href="theme.css?v=20261120230000">
+<link rel="stylesheet" href="quest.css?v=20261120230000">
 <style>
   .hud-btns { display:flex; gap:.4em; }
   .hud-btns .btn { font-size:.85em; padding:.35em .9em; }
@@ -55,7 +55,9 @@
   .zk-bar button.on { background:#6a5bd6; }
   .zk-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(104px,1fr)); gap:.5em; overflow-y:auto; min-height:0; }
   .zk-card { background:rgba(0,0,0,.3); border-radius:.7em; padding:.45em; text-align:center; font-size:.85em; color:#fff; }
-  .zk-card img { width:76px; height:76px; object-fit:contain; }
+  .zk-card { min-width:0; }
+  .zk-card img { display:block; margin:0 auto; width:76px; height:76px; object-fit:contain; }
+  .zk-card b { display:block; white-space:nowrap; overflow:hidden; text-overflow:clip; line-height:1.3; }   /* 名前は画像の下に1行（長い名前は字を小さく。2026-11-20） */
   .zk-card.no img { filter:brightness(0) opacity(.5); } .zk-card.no b { color:#6b6390; }
   .zk-card small { display:block; font-size:.8em; color:#c9c0ea; }
   .zk-prog { height:.6em; background:#2a2260; border-radius:9px; overflow:hidden; margin:.3em 0 .2em; }
@@ -69,7 +71,7 @@
   .sk-wrap .skills:focus-visible { outline:.15em solid #ffd23f; outline-offset:.2em; }
   .sk-more { position:absolute; left:0; right:1em; bottom:0; padding:2.2em 0 .3em; text-align:center; font-weight:900; color:#ffe27a; pointer-events:none; background:linear-gradient(transparent, rgba(20,12,50,.95) 60%); transition:opacity .2s; }
   .sk-more.off { opacity:0; }
-  /* rikaria.css の窓・メニューの行（quest.css?v=20261120200000 と混ぜないよう .gm-bg の中だけ） */
+  /* rikaria.css の窓・メニューの行（quest.css?v=20261120230000 と混ぜないよう .gm-bg の中だけ） */
 .gm-bg .cur { position:absolute; top:50%; width:.62em; height:.95em; margin-top:-.475em; opacity:0; pointer-events:none;
   background:linear-gradient(135deg, #ffffff, #7ff0ff 40%, #1fb6e8 75%, #1a6fc0); clip-path:polygon(50% 0, 100% 50%, 50% 100%, 0 50%); filter:drop-shadow(0 0 .3em #35e0ff) drop-shadow(0 0 .15em #fff); }
 .gm-bg .win { position:relative; width:min(34em, 94%); margin-top:1.4em; background:rgba(10,12,44,.86); border:.18em solid #fff; border-radius:.7em; box-shadow:0 0 0 .22em rgba(10,12,44,.86), 0 .8em 2em rgba(0,0,0,.55); padding:1.5em .9em .8em; }
@@ -228,20 +230,20 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261120200000"></script>
+<script src="firebase-config.js?v=20261120230000"></script>
 <script type="module">
-import { bgm, preload } from './sound.js?v=20261120200000';
-import { dungeonArt, autoTorches } from './dungeon-art.js?v=20261120200000';
-import { townArt } from './town-art.js?v=20261120200000';
-import { dgBuild, DG_FLOORS } from './dungeon5.js?v=20261120200000';
-import { loadHomeSets, signIn, db, ref, set, get, $, el, showScreen, shuffle, prepareQuestion, maskOf, isTextCorrect, mountSetPicker, loadQEdits, applyQEdits, makeAdvLog, makeQStat, weakQueue, qstOf } from './lib.js?v=20261120200000';
+import { bgm, preload } from './sound.js?v=20261120230000';
+import { dungeonArt, autoTorches } from './dungeon-art.js?v=20261120230000';
+import { townArt } from './town-art.js?v=20261120230000';
+import { dgBuild, DG_FLOORS } from './dungeon5.js?v=20261120230000';
+import { loadHomeSets, signIn, db, ref, set, get, $, el, showScreen, shuffle, prepareQuestion, maskOf, isTextCorrect, mountSetPicker, loadQEdits, applyQEdits, makeAdvLog, makeQStat, weakQueue, qstOf } from './lib.js?v=20261120230000';
 import { addExp, expToNext, migrateChar, newChar, JOBS as RJOBS, JOB_KEYS, LEARN, RANK_POW, RANK_SEC, LOAD_N, ELEMS, ELEM, UNITS,
          heroImg, fieldImg, skillName, rankOf, rankCost, canRankUp, rankUp, spUsed, loadoutOf, weakOf, statsOf, unitOf, zakoImg, bossImg, battleBg, gearImg, itemImg, iconHtml,
          UP_PRICE, UP_MAX, upOf, canSmith, upName, zkAdd, zkBit, zkHas, zkCount, zkList, ZK_N, zkTitle, URA, uraName, uraTitle, extraTitles, unitsOf,
-         upPrice, MS, msClaim, UBB_GOLD, ubBetter, uraPerfectTitle, czkOf, czkTitle } from './rikaria-data.js?v=20261120200000';
+         upPrice, MS, msClaim, UBB_GOLD, ubBetter, uraPerfectTitle, czkOf, czkTitle, rollZako, zakoOf, RARE } from './rikaria-data.js?v=20261120230000';
 import { fiscalYear, ENEMIES, TOWN, TOWN_DEFAULT,
          weaponList, armorList, weaponName, armorName, TOWN_MAX, soloDayCap, dayNo, ITEMS, ITEM_KEYS, FACS, RESPEC_COST, JOBCHG_GOLD, ensureOwner, battleGuide,
-         soloMult, soloReward, soloEnemyHp, soloBossHp, soloEnemyAtkX, BOSS, cmdImg, placeFacNpcs } from './quest.js?v=20261120200000';
+         soloMult, soloReward, soloEnemyHp, soloBossHp, soloEnemyAtkX, BOSS, cmdImg, placeFacNpcs } from './quest.js?v=20261120230000';
 
 var Y = fiscalYear(), me = { g: 0, c: 0, n: 0 }, sid = '', ch = null, CLS = {}, SETS = [], AREAS = [], look = 'a', job = 'mage';
 var curArea = null, HP = 0, MP = 0, RANGES = {};
@@ -278,7 +280,9 @@ var ELM = 'fire';   /* 精霊使いの今の精霊 */
 /* 敵のタイプ（苦手な精霊を決める）。工房の6体は rikaria-data.js の単元の表から */
 /* エリアの敵は、その単元のワスレモノ6体（チーム戦と同じ絵・名前・タイプ。2026-11-13）。前はどの学年も1年の工房の6体だった */
 function unitOfArea(a) { return unitOf(a.g, a.unit); }
-function foeOf(a, k) { var u = unitOfArea(a), z = u.z[k % u.z.length]; return { n: z.n, t: z.t, img: zakoImg(u, k % u.z.length) }; }
+function foeOf(a, k) { return zakoOf(unitOfArea(a), k); }   /* k：0〜11 ノーマル・12〜14 レア（2026-11-20） */
+/* 魔物の番号をえらぶ（レア各4%・超レア1%）。画面テストでは window.__rareNext に番号を入れると次の1体がそれになる */
+function pickMob() { if (window.__rareNext != null) { var k = window.__rareNext; window.__rareNext = null; return k; } return rollZako(unitOfArea(curArea)); }
 
 /* 施設の人（町の絵とNPC.md 2. 2026-11-13 確定）。FACS と同じ順。say＝村（0〜4）／にぎわう村（5〜8）／町（9〜12） */
 var FAC_NPC = [
@@ -497,7 +501,7 @@ function buildTown(st) {
   if (st < 10) look[4] = 'hut';
   if (st < 11) look[5] = 'castle-ruin'; else if (st < 12) look[5] = 'castle-scaffold';
   NPCS.forEach(function (n) { g[n.y][n.x] = 'N'; });
-  /* 施設の6人（全身の絵）を、それぞれの施設の前に立たせる。行けるマスを減らさない場所だけ（quest.js?v=20261120200000 placeFacNpcs。2026-11-17） */
+  /* 施設の6人（全身の絵）を、それぞれの施設の前に立たせる。行けるマスを減らさない場所だけ（quest.js?v=20261120230000 placeFacNpcs。2026-11-17） */
   var fnpc = placeFacNpcs(g, blds, [16, 11], function (c) { return BLOCK.has(c); }, [4, 11]);
   return { g: g, blds: blds, fountain: [16, 11], dry: st < 4, start: [4, 11], st: st, tiles: tiles, props: props, objs: objs, look: look, fog: st < 2 ? 2 : st < 4 ? 1 : 0, fnpc: fnpc };
 }
@@ -641,7 +645,7 @@ function drawMap() {
     }); });
     h += '<div class="dk-fog" id="dkFog">' + fog + '</div>';
   }
-  h += '<div id="mobs">' + (FD.key === 'area' ? FD.mobs : []).map(function (mo, i) { return '<div class="mob" data-i="' + i + '" style="' + box(mo.x, mo.y) + ';z-index:' + (mo.y * 10 + 5) + '"><img src="' + foeOf(curArea, mo.id).img + '"></div>'; }).join('') + '</div>';
+  h += '<div id="mobs">' + (FD.key === 'area' ? FD.mobs : []).map(function (mo, i) { return '<div class="mob' + (mo.id >= 12 ? ' rare r' + (mo.id >= 14 ? 2 : 1) : '') + '" data-i="' + i + '" style="' + box(mo.x, mo.y) + ';z-index:' + (mo.y * 10 + 5) + '"><img src="' + foeOf(curArea, mo.id).img + '"></div>'; }).join('') + '</div>';
   h += '<div id="units"><div class="unit leader" style="' + box(FD.pos[0], FD.pos[1]) + ';z-index:' + (FD.pos[1] * 10 + 9) + '"><img class="hero" src="' + fieldImg(ch.j, ch.lk, FD.dir === 'left' ? 'right' : FD.dir) + '" alt=""></div></div>';
   map.innerHTML = h;
   /* 町：つながった地面・石の壁と塔・影・灯り（town-art.js。2026-11-17）。下のタイルは、絵が読めるまでの代わり */
@@ -770,7 +774,7 @@ function dgLoad(fl) {
   MAPS.area = { g: g, blds: [], start: M.start.slice() };
   FD.dg = { fl: fl, keys: 0, need: M.need, items: M.items, seen: {} };
   var sp = M.spots.slice(); FD.mobs = [];
-  for (var i = 0; i < 5 + fl && sp.length; i++) { var p = sp.splice(Math.floor(Math.random() * sp.length), 1)[0]; FD.mobs.push({ id: Math.floor(Math.random() * 6), x: p[0], y: p[1] }); }
+  for (var i = 0; i < 5 + fl && sp.length; i++) { var p = sp.splice(Math.floor(Math.random() * sp.length), 1)[0]; FD.mobs.push({ id: pickMob(), x: p[0], y: p[1] }); }
 }
 if (/emu=1/.test(location.search)) window.__dg = function () { return { fl: FD.dg && FD.dg.fl, keys: FD.dg && FD.dg.keys, need: FD.dg && FD.dg.need, items: FD.dg && FD.dg.items, pos: FD.pos, g: MAPS.area.g.map(function (r) { return r.join(''); }), mobs: FD.mobs.length }; };   /* 画面テスト用 */
 if (/emu=1/.test(location.search)) window.__dgWarp = function (x, y, noMobs) { if (noMobs) FD.mobs = []; FD.pos = [x, y]; FD.busy = false; FD.path = []; placeUnit(false); camera(true); dgLook(); };   /* 画面テスト用 */
@@ -1001,8 +1005,8 @@ function openZukan() {
     if (zkCount(ch, u.id) === ZK_N) box.appendChild(el('div', '', '🏅 ' + zkTitle(u)));
     var grid = el('div', 'zk-grid');
     zkList(u).forEach(function (e) {
-      var ok = zkHas(ch, u.id, e[3]), c = el('div', 'zk-card' + (ok ? '' : ' no')), im = el('img'); im.alt = ''; im.src = e[1]; c.appendChild(im);
-      c.appendChild(el('b', '', ok ? e[0] : '？？？')); c.appendChild(el('small', '', e[2])); grid.appendChild(c);
+      var ok = zkHas(ch, u.id, e[3]), c = el('div', 'zk-card' + (ok ? '' : ' no') + (e[4] ? ' rare r' + e[4] : '')), im = el('img'); im.alt = ''; im.src = e[1]; c.appendChild(im);
+      var nb = el('b', '', ok ? e[0] : '？？？'); if (ok && e[0].length > 5) nb.style.fontSize = Math.max(.6, 5.5 / e[0].length) + 'em'; c.appendChild(nb); c.appendChild(el('small', '', e[2])); grid.appendChild(c);
     });
     box.appendChild(grid);
   }
@@ -1107,7 +1111,7 @@ function srcBox(a) {
   opt('sets', '問題セットをえらぶ ', ed);
   return box;
 }
-/* 問題セットをえらぶ画面。先生の準備画面（rikaria-host.html）と同じ選び方（lib.js?v=20261120200000 の mountSetPicker：学年→題名でさがす→単元ごとの一覧）。2026-11-16 */
+/* 問題セットをえらぶ画面。先生の準備画面（rikaria-host.html）と同じ選び方（lib.js?v=20261120230000 の mountSetPicker：学年→題名でさがす→単元ごとの一覧）。2026-11-16 */
 function setDialog(a) {
   var bg = el('div', 'pk-bg'), box = el('div', 'pk'); bg.appendChild(box); bg.setAttribute('role', 'dialog'); bg.setAttribute('aria-modal', 'true'); bg.setAttribute('aria-label', '問題セットをえらぶ');
   var top = el('div', 'row'); top.appendChild(el('b', 'grow', '問題セットをえらぶ（いくつでも）'));
@@ -1273,6 +1277,7 @@ async function poolOf(a) {
 /* エリアのボスにひとりでちょうせん（霧に入ったとき）。たおすと、その単元は自分のキャラの「ボスをたおした」記録になる */
 if (/emu=1/.test(location.search)) window.__bossAsk = function () { bossAsk(); };   /* 画面テスト用 */
 if (/emu=1/.test(location.search)) window.__shop = function (i) { shop(i); };   /* 画面テスト用（施設を開く） */
+if (/emu=1/.test(location.search)) { window.__rareBattle = function (k) { FD.busy = true; var m = { id: k, x: -9, y: -9 }; FD.mobs.push(m); startBattle(m); }; window.__winNow = function () { B.hp = 0; win(); }; }   /* 画面テスト用（レアの敵と戦う・すぐ勝つ。2026-11-20） */
 if (/emu=1/.test(location.search)) window.__adv = ADV;   /* 画面テスト用（冒険の記録） */
 function bossAsk() {
   var u = unitOfArea(curArea), m = $('fdMsg'); m.textContent = '';
@@ -1310,16 +1315,19 @@ function uraAsk() {
 async function startBattle(mob, boss, ura) {
   var P = await poolOf(curArea);
   if (!P.q.length) { FD.busy = false; say('<h3>問題が読めない</h3>通信を確かめて、もう一度ためしてください。'); return; }
-  var max = boss ? soloBossHp(curArea.i, ch.lv) * (ura ? URA.hp : 1) : soloEnemyHp(curArea.i, ch.lv);   /* 裏ボスはボスの2倍（ふつうの敵の6倍） */   /* 敵の強さは自分のレベルに合わせる（単元の学年ではない） */
+  var rk = !boss && mob && mob.id >= 12 ? mob.id - 12 : -1;   /* レアの番号（0 レア1・1 レア2・2 超レア。ふつうは −1） */
+  var max = boss ? soloBossHp(curArea.i, ch.lv) * (ura ? URA.hp : 1) : Math.round(soloEnemyHp(curArea.i, ch.lv) * (rk >= 0 ? RARE.hp[rk] : 1));   /* 裏ボスはボスの2倍（ふつうの敵の6倍） */   /* 敵の強さは自分のレベルに合わせる（単元の学年ではない） */
   /* fx＝続いている効果。t は「あと何問」。stun・slow は敵の攻撃の回数 */
   var foe = boss ? { n: ura ? uraName(unitOfArea(curArea)) : unitOfArea(curArea).boss.n, t: unitOfArea(curArea).boss.t, img: bossImg(unitOfArea(curArea)) } : foeOf(curArea, mob.id);
-  B = { mob: mob, boss: !!boss, ura: !!ura, e: foe, hp: max, max: max, streak: 0, nm: 0, nq: 0,   /* nm まちがい・nq 答えた問題（裏ボスの自己ベスト。2026-11-20） */
+  B = { mob: mob, boss: !!boss, ura: !!ura, rk: rk, e: foe, hp: max, max: max, streak: 0, nm: 0, nq: 0,   /* nm まちがい・nq 答えた問題（裏ボスの自己ベスト。2026-11-20） */
         P: P, t: foe.t || 'earth',
         fx: { guard: null, buff: null, regen: null, counter: null, dot: null, mpRate: 0, stun: 0, slow: 0, nextCrit: 0, keep: 0, reveal: 0 } };
   $('bArea').textContent = curArea.name;
-  document.querySelector('#s-battle .bt-bg').style.backgroundImage = "url('" + battleBg(unitOfArea(curArea)) + "')";   /* 背景もその単元の絵 */ $('eimg').src = B.e.img; $('eimg').classList.toggle('ura-img', !!ura); $('ename').textContent = B.e.n; $('enemy').className = 'enemy';
+  document.querySelector('#s-battle .bt-bg').style.backgroundImage = "url('" + battleBg(unitOfArea(curArea)) + "')";   /* 背景もその単元の絵 */ $('eimg').src = B.e.img; $('eimg').classList.toggle('ura-img', !!ura); $('ename').textContent = (rk >= 0 ? '★' + RARE.lab[rk] + ' ' : '') + B.e.n; $('enemy').className = 'enemy' + (rk >= 0 ? ' rare r' + (rk === 2 ? 2 : 1) : '');
   $('party').innerHTML = '<div class="mate me"><span class="you">あなた</span><img class="hero" src="' + heroImg(ch.j, ch.lk) + '" alt="">' + ch.n + '</div>';
-  showScreen('s-battle'); music(boss ? 'r-boss' : 'r-battle'); drawMe(); await battleGuide('solo'); askQ();   /* はじめての戦闘だけ、たたかい方の案内 */
+  showScreen('s-battle'); music(boss ? 'r-boss' : 'r-battle'); drawMe(); await battleGuide('solo');
+  if (rk >= 0) { var rb = $('cmd'); rb.textContent = ''; rb.appendChild(el('div', 'banner ok rare-ban' + (rk === 2 ? ' r2' : ''), '✨ ' + (rk === 2 ? '超' : '') + 'レアな敵があらわれた！ ' + B.e.n + 'を倒すと、おたからを落とすかも')); await new Promise(function (r) { setTimeout(r, 1400); }); }
+  askQ();   /* はじめての戦闘だけ、たたかい方の案内 */
 }
 function drawMe() {
   var s = statsOf(ch), f = B.fx, a = [], e = [];
@@ -1520,8 +1528,15 @@ async function win() {
   var uraFirst = B.ura && !(ch.ub && ch.ub[uid0]);   /* 裏ボスをはじめて倒した（このあと別の保存で SP・ゴールド・称号） */
   if (B.ura) again = !uraFirst;
   /* 図鑑：倒した敵のしるし（ワスレモノ＝0〜5・ボス＝10。裏ボスは図鑑にのせない）。2026-11-19 */
-  if (!B.ura) { var bit = B.boss ? zkBit('boss') : zkBit('zako', B.mob.id % 6), zv = (ch.zk && ch.zk[uid0]) || 0, zn = zkAdd(zv, bit); if (zn !== zv) { ch.zk = Object.assign({}, ch.zk || {}); ch.zk[uid0] = zn; } }
+  if (!B.ura) { var bit = B.boss ? zkBit('boss') : zkBit('zako', B.mob.id), zv = (ch.zk && ch.zk[uid0]) || 0, zn = zkAdd(zv, bit); if (zn !== zv) { ch.zk = Object.assign({}, ch.zk || {}); ch.zk[uid0] = zn; } }
   var rw = soloReward(B.max, B.boss ? again : curArea.st === 'clear', me.g, B.boss), lv0 = ch.lv, today = dayNo();
+  /* レア（2026-11-20）：経験値・ゴールドが多め（ルールの上限 300・200 の中）。おたから（持ち物）を1つ落とす。9こ持っていたら落とさない */
+  var drop = '';
+  if (B.rk >= 0) {
+    rw.exp = Math.min(300, Math.round(rw.exp * RARE.exp[B.rk])); rw.gold = Math.min(200, rw.gold * RARE.gold[B.rk]);
+    var dl = RARE.drop[B.rk], dk = dl[Math.floor(Math.random() * dl.length)];
+    if (inv(dk) < 9) { ch.inv = Object.assign({}, ch.inv || {}); ch.inv[dk] = inv(dk) + 1; drop = dk; }
+  }
   if (B.boss) ch.bc = Object.assign({}, ch.bc || {}, (function (o) { o[uid0] = true; return o; })({}));
   /* 1日に稼げるゴールドの上限（gd＝日の番号・gg＝その日に稼いだ額。ルールでも同じ計算で止める） */
   var gg = ch.gd === today ? (ch.gg || 0) : 0; rw.gold = Math.max(0, Math.min(rw.gold, soloDayCap(me.g) - gg));
@@ -1553,6 +1568,7 @@ async function win() {
   if (saved) syncCzk();   /* クラスの図鑑に写す（待たない） */
   box.textContent = '';
   box.appendChild(el('div', 'banner ok', B.e.n + 'を たおした！' + (B.ura ? '　👁 裏ボスをたおした！' : B.boss ? '　👑 ボスをたおした！' : '') + '　けいけんち +' + rw.exp + (rw.gold ? '　💰 +' + rw.gold : '　💰 今日の上限に達しました') + (up ? '　LEVEL UP! Lv.' + lv0 + '→' + ch.lv + '（スキルポイント +' + up + '）' : '') + (saved ? '' : '（保存できませんでした）') + uraMsg));
+  if (drop && saved) box.appendChild(el('div', 'banner ok rare-ban', '🎁 ' + B.e.n + 'は ' + ITEMS[drop].ic + ' ' + ITEMS[drop].n + ' を落とした！'));
   if (ubbHtml) box.appendChild(el('div', 'banner ok' + (ubbNew ? ' ubb-new' : ''), '👁 ' + ubbHtml));
   msGot.forEach(function (x) { box.appendChild(el('div', 'banner ok', '🏅 Lv' + x.lv + 'の節目！ 称号「' + x.t + '」・スキルポイント +' + x.sp + '・💰 +' + x.g * me.g)); });
   if (up) HP = statsOf(ch).mhp;

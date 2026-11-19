@@ -18,7 +18,7 @@ test('データ：6職業に技が15個ずつ、名前はランク3つ、効果�
     assert.equal(sk.filter(s => s.ult).length, 3, j + 'の必殺技は3つ');
   }
   assert.equal(D.UNITS.length, 12);
-  D.UNITS.forEach(u => { assert.equal(u.z.length, 6); assert.equal(u.guards.length, 4); [...u.z, ...u.guards, u.boss].forEach(e => assert.ok(D.ELEM[e.t], u.id + e.n)); });
+  D.UNITS.forEach(u => { assert.equal(u.z.length, 12); assert.equal(u.rare.length, 3); assert.equal(u.guards.length, 4); [...u.z, ...u.rare, ...u.guards, u.boss].forEach(e => assert.ok(D.ELEM[e.t], u.id + e.n)); });
   assert.equal(D.skillName('summoner', 0, 1, 'water'), 'アクアボール');
 });
 
@@ -326,13 +326,17 @@ test('鍛冶屋：6段目だけ、武器は＋1ごとに攻撃+8%・防具は受
   assert.equal(D.upName('鉄の剣', { eq: { w: 'w2' }, up: { w: 3 } }, 'w'), '鉄の剣');
   assert.ok(D.canSmith(ch, 'w') && !D.canSmith({ eq: { w: 'w5' } }, 'w'));
 });
-test('図鑑：しるしは11こ、足すだけ・合わせられる。チーム戦で倒した敵が results の zk に出る', () => {
+test('図鑑：しるしは20こ、足すだけ・合わせられる。チーム戦で倒した敵が results の zk に出る', () => {
   assert.equal(D.zkAdd(0, 10), 1024); assert.equal(D.zkAdd(1024, 10), 1024); assert.equal(D.zkOr(5, 3), 7);
   const ch = { zk: { matter: 0 } };
-  for (let b = 0; b < 11; b++) D.zkMerge(ch, 'matter', Math.pow(2, b));
-  assert.equal(ch.zk.matter, D.ZK_ALL); assert.equal(D.zkCount(ch, 'matter'), 11);
+  for (let b = 0; b < 20; b++) D.zkMerge(ch, 'matter', Math.pow(2, b));
+  assert.equal(ch.zk.matter, D.ZK_ALL); assert.equal(D.zkCount(ch, 'matter'), 20); assert.equal(D.ZK_ALL, 1048575);
   assert.ok(D.extraTitles(ch).includes('物質の図鑑マスター'));
-  assert.equal(D.zkList(D.UNITS[1]).length, 11);
+  assert.equal(D.zkList(D.UNITS[1]).length, 20);
+  /* しるしの番号は 0〜19 が1つずつ。前の11こ（ワスレモノ0〜5・番人6〜9・ボス10）は変わらない */
+  D.UNITS.forEach((u) => { const bits = D.zkList(u).map((e) => e[3]).sort((a, b) => a - b); assert.deepEqual(bits, [...Array(20).keys()], u.id); });
+  assert.equal(D.zkBit('zako', 5), 5); assert.equal(D.zkBit('zako', 6), 11); assert.equal(D.zkBit('zako', 11), 16); assert.equal(D.zkBit('zako', 12), 17); assert.equal(D.zkBit('zako', 14), 19); assert.equal(D.zkBit('boss'), 10);
+  assert.ok(!D.extraTitles({ zk: { matter: 2047 } }).includes('物質の図鑑マスター'));
   assert.ok(D.extraTitles({ ub: { force: true } }).includes('音・光・力の影を払う者'));
   assert.ok(D.extraTitles({ ub: { force: true } }).every((t) => t.length <= 20));
   const G = E.newGroup({ unit: D.UNITS[0], mem: team(2) }); G.mobs = []; E.startBattle(G, 'boss');
@@ -372,9 +376,33 @@ test('クラスの図鑑：みんなのしるしを合わせ、戦った人の�
   assert.deepEqual(D.czkOf({ 3: 3, 5: 1024, 7: 0 }), { v: 1027, got: 3, people: 2 });
   assert.deepEqual(D.czkOf(null), { v: 0, got: 0, people: 0 });
   assert.equal(D.czkOf({ 1: 2047, 2: 5 }).got, 11);
+  assert.equal(D.czkOf({ 1: 2047, 2: 1048575 - 2047 }).got, 20);
 });
 
 test('MPの最大はLv30から10レベルごとに＋1、Lv160で20（装備なし）', () => {
   const m = (lv) => D.statsOf({ j: 'mage', lv }).mmp;
   assert.deepEqual([1, 29, 30, 39, 60, 100, 159, 160, 200].map(m), [6, 6, 7, 7, 10, 14, 19, 20, 20]);
+});
+
+/* 追加の敵（2026-11-20）：絵がそろっている・レアの確率・チーム戦でもレアが出る */
+test('追加の敵：絵があり、出現はノーマル12体＋レア4%・4%・超レア1%', async () => {
+  const fs = await import('node:fs'); const path = await import('node:path'); const url = await import('node:url');
+  const web = path.dirname(path.dirname(url.fileURLToPath(import.meta.url)));
+  D.UNITS.forEach((u) => { for (let k = 0; k < 15; k++) assert.ok(fs.existsSync(path.join(web, D.zakoImg(u, k))), D.zakoImg(u, k)); });
+  assert.equal(D.zakoImg(D.UNITS[0], 0), 'img/quest/metarich.webp'); assert.equal(D.zakoImg(D.UNITS[0], 6), 'img/rikaria/enemy/matter-7.webp'); assert.equal(D.zakoImg(D.UNITS[2], 14), 'img/rikaria/enemy/force-sr.webp');
+  const u = D.UNITS[3];
+  assert.equal(D.rollZako(u, 0), 12); assert.equal(D.rollZako(u, .039), 12); assert.equal(D.rollZako(u, .041), 13); assert.equal(D.rollZako(u, .085), 14); assert.ok(D.rollZako(u, .09) < 12);
+  const n = 200000, c = {}; for (let i = 0; i < n; i++) { const k = D.rollZako(u); c[k] = (c[k] || 0) + 1; }
+  assert.ok(Math.abs(c[12] / n - .04) < .005 && Math.abs(c[13] / n - .04) < .005 && Math.abs(c[14] / n - .01) < .003, JSON.stringify(c));
+  for (let k = 0; k < 12; k++) assert.ok(c[k] / n > .06 && c[k] / n < .09, 'k' + k);
+  assert.equal(D.zakoOf(u, 14).rare, 2); assert.equal(D.zakoOf(u, 13).rare, 1); assert.equal(D.zakoOf(u, 3).rare, 0);
+  /* チーム戦：レアはHPが多く、図鑑のしるしは 17〜19 */
+  let seen = false;
+  for (let i = 0; i < 400 && !seen; i++) {
+    const G = E.newGroup({ unit: u, mem: team(2) }); E.startBattle(G, 'zako', { z: 14 });
+    const f = G.foes[0]; assert.equal(f.zb, 19); assert.equal(f.rare, 2); assert.ok(f.n.startsWith('★'));
+    assert.ok(G.ev.some((e) => e.t === 'rare')); seen = true;
+    assert.equal(E.view(G).foes[0].rr, 2);
+  }
+  assert.ok(seen);
 });

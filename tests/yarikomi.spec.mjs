@@ -28,7 +28,7 @@ test('鍛冶屋で ＋1、図鑑のしるし、裏ボスの入口', async ({ bro
   await p.locator('#fdMsg .btn.sub').click();
   // 図鑑：2年の「植物と動物」に3体
   await p.locator('#goMenu').click(); await p.getByRole('button', { name: '図鑑' }).click();
-  await expect(p.locator('.pk.zk')).toContainText('2年の図鑑：3 / 44');
+  await expect(p.locator('.pk.zk')).toContainText('2年の図鑑：3 / 80');
   await expect(p.locator('.pk.zk .zk-card:not(.no)')).toHaveCount(3);
   await p.locator('#zkClose').click();
   // 裏ボス：ボスを倒した単元では、ボスの前に「影の○○」が出る
@@ -69,6 +69,6 @@ test('レベルの節目を自動でもらう・クラスの図鑑', async ({ br
   await p.locator('#goMenu').click(); await p.getByRole('button', { name: '図鑑' }).click();
   await p.locator('[data-zkm="cls"]').click();
   const u = p.locator('.czk-u', { hasText: '植物と動物' });
-  await expect(u).toContainText('4 / 11'); await expect(u).toContainText('戦った人 2人');
+  await expect(u).toContainText('4 / 20'); await expect(u).toContainText('戦った人 2人');
   expect(errs).toEqual([]);
 });

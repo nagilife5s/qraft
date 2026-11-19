@@ -4,7 +4,7 @@
  * 生徒の画面には view() の中身を送る。node で単体テストできる（tests/rikaria-engine.test.mjs）。
  */
 import { lapX, goldOf, JOBS, N, REWARD, RANK_POW, RANK_SEC, MP_MAX, lvMult, weakOf, ELEMS, ELEM, skillName, rankOf, loadoutOf,
-  zakoImg, guardImg, bossImg, bossTitle, BOSS_SK, BSK_SAY, OBLION, oblionImg, ITEMS, isCarry, zkAdd } from './rikaria-data.js';
+  zakoImg, guardImg, bossImg, bossTitle, BOSS_SK, BSK_SAY, OBLION, oblionImg, ITEMS, isCarry, zkAdd, zkBit, rollZako, zakoOf, RARE, NZ } from './rikaria-data.js';
 
 var rnd = function (a) { return a[Math.floor(Math.random() * a.length)]; };
 var clamp = function (v, a, b) { return Math.max(a, Math.min(b, v)); };
@@ -75,7 +75,7 @@ function emit(G, e) { e.q = ++G.seq; G.ev.push(e); if (G.ev.length > 40) G.ev.sp
 /* ------------------------------------------------------------ 探索 */
 function spawnMobs(G) {
   var n = 5, spots = SPOTS.slice().sort(function () { return Math.random() - .5; }).slice(0, n);
-  G.mobs = spots.map(function (p) { return { x: p[0], y: p[1], z: Math.floor(Math.random() * 6) }; });
+  G.mobs = spots.map(function (p) { return { x: p[0], y: p[1], z: rollZako(G.unit) }; });
 }
 export function cell(G, x, y) { var r = G.map.g[y]; return r ? r[x] : undefined; }
 export function blocked(G, x, y) {
@@ -134,8 +134,13 @@ export function startBattle(G, kind, mob) {
   if (kind === 'boss') G.foes = [foe(G, 'boss', U.boss.n, U.boss.t, bossImg(U), N.hp.boss, Object.assign(bossExtra(BOSS_SK[U.id]), { zb: 10 }))];
   else if (kind === 'guard') { var gd = U.guards[G.fl - 1] || U.guards[0]; G.foes = [foe(G, 'guard', gd.n, gd.t, guardImg(U, G.fl), N.hp.guard, { gd: 1, zb: 6 + Math.max(0, Math.min(3, G.fl - 1)) })]; }
   else {
-    var n = 2 + (Math.random() < .5 ? 1 : 0), first = mob ? mob.z : Math.floor(Math.random() * 6); G.foes = [];
-    for (var i = 0; i < n; i++) { var zi = i === 0 ? first : Math.floor(Math.random() * 6), z = U.z[zi]; G.foes.push(foe(G, 'zako', z.n, z.t, zakoImg(U, zi), N.hp.zako, { zb: zi })); }
+    /* 2026-11-20：ノーマル12体から。レア各4%・超レア1%（rollZako）。レアはHPが多く、名前に印（図鑑のしるしは zkBit） */
+    var n = 2 + (Math.random() < .5 ? 1 : 0), first = mob ? mob.z : rollZako(U); G.foes = [];
+    for (var i = 0; i < n; i++) {
+      var zi = i === 0 ? first : rollZako(U), z = zakoOf(U, zi), rr = z.rare ? RARE.hp[zi - 12] : 1;
+      G.foes.push(foe(G, 'zako', (z.rare ? '★' : '') + z.n, z.t, z.img, N.hp.zako * rr, { zb: zkBit('zako', zi), rare: z.rare }));
+      if (z.rare) emit(G, { t: 'rare', big: true, s: (z.rare === 2 ? '超' : '') + 'レアな敵があらわれた！' });
+    }
   }
   present(G).forEach(function (m) { m.tg = Math.floor(Math.random() * G.foes.length); });
   emit(G, { t: 'start', kind: kind, s: kind === 'boss' ? U.boss.n + ' があらわれた！' : kind === 'guard' ? '番人 ' + G.foes[0].n + ' があらわれた！' : 'ワスレモノが ' + G.foes.length + '体 あらわれた！' });
@@ -341,7 +346,7 @@ function battleTick(G, dt) {
     /* ボス：HP70%で手下を2体よんでバリア（オブリオンはよばない） */
     if (f.fin && !f.ob && !G.summoned && f.hp < f.mx * .7) {
       G.summoned = true; f.barrier = true;
-      [0, 1].forEach(function () { var zi = Math.floor(Math.random() * 6), z = G.unit.z[zi]; G.foes.push(foe(G, 'zako', z.n, z.t, zakoImg(G.unit, zi), N.hp.zako, { charged: true, zb: zi })); });
+      [0, 1].forEach(function () { var zi = Math.floor(Math.random() * NZ), z = G.unit.z[zi]; G.foes.push(foe(G, 'zako', z.n, z.t, zakoImg(G.unit, zi), N.hp.zako, { charged: true, zb: zkBit('zako', zi) })); });
       present(G).forEach(function (m) { m.tg = 1 + Math.floor(Math.random() * 2); });
       emit(G, { t: 'summon', s: f.n + ' が手下をよんだ！ バリアをはった' }); return;
     }
@@ -486,7 +491,7 @@ export function view(G) {
     mobs: G.mobs.map(function (m) { return [m.x, m.y, m.z]; }),
     tr: G.trail.slice(0, Math.max(0, Math.min(TRAIL_MAX, Object.keys(mem).length - 1))),   /* 班員が立つマス（リーダーのすぐ後ろから順に）［x, y, 向き］ */
     foes: G.foes.map(function (f) { return { n: f.n, t: f.t, img: f.img, hp: f.hp, mx: f.mx, chg: Math.ceil(f.chg), br: f.barrier ? 1 : 0, aim: f.aim || '', st: f.stun > 0 ? 1 : 0, fin: f.fin ? 1 : 0, gd: f.gd ? 1 : 0, dot: f.dots.length ? 1 : 0,
-      cs: f.cast ? f.sk[f.cast.i].n : '', wd: f.ward > 0 ? 1 : 0, rg: f.rage > 0 ? 1 : 0, ob: f.ob ? f.ob.k : 0 }; }),
+      cs: f.cast ? f.sk[f.cast.i].n : '', wd: f.ward > 0 ? 1 : 0, rg: f.rage > 0 ? 1 : 0, ob: f.ob ? f.ob.k : 0, rr: f.rare || 0 }; }),
     mem: mem, rt: G.ph === 'rest' ? Math.ceil(G.restT) : 0, gc: G.guardCnt,
     grp: { sh: G.grp.shield ? 1 : 0, bf: G.grp.buff ? 1 : 0, rg: G.grp.regen ? 1 : 0, eb: G.grp.elemBuff ? G.grp.elemBuff.e : '', rv: G.grp.reveal ? 1 : 0, tr: G.grp.trap ? 1 : 0, mr: G.grp.mpRate ? 1 : 0 },
     ev: G.ev.slice(-12)

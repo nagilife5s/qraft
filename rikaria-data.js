@@ -434,6 +434,34 @@ export var UNITS = [
     [Z('シゴトン', 'earth'), Z('カッシャ', 'wind'), Z('シゴトリツ', 'wind'), Z('デンドウ', 'fire'), Z('タイリュウ', 'water'), Z('ホウシャ', 'fire')],
     [Z('フリコン', 'earth'), Z('ソクドリュウ', 'wind'), Z('ハツデンジン', 'water'), Z('ホゾンオウ', 'fire')], Z('機関王エネルギア', 'earth'))
 ];
+/* 追加のワスレモノ（2026-11-20。mock/enemy-design.html）：単元ごとに ノーマル6体（7〜12番）・レア2体（r1・r2）・超レア1体（sr）。
+ * u.z は12体になり、u.rare = [r1, r2, sr]。敵の番号 k：0〜11 ノーマル・12 レア1・13 レア2・14 超レア（zakoImg・zkBit・zakoOf が同じ番号を使う） */
+var ZX = {
+  matter: [[Z('ミツドック', 'earth'),Z('ロカール', 'water'),Z('サイケッショウ', 'water'),Z('ジョウリュウ', 'fire'),Z('ジョウハッツ', 'water'),Z('サンソン', 'wind')], [Z('ボイルン', 'wind'),Z('ラボアジェル', 'fire'),Z('ゼッタイレイド', 'water')]],
+  classify: [[Z('ソウルイ', 'water'),Z('ヒゲネン', 'earth'),Z('ムセキツイ', 'water'),Z('ハチュウルイ', 'fire'),Z('ソウシヨウ', 'wind'),Z('ホニュール', 'earth')], [Z('リンネール', 'wind'),Z('イチョウジイ', 'earth'),Z('シーラカンスイ', 'water')]],
+  force: [[Z('ジツゾウ', 'fire'),Z('ゼンハンシャ', 'water'),Z('シンドウスウ', 'wind'),Z('アツリョクン', 'earth'),Z('ショウテン', 'fire'),Z('オシアイン', 'earth')], [Z('フックン', 'wind'),Z('ニュートンボ', 'earth'),Z('ニジプリズマ', 'fire')]],
+  earth: [[Z('カコウガン', 'earth'),Z('ギョウカイガン', 'wind'),Z('セキエイちゃん', 'earth'),Z('ブンカちゃん', 'wind'),Z('シンドール', 'earth'),Z('ハンセイショウ', 'fire')], [Z('ウェゲナー', 'water'),Z('サンヨウチュー', 'earth'),Z('ダイヤモンドン', 'earth')]],
+  life: [[Z('ジョウサンキ', 'wind'),Z('キコウちゃん', 'wind'),Z('ジュウモウ', 'water'),Z('ジンゾーン', 'water'),Z('アミラーゼン', 'water'),Z('セキケッキュウ', 'fire')], [Z('ハーベイ', 'fire'),Z('フックサイボ', 'earth'),Z('ヒカリゴケノ', 'earth')]],
+  reaction: [[Z('ジョウナン', 'earth'),Z('リュウカテツ', 'fire'),Z('ハッカン', 'fire'),Z('ゲンシモデル', 'earth'),Z('サンカドウ', 'fire'),Z('ブンシーン', 'wind')], [Z('ドルトンボ', 'wind'),Z('メンデレフ', 'earth'),Z('マグネシウス', 'fire')]],
+  weather: [[Z('セキランウン', 'water'),Z('カンレイゼン', 'wind'),Z('オンダンゼン', 'wind'),Z('ホウワン', 'water'),Z('キアツハイ', 'wind'),Z('ツユゼン', 'water')], [Z('タイフーン', 'wind'),Z('ヘンセイフウ', 'wind'),Z('オーロラン', 'wind')]],
+  electric: [[Z('デンリョクン', 'fire'),Z('タンラク', 'water'),Z('オームン', 'earth'),Z('インキョクセン', 'wind'),Z('ジシャクン', 'earth'),Z('コウリュウ', 'water')], [Z('ファラデイ', 'earth'),Z('エジソンプ', 'fire'),Z('カミナリュウ', 'wind')]],
+  ion: [[Z('ゲンシカク', 'earth'),Z('ブイティービー', 'water'),Z('エンサン', 'fire'),Z('スイサンカナ', 'water'),Z('ヨウイオン', 'fire'),Z('インイオン', 'water')], [Z('アレニウス', 'wind'),Z('ボルタン', 'earth'),Z('エンノケッショウ', 'earth')]],
+  space: [[Z('コクテン', 'fire'),Z('コウセイン', 'fire'),Z('エイセイン', 'earth'),Z('ネンシュウ', 'wind'),Z('ガスジャイアン', 'earth'),Z('ヨイノミョウ', 'fire')], [Z('ガリレイ', 'wind'),Z('コペルニクン', 'fire'),Z('スイセイ', 'water')]],
+  heredity: [[Z('タイサイボ', 'water'),Z('ムセイセイ', 'earth'),Z('ケンセイ', 'earth'),Z('センセイ', 'water'),Z('ゲンスウブンレツ', 'water'),Z('ソウジキカン', 'earth')], [Z('メンデルン', 'earth'),Z('ダーウィン', 'wind'),Z('ラセンキング', 'fire')]],
+  energy: [[Z('イチエネ', 'earth'),Z('ウンドウエネ', 'wind'),Z('ネツデンドウ', 'fire'),Z('カンセイン', 'wind'),Z('コウリツ', 'fire'),Z('プカリョク', 'water')], [Z('ジュールン', 'fire'),Z('ワットン', 'water'),Z('エイキュウキカン', 'earth')]],
+};
+UNITS.forEach(function (u) { var x = ZX[u.id]; if (!x) return; u.z = u.z.concat(x[0]); u.rare = x[1]; });
+export var NZ = 12, RARE_K = [12, 13, 14];
+/* 出現の確率（ひとりで冒険・チーム戦とも）：レア各4%・超レア1%。のこりはノーマル12体から同じ確率で */
+export var RARE = { p: [.04, .04, .01], hp: [1.5, 1.5, 2], exp: [1.5, 1.5, 2], gold: [2, 2, 5], drop: [['potion2'], ['ether2'], ['potion3', 'ether3']], lab: ['レア', 'レア', '超レア'] };
+export function rollZako(u, r) {
+  r = r == null ? Math.random() : r; var acc = 0;
+  if (u.rare) for (var j = 0; j < 3; j++) { acc += RARE.p[j]; if (r < acc) return 12 + j; }
+  return Math.floor(Math.random() * Math.min(NZ, u.z.length));
+}
+export function isRareK(k) { return k >= 12; }
+/* 敵の番号 k から名前・タイプ・絵・レアの段（0 ふつう・1 レア・2 超レア） */
+export function zakoOf(u, k) { var e = k >= 12 ? u.rare[k - 12] : u.z[k]; return { n: e.n, t: e.t, img: zakoImg(u, k), rare: k >= 14 ? 2 : k >= 12 ? 1 : 0 }; }
 var MATTER_IMG = ['metarich', 'donbuka', 'banara', 'awabon', 'tokerun', 'mistoru'];
 /* 単元を、問題セットの「学年・単元」から探す（見つからなければ物質） */
 export function unitOf(grade, unit) {
@@ -441,7 +469,7 @@ export function unitOf(grade, unit) {
 }
 export function unitById(id) { return UNITS.filter(function (u) { return u.id === id; })[0] || UNITS[0]; }
 /* 敵の絵 */
-export function zakoImg(u, i) { return u.id === 'matter' ? 'img/quest/' + MATTER_IMG[i] + '.webp' : 'img/rikaria/enemy/' + u.id + '-' + (i + 1) + '.webp'; }
+export function zakoImg(u, i) { return u.id === 'matter' && i < 6 ? 'img/quest/' + MATTER_IMG[i] + '.webp' : 'img/rikaria/enemy/' + u.id + '-' + (i >= 12 ? ['r1', 'r2', 'sr'][i - 12] : i + 1) + '.webp'; }
 export function guardImg(u, fl) { return 'img/rikaria/guard/' + u.id + '-' + fl + '.webp'; }
 export function bossImg(u) { return u.id === 'matter' ? 'img/quest/boss-alchemira.webp' : 'img/rikaria/enemy/' + u.id + '-boss.webp'; }
 export function battleBg(u) { return u.id === 'matter' ? 'img/bg/lab.webp' : 'img/rikaria/bg/' + u.id + '.webp'; }
@@ -472,9 +500,10 @@ export var N = {
 export var REWARD = { zako: { exp: 30, gold: 5 }, guard: { exp: 80, gold: 15 }, boss: { exp: 250, gold: 60 }, ob: { exp: 400, gold: 100, sp: 3 }, ok: 6, wipeExp: .8 };
 /* 称号 */
 /* 称号（ルールで20文字まで） */
-/* 図鑑（2026-11-19）。ch.zk = { <単元id>: 倒した敵のしるし（整数） }。ワスレモノ6体＝0〜5・番人4体＝6〜9・ボス＝10 の11こ（全部で 2047） */
-export var ZK_N = 11, ZK_ALL = 2047;
-export function zkBit(kind, i) { return kind === 'boss' ? 10 : kind === 'guard' ? 6 + i : i; }
+/* 図鑑（2026-11-19）。ch.zk = { <単元id>: 倒した敵のしるし（整数） }。ワスレモノ6体＝0〜5・番人4体＝6〜9・ボス＝10 の11こ（〜2047）。
+ * 2026-11-20 に20こへ：追加のワスレモノ6体＝11〜16・レア＝17・18・超レア＝19（全部で 1048575）。前のしるしの番号は変えない */
+export var ZK_N = 20, ZK_ALL = 1048575;
+export function zkBit(kind, i) { return kind === 'boss' ? 10 : kind === 'guard' ? 6 + i : i < 6 ? i : i + 5; }
 export function zkHas(ch, uid, bit) { var v = Number(ch && ch.zk && ch.zk[uid]) || 0; return Math.floor(v / Math.pow(2, bit)) % 2 === 1; }
 /* しるしを1つ足した新しい数（もうあれば同じ数） */
 export function zkAdd(v, bit) { v = Number(v) || 0; return Math.floor(v / Math.pow(2, bit)) % 2 === 1 ? v : v + Math.pow(2, bit); }
@@ -486,9 +515,10 @@ export function zkMerge(ch, uid, bits) {
   ch.zk = Object.assign({}, ch.zk || {}); ch.zk[uid] = v; return true;
 }
 export function zkCount(ch, uid) { var n = 0; for (var b = 0; b < ZK_N; b++) if (zkHas(ch, uid, b)) n++; return n; }
-/* 単元の敵11体の一覧（図鑑の並び）。[名前, 絵, 種類, しるしの番号] */
+/* 単元の敵20体の一覧（図鑑の並び）。[名前, 絵, 種類, しるしの番号, レアの段（レアだけ）] */
 export function zkList(u) {
-  return u.z.map(function (e, i) { return [e.n, zakoImg(u, i), 'ワスレモノ', i]; })
+  return u.z.map(function (e, i) { return [e.n, zakoImg(u, i), 'ワスレモノ', zkBit('zako', i)]; })
+    .concat((u.rare || []).map(function (e, j) { return [e.n, zakoImg(u, 12 + j), RARE.lab[j], 17 + j, j === 2 ? 2 : 1]; }))
     .concat(u.guards.map(function (e, i) { return [e.n, guardImg(u, i + 1), '番人', 6 + i]; }))
     .concat([[u.boss.n, bossImg(u), 'ボス', 10]]);
 }

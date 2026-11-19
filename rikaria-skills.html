@@ -9,6 +9,8 @@
   /* 技のてびき（生徒向け。2026-11-20）。技の中身は rikaria-data.js から読むので、技を直せばこのページも自動で変わる */
   body { margin:0; background:#120d3a; color:#fff; font-family:system-ui, sans-serif; line-height:1.6; }
   header { background:linear-gradient(#1a1450,#120d3a); padding:.8em 1em .4em; }
+  .back { display:inline-flex; align-items:center; min-height:44px; padding:0 1em; margin-bottom:.3em; border:2px solid #fff; border-radius:.6em; color:#fff; text-decoration:none; font-weight:900; }
+  @media print { .back { display:none; } }
   header h1 { color:#ffe27a; font-size:1.3em; margin:0 0 .4em; }
   .jobs { display:flex; flex-wrap:wrap; gap:.4em; }
   .jobs button { display:flex; align-items:center; gap:.4em; border:2px solid transparent; border-radius:999px; padding:.2em .9em .2em .3em; font:inherit; font-weight:900; background:#2a2260; color:#fff; cursor:pointer; min-height:44px; }
@@ -37,7 +39,7 @@
 </style>
 </head>
 <body>
-<header><h1>📖 リカリア 技のてびき</h1><div class="jobs" id="jobs"></div></header>
+<header><a class="back" href="quest.html" onclick="/* 町のメニューからは別のタブで開くので、まずタブを閉じて町の画面へもどす。閉じられないときは quest.html へ */ if (history.length <= 1) { window.close(); setTimeout(function () { location.href = 'quest.html'; }, 300); return false; } history.back(); return false;">← もどる</a><h1>📖 リカリア 技のてびき</h1><div class="jobs" id="jobs"></div></header>
 <main>
   <div class="box"><h2>技のきほん</h2><ul>
     <li><b>覚えるレベル</b>になると、その技を使えるようになります（Lv1〜100で、どの職業も15こ）。</li>

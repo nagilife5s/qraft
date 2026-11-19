@@ -812,3 +812,16 @@ img.slot:not(.ok) { visibility:hidden; }
 @media (pointer:coarse), (max-width:800px) { #s-town.dg-on .dg-pad { display:grid; } }
 @media (max-width:600px) { .dg-mini { width:90px; height:64px; top:auto; bottom:calc(1.2em + 170px); right:.8em; } #s-town.dg-on .fd-help { left:.6em; right:190px; transform:none; max-width:none; } }
 #s-town.dg-on .fd-wrap { background:#05030f; } #s-town.dg-on #map { overflow:hidden; }   /* ダンジョンでは地図の外の飾りを出さない（2026-11-20） */
+
+/* レアな敵（2026-11-20）：r1＝レア（金のオーラ）・r2＝超レア（虹色のオーラ）。ひとりで冒険・チーム戦・図鑑・フィールドの魔物で共通 */
+@keyframes rareGlow { from { filter:drop-shadow(0 0 .35em #ffd23f) drop-shadow(0 0 .9em #ffb300); } to { filter:drop-shadow(0 0 .6em #fff3b0) drop-shadow(0 0 1.4em #ffd23f); } }
+@keyframes srGlow { 0% { filter:drop-shadow(0 0 .5em #ff9de2) drop-shadow(0 0 1.2em #9fe3ff); } 50% { filter:drop-shadow(0 0 .7em #9fe3ff) drop-shadow(0 0 1.5em #ffe27a); } 100% { filter:drop-shadow(0 0 .5em #ffe27a) drop-shadow(0 0 1.2em #ff9de2); } }
+.enemy.rare.r1:not(.hit):not(.down):not(.dead):not(.chg) img, .mfoe.rare.r1 img, .mob.rare.r1 img { animation:rareGlow 1s ease-in-out infinite alternate; }
+.enemy.rare.r2:not(.hit):not(.down):not(.dead):not(.chg) img, .mfoe.rare.r2 img, .mob.rare.r2 img { animation:srGlow 1.6s linear infinite; }
+.enemy.rare .etag span { background:linear-gradient(90deg, #ffe27a, #ffb300); color:#221a44; border-radius:.4em; padding:0 .3em; }
+.enemy.rare.r2 .etag span { background:linear-gradient(90deg, #ff9de2, #9fe3ff, #ffe27a); }
+.banner.rare-ban { background:linear-gradient(90deg, #ffe27a, #ffb300); color:#221a44; font-weight:900; }
+.banner.rare-ban.r2 { background:linear-gradient(90deg, #ff9de2, #9fe3ff, #ffe27a); }
+.zk-card.rare.r1:not(.no) { box-shadow:0 0 0 2px #e8c45a, 0 0 10px #e8c45a88; }
+.zk-card.rare.r2:not(.no) { box-shadow:0 0 0 2px #c9a6ff, 0 0 14px #9fe3ffaa; background:linear-gradient(135deg, rgba(60,40,140,.6), rgba(30,70,140,.6)); }
+.zk-card.rare small { color:#ffe27a; font-weight:700; }
