@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>リカリア 技のてびき</title>
+<link rel="icon" type="image/png" href="img/favicon-32.png">
+<style>
+  /* 技のてびき（生徒向け。2026-11-20）。技の中身は rikaria-data.js から読むので、技を直せばこのページも自動で変わる */
+  body { margin:0; background:#120d3a; color:#fff; font-family:system-ui, sans-serif; line-height:1.6; }
+  header { background:linear-gradient(#1a1450,#120d3a); padding:.8em 1em .4em; }
+  header h1 { color:#ffe27a; font-size:1.3em; margin:0 0 .4em; }
+  .jobs { display:flex; flex-wrap:wrap; gap:.4em; }
+  .jobs button { display:flex; align-items:center; gap:.4em; border:2px solid transparent; border-radius:999px; padding:.2em .9em .2em .3em; font:inherit; font-weight:900; background:#2a2260; color:#fff; cursor:pointer; min-height:44px; }
+  .jobs button img { width:34px; height:34px; object-fit:contain; }
+  .jobs button.on { background:#fff; color:#221a44; }
+  main { padding:1em; max-width:1000px; margin:auto; }
+  .box { background:rgba(255,255,255,.06); border:2px solid #6a5bd6; border-radius:.9em; padding:.8em 1em; margin-bottom:1em; }
+  .box h2 { margin:.1em 0 .4em; font-size:1.05em; color:#ffe27a; }
+  .box ul { margin:.2em 0; padding-left:1.3em; }
+  .trait { display:flex; gap:1em; align-items:center; }
+  .trait img { width:96px; height:96px; object-fit:contain; flex:0 0 auto; }
+  table { width:100%; border-collapse:collapse; font-size:.95em; }
+  th { text-align:left; color:#c9c0ea; font-weight:700; padding:.35em .5em; border-bottom:2px solid #4b4380; white-space:nowrap; }
+  td { padding:.5em; border-bottom:1px solid #2a2260; vertical-align:top; }
+  td.lv { font-weight:900; white-space:nowrap; }
+  td.fx img { width:40px; height:40px; object-fit:contain; }
+  .nm b { font-size:1.05em; }
+  .nm span { color:#9a93b8; font-size:.85em; }
+  tr.ult td { background:rgba(255,226,122,.08); }
+  tr.ult .nm b { color:#ffe27a; }
+  .mp { white-space:nowrap; } .mp i { display:inline-block; width:.6em; height:.6em; border-radius:50%; background:#7fe3ff; margin-right:2px; }
+  .sp { white-space:nowrap; color:#c9c0ea; font-size:.9em; }
+  .new { background:#ff8a1c; color:#fff; border-radius:999px; padding:0 .5em; font-size:.75em; font-weight:900; margin-left:.3em; }
+  @media (max-width:640px) { td.fx, th.fx, td.sp, th.sp { display:none; } .trait img { width:64px; height:64px; } }
+  @media print { body { background:#fff; color:#000; } header { background:none; } .jobs { display:none; } .box { border-color:#999; } td, th { color:#000; border-color:#ccc; } .nm span, .sp { color:#555; } tr.ult td { background:#fff6d6; } section[hidden] { display:block !important; break-before:page; } }
+</style>
+</head>
+<body>
+<header><h1>📖 リカリア 技のてびき</h1><div class="jobs" id="jobs"></div></header>
+<main>
+  <div class="box"><h2>技のきほん</h2><ul>
+    <li><b>覚えるレベル</b>になると、その技を使えるようになります（Lv1〜100で、どの職業も15こ）。</li>
+    <li>戦いに持っていけるのは、<b>ふつうの技4つ＋必殺技（★）1つ</b>。町のメニューの「ステータス」でえらびます。</li>
+    <li>レベルが1上がるごとに<b>SP</b>が1もらえます（ボスや節目でも、もらえます）。SPを使うと技のランクが上がり、名前が変わって強くなります（ランク1 → 2 → 3）。</li>
+    <li>技を使うには<b>MP</b>がいります。MPは問題に正解するとたまります。</li>
+    <li>教会で100ゴールドはらうと、使ったSPを全部もどして、えらびなおせます。</li></ul></div>
+  <div id="pages"></div>
+</main>
+<script type="module">
+import { JOBS, JOB_KEYS, LEARN, rankCost, RANK_POW, heroImg, effectImg, ELEM, ELEMS } from './rikaria-data.js';
+const $ = (i) => document.getElementById(i);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const NEW_LV = 50;   /* Lv50から先は 2026-11-19 に足した技 */
+function names(j, i, s) {
+  if (j === 'summoner' && i === 0) return ELEMS.map((e) => ELEM[e].head).join('／') + ' → ○○ボール → ○○ストライク<br><span>（○○は今の精霊の名前）</span>';
+  return '<b>' + esc(s.names[0]) + '</b><br><span>→ ' + esc(s.names[1]) + ' → ' + esc(s.names[2]) + '</span>';
+}
+function page(j) {
+  const J = JOBS[j];
+  const rows = J.sk.map((s, i) => { const c = rankCost(s.mp);
+    return `<tr class="${s.ult ? 'ult' : ''}"><td class="lv">Lv${LEARN[i]}${LEARN[i] >= NEW_LV ? '<span class="new">NEW</span>' : ''}</td>
+      <td class="fx">${s.fx && s.fx !== 'elem' ? `<img src="${effectImg(s.fx)}" alt="" loading="lazy">` : '🔮'}</td>
+      <td class="nm">${s.ult ? '★ ' : ''}${names(j, i, s)}</td><td>${esc(s.d)}</td>
+      <td class="mp">${'<i></i>'.repeat(s.mp)}<br>${s.mp}</td><td class="sp">ランク2：${c[0]}SP<br>ランク3：${c[1]}SP</td></tr>`; }).join('');
+  const total = J.sk.reduce((a, s) => a + rankCost(s.mp)[0] + rankCost(s.mp)[1], 0);
+  return `<section id="p-${j}" hidden><div class="box trait"><img src="${heroImg(j, 'a')}" alt=""><div><h2 style="margin:0;color:${J.color}">${J.n}</h2><div>${esc(J.trait)}</div>
+      <div style="color:#c9c0ea;font-size:.9em">全部の技をランク3にするには ${total}SP。どれから育てるか、えらぼう。</div></div></div>
+    <table><thead><tr><th>覚える</th><th class="fx"></th><th>技の名前（ランク1 → 2 → 3）</th><th>どんな技</th><th>MP</th><th class="sp">ランクを上げるSP</th></tr></thead><tbody>${rows}</tbody></table>
+    <p style="color:#c9c0ea;font-size:.9em">ランクが上がると、威力はランク2で ${RANK_POW[1]}倍、ランク3で ${RANK_POW[2]}倍。守りや回復が続く長さものびます。★は必殺技。</p></section>`;
+}
+$('pages').innerHTML = JOB_KEYS.map(page).join('');
+let cur = (location.hash.slice(1) in JOBS) ? location.hash.slice(1) : JOB_KEYS[0];
+function show(j) { cur = j; JOB_KEYS.forEach((k) => { $('p-' + k).hidden = k !== j; }); document.querySelectorAll('#jobs button').forEach((b) => { b.classList.toggle('on', b.dataset.j === j); b.setAttribute('aria-pressed', b.dataset.j === j); }); history.replaceState(null, '', '#' + j); }
+$('jobs').innerHTML = JOB_KEYS.map((j) => `<button type="button" data-j="${j}"><img src="${heroImg(j, 'a')}" alt="">${JOBS[j].n}</button>`).join('');
+$('jobs').onclick = (e) => { const b = e.target.closest('button'); if (b) show(b.dataset.j); };
+show(cur);
+</script>
+</body>
+</html>
