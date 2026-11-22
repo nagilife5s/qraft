@@ -61,7 +61,7 @@ export function partyHpX(avgLv) { return lvMult(avgLv || 1); }
 export function addMember(G, m) {
   var J = JOBS[m.j] || JOBS.warrior;
   G.mem[m.id] = { id: m.id, name: m.name, j: JOBS[m.j] ? m.j : 'warrior', lk: m.lk, lv: m.lv || 1, atk: m.atk || J.atk, def: m.def != null ? m.def : J.def,
-    mx: m.mhp || J.hp, hp: m.mhp || J.hp, mp: 0, mm: m.mmp || MP_MAX, cut: m.cut || 1, hx: m.healX || 1, cr: m.crit || 0, dn: 0, tg: 0, streak: 0, sr: m.sr || {}, ld: loadoutOf({ j: m.j, lv: m.lv, ld: m.ld }),
+    mx: m.mhp || J.hp, hp: m.mhp || J.hp, mp: 0, mm: m.mmp || MP_MAX, cut: m.cut || 1, hx: m.healX || 1, cr: m.crit || 0, dn: 0, tg: 0, streak: 0, sr: m.sr || {}, ld: loadoutOf({ j: m.j, lv: m.lv, ld: m.ld, pr: m.pr }), pr: m.pr ? 1 : 0, tt: String(m.tt || '').slice(0, 12),   /* pr 昇格・tt 称号（2026-11-23） */
     elem: 'fire', mode: 'atk', nextCrit: 0, keep: 0, gs: null, counter: null, rw: { exp: 0, gold: 0, ok: 0, ans: 0, dmg: 0, heal: 0, zk: 0 }, here: true,
     it: isCarry(m.it) ? m.it : '', itUsed: false };   /* it＝持っていく持ち物（回復系を1つ。1回の授業で1回だけ使える） */
   if (G.order.indexOf(m.id) < 0) G.order.push(m.id);
@@ -483,7 +483,7 @@ export function view(G) {
   var mem = {};
   G.order.forEach(function (id) {
     var m = G.mem[id]; if (!m.here) return;
-    mem[id] = { n: m.name, j: m.j, lk: m.lk, hp: m.hp, mx: m.mx, mp: Math.floor(m.mp), mm: m.mm, dn: m.dn, tg: m.tg, st: m.streak, el: m.elem, md: m.mode,
+    mem[id] = { n: m.name, j: m.j, lk: m.lk, pr: m.pr || 0, tt: m.tt || '', hp: m.hp, mx: m.mx, mp: Math.floor(m.mp), mm: m.mm, dn: m.dn, tg: m.tg, st: m.streak, el: m.elem, md: m.mode,
       gs: m.gs ? 1 : 0, ct: m.counter ? 1 : 0, nc: m.nextCrit ? 1 : 0, kp: m.keep, sl: m.seal > 0 ? 1 : 0, ps: m.psn > 0 ? 1 : 0, it: m.itUsed ? '' : (m.it || '') };
   });
   return {

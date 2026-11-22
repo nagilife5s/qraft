@@ -13,7 +13,8 @@ function team(lv = 12, jobs = JOBS6) {
 test('データ：6職業に技が15個ずつ、名前はランク3つ、効果の部品がある', () => {
   assert.deepEqual(D.JOB_KEYS.sort(), Object.keys(D.JOBS).sort());
   for (const j of D.JOB_KEYS) {
-    const sk = D.JOBS[j].sk; assert.equal(sk.length, 15, j);
+    const all = D.JOBS[j].sk; assert.equal(all.length, 16, j); assert.ok(all[D.PRO_SK].pro && all[D.PRO_SK].ult, j + 'の上級職の必殺技（2026-11-23）');
+    const sk = all.slice(0, 15);
     sk.forEach((s, i) => { assert.equal(s.lv, D.LEARN[i], j + i); assert.equal(s.names.length, 3); assert.ok(s.mp >= 1 && s.mp <= 5); });
     assert.equal(sk.filter(s => s.ult).length, 3, j + 'の必殺技は3つ');
   }
@@ -405,4 +406,27 @@ test('追加の敵：絵があり、出現はノーマル12体＋レア4%・4%�
     assert.equal(E.view(G).foes[0].rr, 2);
   }
   assert.ok(seen);
+});
+
+// 昇格・単元マスター（2026-11-23）
+test('昇格：能力値×1.1・上級職の必殺技がチーム戦でも持っていける', () => {
+  const base = { j: 'mage', lv: 100 }, pro = { j: 'mage', lv: 100, pr: true };
+  const a = D.statsOf(base, true), b = D.statsOf(pro, true);
+  assert.ok(b.atk > a.atk && b.mhp > a.mhp && b.def >= a.def); assert.ok(D.statsOf({ j: 'warrior', lv: 100, pr: true }).def > D.statsOf({ j: 'warrior', lv: 100 }).def);
+  assert.equal(D.jobLabel('mage', true), '賢者'); assert.equal(D.jobLabel('mage'), '魔法使い');
+  assert.equal(D.loadoutOf(base).u, 14); assert.equal(D.loadoutOf({ ...pro, ld: { a: [], u: 15 } }).u, 15);
+  assert.equal(D.loadoutOf({ ...base, ld: { a: [], u: 15 } }).u, 14, '昇格していなければ15は使えない');
+  assert.ok(!D.canRankUp({ ...pro, sp: 99 }, D.PRO_SK), '上級職の技はランクが上がらない');
+  const G = E.newGroup({ unit: D.UNITS[0], mem: [{ id: 'u0', name: 'A', j: 'mage', lk: 'a', lv: 100, atk: b.atk, mhp: b.mhp, pr: 1, tt: '物質マスター', ld: { a: [], u: 15 } }] });
+  assert.equal(G.mem.u0.ld.u, 15); const v = E.view(G).mem.u0; assert.equal(v.pr, 1); assert.equal(v.tt, '物質マスター');
+});
+test('単元マスター：30問・90%・10問連続で称号', () => {
+  const ch = {};
+  for (let i = 0; i < 20; i++) { assert.equal(D.mtAdd(ch, 'ion', true), false); if (i % 7 === 6) D.mtAdd(ch, 'ion', false); }   // 連続は7まで・まちがい3
+  let got = false; for (let i = 0; i < 7; i++) got = D.mtAdd(ch, 'ion', true) || got;
+  assert.equal(got, false, '27/30 は 90% だが連続は7');
+  for (let i = 0; i < 3; i++) got = D.mtAdd(ch, 'ion', true) || got;
+  assert.equal(got, true); assert.ok(D.mtHas(ch, 'ion')); assert.equal(ch.tb, 256);
+  ch.tc = 'ion'; assert.equal(D.titleOf(ch), 'イオンマスター'); assert.equal(D.udOpen(ch), false);
+  assert.equal(D.udX(1), 1.5); assert.equal(D.udX(10), 2);
 });

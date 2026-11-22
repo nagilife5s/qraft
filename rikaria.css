@@ -23,6 +23,7 @@
 .chip { display:flex; flex-direction:column; align-items:center; font-size:.72em; font-weight:900; width:4.6em; }
 .chip img { height:2.8em; }
 .chip .bar { width:100%; height:.45em; }
+.chip .ttl { display:block; font-size:.72em; color:#ffe27a; white-space:nowrap; max-width:6.5em; overflow:hidden; text-overflow:ellipsis; }   /* 単元マスターの称号（2026-11-23） */
 .chip.me { color:var(--q-gold); }
 .chip.me img { filter:drop-shadow(0 0 .2em #ffd23f); }
 .chip.ko img { filter:grayscale(1) brightness(.6); }

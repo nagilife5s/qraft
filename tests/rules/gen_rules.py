@@ -81,7 +81,8 @@ URA_SP, URA_GOLD = 5, 100
 def ub_add(u): return AND(NE('ub', u), "!" + DE('ub', u))
 ub_all_same = [OR("!" + NE('ub', u), DE('ub', u)) for u in UIDS]
 # 図鑑・裏ボスの記録は消せない（消して取り直すと、ごほうびをもう一度もらえてしまう）。どの書き込みでも調べる
-keep_rec = [OR("!" + DE(k, u), NE(k, u)) for k in ('zk', 'ub', 'bc', 'ubb') for u in UIDS] + [OR("!" + DE('ms', str(k)), NE('ms', str(k))) for k in MS]
+keep_rec = [OR("!" + DE(k, u), NE(k, u)) for k in ('zk', 'ub', 'bc', 'ubb', 'mt') for u in UIDS] + [OR("!" + DE('ms', str(k)), NE('ms', str(k))) for k in MS] + \
+           [OR("!" + DE(k), NE(k)) for k in ('tb', 'pr')]   # 2026-11-23：単元マスターの記録 mt・称号 tb・昇格 pr も消せない
 # ボスを倒した記録 bc（2026-11-19）：新しく書けるのは、ひとりで冒険の報酬の書き込みだけで、1回に1つまで。
 # そのとき、経験値が60以上増えていて（ボスの報酬。いちばん弱いボスでも約70）、図鑑のその単元のボスの印（zk の 1024）もついていること。
 # ほかの書き込み（買い物・振り直し・鍛冶屋・裏ボス）では増やせない。消せないのは keep_rec
@@ -200,6 +201,26 @@ c['ubb'] = {"$k": {".validate": UKEY + " && newData.hasChildren(['m','q'])", "m"
 c['ubd'] = {".validate": "newData.isNumber() && newData.val() >= 0"}
 # 5階のダンジョンで、たどり着いた一番深い階（単元 → 2〜5 の整数）。2026-11-20。ごほうびではないので、ほかの書き込み（買い物の形など）といっしょに変わってよい
 c['df'] = {"$k": {".validate": UKEY + " && newData.isNumber() && newData.val() >= 2 && newData.val() <= 5 && newData.val() % 1 === 0"}}
+# 裏ダンジョン（2026-11-23）：たどり着いた一番深い階（単元 → 2〜10。11＝いちばん下のボスを倒した）。df と同じく、ほかの書き込みといっしょに変わってよい
+c['uf'] = {"$k": {".validate": UKEY + " && newData.isNumber() && newData.val() >= 2 && newData.val() <= 11 && newData.val() % 1 === 0"}}
+# 単元マスター（2026-11-23）：mt/<単元> = { a 答えた数, c 正解, b 連続正解のベスト, s いまの連続 }。a・c・b は減らない。c・b・s は a まで
+MT_CAP = 100000
+def mt_int(k, le):
+    return {".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() %% 1 === 0 && newData.val() <= %s" % le + ("" if k == 's' else " && (!data.exists() || newData.val() >= data.val())")}
+MTA = "newData.parent().child('a').val()"
+c['mt'] = {"$k": {".validate": UKEY + " && newData.hasChildren(['a','c','b','s'])", "a": mt_int('a', str(MT_CAP)), "c": mt_int('c', MTA), "b": mt_int('b', MTA), "s": mt_int('s', "newData.parent().child('b').val()"),
+                  "$other": {".validate": False}}}
+# 称号のしるし tb（単元の並び UIDS の i 番目＝2^i）。前のしるしは残す。新しく付けたしるしの単元は、mt が条件（30問以上・正解率90%以上・10問連続）を満たしていること
+def mt_ok(u):
+    m = lambda k: "newData.parent().child('mt').child('%s').child('%s').val()" % (u, k)
+    return "(newData.parent().child('mt').child('%s').exists() && %s >= 30 && %s * 10 >= %s * 9 && %s >= 10)" % (u, m('a'), m('c'), m('a'), m('b'))
+tb_new = " && ".join("(!(newData.val() %% %d >= %d) || (data.exists() && data.val() %% %d >= %d) || %s)" % (2 ** (i + 1), 2 ** i, 2 ** (i + 1), 2 ** i, mt_ok(u)) for i, u in enumerate(UIDS))
+tb_keep = " && ".join("(!(data.val() %% %d >= %d) || newData.val() %% %d >= %d)" % (2 ** (i + 1), 2 ** i, 2 ** (i + 1), 2 ** i) for i in range(len(UIDS)))
+c['tb'] = {".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= %d && newData.val() %% 1 === 0 && (!data.exists() || %s) && %s" % (2 ** len(UIDS) - 1, tb_keep, tb_new)}
+# 名前の横に出す称号 tc（単元の id）。その単元のしるしが tb にあること
+c['tc'] = {".validate": OR(*["(newData.val() === '%s' && newData.parent().child('tb').val() %% %d >= %d)" % (u, 2 ** (i + 1), 2 ** i) for i, u in enumerate(UIDS)])}
+# 昇格（2026-11-23）：pr＝true。Lv100 から（消せないのは keep_rec）
+c['pr'] = {".validate": "newData.val() === true && newData.parent().child('lv').val() >= 100"}
 c['eq'] = {"w": {".validate": " || ".join("newData.val() === '%s'" % k for k in WEAP)},
            "a": {".validate": " || ".join("newData.val() === '%s'" % k for k in ARMO)}, "$other": {".validate": False}}
 c['inv'] = {"$k": {".validate": "(" + " || ".join("$k === '%s'" % k for k in ITEMS) + ") && newData.isNumber() && newData.val() >= 0 && newData.val() <= 9"}}
@@ -207,7 +228,7 @@ c['j'] = {".validate": " || ".join("newData.val() === '%s'" % j for j in JOBS)}
 c.pop('sk', None)
 c['sr'] = {**{str(i): {".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 2 && newData.parent().parent().child('lv').val() >= %d" % LEARN[i]} for i in range(NSK)}, "$other": {".validate": False}}
 c['ld'] = {"a": {"$k": {".validate": "$k.matches(/^[0-3]$/) && newData.isNumber() && newData.val() >= 0 && newData.val() <= %d" % (NSK - 1)}},
-           "u": {".validate": "newData.isNumber() && newData.val() >= -1 && newData.val() <= %d" % (NSK - 1)}, "$other": {".validate": False}}
+           "u": {".validate": "newData.isNumber() && newData.val() >= -1 && (newData.val() <= %d || (newData.val() === %d && newData.parent().parent().child('pr').val() === true))" % (NSK - 1, NSK)}, "$other": {".validate": False}}
 c['ttl'] = {"$a": {".validate": "newData.isString() && newData.val().length <= 20 && (%s || newData.val() === data.val())" % A}}
 # クラスの記録（町の名前 town・町の段階 stage・単元 areas・オブリオン ob/obDone など）。読むのは誰でも、書くのは先生だけ。
 # 中身の形は決めていない（先生の端末なら新しい項目を足せる）。生徒の端末からは書けない
@@ -232,6 +253,7 @@ q['ranges'] = {".read": "auth != null", ".write": "auth != null && " + A, "$g": 
 rm = R['rules']['rooms']['$pin']
 pl = rm['players']['$uid']
 pl['j'] = {".validate": " || ".join("newData.val() === '%s'" % j for j in JOBS)}
+pl['lv'] = {".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= %d" % LV_MAX}   # 2026-11-23：99 までだと Lv100 からチーム戦に入れなかった
 pl['gp'] = {".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 9"}
 HOST = "root.child('rooms').child($pin).child('hostUid').val() === auth.uid"
 # なかまと冒険（生徒が開く部屋）：参加者が自分の強さの写し m を部屋に出す（進行役の端末はほかの人のキャラを読めないため）。JSON文字列で800字まで。

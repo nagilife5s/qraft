@@ -12,12 +12,14 @@ export function dgBfs(g, [sx, sy]) {
   for (let i = 0; i < q.length; i++) { const [x, y] = q[i]; for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const nx = x + dx, ny = y + dy; if (g[ny] && g[ny][nx] === '.' && d[ny][nx] < 0) { d[ny][nx] = d[y][x] + 1; q.push([nx, ny]); } } }
   return d;
 }
-export function dgBuild(uid, fl) {
+/* max＝いちばん下の階（ふつう5。裏ダンジョンは10・種も別。2026-11-23）。いちばん下の階はボス、4階から下は鍵2本 */
+export function dgBuild(uid, fl, max) {
+  max = max || DG_FLOORS; const sd = max === DG_FLOORS ? uid : uid + '@ura';
   /* 階段の部屋の壁が通路を切って、扉の手前がせまくなりすぎることがある（force 3階・space 3階）。そのときは種を変えて作り直す */
-  for (let t = 0; t < 20; t++) { const M = make(uid + '#' + fl + (t ? '#' + t : ''), fl); if (M.spots.length >= 50) return M; }
-  return make(uid + '#' + fl, fl);
+  for (let t = 0; t < 20; t++) { const M = make(sd + '#' + fl + (t ? '#' + t : ''), fl, max); if (M.spots.length >= 50) return M; }
+  return make(sd + '#' + fl, fl, max);
 }
-function make(seed, fl) {
+function make(seed, fl, max) {
   const W = DG_W, H = DG_H, R = dgRng(seed), g = Array.from({ length: H }, () => Array(W).fill('#'));
   /* 1) 穴掘り迷路 */
   const st = [[1, 1]]; g[1][1] = '.';
@@ -45,7 +47,7 @@ function make(seed, fl) {
   g[door[1]][door[0]] = 'D';
   const d2 = dgBfs(g, start); let key = start, kd = 0;
   for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (d2[y][x] > kd && g[y][x] === '.') { kd = d2[y][x]; key = [x, y]; }
-  const items = [{ k: fl === DG_FLOORS ? 'boss' : 'stair', x: far[0], y: far[1] }], carriers = [key];
+  const items = [{ k: fl === max ? 'boss' : 'stair', x: far[0], y: far[1] }], carriers = [key];
   if (fl >= 4) { let k2 = start, best = 0; for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) { const v = d2[y][x], dk = Math.abs(x - key[0]) + Math.abs(y - key[1]); if (v > 0 && g[y][x] === '.' && dk > best && v > kd * .5) { best = dk; k2 = [x, y]; } } carriers.push(k2); }
   for (const r of rooms) { if (g[r.y][r.x] === '.' && d2[r.y][r.x] > 0 && !carriers.some((c) => c[0] === r.x && c[1] === r.y)) { items.push({ k: 'chest', x: r.x, y: r.y }); break; } }
   /* 魔物の置き場所の候補：入口から離れた、扉の手前の床（階段の部屋には置かない） */

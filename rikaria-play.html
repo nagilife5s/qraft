@@ -6,9 +6,9 @@
 <title>リカリア チーム戦</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261123073027">
-<link rel="stylesheet" href="quest.css?v=20261123073027">
-<link rel="stylesheet" href="rikaria.css?v=20261123073027">
+<link rel="stylesheet" href="theme.css?v=20261123120000">
+<link rel="stylesheet" href="quest.css?v=20261123120000">
+<link rel="stylesheet" href="rikaria.css?v=20261123120000">
 <style>
   #app { background:url(img/rikaria/title-bg.webp) center/cover no-repeat, #1d1648; }
   .q-bg-r { background:rgba(10,6,36,.55); }
@@ -143,13 +143,13 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261123073027"></script>
+<script src="firebase-config.js?v=20261123120000"></script>
 <script type="module">
-import { signIn, db, ref, set, get, update, onValue, serverNow, $, showScreen, confetti, makeAdvLog, makeQStat } from './lib.js?v=20261123073027';
-import { fiscalYear, ensureOwner, cmdImg } from './quest.js?v=20261123073027';
+import { signIn, db, ref, set, get, update, onValue, serverNow, $, showScreen, confetti, makeAdvLog, makeQStat } from './lib.js?v=20261123120000';
+import { fiscalYear, ensureOwner, cmdImg } from './quest.js?v=20261123120000';
 import { JOBS, JOB_KEYS, MP_MAX, LEARN, ELEMS, ELEM, heroImg, skillName, rankOf, rankCost, canRankUp, rankUp, loadoutOf, learned, migrateChar, expToNext, unitById, battleBg, weakOf, LOAD_N, OBLION,
-         newChar, ITEMS, carryList, spiritImg, storyBoss, storyOb, TOWN_DEFAULT , itemImg, iconHtml, statsOf, addExp, zkMerge, dayNo, soloDayCap } from './rikaria-data.js?v=20261123073027';
-import { el, esc, drawField, moveField, cameraOf, cellAt, dmgFx, supportFx, ovban, redflash, MAP, spiritHtml } from './rikaria-view.js?v=20261123073027';
+         newChar, ITEMS, carryList, skGot, jobLabel, titleOf, spiritImg, storyBoss, storyOb, TOWN_DEFAULT , itemImg, iconHtml, statsOf, addExp, zkMerge, dayNo, soloDayCap } from './rikaria-data.js?v=20261123120000';
+import { el, esc, drawField, moveField, cameraOf, cellAt, dmgFx, supportFx, ovban, redflash, MAP, spiritHtml } from './rikaria-view.js?v=20261123120000';
 
 var TS = { '.sv': 'timestamp' };
 var uid = null, pin = null, state = null, sid = '', ch = null, look = 'a', job = 'warrior', gp = 0;
@@ -281,7 +281,7 @@ async function joinRoom() {
 /* it＝持っていく持ち物。使ったら「!」を頭に付ける（先生のPCへの合図） */
 function writePlayer() { var p = { nick: ch.n, sid: sid, j: ch.j, lk: ch.lk || 'a', lv: ch.lv || 1, gp: gp, rd: ready }; if (item) p.it = (itemUsed ? '!' : '') + item; if (PARTY) p.m = JSON.stringify(partyMem()); return set(ref(db, 'rooms/' + pin + '/players/' + uid), p); }
 /* なかまと冒険：進行役の端末は、ほかの人のキャラを読めない。自分の強さを、部屋に写しておく */
-function partyMem() { var st = statsOf(ch, true); return { name: ch.n, j: ch.j, lk: ch.lk || 'a', lv: ch.lv || 1, atk: st.atk, def: st.def, mhp: st.mhp, cut: st.cut, healX: st.healX, crit: st.crit, mmp: st.mmp, sr: ch.sr || {}, ld: ch.ld || null, it: carryList(ch).indexOf(item) >= 0 ? item : '' }; }
+function partyMem() { var st = statsOf(ch, true); return { name: ch.n, j: ch.j, lk: ch.lk || 'a', lv: ch.lv || 1, atk: st.atk, def: st.def, mhp: st.mhp, cut: st.cut, healX: st.healX, crit: st.crit, mmp: st.mmp, sr: ch.sr || {}, ld: ch.ld || null, pr: ch.pr ? 1 : 0, tt: titleOf(ch), it: carryList(ch).indexOf(item) >= 0 ? item : '' }; }   /* pr 昇格・tt 称号（2026-11-23） */
 function saveChar() { ch.u = TS; lastWrite = Date.now(); return set(ref(db, 'quest/' + state.y + '/chars/' + sid), ch); }
 
 /* ------------------------------------------------------------ 画面の切りかえ */
@@ -304,9 +304,9 @@ function render() {
 /* ---- 準備 */
 function drawPrep() {
   var J = JOBS[ch.j], ld = loadoutOf(ch);
-  $('ppHero').src = heroImg(ch.j, ch.lk);
+  $('ppHero').src = heroImg(ch.j, ch.lk, ch.pr);
   $('ppPlace').textContent = PARTY ? 'なかまと冒険 ・ ' + U.area + '（' + U.unit + '）' : state.g + '年' + state.c + '組 ・ ' + (isOb() ? '忘却の城：' + OBLION[state.ob - 1].n + '（クラス全員で戦う）' : U.area + '（' + U.unit + '）');
-  $('ppTitle').textContent = ch.n + '　' + J.n + ' Lv.' + ch.lv + '　' + gp + '班';
+  $('ppTitle').textContent = ch.n + (titleOf(ch) ? '〈' + titleOf(ch) + '〉' : '') + '　' + jobLabel(ch.j, ch.pr) + ' Lv.' + ch.lv + '　' + gp + '班';
   $('ppSp').textContent = 'SP ' + (ch.sp || 0) + '　つぎのレベルまで ' + Math.max(0, expToNext(ch.lv) - (ch.exp || 0));
   var mates = Object.keys(players).filter(function (u) { return players[u].gp === gp; });
   var mb = $('ppMates'); mb.textContent = '';
@@ -319,13 +319,14 @@ function drawPrep() {
   });
   var box = $('ppSkills'); box.textContent = '';
   J.sk.forEach(function (s, i) {
-    var got = LEARN[i] <= ch.lv, on = ld.a.indexOf(i) >= 0 || ld.u === i, r = rankOf(ch, i);
+    if (s.pro && !ch.pr) return;   /* 上級職の技は、昇格してから出す（2026-11-23） */
+    var got = skGot(ch, i), on = ld.a.indexOf(i) >= 0 || ld.u === i, r = rankOf(ch, i);
     var b = el('div', 'sk' + (s.ult ? ' ult' : '') + (on ? ' on' : '') + (got ? '' : ' lock'));
     b.tabIndex = got ? 0 : -1; b.setAttribute('role', 'button'); b.setAttribute('aria-pressed', on ? 'true' : 'false');
     b.appendChild(el('b', '', (s.ult ? '★ ' : '') + (got ? skillName(ch.j, i, r, 'fire') : '？？？')));
     b.appendChild(el('small', '', got ? s.d : 'Lv.' + LEARN[i] + 'で覚える'));
     var meta = el('div', 'meta'); meta.appendChild(el('span', '', 'MP ' + s.mp)); meta.appendChild(el('span', 'rk', '★'.repeat(r + 1) + '☆'.repeat(2 - r)));
-    if (got && r < 2) {
+    if (got && r < 2 && !s.pro) {
       var up = el('button', 'up', '上げる SP' + rankCost(s.mp)[r]); up.type = 'button'; up.disabled = !canRankUp(ch, i) || ready;
       up.title = '→ ' + skillName(ch.j, i, r + 1, 'fire');
       up.onclick = async function (e) { e.stopPropagation(); var back = JSON.parse(JSON.stringify(ch)); if (!rankUp(ch, i)) return; try { await saveChar(); } catch (x) { ch = back; err('ppErr', '保存できませんでした: ' + x.message); } drawPrep(); };
@@ -540,8 +541,8 @@ function updFoes(me) {
 function drawTeam() {
   $('teambar').innerHTML = Object.keys(gv.mem || {}).map(function (id) {
     var o = gv.mem[id], aimed = (gv.foes || []).some(function (f) { return f.aim === id && f.hp > 0; });
-    return '<div class="chip' + (id === uid ? ' me' : '') + (o.dn ? ' ko' : '') + (aimed ? ' aimed' : '') + '"><img alt="" src="' + heroImg(o.j, o.lk) + '">' + spiritHtml(o) +
-      '<div class="bar hp"><i style="width:' + (100 * o.hp / o.mx) + '%"></i></div>' + (o.dn ? '💤' : '') + (o.sl ? '🔒' : '') + (o.ps ? '☠' : '') + esc(id === uid ? 'あなた' : o.n) + '</div>';
+    return '<div class="chip' + (id === uid ? ' me' : '') + (o.dn ? ' ko' : '') + (aimed ? ' aimed' : '') + '"><img alt="" src="' + heroImg(o.j, o.lk, o.pr) + '">' + spiritHtml(o) +
+      '<div class="bar hp"><i style="width:' + (100 * o.hp / o.mx) + '%"></i></div>' + (o.dn ? '💤' : '') + (o.sl ? '🔒' : '') + (o.ps ? '☠' : '') + esc(id === uid ? 'あなた' : o.n) + (o.tt ? '<small class="ttl">' + esc(o.tt) + '</small>' : '') + '</div>';   /* 称号（2026-11-23） */
   }).join('');
 }
 /* 自分が精霊使いのとき：いま切りかえている精霊が、戦いの場に大きく浮かぶ */

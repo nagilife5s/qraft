@@ -867,3 +867,18 @@ img.slot:not(.ok) { visibility:hidden; }
 .epop { position:absolute; left:50%; top:20%; transform:translateX(-50%); z-index:5; white-space:nowrap; font-weight:900; font-size:1.3em; color:#fff; text-shadow:0 0 .3em #000, 0 .1em 0 #000; pointer-events:none; animation:epop 1.6s ease-out forwards; }
 @keyframes epop { 0% { opacity:0; transform:translate(-50%, .5em) scale(.8); } 15% { opacity:1; transform:translate(-50%, 0) scale(1.1); } 80% { opacity:1; } 100% { opacity:0; transform:translate(-50%, -.6em); } }
 @media (prefers-reduced-motion: no-preference) { #s-battle .enemy.chg img#eimg { animation:chgShiver .25s linear infinite; } @keyframes chgShiver { 50% { translate:.08em 0; } } }
+
+/* ------------------------------------------------------------ 単元マスター・裏ダンジョン（2026-11-23） */
+.st-ttl { color:#ffe27a; font-size:.9em; }
+.st-mt { width:100%; display:flex; flex-direction:column; gap:.3em; }
+.st-mt .st-h { font-weight:900; }
+.mt-row { display:flex; flex-direction:column; align-items:flex-start; gap:.1em; width:100%; padding:.35em .55em; border-radius:.6em; border:2px solid rgba(255,255,255,.15); background:rgba(255,255,255,.06); color:inherit; font:inherit; text-align:left; cursor:pointer; }
+.mt-row:disabled { cursor:default; opacity:.75; }
+.mt-row.got { border-color:#d4a83a; background:rgba(255,214,90,.12); }
+.mt-row.on { border-color:#ffe27a; box-shadow:0 0 0 2px #ffe27a inset; }
+.mt-row small { font-size:.78em; opacity:.85; }
+.ud-go { margin-top:.4em; background:#5b2bb5; }
+.ud-go.lock { background:#4a4560; opacity:.8; }
+.ud-note { font-size:.85em; }
+.shake { animation:q-shake .35s; }
+@keyframes q-shake { 25% { transform:translateX(-4px); } 75% { transform:translateX(4px); } }

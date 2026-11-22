@@ -166,6 +166,32 @@ export var JOBS = {
 };
 export var JOB_KEYS = ['warrior', 'mage', 'priest', 'hunter', 'monk', 'summoner'];
 
+/* ------------------------------------------------------------ 昇格（上級職。2026-11-23）
+ * Lv100 から教会で「昇格」できる（職業を変えるのとは別）。同じ職業のまま、レベル・技・SPはそのまま。
+ * 攻撃・HP・防御が1.1倍になり、上級職だけの必殺技（技の番号 PRO_SK＝15）を覚える。キャラの pr＝true で残す。
+ * 昇格したあとも、ふつうに Lv200 までレベルは上がる。職業を変えても昇格はそのまま（新しい職業の上級職になる） */
+export var PRO_LV = 100, PRO_SK = 15, PRO_X = 1.1;
+export var PROMO = {
+  warrior: { n: '聖騎士', img: 'paladin' }, mage: { n: '賢者', img: 'sage' }, priest: { n: '大司教', img: 'archbishop' },
+  hunter: { n: '天弓使い', img: 'skyarcher' }, monk: { n: '拳聖', img: 'fistsaint' }, summoner: { n: '精霊王', img: 'spiritlord' }
+};
+/* 上級職の必殺技（ランクは上がらない。3つの名前は同じ） */
+[['warrior', 'ホーリーセイバー', '必殺技（聖騎士）：聖なる剣で敵全体に超特大ダメージ＋班の攻撃を大きく上げる', '20', { pow: 6, all: 1, buff: { x: 1.4, sec: 15 }, ult: 1 }],
+ ['mage', '賢者の星界', '必殺技（賢者）：星の海を呼び、敵全体に超特大ダメージ。バリアをつらぬく', '18', { pow: 6.8, all: 1, pierce: 1, ult: 1 }],
+ ['priest', '大いなる祝福', '必殺技（大司教）：倒れた仲間を起こし、全回復＋敵全体に特大ダメージ', '21', { pow: 4.2, all: 1, revive: 1, heal: 1, ult: 1 }],
+ ['hunter', '天弓・流星群', '必殺技（天弓使い）：天の弓で敵全体に超特大ダメージ。必ず会心・バリアをつらぬく', '22', { pow: 4.6, all: 1, crit: 1, pierce: 1, ult: 1 }],
+ ['monk', '拳聖・天破', '必殺技（拳聖）：連続正解を全部使って、敵全体に超特大の一撃', '14', { pow: 3.6, all: 1, useStreak: .7, ult: 1 }],
+ ['summoner', '精霊王の審判', '必殺技（精霊王）：4つの精霊の王の力で、敵全体に超特大ダメージ', '23', { pow: 6.4, all: 1, quad: 1, ult: 1 }]
+].forEach(function (x) { JOBS[x[0]].sk[PRO_SK] = S(PRO_LV, 5, [x[1], x[1], x[1]], x[2], x[3], Object.assign({ pro: 1 }, x[4])); });
+/* 職業の名前（昇格していれば上級職の名前） */
+export function jobLabel(j, pr) { var k = JOBS[j] ? j : 'warrior'; return pr ? PROMO[k].n : JOBS[k].n; }
+export function canPromote(ch) { return !!ch && !ch.pr && (ch.lv || 1) >= PRO_LV; }
+/* その技を覚えているか（15番目の上級職の技は、昇格していれば） */
+export function skGot(ch, i) { return i < LEARN.length ? LEARN[i] <= ((ch && ch.lv) || 1) : i === PRO_SK && !!(ch && ch.pr); }
+/* 上級職の絵（img/rikaria/chara/<名前>-a/b.webp）。まだ無いときは、もとの職業の絵（画面の側で読みこめたものだけ使う） */
+var PRO_ART = {};
+if (typeof Image !== 'undefined') JOB_KEYS.forEach(function (j) { ['a', 'b'].forEach(function (l) { var n = PROMO[j].img + '-' + l, im = new Image(); im.onload = function () { PRO_ART[n] = 1; }; im.src = 'img/rikaria/chara/' + n + '.webp'; }); });
+
 /* 精霊（精霊使い） */
 export var ELEMS = ['fire', 'water', 'wind', 'earth'];
 export var ELEM = {
@@ -186,8 +212,9 @@ export function skillName(job, i, rank, elem) {
 export function isUlt(job, i) { return !!JOBS[job].sk[i].ult; }
 
 /* ------------------------------------------------------------ キャラ（第2版） */
-export function heroImg(job, look) {
+export function heroImg(job, look, pr) {
   var j = JOBS[job] ? job : 'warrior', l = look === 'b' ? 'b' : 'a';
+  if (pr && PRO_ART[PROMO[j].img + '-' + l]) return 'img/rikaria/chara/' + PROMO[j].img + '-' + l + '.webp';   /* 昇格（2026-11-23） */
   return 'img/rikaria/chara/' + j + '-' + l + '.webp';
 }
 export function spiritImg(e) { return 'img/rikaria/chara/spirit-' + (ELEM[e] ? e : 'fire') + '.webp'; }   /* 精霊使いの横に浮かぶ精霊 */
@@ -216,7 +243,7 @@ export function rankUp(ch, i) {
 }
 /* 持っていく技（覚えていない技は外す。足りないときは覚えた順に入れる） */
 export function loadoutOf(ch) {
-  var J = JOBS[ch.j] || JOBS.warrior, got = learned(ch.lv), ld = ch.ld || {};
+  var J = JOBS[ch.j] || JOBS.warrior, got = learned(ch.lv).concat(ch.pr ? [PRO_SK] : []), ld = ch.ld || {};   /* 昇格していれば上級職の必殺技も（2026-11-23） */
   var normal = got.filter(function (i) { return !J.sk[i].ult; }), ults = got.filter(function (i) { return J.sk[i].ult; });
   var a = (Array.isArray(ld.a) ? ld.a : []).map(Number).filter(function (i, k, arr) { return normal.indexOf(i) >= 0 && arr.indexOf(i) === k; }).slice(0, LOAD_N);
   normal.forEach(function (i) { if (a.length < LOAD_N && a.indexOf(i) < 0) a.push(i); });
@@ -335,9 +362,9 @@ export function gearOf(job, eq, up) {
 export function mpBonus(lv) { return Math.max(0, Math.min(14, Math.floor(((Number(lv) || 1) - 20) / 10))); }
 /* 能力値（チーム戦はレベルでHPを増やさない）。atk は武器の倍率をかけたあとの値 */
 export function statsOf(ch, team) {
-  var j = JOBS[ch.j] || JOBS.warrior, g = gearOf(JOBS[ch.j] ? ch.j : 'warrior', ch.eq, ch.up);
-  return { atk: Math.round(j.atk * g.atkX * 10) / 10, def: j.def, cut: g.cut, healX: g.healX, crit: g.crit, mmp: MP_MAX + g.mp + mpBonus(ch.lv),
-           mhp: j.hp + g.hp + (team ? 0 : 2 * ((ch.lv || 1) - 1)) };
+  var j = JOBS[ch.j] || JOBS.warrior, g = gearOf(JOBS[ch.j] ? ch.j : 'warrior', ch.eq, ch.up), px = ch.pr ? PRO_X : 1;   /* 昇格：攻撃・HP・防御 ×1.1（2026-11-23） */
+  return { atk: Math.round(j.atk * g.atkX * px * 10) / 10, def: Math.round(j.def * px * 10) / 10, cut: g.cut, healX: g.healX, crit: g.crit, mmp: MP_MAX + g.mp + mpBonus(ch.lv),
+           mhp: Math.round((j.hp + g.hp + (team ? 0 : 2 * ((ch.lv || 1) - 1))) * px) };
 }
 
 /* 道具屋。st＝並ぶ町の段階（1年＝0・2年＝4・3年＝8）。team＝チーム戦に持っていける */
@@ -571,9 +598,36 @@ export function czkTitle(u) { return u.unit + 'の図鑑・クラス制覇'; }
 export function extraTitles(ch) {
   var t = [];
   MS.forEach(function (m) { if (ch && ch.ms && ch.ms[m.lv]) t.push(m.t); });
-  UNITS.forEach(function (u) { if (zkCount(ch, u.id) === ZK_N) t.push(zkTitle(u)); if (ch && ch.ub && ch.ub[u.id]) t.push(uraTitle(u)); if (ch && ch.ubb && ch.ubb[u.id] && ch.ubb[u.id].m === 0) t.push(uraPerfectTitle(u)); });
+  UNITS.forEach(function (u) { if (mtHas(ch, u.id)) t.push(masterTitle(u)); if (zkCount(ch, u.id) === ZK_N) t.push(zkTitle(u)); if (ch && ch.ub && ch.ub[u.id]) t.push(uraTitle(u)); if (ch && ch.ubb && ch.ubb[u.id] && ch.ubb[u.id].m === 0) t.push(uraPerfectTitle(u)); });
   return t;
 }
+/* ------------------------------------------------------------ 単元マスターの称号（2026-11-23）
+ * ひとりで冒険で、単元ごとに 答えた数 a・正解 c・連続正解のベスト b・いまの連続 s を数える（キャラの mt/<単元>）。
+ * 答えた数30以上・正解率90%以上・10問連続正解 で「<単元>マスター」。手に入れた称号は tb（単元の並びのしるし。消えない）、えらんだ称号は tc（単元の id） */
+export var MASTER = { n: 30, acc: .9, run: 10, cap: 100000 };
+export var UD_NEED = 3, UD_FLOORS = 10;   /* 裏ダンジョン：マスターの称号3つで入れる・10階 */
+function uIdx(id) { for (var i = 0; i < UNITS.length; i++) if (UNITS[i].id === id) return i; return -1; }
+export function mtOf(ch, id) { var m = (ch && ch.mt && ch.mt[id]) || {}; return { a: m.a || 0, c: m.c || 0, b: m.b || 0, s: m.s || 0 }; }
+export function mtOk(m) { return m.a >= MASTER.n && m.c * 10 >= m.a * 9 && m.b >= MASTER.run; }   /* 正解率はルールと同じく整数で比べる */
+export function mtHas(ch, id) { var i = uIdx(id), v = (ch && ch.tb) || 0; return i >= 0 && v % Math.pow(2, i + 1) >= Math.pow(2, i); }
+export function masterTitle(u) { return u.unit + 'マスター'; }
+export function masterCount(ch) { return UNITS.filter(function (u) { return mtHas(ch, u.id); }).length; }
+/* 1問答えた。はじめて称号の条件を満たしたら tb にしるしを付けて true */
+export function mtAdd(ch, id, ok) {
+  if (uIdx(id) < 0) return false;
+  var m = mtOf(ch, id);
+  if (m.a < MASTER.cap) { m.a++; if (ok) m.c++; }
+  m.s = ok ? Math.min(MASTER.cap, m.s + 1) : 0; m.b = Math.max(m.b, m.s);
+  ch.mt = Object.assign({}, ch.mt || {}); ch.mt[id] = m;
+  if (!mtHas(ch, id) && mtOk(m)) { ch.tb = ((ch.tb || 0) + Math.pow(2, uIdx(id))); return true; }
+  return false;
+}
+/* 名前の横に出す称号（えらんだマスターの称号。なければ空） */
+export function titleOf(ch) { var u = ch && ch.tc && UNITS[uIdx(ch.tc)]; return u && mtHas(ch, u.id) ? masterTitle(u) : ''; }
+export function udOpen(ch) { return masterCount(ch) >= UD_NEED; }
+/* 裏ダンジョンの敵の強さ（階が深いほど強い。1階×1.5〜10階×2） */
+export function udX(fl) { return 1.5 + .5 * (Math.max(1, Math.min(UD_FLOORS, fl)) - 1) / (UD_FLOORS - 1); }
+
 export function bossTitle(u, lap) { return u.unit + 'の霧を晴らす者' + (lap > 0 ? '★' + (lap + 1) : ''); }
 
 /* ------------------------------------------------------------ ボスの技（2026-11-13 決定。ボスの技.md）

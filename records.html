@@ -236,9 +236,9 @@
 
 <script src="firebase-config.js"></script>
 <script type="module">
-import { loadHomeSets, signIn, db, ref, set, get, remove, loadQEdits, mountSetPicker, zoomImage } from './lib.js?v=20261123073027';
-import { fiscalYear, makeCode } from './quest.js?v=20261123073027';
-import { UNITS, LV_MAX, JOBS, expToNext, statsOf, weaponName, armorName, ITEMS, learned, rankOf, heroImg, migrateChar, upName, zkCount, ZK_N, uraName, extraTitles, czkOf } from './rikaria-data.js?v=20261123073027';
+import { loadHomeSets, signIn, db, ref, set, get, remove, loadQEdits, mountSetPicker, zoomImage } from './lib.js?v=20261123120000';
+import { fiscalYear, makeCode } from './quest.js?v=20261123120000';
+import { UNITS, LV_MAX, JOBS, expToNext, statsOf, weaponName, armorName, ITEMS, learned, rankOf, heroImg, migrateChar, upName, zkCount, ZK_N, uraName, extraTitles, czkOf } from './rikaria-data.js?v=20261123120000';
 var $ = function (id) { return document.getElementById(id); };
 var uid = null, rows = [], titles = {}, open = {}, HS = [];
 
@@ -723,13 +723,13 @@ function rkDraw() {
 function rkDetail() {
   var s = RK.list.filter(function (x) { return x.no === RK.sel; })[0], c = s && s.ch, box = $('rkDet');
   if (!c) { box.innerHTML = '行を押すと、ここに詳しく出ます'; return; }
-  var J = JOBS[c.j] || JOBS.warrior, st = statsOf(c), got = learned(c.lv), lv = c.lv || 1, eq = c.eq || {}, inv = c.inv || {}, bc = c.bc || {};
+  var J = JOBS[c.j] || JOBS.warrior, st = statsOf(c), got = learned(c.lv).concat(c.pr ? [15] : []), lv = c.lv || 1, eq = c.eq || {}, inv = c.inv || {}, bc = c.bc || {};
   var sk = J.sk.map(function (k, i) { var r = rankOf(c, i), on = got.indexOf(i) >= 0;
-    return '<div class="rksk' + (on ? '' : ' no') + '"><span>' + rkEsc(k.names[Math.max(0, r - 1)] || k.names[0]) + '</span><span>' + (on ? '<span class="rkstar">' + '★'.repeat(r + 1) + '</span>' + '☆'.repeat(2 - r) : 'Lv' + k.lv + 'で覚える') + '</span></div>'; }).join('');
+    return '<div class="rksk' + (on ? '' : ' no') + '"><span>' + rkEsc(k.names[Math.max(0, r - 1)] || k.names[0]) + '</span><span>' + (on ? '<span class="rkstar">' + '★'.repeat(r + 1) + '</span>' + '☆'.repeat(2 - r) : (k.pro ? '昇格で覚える' : 'Lv' + k.lv + 'で覚える')) + '</span></div>'; }).join('');   /* 15番目は上級職の技（2026-11-23） */
   var items = Object.keys(inv).filter(function (k) { return inv[k] > 0 && ITEMS[k]; }).map(function (k) { return '<span>' + ITEMS[k].ic + ' ' + ITEMS[k].n + ' ×' + inv[k] + '</span>'; }).join('') || 'なし';
   var ttl = Object.keys(c.ttl || {}).map(function (k) { return c.ttl[k]; }).concat(extraTitles(c)).map(function (t) { return '<span>🏅 ' + rkEsc(t) + '</span>'; }).join('') || 'なし';   /* 図鑑・裏ボスの称号は zk・ub から（2026-11-19） */
   var ub = c.ub || {}, zkGot = rkUnits().reduce(function (n, u) { return n + zkCount(c, u.id); }, 0), zkAll = rkUnits().length * ZK_N;
-  box.innerHTML = '<div class="rkhero"><img src="' + heroImg(c.j, c.lk) + '" alt=""><div><h3>' + s.no + '番 ' + rkEsc(c.n) + '</h3><div class="sub">' + J.n + '・Lv' + lv + (lv >= LV_MAX ? '（最高レベル）' : '（次まで ' + (expToNext(lv) - (c.exp || 0)) + ' 経験値）') + '</div></div></div>' +
+  box.innerHTML = '<div class="rkhero"><img src="' + heroImg(c.j, c.lk) + '" alt=""><div><h3>' + s.no + '番 ' + rkEsc(c.n) + '</h3><div class="sub">' + J.n + (c.pr ? '（昇格）' : '') + '・Lv' + lv + (lv >= LV_MAX ? '（最高レベル）' : '（次まで ' + (expToNext(lv) - (c.exp || 0)) + ' 経験値）') + '</div></div></div>' +
     '<h4>能力</h4><div class="rkkv"><span>HP</span><b>' + st.mhp + '</b><span>攻撃</span><b>' + st.atk + '</b><span>MP</span><b>' + st.mmp + '</b><span>ゴールド</span><b>' + (c.gold || 0) + ' G</b></div>' +
     '<h4>技（SP 残り ' + (c.sp || 0) + '／もらった合計 ' + (c.spt || 0) + '）</h4>' + sk +
     '<h4>装備</h4><div class="rkkv"><span>武器</span><b>' + upName(weaponName(c.j, eq.w), c, 'w') + '</b><span>防具</span><b>' + upName(armorName(c.j, eq.a), c, 'a') + '</b></div>' +

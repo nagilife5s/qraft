@@ -6,8 +6,8 @@
 <title>Qraft クエスト（ひとりで冒険）</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261123073027">
-<link rel="stylesheet" href="quest.css?v=20261123073027">
+<link rel="stylesheet" href="theme.css?v=20261123120000">
+<link rel="stylesheet" href="quest.css?v=20261123120000">
 <style>
   .hud-btns { display:flex; gap:.4em; }
   .hud-btns .btn { font-size:.85em; padding:.35em .9em; }
@@ -71,7 +71,7 @@
   .sk-wrap .skills:focus-visible { outline:.15em solid #ffd23f; outline-offset:.2em; }
   .sk-more { position:absolute; left:0; right:1em; bottom:0; padding:2.2em 0 .3em; text-align:center; font-weight:900; color:#ffe27a; pointer-events:none; background:linear-gradient(transparent, rgba(20,12,50,.95) 60%); transition:opacity .2s; }
   .sk-more.off { opacity:0; }
-  /* rikaria.css の窓・メニューの行（quest.css?v=20261123073027 と混ぜないよう .gm-bg の中だけ） */
+  /* rikaria.css の窓・メニューの行（quest.css?v=20261123120000 と混ぜないよう .gm-bg の中だけ） */
 .gm-bg .cur { position:absolute; top:50%; width:.62em; height:.95em; margin-top:-.475em; opacity:0; pointer-events:none;
   background:linear-gradient(135deg, #ffffff, #7ff0ff 40%, #1fb6e8 75%, #1a6fc0); clip-path:polygon(50% 0, 100% 50%, 50% 100%, 0 50%); filter:drop-shadow(0 0 .3em #35e0ff) drop-shadow(0 0 .15em #fff); }
 .gm-bg .win { position:relative; width:min(34em, 94%); margin-top:1.4em; background:rgba(10,12,44,.86); border:.18em solid #fff; border-radius:.7em; box-shadow:0 0 0 .22em rgba(10,12,44,.86), 0 .8em 2em rgba(0,0,0,.55); padding:1.5em .9em .8em; }
@@ -194,11 +194,12 @@
   <div class="row" style="align-items:stretch;flex:1;min-height:0;flex-wrap:nowrap;overflow:hidden">
     <div class="panel" style="width:17em;flex:none;display:flex;flex-direction:column;gap:.7em;align-items:center;overflow-y:auto;min-height:0">
       <img class="hero stat-hero" id="stHero" alt="">
-      <div style="text-align:center"><b style="font-size:1.4em" id="stName"></b><br><span class="mut" id="stJob"></span></div>
+      <div style="text-align:center"><b style="font-size:1.4em" id="stName"></b><br><b class="st-ttl" id="stTtl"></b><br><span class="mut" id="stJob"></span></div>
       <div class="stat-grid" id="stGrid"></div>
       <div class="bar xp" style="width:100%"><i id="stXp"></i><b id="stXpT"></b></div>
       <div style="width:100%" id="stEq"></div>
       <div class="inv" id="stInv"></div>
+      <div class="st-mt" id="stMt"></div>
     </div>
     <div class="sk-wrap grow"><div class="skills" id="skills" tabindex="0" aria-label="技の一覧（スクロールできます）"></div><div class="sk-more" id="skMore" aria-hidden="true">▼ まだあります（下へスクロール）</div></div>
   </div>
@@ -230,21 +231,22 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261123073027"></script>
+<script src="firebase-config.js?v=20261123120000"></script>
 <script type="module">
-import { bgm, preload } from './sound.js?v=20261123073027';
-import { dungeonArt, autoTorches } from './dungeon-art.js?v=20261123073027';
-import { townArt } from './town-art.js?v=20261123073027';
-import { dgBuild, DG_FLOORS } from './dungeon5.js?v=20261123073027';
-import { loadHomeSets, signIn, db, ref, set, get, $, el, showScreen, shuffle, prepareQuestion, maskOf, isTextCorrect, mountSetPicker, loadQEdits, applyQEdits, makeAdvLog, makeQStat, weakQueue, qstOf } from './lib.js?v=20261123073027';
+import { bgm, preload } from './sound.js?v=20261123120000';
+import { dungeonArt, autoTorches } from './dungeon-art.js?v=20261123120000';
+import { townArt } from './town-art.js?v=20261123120000';
+import { dgBuild, DG_FLOORS } from './dungeon5.js?v=20261123120000';
+import { loadHomeSets, signIn, db, ref, set, get, $, el, showScreen, shuffle, prepareQuestion, maskOf, isTextCorrect, mountSetPicker, loadQEdits, applyQEdits, makeAdvLog, makeQStat, weakQueue, qstOf } from './lib.js?v=20261123120000';
 import { addExp, expToNext, migrateChar, newChar, JOBS as RJOBS, JOB_KEYS, LEARN, RANK_POW, RANK_SEC, LOAD_N, ELEMS, ELEM, UNITS,
          heroImg, fieldImg, skillName, rankOf, rankCost, canRankUp, rankUp, spUsed, loadoutOf, weakOf, statsOf, unitOf, zakoImg, bossImg, battleBg, gearImg, itemImg, iconHtml,
          UP_PRICE, UP_MAX, upOf, canSmith, upName, zkAdd, zkBit, zkHas, zkCount, zkList, ZK_N, zkTitle, URA, uraName, uraTitle, extraTitles, unitsOf,
-         upPrice, MS, msClaim, UBB_GOLD, ubBetter, uraPerfectTitle, czkOf, czkTitle, rollZako, zakoOf, RARE, skillFx, elemFx, ATK_FX } from './rikaria-data.js?v=20261123073027';
-import { fxImg } from './rikaria-view.js?v=20261123073027';
+         upPrice, MS, msClaim, UBB_GOLD, ubBetter, uraPerfectTitle, czkOf, czkTitle, rollZako, zakoOf, RARE, skillFx, elemFx, ATK_FX,
+         PRO_SK, PRO_LV, PROMO, PRO_X, jobLabel, canPromote, skGot, MASTER, mtAdd, mtHas, mtOf, masterTitle, masterCount, titleOf, udOpen, udX, UD_NEED, UD_FLOORS } from './rikaria-data.js?v=20261123120000';
+import { fxImg } from './rikaria-view.js?v=20261123120000';
 import { fiscalYear, ENEMIES, TOWN, TOWN_DEFAULT,
          weaponList, armorList, weaponName, armorName, TOWN_MAX, soloDayCap, dayNo, ITEMS, ITEM_KEYS, FACS, RESPEC_COST, JOBCHG_GOLD, ensureOwner, battleGuide,
-         soloMult, soloReward, soloEnemyHp, soloBossHp, soloEnemyAtkX, BOSS, cmdImg, placeFacNpcs } from './quest.js?v=20261123073027';
+         soloMult, soloReward, soloEnemyHp, soloBossHp, soloEnemyAtkX, BOSS, cmdImg, placeFacNpcs } from './quest.js?v=20261123120000';
 
 var Y = fiscalYear(), me = { g: 0, c: 0, n: 0 }, sid = '', ch = null, CLS = {}, SETS = [], AREAS = [], look = 'a', job = 'mage';
 var curArea = null, HP = 0, MP = 0, RANGES = {};
@@ -271,7 +273,7 @@ function inv(k) { return (ch.inv && ch.inv[k]) || 0; }
  * ひとりで冒険は「1人対1体・1問ずつ」なので、班や秒数の効果は下の act() で読みかえる（秒 → 問題の数、班 → 自分）。
  */
 function RJ() { return RJOBS[ch.j] || RJOBS.warrior; }
-function jobName() { return RJ().n; }
+function jobName() { return jobLabel(ch.j, ch.pr); }   /* 昇格していれば上級職の名前（2026-11-23） */
 function clone(o) { return JSON.parse(JSON.stringify(o)); }
 /* 仲間がいないと意味がない技（ひとりで冒険では使えない） */
 function teamOnly(s) { return !!(s.mpOne || s.mpAll) && !(s.pow || s.heal || s.mpRate); }   /* MPを分けるだけの技はチーム戦専用 */
@@ -502,7 +504,7 @@ function buildTown(st) {
   if (st < 10) look[4] = 'hut';
   if (st < 11) look[5] = 'castle-ruin'; else if (st < 12) look[5] = 'castle-scaffold';
   NPCS.forEach(function (n) { g[n.y][n.x] = 'N'; });
-  /* 施設の6人（全身の絵）を、それぞれの施設の前に立たせる。行けるマスを減らさない場所だけ（quest.js?v=20261123073027 placeFacNpcs。2026-11-17） */
+  /* 施設の6人（全身の絵）を、それぞれの施設の前に立たせる。行けるマスを減らさない場所だけ（quest.js?v=20261123120000 placeFacNpcs。2026-11-17） */
   var fnpc = placeFacNpcs(g, blds, [16, 11], function (c) { return BLOCK.has(c); }, [4, 11]);
   return { g: g, blds: blds, fountain: [16, 11], dry: st < 4, start: [4, 11], st: st, tiles: tiles, props: props, objs: objs, look: look, fog: st < 2 ? 2 : st < 4 ? 1 : 0, fnpc: fnpc };
 }
@@ -598,7 +600,7 @@ function openField(key, start) {
 }
 function drawHud() {
   var s = statsOf(ch);
-  $('hudHero').src = heroImg(ch.j, ch.lk); $('hudName').textContent = ch.n; $('hudLv').textContent = 'Lv.' + ch.lv;
+  $('hudHero').src = heroImg(ch.j, ch.lk, ch.pr); $('hudName').textContent = ch.n + (titleOf(ch) ? '〈' + titleOf(ch) + '〉' : '');   /* えらんだ称号（2026-11-23） */ $('hudLv').textContent = 'Lv.' + ch.lv;
   $('hudHp').style.width = (HP / s.mhp * 100) + '%'; $('hudHpT').textContent = HP + '/' + s.mhp; $('hudGold').textContent = '💰 ' + (ch.gold || 0);
 }
 function drawMap() {
@@ -768,15 +770,17 @@ function gateOut() {
   wmG = a ? a.g : me.g; wmSel = a ? a.id : null; wmPick = true;
   drawWorld(); showScreen('s-world');
 }
-function goArea(a, src) { curArea = Object.assign({}, a, { src: src || { k: 'unit' } }); ADV.flush(); ADV.start((unitOfArea(curArea) || {}).id); FD.mobs = []; FD.dg = null; showScreen('s-town'); setTimeout(function () { openField('area'); poolOf(curArea).catch(function () {}); if (FD.dg.fl > 1) dgRestartAsk(); }); }
+function goArea(a, src) { curArea = Object.assign({}, a, { src: src || { k: 'unit' }, ud: !!(src && src.k === 'ud') }); ADV.flush(); ADV.start((unitOfArea(curArea) || {}).id); FD.mobs = []; FD.dg = null; showScreen('s-town'); setTimeout(function () { openField('area'); poolOf(curArea).catch(function () {}); if (FD.dg.fl > 1) dgRestartAsk(); }); }
 
 /* ------------------------------------------------------------ 5階のダンジョン（2026-11-20。mock/dungeon5-mock.html と同じ迷路） */
 /* たどり着いた一番深い階は、キャラの df/<単元> に残す（2〜5）。町にもどっても、その階から始められる。鍵はその階でさがし直し */
-function dgFloorOf(u) { return Math.min(DG_FLOORS, Math.max(1, (ch.df && ch.df[u.id]) || 1)); }
+/* 裏ダンジョン（2026-11-23）：curArea.ud のとき。10階・進み具合は uf/<単元>（11＝いちばん下のボスを倒した）。敵は udX 倍に強い */
+function dgMax() { return curArea && curArea.ud ? UD_FLOORS : DG_FLOORS; }
+function dgFloorOf(u) { var v = curArea && curArea.ud ? ch.uf && ch.uf[u.id] : ch.df && ch.df[u.id]; return Math.min(dgMax(), Math.max(1, v || 1)); }
 function dgLoad(fl) {
-  var M = dgBuild(unitOfArea(curArea).id, fl), g = M.g.map(function (r) { return r.map(function (c) { return c === '.' ? 'k' : c; }); });
+  var M = dgBuild(unitOfArea(curArea).id, fl, dgMax()), g = M.g.map(function (r) { return r.map(function (c) { return c === '.' ? 'k' : c; }); });
   MAPS.area = { g: g, blds: [], start: M.start.slice() };
-  FD.dg = { fl: fl, keys: 0, need: M.need, items: M.items, seen: {} };
+  FD.dg = { fl: fl, keys: 0, need: M.need, items: M.items, seen: {}, ud: !!curArea.ud };
   /* 2026-11-21：魔物を多く（数歩ごとに戦闘）。鍵は、鍵を持った魔物（🔑のしるし）が落とす */
   var sp = M.spots.slice(); FD.mobs = M.carriers.map(function (c) { return { id: pickMob(), x: c[0], y: c[1], key: 1 }; });
   for (var i = 0; i < 12 + 2 * fl && sp.length; i++) { var p = sp.splice(Math.floor(Math.random() * sp.length), 1)[0]; FD.mobs.push({ id: pickMob(), x: p[0], y: p[1] }); }
@@ -784,8 +788,15 @@ function dgLoad(fl) {
 if (/emu=1/.test(location.search)) window.__dg = function () { return { fl: FD.dg && FD.dg.fl, keys: FD.dg && FD.dg.keys, need: FD.dg && FD.dg.need, items: FD.dg && FD.dg.items, pos: FD.pos, g: MAPS.area.g.map(function (r) { return r.join(''); }), mobs: FD.mobs.length, carriers: FD.mobs.filter(function (q) { return q.key; }).length, cpos: FD.mobs.filter(function (q) { return q.key; }).map(function (q) { return [q.x, q.y]; }) }; };   /* 画面テスト用 */
 if (/emu=1/.test(location.search)) { window.__dgBeat = function () { var m = FD.mobs.filter(function (q) { return q.key; })[0]; FD.busy = true; startBattle(m); };   /* 画面テスト用：鍵の魔物と戦う */
   window.__dgGiveKeys = function (n) { for (var i = 0; i < n; i++) { var m = FD.mobs.filter(function (q) { return q.key; })[0]; if (m) FD.mobs = FD.mobs.filter(function (q) { return q !== m; }); dgKeyDrop(); } drawMap(); }; }   /* 画面テスト用：鍵の魔物を倒したことにする */
+if (/emu=1/.test(location.search)) { window.__ud = function () { return { ud: !!(curArea && curArea.ud), fl: FD.dg && FD.dg.fl, max: dgMax(), x: FD.dg ? udX(FD.dg.fl) : 0, uf: ch.uf || null, mix: (POOLS[curArea.id + '|' + JSON.stringify(curArea.src)] || {}).mix || 0 }; };
+  window.__dgDown = function () { dgDown(); };
+  window.__mt = function (u) { return { mt: mtOf(ch, u), tb: ch.tb || 0, tc: ch.tc || '', n: masterCount(ch) }; };
+  window.__ans = function (u, ok, n) { var got = false; for (var i = 0; i < (n || 1); i++) got = mtAdd(ch, u, ok) || got; return got; };   /* 画面テスト用：単元の問題に答えたことにする */
+  window.__save = function () { return saveChar(); };
+  window.__setLv = function (lv) { ch.lv = lv; drawHud(); };
+  window.__ch = function () { return clone(ch); }; }   /* 画面テスト用（2026-11-23） */
 if (/emu=1/.test(location.search)) window.__dgWarp = function (x, y, noMobs) { if (noMobs) FD.mobs = []; FD.pos = [x, y]; FD.busy = false; FD.path = []; placeUnit(false); camera(true); dgLook(); };   /* 画面テスト用 */
-function dgHud() { var d = FD.dg; if (d) $('fdTimer').textContent = d.fl + '階 / ' + DG_FLOORS + '　🔑 ' + d.keys + ' / ' + d.need + '　魔物 ' + FD.mobs.length + '体'; }
+function dgHud() { var d = FD.dg; if (d) $('fdTimer').textContent = (d.ud ? '👁 裏 ' : '') + d.fl + '階 / ' + dgMax() + '　🔑 ' + d.keys + ' / ' + d.need + '　魔物 ' + FD.mobs.length + '体'; }
 function dgLook() {
   var d = FD.dg; if (!d) return;
   for (var dy = -3; dy <= 3; dy++) for (var dx = -3; dx <= 3; dx++) { var x = FD.pos[0] + dx, y = FD.pos[1] + dy, k = x + ',' + y; if (d.seen[k]) continue; d.seen[k] = 1; var e = document.getElementById('fg' + x + '_' + y); if (e) e.remove(); }
@@ -845,10 +856,10 @@ function dgPick(x, y) {
 }
 function dgDown() {
   var fl = FD.dg.fl + 1, u = unitOfArea(curArea);
-  if (fl > dgFloorOf(u)) { ch.df = Object.assign({}, ch.df || {}); ch.df[u.id] = fl; saveChar(); }   /* 一番深い階を残す（待たない） */
+  if (fl > dgFloorOf(u)) { if (curArea.ud) { ch.uf = Object.assign({}, ch.uf || {}); ch.uf[u.id] = fl; } else { ch.df = Object.assign({}, ch.df || {}); ch.df[u.id] = fl; } saveChar(); }   /* 一番深い階を残す（待たない） */
   var fl0 = $('fdFlash'); fl0.classList.remove('on'); void fl0.offsetWidth; fl0.classList.add('on');
   dgLoad(fl); openField('area');
-  dgToast('🪜 ' + fl + '階に下りた' + (fl === DG_FLOORS ? '。この階の奥にボスがいる' : ''));
+  dgToast('🪜 ' + fl + '階に下りた' + (fl === dgMax() ? '。この階の奥にボスがいる' : ''));
 }
 function dgRestartAsk() {
   var m = $('fdMsg'); m.textContent = '';
@@ -914,6 +925,17 @@ function shop(fi) {
         var pick = await pickJob(); if (!pick) return false;
         ch.gold -= jc; ch.j = pick.j; ch.lk = pick.lk; delete ch.sr; delete ch.ld; ch.sp = ch.spt || 0;
         var ok = await saveChar(); if (ok) { HP = statsOf(ch).mhp; drawMap(); drawHud(); } return ok;
+      });
+    /* 昇格（2026-11-23）：Lv100 から。同じ職業のまま上級職に（無料）。レベル・技・SPはそのまま、攻撃・HP・防御 ×1.1、上級職の必殺技を覚える */
+    var pn = PROMO[ch.j] || PROMO.warrior;
+    row('👑', ch.pr ? '昇格ずみ：' + pn.n : '昇格する（' + RJ().n + ' → ' + pn.n + '）',
+      ch.pr ? '上級職になった。レベルはこのまま Lv200 まで上がる' : 'Lv' + PRO_LV + 'から。レベル・技・スキルポイントはそのまま。攻撃・HP・防御が' + Math.round((PRO_X - 1) * 100) + '%上がり、必殺技「' + RJ().sk[PRO_SK].names[0] + '」を覚える',
+      0, ch.pr ? '昇格ずみ' : (ch.lv || 1) < PRO_LV ? 'Lv' + PRO_LV + 'から' : '',
+      async function () {
+        if (!canPromote(ch)) return false;
+        ch.pr = true; var ok = await saveChar();
+        if (ok) { HP = statsOf(ch).mhp; drawMap(); drawHud(); setTimeout(function () { say('<h3>👑 昇格！</h3>' + pn.n + ' になった！ 必殺技「' + RJ().sk[PRO_SK].names[0] + '」を覚えた。ステータスで「持っていく技」にできる。'); }); }
+        return ok;
       });
     row('🪞', '見た目を変える', 'タイプ' + (ch.lk === 'b' ? 'A（短い髪）' : 'B（長い髪）') + 'にする（無料）', 0, '', async function () { ch.lk = ch.lk === 'b' ? 'a' : 'b'; var ok = await saveChar(); if (ok) drawMap(); return ok; });
   }
@@ -1080,7 +1102,7 @@ function drawWorld() {
   });
   h += '<button class="wm-node lock" data-wm="castle" style="left:88%;top:30%"><i class="wpin"></i><b>忘却の城</b><small>学年末に開く</small></button>';
   var flag = (curArea && GA.filter(function (a) { return a.id === curArea.id; })[0]) || now;
-  if (flag) h += '<div class="wm-flag" style="left:' + (flag.x - 5.5) + '%;top:' + (flag.y + 1) + '%"><img class="hero" src="' + heroImg(ch.j, ch.lk) + '" alt=""></div>';
+  if (flag) h += '<div class="wm-flag" style="left:' + (flag.x - 5.5) + '%;top:' + (flag.y + 1) + '%"><img class="hero" src="' + heroImg(ch.j, ch.lk, ch.pr) + '" alt=""></div>';
   $('wmMap').innerHTML = h;
   var side = $('wmSide'), a = AREAS.filter(function (x) { return x.id === wmSel; })[0];
   side.classList.toggle('hide', !wmSel); if (!wmSel) return;
@@ -1108,6 +1130,14 @@ function drawWorld() {
       if (SRC.k === 'sets' && !Object.keys(PICKS).length) { setDialog(a); return; }
       goArea(a, clone(SRC.k === 'sets' ? { k: 'sets', ids: Object.keys(PICKS) } : SRC));
     }; p.appendChild(g2);
+    /* 裏ダンジョン（2026-11-23）：単元マスターの称号を3つ（どの単元でも）持つと入れる。10階・敵が強い */
+    var uid1 = unitOf(a.g, a.unit).id, mc = masterCount(ch), uf1 = ch.uf && ch.uf[uid1];
+    var g3 = el('button', 'btn ud-go' + (udOpen(ch) ? '' : ' lock'), udOpen(ch) ? '👁 裏ダンジョンへ（10階）' : '🔒 裏ダンジョン'); g3.id = 'wmUd'; g3.type = 'button';
+    p.appendChild(g3);
+    p.appendChild(el('div', 'mut ud-note', udOpen(ch)
+      ? '敵がとても強い10階のダンジョン（深いほど強い）。' + (uf1 > UD_FLOORS ? '👁 制覇した！' : uf1 ? uf1 + '階までたどり着いた。' : '') + (me.g === 3 ? '入試の重要語句の問題もまざる。' : '')
+      : '単元マスターの称号を ' + UD_NEED + 'つ 集めると入れる（いま ' + mc + 'つ）。称号は、1つの単元で 30問以上答えて、正解率90%以上・10問連続正解でもらえる。'));
+    g3.onclick = function () { if (!udOpen(ch)) { g3.classList.remove('shake'); void g3.offsetWidth; g3.classList.add('shake'); return; } goArea(a, { k: 'ud' }); };
   }
   side.textContent = ''; side.appendChild(p);
 }
@@ -1140,7 +1170,7 @@ function srcBox(a) {
   opt('sets', '問題セットをえらぶ ', ed);
   return box;
 }
-/* 問題セットをえらぶ画面。先生の準備画面（rikaria-host.html）と同じ選び方（lib.js?v=20261123073027 の mountSetPicker：学年→題名でさがす→単元ごとの一覧）。2026-11-16 */
+/* 問題セットをえらぶ画面。先生の準備画面（rikaria-host.html）と同じ選び方（lib.js?v=20261123120000 の mountSetPicker：学年→題名でさがす→単元ごとの一覧）。2026-11-16 */
 function setDialog(a) {
   var bg = el('div', 'pk-bg'), box = el('div', 'pk'); bg.appendChild(box); bg.setAttribute('role', 'dialog'); bg.setAttribute('aria-modal', 'true'); bg.setAttribute('aria-label', '問題セットをえらぶ');
   var top = el('div', 'row'); top.appendChild(el('b', 'grow', '問題セットをえらぶ（いくつでも）'));
@@ -1212,17 +1242,19 @@ function skMore() { var b = $('skills'); $('skMore').classList.toggle('off', b.s
 $('skills').addEventListener('scroll', skMore); window.addEventListener('resize', function () { if ($('s-stat').classList.contains('on')) skMore(); });
 function drawStat() {
   var s = statsOf(ch), eq = ch.eq || {};
-  $('stHero').src = heroImg(ch.j, ch.lk); $('stName').textContent = ch.n; $('stJob').textContent = jobName() + ' Lv.' + ch.lv;
+  $('stHero').src = heroImg(ch.j, ch.lk, ch.pr); $('stName').textContent = ch.n; $('stTtl').textContent = titleOf(ch) ? '〈' + titleOf(ch) + '〉' : ''; $('stJob').textContent = jobName() + ' Lv.' + ch.lv;
   $('stGrid').innerHTML = '<span>HP</span><span>' + s.mhp + '</span><span>MP</span><span>' + s.mmp + '</span><span>攻撃</span><span>' + s.atk + '</span><span>防御</span><span>' + s.def + '</span><span>💰</span><span>' + (ch.gold || 0) + '</span>';
   var nx = expToNext(ch.lv); $('stXp').style.width = ((ch.exp || 0) / nx * 100) + '%'; $('stXpT').textContent = 'つぎのレベルまで ' + (nx - (ch.exp || 0));
   $('stEq').innerHTML = '<div class="eq-row"><span>武器</span><span>' + iconHtml(gearImg(ch.j, eq.w)) + upName(weaponName(ch.j, eq.w), ch, 'w') + '</span></div><div class="eq-row"><span>防具</span><span>' + iconHtml(gearImg(ch.j, eq.a)) + upName(armorName(ch.j, eq.a), ch, 'a') + '</span></div>';
   $('stInv').innerHTML = ITEM_KEYS.map(function (k) { return '<span>' + iconHtml(itemImg(k)) + ITEMS[k].n + ' ×' + inv(k) + '</span>'; }).join('');
   $('spLeft').textContent = 'スキルポイント ' + (ch.sp || 0);
+  drawMt();
   /* 技15個。押すと「持っていく技」（技4つ＋必殺技1つ。チーム戦の準備画面と同じ ld）を切りかえる。SPでランクを上げる */
   var box = $('skills'), J = RJ(), ld = loadoutOf(ch); box.textContent = '';
   box.appendChild(el('div', 'hint', '技を押すと「持っていく技」を切りかえ（技' + LOAD_N + 'つ＋必殺技1つ。チーム戦と共通）。スキルポイントでランクを上げると、名前が変わって強くなる。振り直しは教会で。'));
   J.sk.forEach(function (sk, i) {
-    var got = LEARN[i] <= (ch.lv || 1), on = ld.a.indexOf(i) >= 0 || ld.u === i, r = rankOf(ch, i);
+    if (sk.pro && !ch.pr) return;   /* 上級職の技は、昇格してから出す（2026-11-23） */
+    var got = skGot(ch, i), on = ld.a.indexOf(i) >= 0 || ld.u === i, r = rankOf(ch, i);
     var d = el('div', 'skill pick' + (sk.ult ? ' ult' : '') + (on ? ' on' : '') + (got ? '' : ' lock')), g = el('div', 'grow');
     d.tabIndex = got ? 0 : -1; d.setAttribute('role', 'button'); d.setAttribute('aria-pressed', on ? 'true' : 'false');
     var nm = el('div', 'nm', (sk.ult ? '★ ' : '') + (got ? skillName(ch.j, i, r, ELM) : '？？？'));
@@ -1235,7 +1267,7 @@ function drawStat() {
       meta.appendChild(document.createTextNode('　ひとりで冒険：' + soloDesc(sk, r))); g.appendChild(meta);
     }
     d.appendChild(g);
-    if (got && r < 2) {
+    if (got && r < 2 && !sk.pro) {
       var up = el('button', 'up', '上げる SP' + rankCost(sk.mp)[r]); up.type = 'button'; up.disabled = !canRankUp(ch, i);
       up.title = '→ ' + skillName(ch.j, i, r + 1, ELM);
       /* ランクアップ：sp が減り sr/<i> が1つ上がる（チーム戦の準備画面と同じ書き込み） */
@@ -1252,6 +1284,20 @@ function drawStat() {
     };
     d.onkeydown = function (e) { if (e.target === d && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); d.onclick(); } };
     box.appendChild(d);
+  });
+}
+/* 単元マスターの称号（2026-11-23）。手に入れた称号を押すと、名前の横に出す称号にする（もう一度押すと外す） */
+function drawMt() {
+  var box = $('stMt'); box.textContent = '';
+  box.appendChild(el('div', 'st-h', '🏅 単元マスター（' + masterCount(ch) + '/' + UNITS.length + '）'));
+  box.appendChild(el('div', 'mut', '30問以上・正解率90%以上・10問連続正解で称号。' + (udOpen(ch) ? '👁 裏ダンジョンに入れる！' : 'あと ' + Math.max(0, UD_NEED - masterCount(ch)) + 'つで裏ダンジョン')));
+  UNITS.forEach(function (u) {
+    var m = mtOf(ch, u.id), has = mtHas(ch, u.id); if (!has && !m.a) return;
+    var b = el('button', 'mt-row' + (has ? ' got' : '') + (ch.tc === u.id ? ' on' : '')); b.type = 'button'; b.disabled = !has;
+    b.appendChild(el('b', '', (has ? '🏅 ' : '') + masterTitle(u) + (ch.tc === u.id ? '（表示中）' : '')));
+    b.appendChild(el('small', '', '答えた ' + m.a + '/' + MASTER.n + '・正解率 ' + (m.a ? Math.floor(m.c * 100 / m.a) : 0) + '%・連続 ' + Math.min(m.b, MASTER.run) + '/' + MASTER.run));
+    b.onclick = async function () { var back = clone(ch); if (ch.tc === u.id) delete ch.tc; else ch.tc = u.id; drawStat(); drawHud(); if (!(await saveChar())) { ch = back; drawStat(); drawHud(); } };
+    box.appendChild(b);
   });
 }
 /* ひとりで冒険での効果を短く（r＝ランク） */
@@ -1286,7 +1332,7 @@ function soloOneX(s) { return s.all ? 1.8 : s.multi ? 1 + .2 * (s.multi) : 1; }
 function guardCut(s, r) { return s.guardSelf ? Math.min(.85, s.guardSelf.cut * (r ? 1.1 : 1)) : Math.min(.8, s.shield.cut * (1 + .15 * r)); }
 
 /* ------------------------------------------------------------ 戦闘（ひとりで冒険。正解は手元で判定する：家庭学習と同じ公開セットを使う） */
-var B = null, POOLS = {}, QS = {};
+var B = null, POOLS = {}, QS = {}, MIXQ = new Set();
 async function qsOf(id) {
   if (!QS[id]) { try { QS[id] = applyQEdits(id, (await (await fetch('home/' + id + '.json')).json()).questions || [], await loadQEdits()); } catch (e) { return []; } }
   return QS[id];
@@ -1302,11 +1348,21 @@ async function poolOf(a) {
     var us = rangeUnits(src.id);
     sets = AREAS.filter(function (x) { return us.indexOf(unitOf(x.g, x.unit).id) >= 0; }).reduce(function (o, x) { return o.concat(x.sets); }, []);
   }
-  if (src.k === 'sets') sets = SETS.filter(function (x) { return (src.ids || []).indexOf(x.id) >= 0; });
+  if (src.k === 'sets') sets = SETS.filter(function (x) { return (src.ids || []).indexOf(x.id) >= 0; });   /* 'ud'（裏ダンジョン）は単元の問題（a.sets）から */
   var rx = src.k === 'range' ? ((RANGES[src.id] || {}).x || {}) : {};   /* 範囲から外した問題（2026-11-17） */
   for (var i = 0; i < sets.length; i++) { var qs = await qsOf(sets[i].id), ex = rx[sets[i].id]; pool = pool.concat(ex ? qs.filter(function (q, j) { return !ex[j]; }) : qs); }
-  await QST.load(sets.map(function (x) { return x.id; }));
-  POOLS[key] = { q: pool, queue: [] }; return POOLS[key];
+  /* 裏ダンジョン（2026-11-23）：3年のキャラは、入試対策の「〜の重要語句」（トリプル・クラウン）のほかの単元の問題も、単元の問題の半分くらいまぜる。
+     まぜた問題は単元マスターの数には入れない（MIXQ） */
+  var mixIds = [];
+  if (src.k === 'ud' && me.g === 3) {
+    var own = {}; sets.forEach(function (x) { own[x.id] = 1; });
+    var ms = SETS.filter(function (x) { return /の重要語句$/.test(x.title || '') && !own[x.id]; }), mq = [];
+    for (var k = 0; k < ms.length; k++) mq = mq.concat(await qsOf(ms[k].id));
+    mq = shuffle(mq).slice(0, Math.ceil(pool.length / 2)); mq.forEach(function (q) { MIXQ.add(q); }); pool = pool.concat(mq);
+    mixIds = ms.map(function (x) { return x.id; });
+  }
+  await QST.load(sets.map(function (x) { return x.id; }).concat(mixIds));
+  POOLS[key] = { q: pool, queue: [], mix: pool.filter(function (q) { return MIXQ.has(q); }).length }; return POOLS[key];
 }
 /* エリアのボスにひとりでちょうせん（霧に入ったとき）。たおすと、その単元は自分のキャラの「ボスをたおした」記録になる */
 if (/emu=1/.test(location.search)) window.__bossAsk = function () { bossAsk(); };   /* 画面テスト用 */
@@ -1350,16 +1406,17 @@ async function startBattle(mob, boss, ura) {
   var P = await poolOf(curArea);
   if (!P.q.length) { FD.busy = false; say('<h3>問題が読めない</h3>通信を確かめて、もう一度ためしてください。'); return; }
   var rk = !boss && mob && mob.id >= 12 ? mob.id - 12 : -1;   /* レアの番号（0 レア1・1 レア2・2 超レア。ふつうは −1） */
-  var max = boss ? soloBossHp(curArea.i, ch.lv) * (ura ? URA.hp : 1) : Math.round(soloEnemyHp(curArea.i, ch.lv) * (rk >= 0 ? RARE.hp[rk] : 1));   /* 裏ボスはボスの2倍（ふつうの敵の6倍） */   /* 敵の強さは自分のレベルに合わせる（単元の学年ではない） */
+  var max = boss ? soloBossHp(curArea.i, ch.lv) * (ura ? URA.hp : 1) : Math.round(soloEnemyHp(curArea.i, ch.lv) * (rk >= 0 ? RARE.hp[rk] : 1));
+  var udx = FD.dg && FD.dg.ud ? udX(FD.dg.fl) : 1; max = Math.round(max * udx);   /* 裏ダンジョン：深いほど強い（2026-11-23） */   /* 裏ボスはボスの2倍（ふつうの敵の6倍） */   /* 敵の強さは自分のレベルに合わせる（単元の学年ではない） */
   /* fx＝続いている効果。t は「あと何問」。stun・slow は敵の攻撃の回数 */
   var foe = boss ? { n: ura ? uraName(unitOfArea(curArea)) : unitOfArea(curArea).boss.n, t: unitOfArea(curArea).boss.t, img: bossImg(unitOfArea(curArea)) } : foeOf(curArea, mob.id);
-  B = { mob: mob, boss: !!boss, ura: !!ura, rk: rk, e: foe, hp: max, max: max, streak: 0, nm: 0, nq: 0,   /* nm まちがい・nq 答えた問題（裏ボスの自己ベスト。2026-11-20） */
+  B = { mob: mob, boss: !!boss, ura: !!ura, rk: rk, udx: udx, e: foe, hp: max, max: max, streak: 0, nm: 0, nq: 0,   /* nm まちがい・nq 答えた問題（裏ボスの自己ベスト。2026-11-20） */
         P: P, t: foe.t || 'earth',
         chg: 0, bar: 0,   /* chg＝ため（あと何問で強い攻撃）・bar＝バリア（あと何問）。2026-11-21 */
         fx: { guard: null, buff: null, regen: null, counter: null, dot: null, mpRate: 0, stun: 0, slow: 0, nextCrit: 0, keep: 0, reveal: 0 } };
-  $('bArea').textContent = curArea.name;
+  $('bArea').textContent = (udx > 1 ? '👁 裏 ' + FD.dg.fl + '階 ' : '') + curArea.name;
   document.querySelector('#s-battle .bt-bg').style.backgroundImage = "url('" + battleBg(unitOfArea(curArea)) + "')";   /* 背景もその単元の絵 */ $('eimg').src = B.e.img; $('eimg').classList.toggle('ura-img', !!ura); $('ename').textContent = (rk >= 0 ? '★' + RARE.lab[rk] + ' ' : '') + B.e.n; $('enemy').className = 'enemy' + (rk >= 0 ? ' rare r' + (rk === 2 ? 2 : 1) : '');
-  $('party').innerHTML = '<div class="mate me"><span class="you">あなた</span><img class="hero" src="' + heroImg(ch.j, ch.lk) + '" alt="">' + ch.n + '</div>';
+  $('party').innerHTML = '<div class="mate me"><span class="you">あなた</span><img class="hero" src="' + heroImg(ch.j, ch.lk, ch.pr) + '" alt="">' + ch.n + '</div>';
   showScreen('s-battle'); music(boss ? 'r-boss' : 'r-battle'); drawMe(); await battleGuide('solo');
   if (rk >= 0) { var rb = $('cmd'); rb.textContent = ''; rb.appendChild(el('div', 'banner ok rare-ban' + (rk === 2 ? ' r2' : ''), '✨ ' + (rk === 2 ? '超' : '') + 'レアな敵があらわれた！ ' + B.e.n + 'を倒すと、おたからを落とすかも')); await new Promise(function (r) { setTimeout(r, 1400); }); }
   askQ();   /* はじめての戦闘だけ、たたかい方の案内 */
@@ -1415,7 +1472,7 @@ function nextTurn() {
   setTimeout(function () { if (HP) askQ(); else faint(); }, 1400);
 }
 /* 敵のふつうの攻撃：自分の最大HPの割合（ボス18%・ふつう12%・裏ボス25%）×防具・守り・攻撃ダウン */
-function foeDmg(st) { var f = B.fx, d = Math.max(3, st.mhp * (B.ura ? .25 : B.boss ? .18 : .12) * st.cut); if (f.guard) d *= 1 - f.guard.cut; if (f.slow > 0) { d *= .5; f.slow--; } return d; }
+function foeDmg(st) { var f = B.fx, d = Math.max(3, st.mhp * (B.ura ? .25 : B.boss ? .18 : .12) * st.cut * (B.udx || 1)); if (f.guard) d *= 1 - f.guard.cut; if (f.slow > 0) { d *= .5; f.slow--; } return d; }
 /* 敵の上に、ひとこと出す（動けない！ など） */
 function popE(t) { var en = $('enemy'); if (!en) return; var p = el('div', 'epop', t); en.appendChild(p); setTimeout(function () { p.remove(); }, 1600); }
 function itemBar(box) {
@@ -1464,6 +1521,10 @@ function judge(mask, text) {
   box.querySelectorAll('button, input').forEach(function (b) { b.disabled = true; });
   box.querySelectorAll('.choices button').forEach(function (b, i) { var c = q.correct.indexOf(i) >= 0, mine = mask != null && !!(mask & (1 << i)); b.classList.remove('sel'); b.classList.add(c ? 'right' : 'dim'); if (c) b.classList.add('ans-ok'); else if (mine) b.classList.add('ans-ng'); });
   ADV.add(B.P.q[q.qi], ok); QST.mark(B.P.q[q.qi], ok); B.pend = null; B.nq++; if (!ok) B.nm++;
+  if (/^(unit|ud)$/.test(curArea.src.k) && !MIXQ.has(B.P.q[q.qi]) && mtAdd(ch, unitOfArea(curArea).id, ok)) {   /* 単元マスターの称号（2026-11-23）。手に入れたらすぐ残す */
+    if (!ch.tc) ch.tc = unitOfArea(curArea).id;
+    popE('🏅 ' + masterTitle(unitOfArea(curArea)) + '！'); saveChar();
+  }
   var J = RJ(), f = B.fx, st = statsOf(ch);
   if (ok) {
     /* 正解：連続が1つ増え、MPがたまる（魔法使いは1.5ずつ）。そのあと、こうげきか技をえらぶ */
@@ -1610,6 +1671,7 @@ async function win() {
     if (inv(dk) < 9) { ch.inv = Object.assign({}, ch.inv || {}); ch.inv[dk] = inv(dk) + 1; drop = dk; }
   }
   if (B.boss) ch.bc = Object.assign({}, ch.bc || {}, (function (o) { o[uid0] = true; return o; })({}));
+  if (B.boss && B.udx > 1) { ch.uf = Object.assign({}, ch.uf || {}); ch.uf[uid0] = UD_FLOORS + 1; }   /* 裏ダンジョンのいちばん下のボスを倒した（2026-11-23） */
   /* 1日に稼げるゴールドの上限（gd＝日の番号・gg＝その日に稼いだ額。ルールでも同じ計算で止める） */
   var gg = ch.gd === today ? (ch.gg || 0) : 0; rw.gold = Math.max(0, Math.min(rw.gold, soloDayCap(me.g) - gg));
   ch.gd = today; ch.gg = gg + rw.gold;
@@ -1639,7 +1701,7 @@ async function win() {
   var msGot = saved && up ? await claimMs() : [];   /* レベルの節目（2026-11-20） */
   if (saved) syncCzk();   /* クラスの図鑑に写す（待たない） */
   box.textContent = '';
-  box.appendChild(el('div', 'banner ok', B.e.n + 'を たおした！' + (B.ura ? '　👁 裏ボスをたおした！' : B.boss ? '　👑 ボスをたおした！' : '') + '　けいけんち +' + rw.exp + (rw.gold ? '　💰 +' + rw.gold : '　💰 今日の上限に達しました') + (up ? '　LEVEL UP! Lv.' + lv0 + '→' + ch.lv + '（スキルポイント +' + up + '）' : '') + (saved ? '' : '（保存できませんでした）') + uraMsg));
+  box.appendChild(el('div', 'banner ok', B.e.n + 'を たおした！' + (B.ura ? '　👁 裏ボスをたおした！' : B.boss && B.udx > 1 ? '　👁 裏ダンジョンを制覇した！' : B.boss ? '　👑 ボスをたおした！' : '') + '　けいけんち +' + rw.exp + (rw.gold ? '　💰 +' + rw.gold : '　💰 今日の上限に達しました') + (up ? '　LEVEL UP! Lv.' + lv0 + '→' + ch.lv + '（スキルポイント +' + up + '）' : '') + (saved ? '' : '（保存できませんでした）') + uraMsg));
   if (drop && saved) box.appendChild(el('div', 'banner ok rare-ban', '🎁 ' + B.e.n + 'は ' + ITEMS[drop].ic + ' ' + ITEMS[drop].n + ' を落とした！'));
   if (ubbHtml) box.appendChild(el('div', 'banner ok' + (ubbNew ? ' ubb-new' : ''), '👁 ' + ubbHtml));
   msGot.forEach(function (x) { box.appendChild(el('div', 'banner ok', '🏅 Lv' + x.lv + 'の節目！ 称号「' + x.t + '」・スキルポイント +' + x.sp + '・💰 +' + x.g * me.g)); });
