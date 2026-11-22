@@ -80,6 +80,27 @@
   "kind": "基礎"
  },
  {
+  "file": "sets/j811e438.json",
+  "title": "植物の分類の重要語句",
+  "count": 19,
+  "types": {
+   "choice": 19,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "分類",
+  "field": "生物",
+  "uo": 0,
+  "no": 7,
+  "src": "トリプル・クラウン",
+  "otitle": "植物の分類の重要語句",
+  "ch": 1,
+  "chapter": "第2章 植物の分類",
+  "kind": "基礎"
+ },
+ {
   "file": "sets/j920ee20.json",
   "title": "花のつくり・スケッチ・観察",
   "count": 8,
@@ -384,6 +405,27 @@
   }
  },
  {
+  "file": "sets/j186af28.json",
+  "title": "動物の分類の重要語句",
+  "count": 9,
+  "types": {
+   "choice": 9,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "分類",
+  "field": "生物",
+  "uo": 0,
+  "no": 14,
+  "src": "トリプル・クラウン",
+  "otitle": "動物の分類の重要語句",
+  "ch": 2,
+  "chapter": "第3章 動物の分類",
+  "kind": "基礎"
+ },
+ {
   "file": "sets/je0276ec.json",
   "title": "いりこの解剖",
   "count": 6,
@@ -585,6 +627,27 @@
   "kind": "基礎"
  },
  {
+  "file": "sets/j6e3fc3a.json",
+  "title": "身のまわりの物質とその性質の重要語句",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "物質",
+  "field": "化学",
+  "uo": 1,
+  "no": 1,
+  "src": "トリプル・クラウン",
+  "otitle": "身のまわりの物質とその性質の重要語句",
+  "ch": 0,
+  "chapter": "第1章 身のまわりの物質とその性質",
+  "kind": "基礎"
+ },
+ {
   "file": "sets/j5aef622.json",
   "title": "ガスバーナー",
   "count": 6,
@@ -747,6 +810,27 @@
   "kind": "基礎"
  },
  {
+  "file": "sets/j4aa41b4.json",
+  "title": "気体の性質の重要語句",
+  "count": 3,
+  "types": {
+   "choice": 3,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "物質",
+  "field": "化学",
+  "uo": 1,
+  "no": 9,
+  "src": "トリプル・クラウン",
+  "otitle": "気体の性質の重要語句",
+  "ch": 1,
+  "chapter": "第2章 気体の性質",
+  "kind": "基礎"
+ },
+ {
   "file": "sets/j86a5e6e.json",
   "title": "気体の性質｜実践",
   "count": 7,
@@ -823,6 +907,27 @@
   "uo": 1,
   "no": 13,
   "otitle": "とけるの基礎知識とろ過（基礎）",
+  "ch": 2,
+  "chapter": "第3章 水溶液の性質",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j2929129.json",
+  "title": "水溶液の性質の重要語句",
+  "count": 13,
+  "types": {
+   "choice": 13,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "物質",
+  "field": "化学",
+  "uo": 1,
+  "no": 13,
+  "src": "トリプル・クラウン",
+  "otitle": "水溶液の性質の重要語句",
   "ch": 2,
   "chapter": "第3章 水溶液の性質",
   "kind": "基礎"
@@ -949,6 +1054,27 @@
   "chapter": "第3章 水溶液の性質",
   "kind": "実践",
   "test": "2学期期末"
+ },
+ {
+  "file": "sets/j4a6c279.json",
+  "title": "物質の姿と状態変化の重要語句",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "物質",
+  "field": "化学",
+  "uo": 1,
+  "no": 18,
+  "src": "トリプル・クラウン",
+  "otitle": "物質の姿と状態変化の重要語句",
+  "ch": 3,
+  "chapter": "第4章 物質の姿と状態変化",
+  "kind": "基礎"
  },
  {
   "file": "sets/ja4ce67b.json",
@@ -1241,6 +1367,27 @@
   "test": "2学期期末"
  },
  {
+  "file": "sets/j40fbfaf.json",
+  "title": "光の世界の重要語句",
+  "count": 14,
+  "types": {
+   "choice": 14,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "音・光・力",
+  "field": "物理",
+  "uo": 2,
+  "no": 1,
+  "src": "トリプル・クラウン",
+  "otitle": "光の世界の重要語句",
+  "ch": 0,
+  "chapter": "第1章 光の世界",
+  "kind": "基礎"
+ },
+ {
   "file": "sets/j8df40de.json",
   "title": "光の基本",
   "count": 6,
@@ -1442,6 +1589,27 @@
   "kind": "基礎"
  },
  {
+  "file": "sets/ja2a0f50.json",
+  "title": "音の世界の重要語句",
+  "count": 3,
+  "types": {
+   "choice": 3,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "音・光・力",
+  "field": "物理",
+  "uo": 2,
+  "no": 8,
+  "src": "トリプル・クラウン",
+  "otitle": "音の世界の重要語句",
+  "ch": 1,
+  "chapter": "第2章 音の世界",
+  "kind": "基礎"
+ },
+ {
   "file": "sets/j053d4d6.json",
   "title": "音の性質",
   "count": 3,
@@ -1538,6 +1706,27 @@
   "uo": 2,
   "no": 9,
   "otitle": "力のはたらき",
+  "ch": 2,
+  "chapter": "第3章 力の世界",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j45cfbad.json",
+  "title": "力の世界の重要語句",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "音・光・力",
+  "field": "物理",
+  "uo": 2,
+  "no": 9,
+  "src": "トリプル・クラウン",
+  "otitle": "力の世界の重要語句",
   "ch": 2,
   "chapter": "第3章 力の世界",
   "kind": "基礎"
@@ -1661,6 +1850,27 @@
   "otitle": "力のつりあい",
   "ch": 2,
   "chapter": "第3章 力の世界",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j07ec5fa.json",
+  "title": "火をふく大地の重要語句",
+  "count": 10,
+  "types": {
+   "choice": 10,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "大地",
+  "field": "地学",
+  "uo": 3,
+  "no": 1,
+  "src": "トリプル・クラウン",
+  "otitle": "火をふく大地の重要語句",
+  "ch": 1,
+  "chapter": "第1章 火をふく大地",
   "kind": "基礎"
  },
  {
@@ -1808,6 +2018,27 @@
   "kind": "基礎"
  },
  {
+  "file": "sets/j3280d5e.json",
+  "title": "動き続ける大地の重要語句",
+  "count": 10,
+  "types": {
+   "choice": 10,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "大地",
+  "field": "地学",
+  "uo": 3,
+  "no": 4,
+  "src": "トリプル・クラウン",
+  "otitle": "動き続ける大地の重要語句",
+  "ch": 2,
+  "chapter": "第2章 動き続ける大地",
+  "kind": "基礎"
+ },
+ {
   "file": "sets/ff0f2291.json",
   "title": "地震",
   "count": 10,
@@ -1949,6 +2180,27 @@
   "kind": "基礎"
  },
  {
+  "file": "sets/j5e980e6.json",
+  "title": "地層から読みとる大地の変化の重要語句",
+  "count": 11,
+  "types": {
+   "choice": 11,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 1,
+  "unit": "大地",
+  "field": "地学",
+  "uo": 3,
+  "no": 7,
+  "src": "トリプル・クラウン",
+  "otitle": "地層から読みとる大地の変化の重要語句",
+  "ch": 3,
+  "chapter": "第3章 地層から読みとる大地の変化",
+  "kind": "基礎"
+ },
+ {
   "file": "sets/j2fbb733.json",
   "title": "地層の基礎知識とでき方",
   "count": 8,
@@ -2045,6 +2297,27 @@
   "uo": 4,
   "no": 1,
   "otitle": "原子記号（基礎）",
+  "ch": 0,
+  "chapter": "第1章 物質のなり立ち",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/jbf437f4.json",
+  "title": "物質のなり立ちの重要語句",
+  "count": 12,
+  "types": {
+   "choice": 12,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "化学変化",
+  "field": "化学",
+  "uo": 4,
+  "no": 1,
+  "src": "トリプル・クラウン",
+  "otitle": "物質のなり立ちの重要語句",
   "ch": 0,
   "chapter": "第1章 物質のなり立ち",
   "kind": "基礎"
@@ -2315,6 +2588,27 @@
   }
  },
  {
+  "file": "sets/j2ba2450.json",
+  "title": "物質どうしの化学変化の重要語句",
+  "count": 3,
+  "types": {
+   "choice": 3,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "化学変化",
+  "field": "化学",
+  "uo": 4,
+  "no": 8,
+  "src": "トリプル・クラウン",
+  "otitle": "物質どうしの化学変化の重要語句",
+  "ch": 1,
+  "chapter": "第2章 物質どうしの化学変化",
+  "kind": "基礎"
+ },
+ {
   "file": "sets/0babce4b.json",
   "title": "鉄と硫黄の加熱",
   "count": 5,
@@ -2411,6 +2705,27 @@
   "uo": 4,
   "no": 11,
   "otitle": "酸化",
+  "ch": 2,
+  "chapter": "第3章 酸素がかかわる化学変化",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j1054513.json",
+  "title": "酸素がかかわる化学変化の重要語句",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "化学変化",
+  "field": "化学",
+  "uo": 4,
+  "no": 11,
+  "src": "トリプル・クラウン",
+  "otitle": "酸素がかかわる化学変化の重要語句",
   "ch": 2,
   "chapter": "第3章 酸素がかかわる化学変化",
   "kind": "基礎"
@@ -2514,6 +2829,27 @@
   "otitle": "酸化銅の還元（基礎）",
   "ch": 2,
   "chapter": "第3章 酸素がかかわる化学変化",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j33ef118.json",
+  "title": "化学変化と物質の質量の重要語句",
+  "count": 1,
+  "types": {
+   "choice": 1,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "化学変化",
+  "field": "化学",
+  "uo": 4,
+  "no": 15,
+  "src": "トリプル・クラウン",
+  "otitle": "化学変化と物質の質量の重要語句",
+  "ch": 3,
+  "chapter": "第4章 化学変化と物質の質量",
   "kind": "基礎"
  },
  {
@@ -2678,6 +3014,27 @@
   "kind": "実践"
  },
  {
+  "file": "sets/jb653600.json",
+  "title": "化学変化とその利用の重要語句",
+  "count": 2,
+  "types": {
+   "choice": 2,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "化学変化",
+  "field": "化学",
+  "uo": 4,
+  "no": 20,
+  "src": "トリプル・クラウン",
+  "otitle": "化学変化とその利用の重要語句",
+  "ch": 4,
+  "chapter": "第5章 化学変化とその利用",
+  "kind": "基礎"
+ },
+ {
   "file": "sets/j5e1eb4a.json",
   "title": "化学変化と熱",
   "count": 7,
@@ -2753,6 +3110,27 @@
   "uo": 5,
   "no": 1,
   "otitle": "単細胞生物・多細胞生物（基礎）",
+  "ch": 0,
+  "chapter": "第1章 生物と細胞",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/jbc8edc0.json",
+  "title": "生物と細胞の重要語句",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 5,
+  "no": 1,
+  "src": "トリプル・クラウン",
+  "otitle": "生物と細胞の重要語句",
   "ch": 0,
   "chapter": "第1章 生物と細胞",
   "kind": "基礎"
@@ -2874,6 +3252,27 @@
   "uo": 5,
   "no": 6,
   "otitle": "植物のからだとはたらき",
+  "ch": 1,
+  "chapter": "第2章 植物のからだのつくりとはたらき",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j872e0e1.json",
+  "title": "植物のからだのつくりとはたらきの重要語句",
+  "count": 12,
+  "types": {
+   "choice": 12,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 5,
+  "no": 6,
+  "src": "トリプル・クラウン",
+  "otitle": "植物のからだのつくりとはたらきの重要語句",
   "ch": 1,
   "chapter": "第2章 植物のからだのつくりとはたらき",
   "kind": "基礎"
@@ -3117,6 +3516,27 @@
   "otitle": "茎のつくり（基礎）",
   "ch": 1,
   "chapter": "第2章 植物のからだのつくりとはたらき",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j937ae72.json",
+  "title": "動物のからだのつくりとはたらきの重要語句",
+  "count": 19,
+  "types": {
+   "choice": 19,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 5,
+  "no": 16,
+  "src": "トリプル・クラウン",
+  "otitle": "動物のからだのつくりとはたらきの重要語句",
+  "ch": 2,
+  "chapter": "第3章 動物のからだのつくりとはたらき",
   "kind": "基礎"
  },
  {
@@ -3586,6 +4006,27 @@
   "test": "2学期期末"
  },
  {
+  "file": "sets/j81ddfef.json",
+  "title": "刺激と反応の重要語句",
+  "count": 5,
+  "types": {
+   "choice": 5,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "植物と動物",
+  "field": "生物",
+  "uo": 5,
+  "no": 17,
+  "src": "トリプル・クラウン",
+  "otitle": "刺激と反応の重要語句",
+  "ch": 3,
+  "chapter": "第4章 刺激と反応",
+  "kind": "基礎"
+ },
+ {
   "file": "sets/jf08b2d3.json",
   "title": "骨と筋肉",
   "count": 8,
@@ -3849,6 +4290,27 @@
   "chapter": "第1章 気象の観測",
   "kind": "実践",
   "test": "2学期期末"
+ },
+ {
+  "file": "sets/j66f2384.json",
+  "title": "気象の観測の重要語句",
+  "count": 13,
+  "types": {
+   "choice": 13,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 6,
+  "no": 1,
+  "src": "トリプル・クラウン",
+  "otitle": "気象の観測の重要語句",
+  "ch": 0,
+  "chapter": "第1章 気象の観測",
+  "kind": "基礎"
  },
  {
   "file": "sets/jcc8e2b6.json",
@@ -4152,6 +4614,27 @@
   "otitle": "気象グラフの読み取り（基礎）",
   "ch": 0,
   "chapter": "第1章 気象の観測",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j23ad516.json",
+  "title": "雲のでき方と前線の重要語句",
+  "count": 9,
+  "types": {
+   "choice": 9,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 6,
+  "no": 9,
+  "src": "トリプル・クラウン",
+  "otitle": "雲のでき方と前線の重要語句",
+  "ch": 1,
+  "chapter": "第2章 雲のでき方と前線",
   "kind": "基礎"
  },
  {
@@ -4477,6 +4960,27 @@
   "kind": "基礎"
  },
  {
+  "file": "sets/jb465999.json",
+  "title": "大気の動きと日本の天気の重要語句",
+  "count": 5,
+  "types": {
+   "choice": 5,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "天気",
+  "field": "地学",
+  "uo": 6,
+  "no": 17,
+  "src": "トリプル・クラウン",
+  "otitle": "大気の動きと日本の天気の重要語句",
+  "ch": 2,
+  "chapter": "第3章 大気の動きと日本の天気",
+  "kind": "基礎"
+ },
+ {
   "file": "sets/j2c73d37.json",
   "title": "海陸風",
   "count": 6,
@@ -4618,6 +5122,27 @@
   "kind": "基礎"
  },
  {
+  "file": "sets/j0be9c73.json",
+  "title": "静電気と電流の重要語句",
+  "count": 1,
+  "types": {
+   "choice": 1,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "電気",
+  "field": "物理",
+  "uo": 7,
+  "no": 1,
+  "src": "トリプル・クラウン",
+  "otitle": "静電気と電流の重要語句",
+  "ch": 0,
+  "chapter": "第1章 静電気と電流",
+  "kind": "基礎"
+ },
+ {
   "file": "sets/j27e67aa.json",
   "title": "静電気",
   "count": 7,
@@ -4754,6 +5279,27 @@
   "uo": 7,
   "no": 4,
   "otitle": "電気の導入・回路（基礎）",
+  "ch": 1,
+  "chapter": "第2章 電流の性質",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j49e96e5.json",
+  "title": "電流の性質の重要語句",
+  "count": 21,
+  "types": {
+   "choice": 21,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "電気",
+  "field": "物理",
+  "uo": 7,
+  "no": 4,
+  "src": "トリプル・クラウン",
+  "otitle": "電流の性質の重要語句",
   "ch": 1,
   "chapter": "第2章 電流の性質",
   "kind": "基礎"
@@ -5141,6 +5687,27 @@
   "kind": "基礎"
  },
  {
+  "file": "sets/j5c29088.json",
+  "title": "電流と磁界の重要語句",
+  "count": 10,
+  "types": {
+   "choice": 10,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 2,
+  "unit": "電気",
+  "field": "物理",
+  "uo": 7,
+  "no": 15,
+  "src": "トリプル・クラウン",
+  "otitle": "電流と磁界の重要語句",
+  "ch": 2,
+  "chapter": "第3章 電流と磁界",
+  "kind": "基礎"
+ },
+ {
   "file": "sets/jce11c64.json",
   "title": "コイルの磁界",
   "count": 7,
@@ -5259,6 +5826,27 @@
   "otitle": "電磁誘導（基礎）",
   "ch": 2,
   "chapter": "第3章 電流と磁界",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j7112aa0.json",
+  "title": "水溶液とイオンの重要語句",
+  "count": 10,
+  "types": {
+   "choice": 10,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "イオン",
+  "field": "化学",
+  "uo": 8,
+  "no": 1,
+  "src": "トリプル・クラウン",
+  "otitle": "水溶液とイオンの重要語句",
+  "ch": 0,
+  "chapter": "第1章 水溶液とイオン",
   "kind": "基礎"
  },
  {
@@ -5618,6 +6206,27 @@
   "uo": 8,
   "no": 11,
   "otitle": "試薬の性質（基礎）",
+  "ch": 1,
+  "chapter": "第2章 酸、アルカリとイオン",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j0535a89.json",
+  "title": "酸、アルカリとイオンの重要語句",
+  "count": 10,
+  "types": {
+   "choice": 10,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "イオン",
+  "field": "化学",
+  "uo": 8,
+  "no": 11,
+  "src": "トリプル・クラウン",
+  "otitle": "酸、アルカリとイオンの重要語句",
   "ch": 1,
   "chapter": "第2章 酸、アルカリとイオン",
   "kind": "基礎"
@@ -6045,6 +6654,27 @@
   "kind": "基礎"
  },
  {
+  "file": "sets/j008c3d2.json",
+  "title": "生物の成長と生殖の重要語句",
+  "count": 21,
+  "types": {
+   "choice": 21,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "遺伝",
+  "field": "生物",
+  "uo": 9,
+  "no": 1,
+  "src": "トリプル・クラウン",
+  "otitle": "生物の成長と生殖の重要語句",
+  "ch": 0,
+  "chapter": "第1章 生物の成長と生殖",
+  "kind": "基礎"
+ },
+ {
   "file": "sets/j2698a42.json",
   "title": "細胞分裂の導入",
   "count": 7,
@@ -6271,6 +6901,27 @@
   "kind": "基礎"
  },
  {
+  "file": "sets/j5ee1537.json",
+  "title": "遺伝の規則性と遺伝子の重要語句",
+  "count": 9,
+  "types": {
+   "choice": 9,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "遺伝",
+  "field": "生物",
+  "uo": 9,
+  "no": 7,
+  "src": "トリプル・クラウン",
+  "otitle": "遺伝の規則性と遺伝子の重要語句",
+  "ch": 1,
+  "chapter": "第2章 遺伝の規則性と遺伝子",
+  "kind": "基礎"
+ },
+ {
   "file": "sets/jfa7eab1.json",
   "title": "減数分裂と遺伝の法則",
   "count": 7,
@@ -6474,6 +7125,27 @@
   "otitle": "進化の証拠",
   "ch": 2,
   "chapter": "第3章 生物の多様性と進化",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/jbefc5d8.json",
+  "title": "物体の運動の重要語句",
+  "count": 6,
+  "types": {
+   "choice": 6,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "エネルギー",
+  "field": "物理",
+  "uo": 10,
+  "no": 1,
+  "src": "トリプル・クラウン",
+  "otitle": "物体の運動の重要語句",
+  "ch": 0,
+  "chapter": "第1章 物体の運動",
   "kind": "基礎"
  },
  {
@@ -6744,6 +7416,27 @@
   "kind": "基礎"
  },
  {
+  "file": "sets/j5e22386.json",
+  "title": "力のはたらき方の重要語句",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "エネルギー",
+  "field": "物理",
+  "uo": 10,
+  "no": 7,
+  "src": "トリプル・クラウン",
+  "otitle": "力のはたらき方の重要語句",
+  "ch": 1,
+  "chapter": "第2章 力のはたらき方",
+  "kind": "基礎"
+ },
+ {
   "file": "sets/j5ea582f.json",
   "title": "力の合成・分解とつり合い",
   "count": 8,
@@ -6976,6 +7669,27 @@
   "kind": "基礎"
  },
  {
+  "file": "sets/j704484e.json",
+  "title": "エネルギーと仕事の重要語句",
+  "count": 10,
+  "types": {
+   "choice": 10,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "エネルギー",
+  "field": "物理",
+  "uo": 10,
+  "no": 14,
+  "src": "トリプル・クラウン",
+  "otitle": "エネルギーと仕事の重要語句",
+  "ch": 2,
+  "chapter": "第3章 エネルギーと仕事",
+  "kind": "基礎"
+ },
+ {
   "file": "sets/j3e8409a.json",
   "title": "運動エネルギー",
   "count": 6,
@@ -7194,6 +7908,27 @@
   "otitle": "仕事率",
   "ch": 2,
   "chapter": "第3章 エネルギーと仕事",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/j5cafbf5.json",
+  "title": "地球の運動と天体の動きの重要語句",
+  "count": 13,
+  "types": {
+   "choice": 13,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "天体",
+  "field": "地学",
+  "uo": 11,
+  "no": 4,
+  "src": "トリプル・クラウン",
+  "otitle": "地球の運動と天体の動きの重要語句",
+  "ch": 1,
+  "chapter": "第1章 地球の運動と天体の動き",
   "kind": "基礎"
  },
  {
@@ -7438,6 +8173,27 @@
   "kind": "基礎"
  },
  {
+  "file": "sets/j55cd23b.json",
+  "title": "月と金星の見え方の重要語句",
+  "count": 4,
+  "types": {
+   "choice": 4,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "天体",
+  "field": "地学",
+  "uo": 11,
+  "no": 9,
+  "src": "トリプル・クラウン",
+  "otitle": "月と金星の見え方の重要語句",
+  "ch": 2,
+  "chapter": "第2章 月と金星の見え方",
+  "kind": "基礎"
+ },
+ {
   "file": "sets/j10eac1f.json",
   "title": "月の満ち欠け",
   "count": 8,
@@ -7599,6 +8355,27 @@
   "kind": "基礎"
  },
  {
+  "file": "sets/j38823b8.json",
+  "title": "宇宙の広がりの重要語句",
+  "count": 15,
+  "types": {
+   "choice": 15,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "天体",
+  "field": "地学",
+  "uo": 11,
+  "no": 3,
+  "src": "トリプル・クラウン",
+  "otitle": "宇宙の広がりの重要語句",
+  "ch": 3,
+  "chapter": "第3章 宇宙の広がり",
+  "kind": "基礎"
+ },
+ {
   "file": "sets/32d6db10.json",
   "title": "太陽",
   "count": 20,
@@ -7740,6 +8517,27 @@
   "kind": "基礎"
  },
  {
+  "file": "sets/ja5132f1.json",
+  "title": "自然のなかの生物の重要語句",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "自然と人間",
+  "field": "生物",
+  "uo": 12,
+  "no": 1,
+  "src": "トリプル・クラウン",
+  "otitle": "自然のなかの生物の重要語句",
+  "ch": 0,
+  "chapter": "第1章 自然のなかの生物",
+  "kind": "基礎"
+ },
+ {
   "file": "sets/je5eaa1c.json",
   "title": "自然界のつり合い",
   "count": 15,
@@ -7861,6 +8659,27 @@
   "kind": "基礎"
  },
  {
+  "file": "sets/j4ec2254.json",
+  "title": "自然環境の調査と保全の重要語句",
+  "count": 7,
+  "types": {
+   "choice": 7,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "自然と人間",
+  "field": "生物",
+  "uo": 12,
+  "no": 5,
+  "src": "トリプル・クラウン",
+  "otitle": "自然環境の調査と保全の重要語句",
+  "ch": 1,
+  "chapter": "第2章 自然環境の調査と保全",
+  "kind": "基礎"
+ },
+ {
   "file": "sets/j75d1418.json",
   "title": "自然環境の調査と環境問題",
   "count": 9,
@@ -7958,6 +8777,27 @@
   "uo": 12,
   "no": 7,
   "otitle": "熱の伝わり方",
+  "ch": 2,
+  "chapter": "第3章 科学技術と人間",
+  "kind": "基礎"
+ },
+ {
+  "file": "sets/jcae74d9.json",
+  "title": "科学技術と人間の重要語句",
+  "count": 11,
+  "types": {
+   "choice": 11,
+   "multi": 0,
+   "text": 0
+  },
+  "enc": true,
+  "grade": 3,
+  "unit": "自然と人間",
+  "field": "生物",
+  "uo": 12,
+  "no": 7,
+  "src": "トリプル・クラウン",
+  "otitle": "科学技術と人間の重要語句",
   "ch": 2,
   "chapter": "第3章 科学技術と人間",
   "kind": "基礎"
