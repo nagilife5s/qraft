@@ -453,6 +453,18 @@ await t('知らない単元・形のちがう組は書けない', async () => { 
 await t('ログインした人は読める・ログインなしは読めない', async () => { await assertSucceeds(bob.ref(P('czk/1-2')).get()); await assertFails(db(null).ref(P('czk/1-2')).get()); });
 await t('先生は書ける・消せる', async () => { await assertSucceeds(teacher.ref(P('czk/1-2/matter/9')).set(5)); await assertSucceeds(teacher.ref(P('czk/1-2')).remove()); });
 
+console.log('上級職の技と隠し技（ld.u＝15・16。2026-11-24）');
+await reset(); await make();
+async function setLv(lv, pr) { await seed(async (d) => d.ref(P('chars/' + SID)).update({ lv, sp: lv - 1, spt: lv - 1, pr: pr || null, ld: null })); }
+await setLv(149, true);
+await t('昇格・Lv149：ld.u＝15 は保存できる', () => assertSucceeds(save(alice, { ld: { a: [0], u: 15 } })));
+await t('昇格・Lv149：ld.u＝16（隠し技）は弾く', () => assertFails(save(alice, { ld: { a: [0], u: 16 } })));
+await setLv(150, false);
+await t('昇格していない Lv150：ld.u＝16 は弾く', () => assertFails(save(alice, { ld: { a: [0], u: 16 } })));
+await setLv(150, true);
+await t('昇格・Lv150：ld.u＝16 は保存できる', () => assertSucceeds(save(alice, { ld: { a: [0], u: 16 } })));
+await t('ld.u＝17 は弾く', () => assertFails(save(alice, { ld: { a: [0], u: 17 } })));
+
 console.log('なかまと冒険（生徒が開く部屋）');
 await t('生徒（先生でない）が自分で部屋の持ち主になれる', () => assertSucceeds(alice.ref('rooms/654321/hostUid').set('alice')));
 await t('ほかの生徒は持ち主を乗っとれない', () => assertFails(bob.ref('rooms/654321/hostUid').set('bob')));

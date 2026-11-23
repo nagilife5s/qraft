@@ -4,7 +4,7 @@
  */
 import { propImg, zakoImg, guardImg, fieldImg, effectImg, heroImg, spiritImg } from './rikaria-data.js';
 import { buildMap } from './rikaria-engine.js';
-import { dungeonArt } from './dungeon-art.js?v=20261123180000';
+import { dungeonArt } from './dungeon-art.js?v=20261124150000';
 
 export var MAP = buildMap();
 export function el(t, c, txt) { var e = document.createElement(t); if (c) e.className = c; if (txt != null) e.textContent = txt; return e; }

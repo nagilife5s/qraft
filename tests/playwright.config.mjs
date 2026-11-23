@@ -3,7 +3,7 @@ import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
   testDir: '.',
-  testMatch: ['smoke.spec.mjs', 'a11y.spec.mjs', 'settings.spec.mjs', 'join.spec.mjs', 'rikaria.spec.mjs', 'party.spec.mjs', 'records.spec.mjs', 'yarikomi.spec.mjs', 'jobchange.spec.mjs', 'dungeon.spec.mjs', 'rare.spec.mjs', 'fx.spec.mjs', 'charge.spec.mjs', 'mastery.spec.mjs', 'cards.spec.mjs'],
+  testMatch: ['smoke.spec.mjs', 'a11y.spec.mjs', 'settings.spec.mjs', 'join.spec.mjs', 'rikaria.spec.mjs', 'party.spec.mjs', 'records.spec.mjs', 'yarikomi.spec.mjs', 'jobchange.spec.mjs', 'dungeon.spec.mjs', 'rare.spec.mjs', 'fx.spec.mjs', 'charge.spec.mjs', 'mastery.spec.mjs', 'cards.spec.mjs', 'hidden.spec.mjs'],
   timeout: 30000,
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [['list'], ['html', { open: 'never', outputFolder: 'test-results/report' }]] : 'list',

@@ -6,9 +6,9 @@
 <title>リカリア チーム戦</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261123180000">
-<link rel="stylesheet" href="quest.css?v=20261123180000">
-<link rel="stylesheet" href="rikaria.css?v=20261123180000">
+<link rel="stylesheet" href="theme.css?v=20261124150000">
+<link rel="stylesheet" href="quest.css?v=20261124150000">
+<link rel="stylesheet" href="rikaria.css?v=20261124150000">
 <style>
   #app { background:url(img/rikaria/title-bg.webp) center/cover no-repeat, #1d1648; }
   .q-bg-r { background:rgba(10,6,36,.55); }
@@ -19,6 +19,7 @@
   .mem-row .pp-mem { min-width:7em; }
   #s-battle .bt-bg { background-size:cover; background-position:center; }
   #s-battle .arena { margin-top:1.8em; }   /* 敵の「▼ ねらう」が上の帯にかからないように */
+.hidtag{display:inline-block;margin-left:6px;padding:0 6px;border-radius:8px;background:linear-gradient(90deg,#ffd76a,#ff7ad9);color:#2a1030;font-size:.75em;font-weight:700}
 </style>
 </head>
 <body>
@@ -143,13 +144,13 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261123180000"></script>
+<script src="firebase-config.js?v=20261124150000"></script>
 <script type="module">
-import { signIn, db, ref, set, get, update, onValue, serverNow, $, showScreen, confetti, makeAdvLog, makeQStat } from './lib.js?v=20261123180000';
-import { fiscalYear, ensureOwner, cmdImg } from './quest.js?v=20261123180000';
+import { signIn, db, ref, set, get, update, onValue, serverNow, $, showScreen, confetti, makeAdvLog, makeQStat } from './lib.js?v=20261124150000';
+import { fiscalYear, ensureOwner, cmdImg } from './quest.js?v=20261124150000';
 import { JOBS, JOB_KEYS, MP_MAX, LEARN, ELEMS, ELEM, heroImg, skillName, rankOf, rankCost, canRankUp, rankUp, loadoutOf, learned, migrateChar, expToNext, unitById, battleBg, weakOf, LOAD_N, OBLION,
-         newChar, ITEMS, carryList, skGot, jobLabel, titleOf, spiritImg, storyBoss, storyOb, TOWN_DEFAULT , itemImg, iconHtml, statsOf, addExp, zkMerge, dayNo, soloDayCap } from './rikaria-data.js?v=20261123180000';
-import { el, esc, drawField, moveField, cameraOf, cellAt, dmgFx, supportFx, ovban, redflash, MAP, spiritHtml } from './rikaria-view.js?v=20261123180000';
+         newChar, ITEMS, carryList, skGot, skShown, jobLabel, titleOf, spiritImg, storyBoss, storyOb, TOWN_DEFAULT , itemImg, iconHtml, statsOf, addExp, zkMerge, dayNo, soloDayCap } from './rikaria-data.js?v=20261124150000';
+import { el, esc, drawField, moveField, cameraOf, cellAt, dmgFx, supportFx, ovban, redflash, MAP, spiritHtml } from './rikaria-view.js?v=20261124150000';
 
 var TS = { '.sv': 'timestamp' };
 var uid = null, pin = null, state = null, sid = '', ch = null, look = 'a', job = 'warrior', gp = 0;
@@ -319,11 +320,12 @@ function drawPrep() {
   });
   var box = $('ppSkills'); box.textContent = '';
   J.sk.forEach(function (s, i) {
-    if (s.pro && !ch.pr) return;   /* 上級職の技は、昇格してから出す（2026-11-23） */
+    if (!skShown(ch, i)) return;   /* 上級職の技は昇格してから・隠し技は覚えてから出す（2026-11-23・24） */
     var got = skGot(ch, i), on = ld.a.indexOf(i) >= 0 || ld.u === i, r = rankOf(ch, i);
     var b = el('div', 'sk' + (s.ult ? ' ult' : '') + (on ? ' on' : '') + (got ? '' : ' lock'));
     b.tabIndex = got ? 0 : -1; b.setAttribute('role', 'button'); b.setAttribute('aria-pressed', on ? 'true' : 'false');
     b.appendChild(el('b', '', (s.ult ? '★ ' : '') + (got ? skillName(ch.j, i, r, 'fire') : '？？？')));
+    if (s.hid) b.appendChild(el('span', 'hidtag', '隠し技'));
     b.appendChild(el('small', '', got ? s.d : 'Lv.' + LEARN[i] + 'で覚える'));
     var meta = el('div', 'meta'); meta.appendChild(el('span', '', 'MP ' + s.mp)); meta.appendChild(el('span', 'rk', '★'.repeat(r + 1) + '☆'.repeat(2 - r)));
     if (got && r < 2 && !s.pro) {
@@ -596,8 +598,8 @@ function drawBattleCtl() {
   var ld = loadoutOf(ch);
   ld.a.concat(ld.u >= 0 ? [ld.u] : []).forEach(function (i) {
     var s = JOBS[ch.j].sk[i], b = el('button', 'act' + (s.ult ? ' ult' : '')); b.type = 'button';
-    b.appendChild(el('b', '', skillName(ch.j, i, rankOf(ch, i), me.el))); b.appendChild(el('span', 'mp', 'MP ' + s.mp));
-    b.title = me.sl ? '封じられている（正解すると治る）' : s.d; b.disabled = me.mp < s.mp || !!me.dn || !!me.sl;
+    b.appendChild(el('b', '', skillName(ch.j, i, rankOf(ch, i), me.el))); b.appendChild(el('span', 'mp', me.fr && !s.free ? 'MP 0' : 'MP ' + s.mp));
+    b.title = me.sl ? '封じられている（正解すると治る）' : s.d; b.disabled = (me.mp < s.mp && !(me.fr && !s.free)) || !!me.dn || !!me.sl;   /* fr＝賢者の時間（MP0で使える。2026-11-24） */
     b.onclick = function () { b.disabled = true; actN++; set(ref(db, 'rooms/' + pin + '/act/' + uid), { n: actN, a: i }).catch(function () {}); };
     ar.appendChild(b);
   });

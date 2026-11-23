@@ -175,19 +175,37 @@ export var PROMO = {
   warrior: { n: '聖騎士', img: 'paladin' }, mage: { n: '賢者', img: 'sage' }, priest: { n: '大司教', img: 'archbishop' },
   hunter: { n: '天弓使い', img: 'skyarcher' }, monk: { n: '拳聖', img: 'fistsaint' }, summoner: { n: '精霊王', img: 'spiritlord' }
 };
-/* 上級職の必殺技（ランクは上がらない。3つの名前は同じ） */
-[['warrior', 'ホーリーセイバー', '必殺技（聖騎士）：聖なる剣で敵全体に超特大ダメージ＋班の攻撃を大きく上げる', '20', { pow: 6, all: 1, buff: { x: 1.4, sec: 15 }, ult: 1 }],
- ['mage', '賢者の星界', '必殺技（賢者）：星の海を呼び、敵全体に超特大ダメージ。バリアをつらぬく', '18', { pow: 6.8, all: 1, pierce: 1, ult: 1 }],
- ['priest', '大いなる祝福', '必殺技（大司教）：倒れた仲間を起こし、全回復＋敵全体に特大ダメージ', '21', { pow: 4.2, all: 1, revive: 1, heal: 1, ult: 1 }],
- ['hunter', '天弓・流星群', '必殺技（天弓使い）：天の弓で敵全体に超特大ダメージ。必ず会心・バリアをつらぬく', '22', { pow: 4.6, all: 1, crit: 1, pierce: 1, ult: 1 }],
- ['monk', '拳聖・天破', '必殺技（拳聖）：連続正解を全部使って、敵全体に超特大の一撃', '14', { pow: 3.6, all: 1, useStreak: .7, ult: 1 }],
- ['summoner', '精霊王の審判', '必殺技（精霊王）：4つの精霊の王の力で、敵全体に超特大ダメージ', '23', { pow: 6.4, all: 1, quad: 1, ult: 1 }]
+/* 上級職の技（技の番号 PRO_SK＝15。2026-11-24 作り直し）：クイズのしくみを変える必殺技。ランクは上がらない（3つの名前は同じ）
+ *   wall 次の問題まで、班への攻撃を自分が受ける（半分にして、同じだけはね返す）・free 次の n 問、自分の技のMPが0
+ *   promise 次の n 問、まちがえても正解あつかい（班全員）・q4 次の n 問、自分の攻撃がいつも苦手をつく（4つの精霊）
+ * 隠し技（技の番号 HID_SK＝16）：昇格して Lv150 になると覚える。覚えるまでは、どの画面にも出さない
+ *   inv 班全員 n 問ダメージを受けない・mpFill 班全員のMPを満タン・hpCut ボス・番人の今のHPの割合を必ずけずる（ほかは pow の会心）
+ *   ignoreBar バリアを完全に無視・streakUp 連続正解を n ふやす（最大は職業の streakMax のまま）・gate 火→水→風→土の順に1回ずつ攻撃 */
+export var HID_SK = 16, HID_LV = 150;
+[['warrior', '聖盾ホーリーウォール', '必殺技（聖騎士）：次の問題まで、班への攻撃を全部自分が受ける。受けるダメージは半分になり、同じだけ敵にはね返す', '20', { wall: 1, ult: 1 }],
+ ['mage', '賢者の時間', '必殺技（賢者）：次の3問のあいだ、自分の技のMPが0になる', '18', { free: 3, ult: 1 }],
+ ['priest', '天の約束', '必殺技（大司教）：次の1問は、班のみんながまちがえても正解あつかいになる', '21', { promise: 1, ult: 1 }],
+ ['hunter', '天弓・ねらい撃ち', '必殺技（天弓使い）：ねらった敵1体に、必ず会心の大ダメージ。ためを打ち消す。ボスには もっと強い', '22', { pow: 4.5, crit: 1, cancel: 1, bossX: 1.5, ult: 1 }],
+ ['monk', '拳聖・不動', '必殺技（拳聖）：次に1回まちがえても連続が切れない。今の連続正解の数だけ強い攻撃（連続は へらない）', '14', { pow: 2.2, all: 1, streakX: .3, keep: 1, ult: 1 }],
+ ['summoner', '四精霊の王', '必殺技（精霊王）：敵全体を攻撃。次の5問のあいだ、自分の攻撃がいつも敵の苦手な精霊になる', '23', { pow: 2.4, all: 1, quad: 1, q4: 5, ult: 1 }]
 ].forEach(function (x) { JOBS[x[0]].sk[PRO_SK] = S(PRO_LV, 5, [x[1], x[1], x[1]], x[2], x[3], Object.assign({ pro: 1 }, x[4])); });
+[['warrior', '聖剣解放・ラストクルセイド', '隠し技（聖騎士）：ゲームでいちばん強い一撃を敵全体に。3問のあいだ、班のみんなはダメージを受けない', '20', { pow: 8, all: 1, inv: 3, ult: 1 }],
+ ['mage', '万象の理', '隠し技（賢者）：敵全体に特大ダメージ。班のみんなのMPを満タンにする', '18', { pow: 5, all: 1, mpFill: 1, ult: 1 }],
+ ['priest', '天地創造の祈り', '隠し技（大司教）：倒れた仲間も起こして、班のみんなを全回復。5問のあいだ、まちがえても正解あつかい', '21', { heal: 1, revive: 1, promise: 5, ult: 1 }],
+ ['hunter', '天弓・星墜とし', '隠し技（天弓使い）：ボスの今のHPを必ず30%けずる（ほかの敵には必ず会心の大ダメージ）。バリアを無視する', '22', { pow: 5, crit: 1, hpCut: .3, ignoreBar: 1, pierce: 1, ult: 1 }],
+ ['monk', '拳聖・無限連撃', '隠し技（拳聖）：連続正解をいっきに＋10（最大まで）。その数だけ強い攻撃を敵全体に（連続は へらない）', '14', { pow: 2.4, all: 1, streakUp: 10, streakX: .3, ult: 1 }],
+ ['summoner', '精霊界の扉', '隠し技（精霊王）：火→水→風→土の順に、敵全体を4回攻撃。苦手な精霊なら大ダメージ', '23', { pow: 1.3, all: 1, hits: 4, gate: 1, ult: 1 }]
+].forEach(function (x) { JOBS[x[0]].sk[HID_SK] = S(HID_LV, 5, [x[1], x[1], x[1]], x[2], x[3], Object.assign({ pro: 1, hid: 1 }, x[4])); });
 /* 職業の名前（昇格していれば上級職の名前） */
 export function jobLabel(j, pr) { var k = JOBS[j] ? j : 'warrior'; return pr ? PROMO[k].n : JOBS[k].n; }
 export function canPromote(ch) { return !!ch && !ch.pr && (ch.lv || 1) >= PRO_LV; }
-/* その技を覚えているか（15番目の上級職の技は、昇格していれば） */
-export function skGot(ch, i) { return i < LEARN.length ? LEARN[i] <= ((ch && ch.lv) || 1) : i === PRO_SK && !!(ch && ch.pr); }
+/* その技を覚えているか（15番目の上級職の技は昇格していれば。16番目の隠し技は、昇格して Lv150 から） */
+export function hidGot(ch) { return !!(ch && ch.pr) && ((ch && ch.lv) || 1) >= HID_LV; }
+export function skGot(ch, i) { return i < LEARN.length ? LEARN[i] <= ((ch && ch.lv) || 1) : i === PRO_SK ? !!(ch && ch.pr) : i === HID_SK && hidGot(ch); }
+/* 画面に出してよい技か（上級職の技は昇格してから・隠し技は覚えてから。覚えるまでは「？？？」も出さない） */
+export function skShown(ch, i) { var s = (JOBS[(ch && ch.j)] || JOBS.warrior).sk[i]; return !!s && (s.hid ? hidGot(ch) : s.pro ? !!(ch && ch.pr) : true); }
+/* 覚えた技の番号（ふつうの技＋上級職の技＋隠し技） */
+export function gotList(ch) { return learned(ch && ch.lv).concat(ch && ch.pr ? [PRO_SK] : [], hidGot(ch) ? [HID_SK] : []); }
 /* 上級職の絵（img/rikaria/chara/<名前>-a/b.webp）。まだ無いときは、もとの職業の絵（画面の側で読みこめたものだけ使う） */
 var PRO_ART = {};
 if (typeof Image !== 'undefined') JOB_KEYS.forEach(function (j) { ['a', 'b'].forEach(function (l) { var n = PROMO[j].img + '-' + l, im = new Image(); im.onload = function () { PRO_ART[n] = 1; }; im.src = 'img/rikaria/chara/' + n + '.webp'; }); });
@@ -243,7 +261,7 @@ export function rankUp(ch, i) {
 }
 /* 持っていく技（覚えていない技は外す。足りないときは覚えた順に入れる） */
 export function loadoutOf(ch) {
-  var J = JOBS[ch.j] || JOBS.warrior, got = learned(ch.lv).concat(ch.pr ? [PRO_SK] : []), ld = ch.ld || {};   /* 昇格していれば上級職の必殺技も（2026-11-23） */
+  var J = JOBS[ch.j] || JOBS.warrior, got = gotList(ch), ld = ch.ld || {};   /* 昇格していれば上級職の必殺技も（2026-11-23）・隠し技も（2026-11-24） */
   var normal = got.filter(function (i) { return !J.sk[i].ult; }), ults = got.filter(function (i) { return J.sk[i].ult; });
   var a = (Array.isArray(ld.a) ? ld.a : []).map(Number).filter(function (i, k, arr) { return normal.indexOf(i) >= 0 && arr.indexOf(i) === k; }).slice(0, LOAD_N);
   normal.forEach(function (i) { if (a.length < LOAD_N && a.indexOf(i) < 0) a.push(i); });

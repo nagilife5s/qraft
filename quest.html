@@ -6,8 +6,8 @@
 <title>Qraft クエスト（ひとりで冒険）</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261123180000">
-<link rel="stylesheet" href="quest.css?v=20261123180000">
+<link rel="stylesheet" href="theme.css?v=20261124150000">
+<link rel="stylesheet" href="quest.css?v=20261124150000">
 <style>
   .hud-btns { display:flex; gap:.4em; }
   .hud-btns .btn { font-size:.85em; padding:.35em .9em; }
@@ -71,7 +71,7 @@
   .sk-wrap .skills:focus-visible { outline:.15em solid #ffd23f; outline-offset:.2em; }
   .sk-more { position:absolute; left:0; right:1em; bottom:0; padding:2.2em 0 .3em; text-align:center; font-weight:900; color:#ffe27a; pointer-events:none; background:linear-gradient(transparent, rgba(20,12,50,.95) 60%); transition:opacity .2s; }
   .sk-more.off { opacity:0; }
-  /* rikaria.css の窓・メニューの行（quest.css?v=20261123180000 と混ぜないよう .gm-bg の中だけ） */
+  /* rikaria.css の窓・メニューの行（quest.css?v=20261124150000 と混ぜないよう .gm-bg の中だけ） */
 .gm-bg .cur { position:absolute; top:50%; width:.62em; height:.95em; margin-top:-.475em; opacity:0; pointer-events:none;
   background:linear-gradient(135deg, #ffffff, #7ff0ff 40%, #1fb6e8 75%, #1a6fc0); clip-path:polygon(50% 0, 100% 50%, 50% 100%, 0 50%); filter:drop-shadow(0 0 .3em #35e0ff) drop-shadow(0 0 .15em #fff); }
 .gm-bg .win { position:relative; width:min(34em, 94%); margin-top:1.4em; background:rgba(10,12,44,.86); border:.18em solid #fff; border-radius:.7em; box-shadow:0 0 0 .22em rgba(10,12,44,.86), 0 .8em 2em rgba(0,0,0,.55); padding:1.5em .9em .8em; }
@@ -231,23 +231,23 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261123180000"></script>
+<script src="firebase-config.js?v=20261124150000"></script>
 <script type="module">
-import { bgm, preload } from './sound.js?v=20261123180000';
-import { dungeonArt, autoTorches } from './dungeon-art.js?v=20261123180000';
-import { townArt } from './town-art.js?v=20261123180000';
-import { dgBuild, DG_FLOORS } from './dungeon5.js?v=20261123180000';
-import { loadHomeSets, signIn, db, ref, set, get, $, el, showScreen, shuffle, prepareQuestion, maskOf, isTextCorrect, mountSetPicker, loadQEdits, applyQEdits, makeAdvLog, makeQStat, weakQueue, qstOf } from './lib.js?v=20261123180000';
+import { bgm, preload } from './sound.js?v=20261124150000';
+import { dungeonArt, autoTorches } from './dungeon-art.js?v=20261124150000';
+import { townArt } from './town-art.js?v=20261124150000';
+import { dgBuild, DG_FLOORS } from './dungeon5.js?v=20261124150000';
+import { loadHomeSets, signIn, db, ref, set, get, $, el, showScreen, shuffle, prepareQuestion, maskOf, isTextCorrect, mountSetPicker, loadQEdits, applyQEdits, makeAdvLog, makeQStat, weakQueue, qstOf } from './lib.js?v=20261124150000';
 import { addExp, expToNext, migrateChar, newChar, JOBS as RJOBS, JOB_KEYS, LEARN, RANK_POW, RANK_SEC, LOAD_N, ELEMS, ELEM, UNITS,
          heroImg, fieldImg, skillName, rankOf, rankCost, canRankUp, rankUp, spUsed, loadoutOf, weakOf, statsOf, unitOf, zakoImg, bossImg, battleBg, gearImg, itemImg, iconHtml,
          UP_PRICE, UP_MAX, upOf, canSmith, upName, zkAdd, zkBit, zkHas, zkCount, zkList, ZK_N, zkTitle, URA, uraName, uraTitle, extraTitles, unitsOf,
          upPrice, MS, msClaim, UBB_GOLD, ubBetter, uraPerfectTitle, czkOf, czkTitle, rollZako, zakoOf, RARE, skillFx, elemFx, ATK_FX,
-         PRO_SK, PRO_LV, PROMO, PRO_X, jobLabel, canPromote, skGot, MASTER, mtAdd, mtHas, mtOf, masterTitle, masterCount, titleOf, udOpen, udX, UD_NEED, UD_FLOORS } from './rikaria-data.js?v=20261123180000';
-import { fxImg } from './rikaria-view.js?v=20261123180000';
-import { CARDS, CD_UNITS, CD_GOLD, cdN, cdHas, cdCount, cdAdd, cdRoll, cdBonusDue, cdTitle, cdTitles } from './rikaria-cards.js?v=20261123180000';
+         PRO_SK, PRO_LV, PROMO, PRO_X, jobLabel, canPromote, skGot, skShown, hidGot, HID_SK, HID_LV, MASTER, mtAdd, mtHas, mtOf, masterTitle, masterCount, titleOf, udOpen, udX, UD_NEED, UD_FLOORS } from './rikaria-data.js?v=20261124150000';
+import { fxImg } from './rikaria-view.js?v=20261124150000';
+import { CARDS, CD_UNITS, CD_GOLD, cdN, cdHas, cdCount, cdAdd, cdRoll, cdBonusDue, cdTitle, cdTitles } from './rikaria-cards.js?v=20261124150000';
 import { fiscalYear, ENEMIES, TOWN, TOWN_DEFAULT,
          weaponList, armorList, weaponName, armorName, TOWN_MAX, soloDayCap, dayNo, ITEMS, ITEM_KEYS, FACS, RESPEC_COST, JOBCHG_GOLD, ensureOwner, battleGuide,
-         soloMult, soloReward, soloEnemyHp, soloBossHp, soloEnemyAtkX, BOSS, cmdImg, placeFacNpcs } from './quest.js?v=20261123180000';
+         soloMult, soloReward, soloEnemyHp, soloBossHp, soloEnemyAtkX, BOSS, cmdImg, placeFacNpcs } from './quest.js?v=20261124150000';
 
 var Y = fiscalYear(), me = { g: 0, c: 0, n: 0 }, sid = '', ch = null, CLS = {}, SETS = [], AREAS = [], look = 'a', job = 'mage';
 var curArea = null, HP = 0, MP = 0, RANGES = {};
@@ -337,7 +337,7 @@ async function login() {
   afterLoad();
 }
 /* 読みこんだあと（2026-11-20）：もらっていないレベルの節目をもらう・自分の図鑑をクラスの図鑑に写す（前からのキャラの分も、ここで入る） */
-async function afterLoad() { var got = await claimMs(); if (got.length) say(msMsg(got)); await syncCzk(); }
+async function afterLoad() { var got = await claimMs(); if (got.length) say(msMsg(got)); hidCheck(); await syncCzk(); }
 /* ------------------------------------------------------------ レベルの節目（2026-11-20）
  * Lv90・100・110・120・150・200 に届くと、称号（ms から作る）と SP・ゴールド（学年×）。1回の保存で1つずつ（ルールの mstone と同じ形） */
 async function claimMs() {
@@ -505,7 +505,7 @@ function buildTown(st) {
   if (st < 10) look[4] = 'hut';
   if (st < 11) look[5] = 'castle-ruin'; else if (st < 12) look[5] = 'castle-scaffold';
   NPCS.forEach(function (n) { g[n.y][n.x] = 'N'; });
-  /* 施設の6人（全身の絵）を、それぞれの施設の前に立たせる。行けるマスを減らさない場所だけ（quest.js?v=20261123180000 placeFacNpcs。2026-11-17） */
+  /* 施設の6人（全身の絵）を、それぞれの施設の前に立たせる。行けるマスを減らさない場所だけ（quest.js?v=20261124150000 placeFacNpcs。2026-11-17） */
   var fnpc = placeFacNpcs(g, blds, [16, 11], function (c) { return BLOCK.has(c); }, [4, 11]);
   return { g: g, blds: blds, fountain: [16, 11], dry: st < 4, start: [4, 11], st: st, tiles: tiles, props: props, objs: objs, look: look, fog: st < 2 ? 2 : st < 4 ? 1 : 0, fnpc: fnpc };
 }
@@ -935,7 +935,7 @@ function shop(fi) {
       async function () {
         if (!canPromote(ch)) return false;
         ch.pr = true; var ok = await saveChar();
-        if (ok) { HP = statsOf(ch).mhp; drawMap(); drawHud(); setTimeout(function () { say('<h3>👑 昇格！</h3>' + pn.n + ' になった！ 必殺技「' + RJ().sk[PRO_SK].names[0] + '」を覚えた。ステータスで「持っていく技」にできる。'); }); }
+        if (ok) { HP = statsOf(ch).mhp; drawMap(); drawHud(); setTimeout(function () { say('<h3>👑 昇格！</h3>' + pn.n + ' になった！ 必殺技「' + RJ().sk[PRO_SK].names[0] + '」を覚えた。' + RJ().sk[PRO_SK].d.replace(/^必殺技（[^）]*）：/, '') + '　ステータスで「持っていく技」にできる。'); hidCheck(); }); }
         return ok;
       });
     row('🪞', '見た目を変える', 'タイプ' + (ch.lk === 'b' ? 'A（短い髪）' : 'B（長い髪）') + 'にする（無料）', 0, '', async function () { ch.lk = ch.lk === 'b' ? 'a' : 'b'; var ok = await saveChar(); if (ok) drawMap(); return ok; });
@@ -1171,7 +1171,7 @@ function srcBox(a) {
   opt('sets', '問題セットをえらぶ ', ed);
   return box;
 }
-/* 問題セットをえらぶ画面。先生の準備画面（rikaria-host.html）と同じ選び方（lib.js?v=20261123180000 の mountSetPicker：学年→題名でさがす→単元ごとの一覧）。2026-11-16 */
+/* 問題セットをえらぶ画面。先生の準備画面（rikaria-host.html）と同じ選び方（lib.js?v=20261124150000 の mountSetPicker：学年→題名でさがす→単元ごとの一覧）。2026-11-16 */
 function setDialog(a) {
   var bg = el('div', 'pk-bg'), box = el('div', 'pk'); bg.appendChild(box); bg.setAttribute('role', 'dialog'); bg.setAttribute('aria-modal', 'true'); bg.setAttribute('aria-label', '問題セットをえらぶ');
   var top = el('div', 'row'); top.appendChild(el('b', 'grow', '問題セットをえらぶ（いくつでも）'));
@@ -1255,13 +1255,14 @@ function drawStat() {
   var box = $('skills'), J = RJ(), ld = loadoutOf(ch); box.textContent = '';
   box.appendChild(el('div', 'hint', '技を押すと「持っていく技」を切りかえ（技' + LOAD_N + 'つ＋必殺技1つ。チーム戦と共通）。スキルポイントでランクを上げると、名前が変わって強くなる。振り直しは教会で。'));
   J.sk.forEach(function (sk, i) {
-    if (sk.pro && !ch.pr) return;   /* 上級職の技は、昇格してから出す（2026-11-23） */
+    if (!skShown(ch, i)) return;   /* 上級職の技は昇格してから・隠し技は覚えてから出す。覚えるまでは「？？？」も出さない（2026-11-23・24） */
     var got = skGot(ch, i), on = ld.a.indexOf(i) >= 0 || ld.u === i, r = rankOf(ch, i);
     var d = el('div', 'skill pick' + (sk.ult ? ' ult' : '') + (on ? ' on' : '') + (got ? '' : ' lock')), g = el('div', 'grow');
     d.tabIndex = got ? 0 : -1; d.setAttribute('role', 'button'); d.setAttribute('aria-pressed', on ? 'true' : 'false');
     var nm = el('div', 'nm', (sk.ult ? '★ ' : '') + (got ? skillName(ch.j, i, r, ELM) : '？？？'));
     if (on) nm.appendChild(el('span', 'tag', '持っていく'));
     if (got && teamOnly(sk)) nm.appendChild(el('span', 'tag team', 'チーム戦専用'));
+    if (sk.hid) nm.appendChild(el('span', 'tag hid', '隠し技'));
     g.appendChild(nm);
     g.appendChild(el('div', 'ds', got ? sk.d : 'Lv.' + LEARN[i] + 'で覚える'));
     if (got) {
@@ -1327,6 +1328,17 @@ function soloDesc(s, r) {
   if (s.keep) a.push('次のまちがいで連続が切れない');
   if (s.counter) a.push('攻撃されたら殴り返す（' + turnsOf(s.counter.sec, r) + '問）');
   if (s.trap) a.push('敵の攻撃を' + (r >= 2 ? 3 : 2) + '回止める');
+  /* 上級職の技・隠し技（2026-11-24。act と同じ） */
+  if (s.wall) a.push('次の問題で受けるダメージ半分・同じだけはね返す');
+  if (s.free) a.push('次の' + s.free + '問 技のMPが0');
+  if (s.promise) a.push((s.promise > 1 ? s.promise + '問のあいだ' : '次の1問') + ' まちがえても正解あつかい');
+  if (s.q4) a.push(s.q4 + '問のあいだ いつも苦手をつく');
+  if (s.inv) a.push(s.inv + '問のあいだ ダメージを受けない');
+  if (s.mpFill) a.push('MPが満タン');
+  if (s.hpCut) a.push('ボスの今のHPを' + pc(s.hpCut) + 'けずる');
+  if (s.ignoreBar) a.push('バリアを無視');
+  if (s.streakUp) a.push('連続 +' + s.streakUp + '（最大まで）');
+  if (s.gate) a.push('火→水→風→土の順');
   return a.join('・');
 }
 /* ひとりで冒険で、敵1体に当てるときの倍率：全体技 ×1.8、2体に当たる技 ×1.4、3体に当たる技 ×1.6 */
@@ -1369,7 +1381,7 @@ async function poolOf(a) {
 /* エリアのボスにひとりでちょうせん（霧に入ったとき）。たおすと、その単元は自分のキャラの「ボスをたおした」記録になる */
 if (/emu=1/.test(location.search)) window.__bossAsk = function () { bossAsk(); };   /* 画面テスト用 */
 if (/emu=1/.test(location.search)) window.__shop = function (i) { shop(i); };   /* 画面テスト用（施設を開く） */
-if (/emu=1/.test(location.search)) { window.__rareBattle = function (k) { FD.busy = true; var m = { id: k, x: -9, y: -9 }; FD.mobs.push(m); startBattle(m); }; window.__winNow = function () { B.hp = 0; win(); }; window.__bossBattle = function () { FD.busy = true; startBattle(null, true); }; window.__foeChg = function () { B.chg = 2; drawMe(); }; window.__foeBar = function () { B.bar = 2; drawMe(); }; window.__foe = function () { return { chg: B.chg, bar: B.bar, hp: B.hp, max: B.max }; }; window.__okNow = function () { MP = statsOf(ch).mmp; var q = B.q; judge(q.type === 'text' ? null : maskOf(q.correct), q.type === 'text' ? q.accept[0] : null); }; }   /* 画面テスト用（レアの敵と戦う・すぐ勝つ。2026-11-20） */
+if (/emu=1/.test(location.search)) { window.__rareBattle = function (k) { FD.busy = true; var m = { id: k, x: -9, y: -9 }; FD.mobs.push(m); startBattle(m); }; window.__winNow = function () { B.hp = 0; win(); }; window.__bossBattle = function () { FD.busy = true; startBattle(null, true); }; window.__foeChg = function () { B.chg = 2; drawMe(); }; window.__foeBar = function () { B.bar = 2; drawMe(); }; window.__foe = function () { return { chg: B.chg, bar: B.bar, hp: B.hp, max: B.max }; }; window.__ngNow = function () { var q = B.q; judge(q.type === 'text' ? null : (maskOf(q.correct) ^ 1) || 2, q.type === 'text' ? '__x__' : null); }; window.__bfx = function () { return JSON.parse(JSON.stringify({ fx: B.fx, mp: MP, hp: HP, st: B.streak })); }; window.__hidCheck = function () { return hidCheck(); }; window.__okNow = function () { MP = statsOf(ch).mmp; var q = B.q; judge(q.type === 'text' ? null : maskOf(q.correct), q.type === 'text' ? q.accept[0] : null); }; }   /* 画面テスト用（レアの敵と戦う・すぐ勝つ。2026-11-20） */
 if (/emu=1/.test(location.search)) window.__adv = ADV;   /* 画面テスト用（冒険の記録） */
 function bossAsk() {
   var u = unitOfArea(curArea), m = $('fdMsg'); m.textContent = '';
@@ -1415,7 +1427,7 @@ async function startBattle(mob, boss, ura) {
   B = { mob: mob, boss: !!boss, ura: !!ura, rk: rk, udx: udx, e: foe, hp: max, max: max, streak: 0, nm: 0, nq: 0,   /* nm まちがい・nq 答えた問題（裏ボスの自己ベスト。2026-11-20） */
         P: P, t: foe.t || 'earth',
         chg: 0, bar: 0,   /* chg＝ため（あと何問で強い攻撃）・bar＝バリア（あと何問）。2026-11-21 */
-        fx: { guard: null, buff: null, regen: null, counter: null, dot: null, mpRate: 0, stun: 0, slow: 0, nextCrit: 0, keep: 0, reveal: 0 } };
+        fx: { guard: null, buff: null, regen: null, counter: null, dot: null, mpRate: 0, stun: 0, slow: 0, nextCrit: 0, keep: 0, reveal: 0, wall: 0, free: 0, prom: 0, q4: 0, inv: 0 } };
   $('bArea').textContent = (udx > 1 ? '👁 裏 ' + FD.dg.fl + '階 ' : '') + curArea.name;
   document.querySelector('#s-battle .bt-bg').style.backgroundImage = "url('" + battleBg(unitOfArea(curArea)) + "')";   /* 背景もその単元の絵 */ $('eimg').src = B.e.img; $('eimg').classList.toggle('ura-img', !!ura); $('ename').textContent = (rk >= 0 ? '★' + RARE.lab[rk] + ' ' : '') + B.e.n; $('enemy').className = 'enemy' + (rk >= 0 ? ' rare r' + (rk === 2 ? 2 : 1) : '');
   $('party').innerHTML = '<div class="mate me"><span class="you">あなた</span><img class="hero" src="' + heroImg(ch.j, ch.lk, ch.pr) + '" alt="">' + ch.n + '</div>';
@@ -1436,6 +1448,11 @@ function drawMe() {
   if (f.counter) a.push('🥊 カウンター あと' + f.counter.t + '問');
   if (f.nextCrit > 0) a.push('🎯 会心 ×' + f.nextCrit);
   if (f.keep) a.push('💪 連続キープ');
+  if (f.wall) a.push('🛡 ホーリーウォール');
+  if (f.free > 0) a.push('📖 MP0 あと' + f.free + '問');
+  if (f.prom > 0) a.push('🌟 天の約束 あと' + f.prom + '問');
+  if (f.q4 > 0) a.push('👑 いつも苦手 あと' + f.q4 + '問');
+  if (f.inv > 0) a.push('✨ 無敵 あと' + f.inv + '問');
   if (f.reveal) e.push('苦手 ' + ELEM[weakOf(B.t)].ic + ELEM[weakOf(B.t)].n);
   if (B.chg > 0) e.push(['chg', '⚡ためている！ あと' + B.chg + '問']);
   if (B.bar > 0) e.push(['brr', '🔰 バリア あと' + B.bar + '問']);
@@ -1453,6 +1470,7 @@ function nextTurn() {
   if (f.regen) { HP = Math.min(s.mhp, HP + f.regen.h); if (--f.regen.t <= 0) f.regen = null; }
   ['guard', 'buff', 'counter'].forEach(function (k) { if (f[k] && --f[k].t <= 0) f[k] = null; });
   if (f.mpRate > 0) f.mpRate--;
+  ['free', 'q4', 'inv'].forEach(function (k) { if (f[k] > 0) f[k]--; });   /* 上級職の技・隠し技（2026-11-24） */
   if (B.hp <= 0) { drawMe(); win(); return; }
   /* ため・バリア（2026-11-21）：前からのものを1問すすめ、なければ ときどき始める */
   var msg = '';
@@ -1460,8 +1478,9 @@ function nextTurn() {
   if (B.chg > 0 && --B.chg <= 0) {
     if (f.stun > 0) { f.stun--; B.chg = 1; popE('💫 動けない！'); msg = B.e.n + 'は動けない！ ためた力を出せない'; }
     else {
-      var d = Math.min(s.mhp * .4, foeDmg(s) * 2.2); d = Math.max(1, Math.round(d)); HP = Math.max(0, HP - d); ouch();
-      msg = '⚡ ' + B.e.n + 'の強い攻撃！ ' + d + 'のダメージ';
+      var d = Math.min(s.mhp * .4, foeDmg(s) * 2.2); if (f.wall) d /= 2; d = f.inv > 0 ? 0 : Math.max(1, Math.round(d)); HP = Math.max(0, HP - d); if (d) ouch();
+      msg = '⚡ ' + B.e.n + 'の強い攻撃！ ' + (d ? d + 'のダメージ' : 'でも ダメージを受けない！');
+      if (f.wall && d) { B.hp = Math.max(1, B.hp - d); msg += '　ホーリーウォールで ' + d + ' はね返した！'; }
     }
   } else if (!B.chg && !B.bar && !msg && !window.__noRoll) {   /* __noRoll：画面テスト用 */
     var pc = B.boss ? .22 : B.rk >= 0 ? .18 : .1, pb = B.boss ? .18 : B.rk >= 1 ? .1 : 0, rn = Math.random();
@@ -1474,7 +1493,7 @@ function nextTurn() {
   setTimeout(function () { if (HP) askQ(); else faint(); }, 1400);
 }
 /* 敵のふつうの攻撃：自分の最大HPの割合（ボス18%・ふつう12%・裏ボス25%）×防具・守り・攻撃ダウン */
-function foeDmg(st) { var f = B.fx, d = Math.max(3, st.mhp * (B.ura ? .25 : B.boss ? .18 : .12) * st.cut * (B.udx || 1)); if (f.guard) d *= 1 - f.guard.cut; if (f.slow > 0) { d *= .5; f.slow--; } return d; }
+function foeDmg(st) { if (B.fx.inv > 0) return 0; var f = B.fx, d = Math.max(3, st.mhp * (B.ura ? .25 : B.boss ? .18 : .12) * st.cut * (B.udx || 1)); if (f.guard) d *= 1 - f.guard.cut; if (f.slow > 0) { d *= .5; f.slow--; } return d; }
 /* 敵の上に、ひとこと出す（動けない！ など） */
 /* ------------------------------------------------------------ 理科用語カード（2026-11-23。rikaria-cards.js）
  * 単元の問題（単元・裏ダンジョン。マスターと同じ範囲）に正解すると、まだ持っていないカードがときどき落ちる。答えの語と同じカードなら、そのカードが落ちやすい。
@@ -1581,12 +1600,13 @@ function judge(mask, text) {
     popE('🏅 ' + masterTitle(unitOfArea(curArea)) + '！'); saveChar();
   }
   if (ok && /^(unit|ud)$/.test(curArea.src.k) && !MIXQ.has(B.P.q[q.qi])) cardDrop(unitOfArea(curArea).id, q.type === 'text' ? q.accept : q.correct.map(function (i) { return q.choices[i] && q.choices[i].t; }));   /* 用語カード（2026-11-23） */
-  var J = RJ(), f = B.fx, st = statsOf(ch);
+  var J = RJ(), f = B.fx, st = statsOf(ch), wall = f.wall, promised = false; f.wall = 0;   /* ホーリーウォールは この1問で消える */
+  if (f.prom > 0) { f.prom--; if (!ok) { ok = true; promised = true; popE('🌟 天の約束！'); } }   /* 天の約束：まちがいでも正解あつかい（記録は本当の結果のまま。2026-11-24） */
   if (ok) {
     /* 正解：連続が1つ増え、MPがたまる（魔法使いは1.5ずつ）。そのあと、こうげきか技をえらぶ */
     B.streak = Math.min(J.streakMax || 99, B.streak + 1); MP = Math.min(st.mmp, MP + (J.mpGain || 1) + (f.mpRate > 0 ? .5 : 0)); drawMe();
     setTimeout(function () {
-      box.textContent = ''; box.classList.remove('has-img'); box.appendChild(el('div', 'banner ok', '✓ せいかい！ 技をえらぼう'));
+      box.textContent = ''; box.classList.remove('has-img'); box.appendChild(el('div', 'banner ok', promised ? '🌟 天の約束！ まちがいが正解になった 技をえらぼう' : '✓ せいかい！ 技をえらぼう'));
       if (q.ex) box.appendChild(el('div', 'qex', '💡 ' + q.ex));   /* 解説 */
       showActs();
     }, 500);
@@ -1597,8 +1617,10 @@ function judge(mask, text) {
     else {
       /* 敵の攻撃は、自分の最大HPの割合（ボス18%・ふつう12%・裏ボス25%）×防具（2026-11-20。ボスに2発で倒されていた） */
       d = foeDmg(st);
-      d = Math.max(1, Math.round(d)); HP = Math.max(0, HP - d); ouch();
-      msg = '✕ ざんねん… ' + B.e.n + 'の攻撃！ ' + d + 'のダメージ';
+      if (wall) d /= 2;
+      d = f.inv > 0 ? 0 : Math.max(1, Math.round(d)); HP = Math.max(0, HP - d); if (d) ouch();
+      msg = '✕ ざんねん… ' + B.e.n + 'の攻撃！ ' + (d ? d + 'のダメージ' : 'でも 聖剣の光で ダメージを受けない！');
+      if (wall && d && HP > 0) { B.hp = Math.max(0, B.hp - d); msg += '　ホーリーウォールで半分に。' + d + ' はね返した！'; }
       if (f.counter && HP > 0) { var cd = Math.max(1, Math.round(st.atk * soloMult(ch.lv) * f.counter.pow)); B.hp = Math.max(0, B.hp - cd); msg += '　カウンター！ ' + cd + 'のダメージ'; }
     }
     if (q.type === 'text') msg += '　正解は「' + q.accept.slice(0, 3).join(' ／ ') + '」';
@@ -1611,6 +1633,7 @@ function judge(mask, text) {
       if (q.ex) box.appendChild(el('div', 'qex', '💡 ' + q.ex));   /* 解説 */
       var nx = el('button', 'btn next', HP ? 'つぎへ' : '町へもどる'); nx.style.alignSelf = 'center';
       nx.onclick = function () { if (HP) nextTurn(); else faint(); };
+      if (B.hp <= 0 && HP) nx.onclick = function () { win(); };   /* はね返しで倒した */
       box.appendChild(nx);
     }, 400);
   }
@@ -1637,7 +1660,8 @@ function showActs() {
   if (J.healOnOk) btn('いのり', 'HPを少し回復', 0, false, false, function () { act(-2); });   /* 僧侶は、正解したとき攻撃か回復を選べる */
   ld.a.concat(ld.u >= 0 ? [ld.u] : []).forEach(function (i) {
     var s = J.sk[i], r = rankOf(ch, i), to = teamOnly(s);
-    btn((s.ult ? '★ ' : '') + skillName(ch.j, i, r, ELM), to ? 'チーム戦専用' : soloDesc(s, r), s.mp, s.ult, to || MP < s.mp, function () { act(i); });
+    var c = costOf(s);
+    btn((s.ult ? '★ ' : '') + skillName(ch.j, i, r, ELM) + (s.hid ? ' 〔隠し技〕' : ''), to ? 'チーム戦専用' : soloDesc(s, r), c, s.ult, to || MP < c, function () { act(i); });
   });
   wrap.appendChild(acts); box.appendChild(wrap);
 }
@@ -1650,13 +1674,16 @@ function actFx(i) { var fx = skillFx(ch.j, i); return fx === 'elem' ? elemFx(ELM
 function flash(host, red) { if (!host) return; var f = el('div', 'sflash' + (red ? ' red' : '')); host.appendChild(f); setTimeout(function () { f.remove(); }, 400); }
 /* 敵の攻撃を受けたとき：自分が赤く光って少しゆれる */
 function ouch() { var m = document.querySelector('#party .mate.me'); if (!m) return; flash(m, true); m.classList.remove('ouch'); void m.offsetWidth; m.classList.add('ouch'); }
+/* 技のMP。賢者の時間のあいだは0（賢者の時間そのものは別。2026-11-24） */
+function costOf(s) { return B && B.fx.free > 0 && !s.free ? 0 : s.mp || 0; }
 function act(i) {
   var J = RJ(), s = i === -1 ? { pow: 1 } : i === -2 ? { heal: J.healOnOk } : J.sk[i], r = i < 0 ? 0 : rankOf(ch, i), P = RANK_POW[r];
   var st = statsOf(ch), f = B.fx, box = $('cmd'), notes = [];
-  if (i >= 0 && (teamOnly(s) || MP < s.mp)) return;
+  var cost = i >= 0 ? costOf(s) : 0;
+  if (i >= 0 && (teamOnly(s) || MP < cost)) return;
   box.querySelectorAll('button').forEach(function (b) { b.disabled = true; });
   var msg = ch.n + 'の' + (i === -1 ? 'こうげき' : i === -2 ? 'いのり' : skillName(ch.j, i, r, ELM)) + '！';
-  MP -= s.mp || 0;
+  MP -= cost;
   /* 回復（班全員・仲間1人・自分 → 自分） */
   var hl = Math.max(s.heal || 0, s.healOne || 0) * P * (st.healX || 1) + (s.selfHeal || 0) * P;
   if (hl > 0) { var h0 = HP; HP = Math.min(st.mhp, HP + Math.ceil(st.mhp * hl)); notes.push(s.revive || HP >= st.mhp ? 'HPが全回復！' : 'HPが ' + (HP - h0) + ' 回復！'); }
@@ -1671,6 +1698,14 @@ function act(i) {
   if (s.keep) { f.keep = 1; notes.push('気合をためた'); }
   if (s.counter) { f.counter = { pow: s.counter.pow * P, t: turnsOf(s.counter.sec, r) + 1 }; notes.push('カウンターのかまえ'); }
   if (s.trap) { f.stun = Math.max(f.stun, r >= 2 ? 3 : 2); notes.push('わなをしかけた'); }
+  /* 上級職の技・隠し技（2026-11-24。チーム戦のエンジンと同じ。続く長さは、すぐ nextTurn で1つ進むので +1） */
+  if (s.wall) { f.wall = 1; notes.push('ホーリーウォール！ 次の問題で受けるダメージは半分、同じだけはね返す'); }
+  if (s.free) { f.free = s.free + 1; notes.push('賢者の時間！ 次の' + s.free + '問、技のMPが0'); }
+  if (s.promise) { f.prom = Math.max(f.prom, s.promise); notes.push('天の約束！ ' + (s.promise > 1 ? s.promise + '問のあいだ' : '次の1問は') + ' まちがえても正解あつかい'); }
+  if (s.q4) { f.q4 = s.q4 + 1; notes.push(s.q4 + '問のあいだ、いつも苦手な精霊で攻撃'); }
+  if (s.inv) { f.inv = s.inv + 1; notes.push(s.inv + '問のあいだ ダメージを受けない'); }
+  if (s.mpFill) { MP = st.mmp; notes.push('MPが満タンになった'); }
+  if (s.streakUp) { B.streak = Math.min(J.streakMax || 99, B.streak + s.streakUp); notes.push('連続正解が ' + B.streak + ' に！'); }
   /* 攻撃 */
   var total = 0, anyCrit = false, anyWeak = false;
   if (s.pow || s.hpPct) {
@@ -1681,17 +1716,18 @@ function act(i) {
       d *= soloOneX(s);   /* ひとりで冒険は敵が1体なので、全体技・何体かに当たる技は1体に強く（MP1の単体技より弱かった。2026-11-20） */
       if (s.bossX && B.boss) d *= s.bossX;
       if (s.vsChg && B.chg > 0) d *= s.vsChg;   /* ためている敵に強い */
-      if (B.bar > 0) d *= s.pierce ? (s.barrierX || 1) : .4;   /* バリア：ダメージ −60%。つらぬく技は減らない */   /* 「ボスに強い」技（チーム戦と同じ。ひとりでは入っていなかった。2026-11-21） */
+      if (B.bar > 0 && !s.ignoreBar) d *= s.pierce ? (s.barrierX || 1) : .4;   /* バリア：ダメージ −60%。つらぬく技は減らない */   /* 「ボスに強い」技（チーム戦と同じ。ひとりでは入っていなかった。2026-11-21） */
       if (s.streakX) d *= 1 + s.streakX * B.streak;
       if (J.streakAtk && !s.useStreak) d *= 1 + J.streakAtk * Math.min(B.streak, J.streakMax);
       if (s.useStreak) d *= 1 + s.useStreak * B.streak;
       /* 苦手な精霊（精霊使いだけ） */
-      var eh = ch.j !== 'summoner' ? null : s.quad ? weak : s.dual ? (k % 2 ? ELEMS[(ELEMS.indexOf(ELM) + 1) % 4] : ELM) : ELM;
+      var eh = ch.j !== 'summoner' ? null : s.gate ? ELEMS[k % 4] : s.quad || f.q4 > 0 ? weak : s.dual ? (k % 2 ? ELEMS[(ELEMS.indexOf(ELM) + 1) % 4] : ELM) : ELM;
       if (eh && eh === weak) { d *= 2; anyWeak = true; }
       /* 会心 */
       var crit = Math.random() < (s.crit || f.nextCrit > 0 ? 1 : (J.crit || .1) + (st.crit || 0));
       if (f.nextCrit > 0 && !s.ult) f.nextCrit--;
       if (crit) { d *= s.ult ? 1.3 : 1.8; anyCrit = true; }
+      if (s.hpCut && B.boss) { d = B.hp * s.hpCut; anyCrit = true; }   /* 天弓・星墜とし：ボスは今のHPの割合を必ずけずる */
       d = Math.max(1, Math.round(d)); B.hp = Math.max(0, B.hp - d); total += d; done++;
     }
     if (s.useStreak) B.streak = 0;
@@ -1760,6 +1796,7 @@ async function win() {
   box.appendChild(el('div', 'banner ok', B.e.n + 'を たおした！' + (B.ura ? '　👁 裏ボスをたおした！' : B.boss && B.udx > 1 ? '　👁 裏ダンジョンを制覇した！' : B.boss ? '　👑 ボスをたおした！' : '') + '　けいけんち +' + rw.exp + (rw.gold ? '　💰 +' + rw.gold : '　💰 今日の上限に達しました') + (up ? '　LEVEL UP! Lv.' + lv0 + '→' + ch.lv + '（スキルポイント +' + up + '）' : '') + (saved ? '' : '（保存できませんでした）') + uraMsg));
   if (drop && saved) box.appendChild(el('div', 'banner ok rare-ban', '🎁 ' + B.e.n + 'は ' + ITEMS[drop].ic + ' ' + ITEMS[drop].n + ' を落とした！'));
   if (ubbHtml) box.appendChild(el('div', 'banner ok' + (ubbNew ? ' ubb-new' : ''), '👁 ' + ubbHtml));
+  if (saved && up) setTimeout(hidCheck, 600);   /* Lv150 の隠し技（2026-11-24） */
   msGot.forEach(function (x) { box.appendChild(el('div', 'banner ok', '🏅 Lv' + x.lv + 'の節目！ 称号「' + x.t + '」・スキルポイント +' + x.sp + '・💰 +' + x.g * me.g)); });
   if (up) HP = statsOf(ch).mhp;
   var nx = el('button', 'btn', 'フィールドにもどる'); nx.style.alignSelf = 'center';
@@ -1769,6 +1806,27 @@ async function win() {
     showScreen('s-town'); setTimeout(function () { openField('area', FD.pos); if (gotKey) dgKeyDrop(); if (B.ura) say('<h3>👁 ' + B.e.n + 'をたおした！</h3>' + unitOfArea(curArea).unit + 'の影は、あなたの力で払われた。'); else if (B.boss) say('<h3>👑 ボスをたおした！</h3>' + unitOfArea(curArea).unit + 'の霧は、あなたの力で晴れた。'); else if (!FD.mobs.length) say('<h3>エリアの魔物をすべて倒した！</h3>町にもどると、また魔物があらわれる。'); });
   };
   box.appendChild(nx);
+}
+/* ------------------------------------------------------------ 隠し技（2026-11-24）
+ * 昇格して Lv150 になったら（昇格する前に Lv150 をこえていたら、昇格したとき）、1回だけ全画面で知らせる。
+ * 見たしるしは、この端末に残す（qraft.rikaria.hid.<出席番号>）。キャラには書かない（ルールを増やさないため） */
+function hidKey() { return 'qraft.rikaria.hid.' + Y + '.' + sid; }
+function hidSeen() { try { return localStorage.getItem(hidKey()) === '1'; } catch (e) { return false; } }
+function hidCheck() {
+  if (!ch || !hidGot(ch) || hidSeen() || document.querySelector('.hid-pop')) return false;
+  try { localStorage.setItem(hidKey(), '1'); } catch (e) {}
+  var sk = RJ().sk[HID_SK], p = el('div', 'hid-pop'); p.setAttribute('role', 'dialog'); p.setAttribute('aria-modal', 'true'); p.setAttribute('aria-label', '隠し技を覚えた');
+  p.appendChild(el('div', 'hid-flash'));
+  var card = el('div', 'hid-card');
+  var im = el('img', 'hid-art'); im.src = heroImg(ch.j, ch.lk, true); im.alt = ''; card.appendChild(im);
+  card.appendChild(el('div', 'hid-sub', '✦ Lv' + HID_LV + ' ✦ ' + jobName() + 'の 封じられた力が目覚めた'));
+  card.appendChild(el('div', 'hid-ttl', '隠し技を覚えた！'));
+  card.appendChild(el('div', 'hid-name', '★ ' + sk.names[0]));
+  card.appendChild(el('div', 'hid-d', sk.d.replace(/^隠し技（[^）]*）：/, '')));
+  card.appendChild(el('div', 'hid-hint', 'ステータスの「持っていく技」で、必殺技にえらべる'));
+  var ok = el('button', 'btn', 'すごい！'); ok.type = 'button'; ok.onclick = function () { p.remove(); }; card.appendChild(ok);
+  p.appendChild(card); document.body.appendChild(p); setTimeout(function () { ok.focus(); }, 50);
+  return true;
 }
 function faint() { alert(ch.n + 'は たおれてしまった…。町で休んで、もう一度挑戦しよう。'); enterTown(); }
 </script>

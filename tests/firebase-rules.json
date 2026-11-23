@@ -370,7 +370,7 @@
                 }
               },
               "u": {
-                ".validate": "newData.isNumber() && newData.val() >= -1 && (newData.val() <= 14 || (newData.val() === 15 && newData.parent().parent().child('pr').val() === true))"
+                ".validate": "newData.isNumber() && newData.val() >= -1 && (newData.val() <= 14 || (newData.val() === 15 && newData.parent().parent().child('pr').val() === true) || (newData.val() === 16 && newData.parent().parent().child('pr').val() === true && newData.parent().parent().child('lv').val() >= 150))"
               },
               "$other": {
                 ".validate": false

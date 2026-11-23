@@ -192,8 +192,13 @@ export function setMode(G, id, mode) { var m = G.mem[id]; if (m && m.j === 'prie
 /* 答えた（ok＝正解）。探索中は練習問題：正解でMP。戦闘中は攻撃 */
 export function answer(G, id, ok) {
   var m = G.mem[id]; if (!m || !m.here) return;
-  m.rw.ans++; if (ok) m.rw.ok++;
+  m.rw.ans++; if (ok) m.rw.ok++;   /* 記録は本当の正解・まちがいで数える（天の約束でも） */
   if (G.ph !== 'battle') { if (ok) gainMp(G, m, 1); return; }
+  /* 上級職の技（2026-11-24）：1問答えるごとに、続く問題の数を1つ進める */
+  if (G.grp.wall && G.grp.wall.by === id) { delete G.grp.wall; emit(G, { t: 'ban', s: 'ホーリーウォールが消えた' }); }
+  if (m.free > 0) { m.free--; m.freeTk = 1; } else m.freeTk = 0;   /* 3問それぞれ、答えたあとに技1回ぶん */
+  if (m.q4 > 0) m.q4--;
+  if (G.grp.prom && G.grp.prom[id] > 0 && !m.dn) { G.grp.prom[id]--; if (!ok) { ok = true; emit(G, { t: 'ban', s: '天の約束！ ' + m.name + ' のまちがいが正解になった' }); } }
   if (m.dn) { if (ok) { m.dn++; if (m.dn > N.revive) { m.dn = 0; m.hp = Math.round(m.mx / 2); emit(G, { t: 'revive', who: id, s: m.name + ' が復活！' }); } } return; }
   if (!ok) { if (m.keep) m.keep = 0; else m.streak = 0; return; }
   if (m.seal > 0 || m.psn > 0) { m.seal = 0; m.psn = 0; guardTick(G); emit(G, { t: 'cure', who: id }); return; }   /* じゃまは正解1回で治る（その正解は攻撃にならない） */
@@ -218,8 +223,10 @@ function guardTick(G) {
 export function skill(G, id, i) {
   var m = G.mem[id]; if (!m || G.ph !== 'battle' || m.dn || m.seal > 0) return false;
   if (m.ld.a.indexOf(i) < 0 && m.ld.u !== i) return false;
-  var s = JOBS[m.j].sk[i]; if (!s || m.mp < s.mp) return false;
-  m.mp -= s.mp;
+  var s = JOBS[m.j].sk[i]; if (!s) return false;
+  /* 賢者の時間：のこりの問題があり、そのあと正解・まちがいを1回答えていれば、技1回のMPが0（賢者の時間そのものは無料にならない） */
+  var free = !!m.freeTk && !s.free; if (!free && m.mp < s.mp) return false;
+  if (free) m.freeTk = 0; else m.mp -= s.mp;
   var r = rankOf(m, i), P = RANK_POW[r], T = RANK_SEC[r], name = skillName(m.j, i, r, m.elem), fx = skillFx(m.j, i), team = present(G);
   if (fx === 'elem') fx = elemFx(m.elem);
   emit(G, { t: 'skill', who: id, n: name, fx: fx, ult: s.ult ? 1 : 0 });
@@ -236,6 +243,14 @@ export function skill(G, id, i) {
   if (s.mpOne) { var lo = team.filter(function (o) { return o !== m && !o.dn; }).sort(function (a, b) { return a.mp - b.mp; })[0]; if (lo) lo.mp = Math.min(lo.mm || MP_MAX, lo.mp + Math.round(s.mpOne * P)); }
   if (s.mpAll) team.forEach(function (o) { if (o !== m && !o.dn) o.mp = Math.min(o.mm || MP_MAX, o.mp + s.mpAll + (r >= 2 ? 1 : 0)); });
   if (s.reveal) G.grp.reveal = 1;
+  /* 上級職の技・隠し技（2026-11-24） */
+  if (s.wall) { G.grp.wall = { by: id, t: 20 }; emit(G, { t: 'ban', s: m.name + ' のホーリーウォール！ 次の問題まで、班への攻撃を受けとめる', big: 1 }); }
+  if (s.free) { m.free = s.free; m.freeTk = 0; emit(G, { t: 'ban', s: m.name + ' の賢者の時間！ 次の' + s.free + '問、技のMPが0', big: 1 }); }
+  if (s.promise) { G.grp.prom = G.grp.prom || {}; team.forEach(function (o) { G.grp.prom[o.id] = Math.max(G.grp.prom[o.id] || 0, s.promise); }); emit(G, { t: 'ban', s: '天の約束！ ' + s.promise + '問のあいだ、まちがえても正解あつかい', big: 1 }); }
+  if (s.q4) { m.q4 = s.q4; emit(G, { t: 'ban', s: '四精霊の王！ ' + s.q4 + '問のあいだ、いつも苦手をつく', big: 1 }); }
+  if (s.inv) { G.grp.inv = { t: s.inv * 5 }; emit(G, { t: 'ban', s: '聖剣の光！ しばらく班のみんなはダメージを受けない', big: 1 }); }
+  if (s.mpFill) { team.forEach(function (o) { if (!o.dn) o.mp = o.mm || MP_MAX; }); emit(G, { t: 'ban', s: '万象の理！ 班のみんなのMPが満タンになった', big: 1 }); }
+  if (s.streakUp) { m.streak = Math.min(JOBS[m.j].streakMax || 99, m.streak + s.streakUp); emit(G, { t: 'ban', s: m.name + ' の連続正解が ' + m.streak + ' に！' }); }
   if (s.nextCrit) m.nextCrit = 1 + r;
   if (s.keep) m.keep = 1;
   if (s.counter) m.counter = { pow: s.counter.pow * P, t: s.counter.sec * T };
@@ -272,6 +287,10 @@ function hit(G, m, s, P, k, name, fx) {
   var J = JOBS[m.j], buff = G.grp.buff ? G.grp.buff.x : 1;
   targets.forEach(function (f) {
     var base = N.base * (m.atk / 9) * lvMult(m.lv) * buff * (0.9 + Math.random() * .2);
+    if (s.hpCut && (f.fin || f.gd)) {   /* 天弓・星墜とし：ボス・番人は今のHPの割合を必ずけずる（ほかの倍率は乗せない） */
+      var dc = Math.max(1, Math.round(f.hp * s.hpCut)); f.hp = Math.max(0, f.hp - dc); m.rw.dmg += dc;
+      emit(G, { t: 'hit', who: m.id, i: G.foes.indexOf(f), d: dc, crit: 1, weak: 0, n: name || null, fx: fx || null, ult: 1, j: m.j }); afterHit(G, f); return;
+    }
     var d = s.hpPct ? Math.max(base, f.hp * s.hpPct * P) : base * (s.pow || 1) * P;
     if (s.streakX) d *= 1 + s.streakX * m.streak;
     if (J.streakAtk && !s.useStreak) d *= 1 + J.streakAtk * Math.min(m.streak, J.streakMax);
@@ -280,7 +299,7 @@ function hit(G, m, s, P, k, name, fx) {
     if (s.vsChg && f.chg > 0) d *= s.vsChg;
     /* 苦手な精霊 */
     var weak = weakOf(f.t), elemHit = null;
-    if (m.j === 'summoner') elemHit = s.quad ? weak : s.dual ? (k % 2 ? ELEMS[(ELEMS.indexOf(m.elem) + 1) % 4] : m.elem) : m.elem;
+    if (m.j === 'summoner') elemHit = s.gate ? ELEMS[k % 4] : s.quad || m.q4 > 0 ? weak : s.dual ? (k % 2 ? ELEMS[(ELEMS.indexOf(m.elem) + 1) % 4] : m.elem) : m.elem;
     else if (G.grp.elemBuff) elemHit = G.grp.elemBuff.e;
     if (elemHit && elemHit === weak) d *= m.j === 'summoner' ? 2 : 1.5;
     /* 会心 */
@@ -289,7 +308,7 @@ function hit(G, m, s, P, k, name, fx) {
     if (crit) d *= s.ult ? 1.3 : 1.8;
     /* バリア */
     if (f.ward > 0) d *= N.bsk.wardCut;
-    if (f.barrier) { if (!s.pierce) { emit(G, { t: 'hit', who: m.id, i: G.foes.indexOf(f), d: 0, guard: 1 }); return; } d *= .5 * (s.barrierX || 1); }
+    if (f.barrier && !s.ignoreBar) { if (!s.pierce) { emit(G, { t: 'hit', who: m.id, i: G.foes.indexOf(f), d: 0, guard: 1 }); return; } d *= .5 * (s.barrierX || 1); }
     d = Math.max(1, Math.round(d));
     f.hp = Math.max(0, f.hp - d); m.rw.dmg += d;
     if (s.stun) f.stun = Math.max(f.stun, s.stun * (P > 1 ? 1.2 : 1));
@@ -322,7 +341,7 @@ export function step(G, dt) {
   else if (G.ph === 'result') { G.resT -= dt; if (G.resT <= 0) afterResult(G); }
   else if (G.ph === 'rest') { G.restT -= dt; if (G.restT <= 0) { present(G).forEach(function (m) { m.dn = 0; m.hp = Math.round(m.mx / 2); m.seal = 0; m.psn = 0; }); G.ph = 'battle'; emit(G, { t: 'ban', s: '立ち上がった！ もう一度オブリオンへ', big: 1 }); } }
   /* 班の効果の時間 */
-  ['shield', 'buff', 'regen', 'elemBuff'].forEach(function (k) { if (G.grp[k]) { G.grp[k].t -= dt; if (G.grp[k].t <= 0) delete G.grp[k]; } });
+  ['shield', 'buff', 'regen', 'elemBuff', 'wall', 'inv'].forEach(function (k) { if (G.grp[k]) { G.grp[k].t -= dt; if (G.grp[k].t <= 0) delete G.grp[k]; } });
   if (G.grp.mpRate > 0) { G.grp.mpRate -= dt; if (G.grp.mpRate <= 0) delete G.grp.mpRate; }
   present(G).forEach(function (m) {
     if (m.gs) { m.gs.t -= dt; if (m.gs.t <= 0) m.gs = null; }
@@ -368,8 +387,15 @@ function battleTick(G, dt) {
       var tgt = alive(G).filter(function (m) { return m.id === f.aim; })[0] || rnd(alive(G)); f.aim = null;
       if (!tgt) return;
       if (G.grp.trap) { f.stun = G.grp.trap.stun; delete G.grp.trap; emit(G, { t: 'ban', s: 'わなにかかった！ ' + f.n + ' が動けない' }); return; }
+      var wl = G.grp.wall && G.mem[G.grp.wall.by];
+      if (wl && wl.here && !wl.dn) {   /* ホーリーウォール：聖騎士が受ける。半分にして、受けた分を はね返す */
+        tgt = wl; var wd = hurt(G, wl, hitOf(G, f) / 2, f);
+        emit(G, { t: 'atk', who: wl.id, i: G.foes.indexOf(f) });
+        if (wd > 0 && f.hp > 0) { f.hp = Math.max(0, f.hp - wd); wl.rw.dmg += wd; emit(G, { t: 'hit', who: wl.id, i: G.foes.indexOf(f), d: wd, n: 'ホーリーウォール' }); afterHit(G, f); }
+      } else {
       hurt(G, tgt, hitOf(G, f), f);
       emit(G, { t: 'atk', who: tgt.id, i: G.foes.indexOf(f) });
+      }
       if (tgt.counter && !tgt.dn) { var cd = Math.max(1, Math.round(N.base * tgt.counter.pow)); f.hp = Math.max(0, f.hp - cd); tgt.rw.dmg += cd; emit(G, { t: 'hit', who: tgt.id, i: G.foes.indexOf(f), d: cd, n: 'カウンター' }); afterHit(G, f); }
     }
   });
@@ -424,10 +450,12 @@ function useBossSkill(G, f, s, first) {
 }
 
 function hurt(G, m, d, f) {
+  if (G.grp.inv) return 0;   /* ラストクルセイド：班のみんなはダメージを受けない */
   var cut = (G.grp.shield ? G.grp.shield.cut : 0); if (m.gs) cut = Math.max(cut, m.gs.cut) + (G.grp.shield && m.gs ? .1 : 0);
   d = Math.max(1, Math.round(d * (1 - Math.min(.9, cut)) * (1 - .04 * m.def) * (m.cut || 1)));   /* 守り1につき4%へらす。防具の分も */
   m.hp = Math.max(0, m.hp - d);
   if (m.hp <= 0 && !m.dn) { m.dn = 1; m.streak = 0; m.seal = 0; m.psn = 0; emit(G, { t: 'down', who: m.id, s: m.name + ' がたおれた' }); }
+  return d;
 }
 
 /* ------------------------------------------------------------ 勝ち・全滅 */
@@ -483,7 +511,7 @@ export function view(G) {
   var mem = {};
   G.order.forEach(function (id) {
     var m = G.mem[id]; if (!m.here) return;
-    mem[id] = { n: m.name, j: m.j, lk: m.lk, pr: m.pr || 0, tt: m.tt || '', hp: m.hp, mx: m.mx, mp: Math.floor(m.mp), mm: m.mm, dn: m.dn, tg: m.tg, st: m.streak, el: m.elem, md: m.mode,
+    mem[id] = { n: m.name, j: m.j, lk: m.lk, pr: m.pr || 0, tt: m.tt || '', hp: m.hp, mx: m.mx, mp: Math.floor(m.mp), mm: m.mm, dn: m.dn, tg: m.tg, st: m.streak, el: m.elem, md: m.mode, fr: m.freeTk ? 1 : 0, q4: m.q4 > 0 ? m.q4 : 0,
       gs: m.gs ? 1 : 0, ct: m.counter ? 1 : 0, nc: m.nextCrit ? 1 : 0, kp: m.keep, sl: m.seal > 0 ? 1 : 0, ps: m.psn > 0 ? 1 : 0, it: m.itUsed ? '' : (m.it || '') };
   });
   return {
@@ -493,7 +521,7 @@ export function view(G) {
     foes: G.foes.map(function (f) { return { n: f.n, t: f.t, img: f.img, hp: f.hp, mx: f.mx, chg: Math.ceil(f.chg), br: f.barrier ? 1 : 0, aim: f.aim || '', st: f.stun > 0 ? 1 : 0, fin: f.fin ? 1 : 0, gd: f.gd ? 1 : 0, dot: f.dots.length ? 1 : 0,
       cs: f.cast ? f.sk[f.cast.i].n : '', wd: f.ward > 0 ? 1 : 0, rg: f.rage > 0 ? 1 : 0, ob: f.ob ? f.ob.k : 0, rr: f.rare || 0 }; }),
     mem: mem, rt: G.ph === 'rest' ? Math.ceil(G.restT) : 0, gc: G.guardCnt,
-    grp: { sh: G.grp.shield ? 1 : 0, bf: G.grp.buff ? 1 : 0, rg: G.grp.regen ? 1 : 0, eb: G.grp.elemBuff ? G.grp.elemBuff.e : '', rv: G.grp.reveal ? 1 : 0, tr: G.grp.trap ? 1 : 0, mr: G.grp.mpRate ? 1 : 0 },
+    grp: { sh: G.grp.shield ? 1 : 0, bf: G.grp.buff ? 1 : 0, rg: G.grp.regen ? 1 : 0, eb: G.grp.elemBuff ? G.grp.elemBuff.e : '', rv: G.grp.reveal ? 1 : 0, tr: G.grp.trap ? 1 : 0, mr: G.grp.mpRate ? 1 : 0, wl: G.grp.wall ? 1 : 0, iv: G.grp.inv ? 1 : 0, pm: G.grp.prom && Object.keys(G.grp.prom).some(function (k) { return G.grp.prom[k] > 0; }) ? 1 : 0 },   /* wl ホーリーウォール・iv 無敵・pm 天の約束（2026-11-24） */
     ev: G.ev.slice(-12)
   };
 }

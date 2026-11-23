@@ -46,7 +46,7 @@ test('単元マスターの称号：条件を満たすともらえて、名前�
   // 正解率が足りない単元（matter 75%）のしるしは、ルールで書けない
   expect(await p.evaluate(() => { const c = window.__ch(); return c.tb; })).toBe(16);
   // 手で tb に matter のしるしを足して保存 → 断られる
-  const r = await p.evaluate(async (sid) => { const m = await import('./lib.js?v=20261123120000'); try { await m.set(m.ref(m.db, 'quest/' + (new Date().getMonth() >= 3 ? new Date().getFullYear() : new Date().getFullYear() - 1) + '/chars/' + sid + '/tb'), 17); return 'ok'; } catch (e) { return 'denied'; } }, SID);
+  const r = await p.evaluate(async (sid) => { const m = await import('./lib.js?v=20261124120000'); try { await m.set(m.ref(m.db, 'quest/' + (new Date().getMonth() >= 3 ? new Date().getFullYear() : new Date().getFullYear() - 1) + '/chars/' + sid + '/tb'), 17); return 'ok'; } catch (e) { return 'denied'; } }, SID);
   expect(r).toBe('denied');
   // ステータス：称号の一覧。押すと名前の横に出る
   await p.locator('#goMenu').click(); await p.getByRole('button', { name: 'ステータス' }).click();
@@ -163,12 +163,12 @@ test('昇格：Lv100 で教会から上級職に。技・SP・レベルはその
   // ステータス：上級職の名前と必殺技。持っていく必殺技にできる（ld.u＝15 がルールで通る）
   await p.locator('#goMenu').click(); await p.getByRole('button', { name: 'ステータス' }).click();
   await expect(p.locator('#stJob')).toContainText('聖騎士 Lv.100');
-  const ult = p.locator('#skills .skill', { hasText: 'ホーリーセイバー' });
+  const ult = p.locator('#skills .skill', { hasText: '聖盾ホーリーウォール' });
   await expect(ult).toBeVisible(); await ult.click();
   await expect.poll(async () => ((await charNow()).ld || {}).u).toBe(15);
   await ult.scrollIntoViewIfNeeded(); await p.screenshot({ path: `${SHOT}/promo-pc-stat.png` });
   // 昇格したあともレベルは上がる（Lv200まで）。pr は消せない
-  const r = await p.evaluate(async (sid) => { const m = await import('./lib.js?v=20261123120000'); const y = new Date().getMonth() >= 3 ? new Date().getFullYear() : new Date().getFullYear() - 1; try { await m.set(m.ref(m.db, 'quest/' + y + '/chars/' + sid + '/pr'), null); return 'ok'; } catch (e) { return 'denied'; } }, SID);
+  const r = await p.evaluate(async (sid) => { const m = await import('./lib.js?v=20261124120000'); const y = new Date().getMonth() >= 3 ? new Date().getFullYear() : new Date().getFullYear() - 1; try { await m.set(m.ref(m.db, 'quest/' + y + '/chars/' + sid + '/pr'), null); return 'ok'; } catch (e) { return 'denied'; } }, SID);
   expect(r).toBe('denied');
   expect(p.errs).toEqual([]);
   const q = await page(browser, true); await login(q);

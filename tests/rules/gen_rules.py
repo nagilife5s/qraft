@@ -30,6 +30,7 @@ CAP = "($sid.beginsWith('1-') ? 50 : $sid.beginsWith('2-') ? 100 : 150)"
 JOBS = ['warrior', 'mage', 'priest', 'hunter', 'monk', 'summoner']
 LEARN = [1, 3, 5, 8, 12, 16, 20, 25, 30, 36, 50, 60, 70, 80, 100]
 NSK = len(LEARN)
+HID_LV = 150   # 隠し技（技の番号 NSK+1＝16）は 昇格して Lv150 から（2026-11-24。rikaria-data.js の HID_LV と同じ）
 # 技ごとのMP（6職業とも同じ並び。rikaria-data.js と合わせる）
 MP = [1, 2, 1, 2, 5, 3, 2, 3, 3, 5, 3, 3, 3, 3, 5]
 def cost(mp): return [6, 12] if mp >= 5 else [4, 8] if mp >= 3 else [3, 6] if mp >= 2 else [2, 4]
@@ -249,7 +250,7 @@ c['j'] = {".validate": " || ".join("newData.val() === '%s'" % j for j in JOBS)}
 c.pop('sk', None)
 c['sr'] = {**{str(i): {".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 2 && newData.parent().parent().child('lv').val() >= %d" % LEARN[i]} for i in range(NSK)}, "$other": {".validate": False}}
 c['ld'] = {"a": {"$k": {".validate": "$k.matches(/^[0-3]$/) && newData.isNumber() && newData.val() >= 0 && newData.val() <= %d" % (NSK - 1)}},
-           "u": {".validate": "newData.isNumber() && newData.val() >= -1 && (newData.val() <= %d || (newData.val() === %d && newData.parent().parent().child('pr').val() === true))" % (NSK - 1, NSK)}, "$other": {".validate": False}}
+           "u": {".validate": "newData.isNumber() && newData.val() >= -1 && (newData.val() <= %d || (newData.val() === %d && newData.parent().parent().child('pr').val() === true) || (newData.val() === %d && newData.parent().parent().child('pr').val() === true && newData.parent().parent().child('lv').val() >= %d))" % (NSK - 1, NSK, NSK + 1, HID_LV)}, "$other": {".validate": False}}
 c['ttl'] = {"$a": {".validate": "newData.isString() && newData.val().length <= 20 && (%s || newData.val() === data.val())" % A}}
 # クラスの記録（町の名前 town・町の段階 stage・単元 areas・オブリオン ob/obDone など）。読むのは誰でも、書くのは先生だけ。
 # 中身の形は決めていない（先生の端末なら新しい項目を足せる）。生徒の端末からは書けない

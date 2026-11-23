@@ -13,7 +13,7 @@ function team(lv = 12, jobs = JOBS6) {
 test('データ：6職業に技が15個ずつ、名前はランク3つ、効果の部品がある', () => {
   assert.deepEqual(D.JOB_KEYS.sort(), Object.keys(D.JOBS).sort());
   for (const j of D.JOB_KEYS) {
-    const all = D.JOBS[j].sk; assert.equal(all.length, 16, j); assert.ok(all[D.PRO_SK].pro && all[D.PRO_SK].ult, j + 'の上級職の必殺技（2026-11-23）');
+    const all = D.JOBS[j].sk; assert.equal(all.length, 17, j); assert.ok(all[D.PRO_SK].pro && all[D.PRO_SK].ult && all[D.PRO_SK].mp === 5, j + 'の上級職の必殺技（2026-11-23）'); assert.ok(all[D.HID_SK].hid && all[D.HID_SK].ult && all[D.HID_SK].mp === 5 && all[D.HID_SK].lv === 150, j + 'の隠し技（2026-11-24）');
     const sk = all.slice(0, 15);
     sk.forEach((s, i) => { assert.equal(s.lv, D.LEARN[i], j + i); assert.equal(s.names.length, 3); assert.ok(s.mp >= 1 && s.mp <= 5); });
     assert.equal(sk.filter(s => s.ult).length, 3, j + 'の必殺技は3つ');
@@ -429,4 +429,77 @@ test('単元マスター：30問・90%・10問連続で称号', () => {
   assert.equal(got, true); assert.ok(D.mtHas(ch, 'ion')); assert.equal(ch.tb, 256);
   ch.tc = 'ion'; assert.equal(D.titleOf(ch), 'イオンマスター'); assert.equal(D.udOpen(ch), false);
   assert.equal(D.udX(1), 1.5); assert.equal(D.udX(10), 2);
+});
+
+// 上級職の技・隠し技（2026-11-24）
+function solo1(j, extra = {}, n = 1) {
+  const ms = []; for (let k = 0; k < n; k++) { const s = D.statsOf({ j, lv: 150, pr: true }, true); ms.push({ id: 'u' + k, name: 'P' + k, j: k ? 'warrior' : j, lk: 'a', lv: 150, atk: s.atk, def: s.def, mhp: s.mhp, pr: 1, ld: { a: [], u: extra.u != null ? extra.u : 15 } }); }
+  const G = E.newGroup({ unit: D.UNITS[0], mem: ms }); E.startBattle(G, 'zako'); G.foes.forEach(f => { f.hp = f.mx = 1e6; f.atk = 999; }); G.mem.u0.mp = 6; return G;
+}
+test('隠し技：昇格して Lv150 から。覚えるまでは出さない・持っていけない', () => {
+  const p149 = { j: 'monk', lv: 149, pr: true }, p150 = { j: 'monk', lv: 150, pr: true }, n150 = { j: 'monk', lv: 150 };
+  assert.ok(!D.skGot(p149, D.HID_SK) && !D.skShown(p149, D.HID_SK)); assert.ok(D.skGot(p150, D.HID_SK) && D.skShown(p150, D.HID_SK));
+  assert.ok(!D.skShown(n150, D.HID_SK) && !D.skShown(n150, D.PRO_SK)); assert.ok(D.skShown(p149, D.PRO_SK));
+  assert.equal(D.loadoutOf({ ...p149, ld: { a: [], u: 16 } }).u, 15); assert.equal(D.loadoutOf({ ...p150, ld: { a: [], u: 16 } }).u, 16);
+  assert.ok(!D.canRankUp({ ...p150, sp: 99 }, D.HID_SK));
+  const paladinHid = D.JOBS.warrior.sk[D.HID_SK].pow; D.JOB_KEYS.forEach(j => D.JOBS[j].sk.forEach((s, i) => { if (i !== D.HID_SK || j !== 'warrior') assert.ok(!(s.pow > paladinHid), j + i + 'より聖剣解放が強い'); }));
+});
+test('聖盾ホーリーウォール：班への攻撃を受け、半分にして はね返す。次に答えたら消える', () => {
+  const G = solo1('warrior', {}, 2); assert.ok(E.skill(G, 'u0', 15)); assert.ok(G.grp.wall);
+  const P = G.mem.u0, O = G.mem.u1, f = G.foes[0]; f.aim = 'u1'; f.atk = 0; const hp0 = P.hp, ohp = O.hp, fhp = f.hp;
+  E.step(G, .01); assert.equal(O.hp, ohp, '仲間は無傷'); assert.ok(P.hp < hp0); assert.equal(fhp - f.hp, hp0 - P.hp, '同じだけはね返す');
+  E.answer(G, 'u0', true); assert.ok(!G.grp.wall);
+});
+test('賢者の時間：3問のあいだ、答えるたびに技1回のMPが0', () => {
+  const G = solo1('mage', { u: 14 }); G.mem.u0.ld.a = [0]; const m = G.mem.u0; m.ld.u = 15;
+  assert.ok(E.skill(G, 'u0', 15)); assert.equal(m.mp, 1); assert.equal(m.free, 3);
+  assert.ok(!E.skill(G, 'u0', 0) || m.mp === 0, '答える前は無料にならない'); m.mp = 0;
+  for (let q = 0; q < 3; q++) { E.answer(G, 'u0', false); assert.ok(E.skill(G, 'u0', 0), q + '問目'); assert.equal(m.mp, 0); }
+  E.answer(G, 'u0', false); assert.ok(!E.skill(G, 'u0', 0), '4問目はMPがいる');
+});
+test('天の約束：次の1問は班のみんな、まちがいが正解あつかい（記録は本当のまま）', () => {
+  const G = solo1('priest', {}, 2); assert.ok(E.skill(G, 'u0', 15)); const o = G.mem.u1; o.streak = 2;
+  E.answer(G, 'u1', false); assert.equal(o.streak, 3, '正解あつかい'); assert.equal(o.rw.ok, 0);
+  E.answer(G, 'u1', false); assert.equal(o.streak, 0, '2問目は ふつう');
+});
+test('天弓・ねらい撃ち：ためを打ち消し、必ず会心。ボスに強い', () => {
+  const G = solo1('hunter'); const f = G.foes[0]; f.chg = 5; G.mem.u0.tg = 0; assert.ok(E.skill(G, 'u0', 15));
+  assert.equal(f.chg, 0); const h = G.ev.filter(e => e.t === 'hit' && e.who === 'u0'); assert.equal(h.length, 1); assert.equal(h[0].crit, 1);
+  assert.equal(D.JOBS.hunter.sk[15].bossX, 1.5);
+});
+test('拳聖・不動：連続は へらず、次の まちがいで切れない', () => {
+  const G = solo1('monk'); const m = G.mem.u0; m.streak = 4; assert.ok(E.skill(G, 'u0', 15)); assert.equal(m.streak, 4);
+  E.answer(G, 'u0', false); assert.equal(m.streak, 4); E.answer(G, 'u0', false); assert.equal(m.streak, 0);
+});
+test('四精霊の王：5問のあいだ、いつも苦手をつく', () => {
+  const G = solo1('summoner'); const m = G.mem.u0; assert.ok(E.skill(G, 'u0', 15)); assert.equal(m.q4, 5);
+  m.elem = D.ELEMS.find(e => e !== D.weakOf(G.foes[0].t)); G.ev.length = 0; m.tg = 0; E.answer(G, 'u0', true);
+  assert.ok(G.ev.filter(e => e.t === 'hit' && e.who === 'u0').every(e => e.weak === 1)); assert.equal(m.q4, 4);
+});
+test('聖剣解放：3問ぶん、班のみんなはダメージを受けない', () => {
+  const G = solo1('warrior', { u: 16 }, 2); assert.ok(E.skill(G, 'u0', 16)); assert.ok(G.grp.inv);
+  const O = G.mem.u1, h = O.hp; G.foes[0].aim = 'u1'; G.foes[0].atk = 0; E.step(G, .01); assert.equal(O.hp, h);
+  E.step(G, 16); assert.ok(!G.grp.inv);
+});
+test('万象の理：班のみんなのMPが満タン', () => {
+  const G = solo1('mage', { u: 16 }, 2); G.mem.u1.mp = 0; assert.ok(E.skill(G, 'u0', 16)); assert.equal(G.mem.u1.mp, G.mem.u1.mm); assert.equal(G.mem.u0.mp, G.mem.u0.mm);
+});
+test('天地創造の祈り：全回復・倒れた仲間も起こす・5問 正解あつかい', () => {
+  const G = solo1('priest', { u: 16 }, 2); const o = G.mem.u1; o.hp = 0; o.dn = 1; G.mem.u0.hp = 1;
+  assert.ok(E.skill(G, 'u0', 16)); assert.equal(o.dn, 0); assert.equal(o.hp, o.mx); assert.equal(G.mem.u0.hp, G.mem.u0.mx);
+  for (let q = 0; q < 5; q++) E.answer(G, 'u1', false); assert.equal(o.streak, 5); E.answer(G, 'u1', false); assert.equal(o.streak, 0);
+});
+test('天弓・星墜とし：ボスの今のHPを必ず30%。バリアも無視', () => {
+  const G = solo1('hunter', { u: 16 }); const f = G.foes[0]; f.fin = 1; f.barrier = true; f.hp = 1000; G.mem.u0.tg = 0;
+  assert.ok(E.skill(G, 'u0', 16)); assert.equal(f.hp, 700);
+  const G2 = solo1('hunter', { u: 16 }); const g = G2.foes[0]; g.barrier = true; G2.mem.u0.tg = 0; assert.ok(E.skill(G2, 'u0', 16));
+  assert.ok(g.hp < g.mx); assert.equal(G2.ev.filter(e => e.t === 'hit' && e.who === 'u0')[0].crit, 1);
+});
+test('拳聖・無限連撃：連続 +10（最大 streakMax）、連続は へらない', () => {
+  const G = solo1('monk', { u: 16 }); const m = G.mem.u0; m.streak = 1; assert.ok(E.skill(G, 'u0', 16)); assert.equal(m.streak, D.JOBS.monk.streakMax);
+});
+test('精霊界の扉：火→水→風→土で4回、敵全体', () => {
+  const G = solo1('summoner', { u: 16 }); G.ev.length = 0; assert.ok(E.skill(G, 'u0', 16));
+  const h = G.ev.filter(e => e.t === 'hit' && e.who === 'u0'); assert.equal(h.length, 4 * G.foes.length);
+  assert.equal(h.filter(e => e.weak).length, G.foes.length, '1体につき1回は苦手');
 });

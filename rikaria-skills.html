@@ -50,7 +50,7 @@
   <div id="pages"></div>
 </main>
 <script type="module">
-import { JOBS, JOB_KEYS, LEARN, rankCost, RANK_POW, heroImg, effectImg, skillFx, ELEM, ELEMS } from './rikaria-data.js';
+import { JOBS, JOB_KEYS, LEARN, rankCost, RANK_POW, heroImg, effectImg, skillFx, ELEM, ELEMS, PROMO, PRO_LV } from './rikaria-data.js?v=20261124150000';
 const $ = (i) => document.getElementById(i);
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const NEW_LV = 50;   /* Lv50から先は 2026-11-19 に足した技 */
@@ -60,12 +60,17 @@ function names(j, i, s) {
 }
 function page(j) {
   const J = JOBS[j];
-  const rows = J.sk.map((s, i) => { const c = rankCost(s.mp), fx = skillFx(j, i);
+  /* 隠し技（hid）は、どこにも出さない。上級職の技（pro）は「昇格」の行で見せる（2026-11-24） */
+  const rows = J.sk.map((s, i) => { if (s.hid) return ''; const c = rankCost(s.mp), fx = skillFx(j, i);
+    if (s.pro) return `<tr class="ult pro"><td class="lv">昇格<br>Lv${PRO_LV}〜</td>
+      <td class="fx">${fx && fx !== 'elem' ? `<img src="${effectImg(fx)}" alt="" loading="lazy">` : '🔮'}</td>
+      <td class="nm">★ <b>${esc(s.names[0])}</b><br><span>（${esc(PROMO[j].n)}になると覚える）</span></td><td>${esc(s.d)}</td>
+      <td class="mp">${'<i></i>'.repeat(s.mp)}<br>${s.mp}</td><td class="sp">ランクは上がらない</td></tr>`;
     return `<tr class="${s.ult ? 'ult' : ''}"><td class="lv">Lv${LEARN[i]}${LEARN[i] >= NEW_LV ? '<span class="new">NEW</span>' : ''}</td>
       <td class="fx">${fx && fx !== 'elem' ? `<img src="${effectImg(fx)}" alt="" loading="lazy">` : '🔮'}</td>
       <td class="nm">${s.ult ? '★ ' : ''}${names(j, i, s)}</td><td>${esc(s.d)}</td>
       <td class="mp">${'<i></i>'.repeat(s.mp)}<br>${s.mp}</td><td class="sp">ランク2：${c[0]}SP<br>ランク3：${c[1]}SP</td></tr>`; }).join('');
-  const total = J.sk.reduce((a, s) => a + rankCost(s.mp)[0] + rankCost(s.mp)[1], 0);
+  const total = J.sk.reduce((a, s) => s.pro ? a : a + rankCost(s.mp)[0] + rankCost(s.mp)[1], 0);
   return `<section id="p-${j}" hidden><div class="box trait"><img src="${heroImg(j, 'a')}" alt=""><div><h2 style="margin:0;color:${J.color}">${J.n}</h2><div>${esc(J.trait)}</div>
       <div style="color:#c9c0ea;font-size:.9em">全部の技をランク3にするには ${total}SP。どれから育てるか、えらぼう。</div></div></div>
     <table><thead><tr><th>覚える</th><th class="fx"></th><th>技の名前（ランク1 → 2 → 3）</th><th>どんな技</th><th>MP</th><th class="sp">ランクを上げるSP</th></tr></thead><tbody>${rows}</tbody></table>
