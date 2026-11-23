@@ -422,6 +422,25 @@ await seed(async (d) => d.ref(P('chars/' + SID + '/ubd')).set(DAYNO() - 1));
 await t('次の日のベストはゴールド＋20', () => assertSucceeds(save(alice, { ubb: { force: { m: 0, q: 12 } }, gold: 40, ubd: DAYNO() })));
 await t('ベストといっしょに経験値は増やせない', () => assertFails(save(alice, { ubb: { force: { m: 0, q: 10 } }, exp: 50 })));
 
+console.log('理科用語カード（cd/<単元>/<a|b|c>・全部集めたごほうび cdc。2026-11-23）');
+const F26 = 2 ** 26 - 1;
+await t('カードのしるしを足せる（ふつうの保存）', () => assertSucceeds(save(alice, { cd: { matter: { a: 5 } } })));
+await t('しるしは消せない（1つ減らす・単元ごと消す）', async () => { await assertFails(save(alice, { cd: { matter: { a: 4 } } })); await assertFails(save(alice, { cd: null })); });
+await t('その単元の枚数より外のしるしはだめ（物質47枚：1つ目の数は26枚・2つ目は21枚まで）', async () => {
+  await assertFails(save(alice, { cd: { matter: { a: 5, b: 2 ** 21 } } })); await assertFails(save(alice, { cd: { matter: { a: 5, c: 1 } } }));
+  await assertSucceeds(save(alice, { cd: { matter: { a: 5, b: 2 ** 21 - 1 } } })); });
+await t('78枚の単元（植物と動物）は3つ目の数まで・知らない単元や nature はだめ', async () => {
+  await assertSucceeds(save(alice, { cd: { matter: { a: 5, b: 2 ** 21 - 1 }, life: { c: 2 ** 25 } } })); await assertFails(save(alice, { cd: { matter: { a: 5, b: 2 ** 21 - 1 }, life: { c: 2 ** 26 } } }));
+  await assertFails(save(alice, { cd: { matter: { a: 5, b: 2 ** 21 - 1 }, life: { c: 2 ** 25 }, nature: { a: 1 } } })); await assertFails(save(alice, { cd: { matter: { a: 5, b: 2 ** 21 - 1 }, life: { c: 2 ** 25, d: 1 } } })); });
+await t('小数・マイナスはだめ', async () => { await assertFails(save(alice, { cd: { matter: { a: 5.5, b: 2 ** 21 - 1 }, life: { c: 2 ** 25 } } })); await assertFails(save(alice, { cd: { matter: { a: -1, b: 2 ** 21 - 1 }, life: { c: 2 ** 25 } } })); });
+const g0 = (await cur()).gold;
+await t('全部そろっていないのに、ごほうびはもらえない', () => assertFails(save(alice, { cdc: { matter: true }, gold: g0 + 100 })));
+await t('そろえて、ゴールドの額がちがうとだめ', () => assertFails(save(alice, { cd: { matter: { a: F26, b: 2 ** 21 - 1 }, life: { c: 2 ** 25 } }, cdc: { matter: true }, gold: g0 + 200 })));
+await t('ごほうびといっしょに経験値は増やせない', () => assertFails(save(alice, { cd: { matter: { a: F26, b: 2 ** 21 - 1 }, life: { c: 2 ** 25 } }, cdc: { matter: true }, gold: g0 + 100, exp: 30 })));
+await t('最後の1枚と、ごほうび（ゴールドちょうど＋100）をいっしょに保存できる', () => assertSucceeds(save(alice, { cd: { matter: { a: F26, b: 2 ** 21 - 1 }, life: { c: 2 ** 25 } }, cdc: { matter: true }, gold: g0 + 100 })));
+await t('ごほうびの印は消せない・2回目はもらえない', async () => { await assertFails(save(alice, { cdc: null })); await assertFails(save(alice, { cdc: { matter: true, force: true }, gold: g0 + 200 })); });
+await t('ごほうびなしで cdc を書けない（買い物の形）', () => assertFails(save(alice, { cdc: { matter: true, life: true } })));
+
 console.log('クラスの図鑑（czk/<学年-組>/<単元>/<番号>。2026-11-20）');
 await seed(async (d) => d.ref(P('chars/' + SID + '/zk')).set({ matter: 2047, force: 1024 }));
 await t('自分の番号に、自分の図鑑と同じ数を書ける', () => assertSucceeds(alice.ref(P('czk/1-2/matter/3')).set(2047)));

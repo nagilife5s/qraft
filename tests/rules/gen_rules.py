@@ -77,12 +77,24 @@ def ubb_chg(u): return AND(NE('ubb', u), "!" + ubb_same(u))
 ubb_all_same = [ubb_same(u) for u in UIDS] + [same_opt('ubd')]
 # 裏ボスをはじめて倒したときのごほうび（rikaria-data.js の URA と同じ）：SP＋5・ゴールド 学年×100
 URA_SP, URA_GOLD = 5, 100
+# 理科用語カード（2026-11-23。rikaria-cards.js）：cd/<単元>/<a|b|c> = 数（番号 i のカードは 'abcd'[floor(i/26)] の 2^(i%26) の位。数字のキーは Firebase が配列にするので字）。単元ごとの枚数 CD_N は rikaria-cards.js と同じ（足すだけ）。
+# cdc/<単元> = true：その単元のカードを全部集めたごほうび（ゴールドちょうど＋100・1回きり）をもらった
+CD_N = {'classify': 54, 'earth': 58, 'matter': 47, 'force': 42, 'reaction': 38, 'weather': 51, 'life': 78, 'electric': 47, 'ion': 39, 'energy': 43, 'space': 51, 'heredity': 39}
+CD_BITS, CD_GOLD, CD_KEY = 26, 100, 'abcd'
+def cd_full_k(u, k): n = min(CD_BITS, CD_N[u] - k * CD_BITS); return 2 ** n - 1
+def cd_chunks(u): return range((CD_N[u] + CD_BITS - 1) // CD_BITS)
+def ck(k): return CD_KEY[k]
+def cdc_add(u): return AND(NE('cdc', u), "!" + DE('cdc', u))
+cdc_all_same = [OR("!" + NE('cdc', u), DE('cdc', u)) for u in UIDS]
+def cd_full(u): return AND(*[AND(NE('cd', u, ck(k)), N('cd', u, ck(k)) + " === %d" % cd_full_k(u, k)) for k in cd_chunks(u)])
 # 消せないこと（下の keep_rec）と合わせて、ub が増えていない＝そのまま
 def ub_add(u): return AND(NE('ub', u), "!" + DE('ub', u))
 ub_all_same = [OR("!" + NE('ub', u), DE('ub', u)) for u in UIDS]
 # 図鑑・裏ボスの記録は消せない（消して取り直すと、ごほうびをもう一度もらえてしまう）。どの書き込みでも調べる
 keep_rec = [OR("!" + DE(k, u), NE(k, u)) for k in ('zk', 'ub', 'bc', 'ubb', 'mt') for u in UIDS] + [OR("!" + DE('ms', str(k)), NE('ms', str(k))) for k in MS] + \
-           [OR("!" + DE(k), NE(k)) for k in ('tb', 'pr')]   # 2026-11-23：単元マスターの記録 mt・称号 tb・昇格 pr も消せない
+           [OR("!" + DE(k), NE(k)) for k in ('tb', 'pr')] + \
+           [OR("!" + DE('cd', u, ck(k)), NE('cd', u, ck(k))) for u in UIDS for k in cd_chunks(u)] + [OR("!" + DE('cdc', u), NE('cdc', u)) for u in UIDS]
+# ↑ 2026-11-23：単元マスターの記録 mt・称号 tb・昇格 pr も消せない。用語カード cd（しるしの数）・cdc（全部集めたごほうび）も消せない
 # ボスを倒した記録 bc（2026-11-19）：新しく書けるのは、ひとりで冒険の報酬の書き込みだけで、1回に1つまで。
 # そのとき、経験値が60以上増えていて（ボスの報酬。いちばん弱いボスでも約70）、図鑑のその単元のボスの印（zk の 1024）もついていること。
 # ほかの書き込み（買い物・振り直し・鍛冶屋・裏ボス）では増やせない。消せないのは keep_rec
@@ -90,7 +102,7 @@ def bc_add(u): return AND(NE('bc', u), "!" + DE('bc', u))
 bc_all_same = [OR("!" + NE('bc', u), DE('bc', u)) for u in UIDS]
 up_same = [same_opt_p('up', 'w'), same_opt_p('up', 'a')]
 # 節目・自己ベストは、それぞれの道（下の mstone・ubest）だけで変えられる。ほかの書き込みではそのまま（update でまとめて調べる）
-yk_same = ms_all_same + ubb_all_same
+yk_same = ms_all_same + ubb_all_same + cdc_all_same   # cdc は下の cardb だけで書ける
 def smith_slot(slot, other):
     tier = "'%s6'" % slot
     steps = [AND(N('up', slot) + " === %d" % k, OR("!" + DE('up', slot), D('up', slot) + " === 0") if k == 1 else D('up', slot) + " === %d" % (k - 1),
@@ -99,7 +111,7 @@ def smith_slot(slot, other):
 # ---------------------------------------------------------------- 新しく作るキャラは学年の始まりの目安から（1年 Lv1・2年 Lv16・3年 Lv30。SPは Lv−1）。rikaria-data.js の START_LV・newChar と同じ（2026-11-13）
 START = "($sid.beginsWith('1-') ? 1 : $sid.beginsWith('2-') ? 16 : 30)"
 create = AND("!data.exists()", N('lv') + " === " + START, N('exp') + " === 0", N('gold') + " === 0", N('sp') + " === " + N('lv') + " - 1", N('spt') + " === " + N('lv') + " - 1",
-             "!" + NE('sr'), "!" + NE('eq'), "!" + NE('ttl'), "!" + NE('gd'), "!" + NE('gg'), "!" + NE('up'), "!" + NE('ub'), "!" + NE('bc'), "!" + NE('ms'), "!" + NE('ubb'), "!" + NE('ubd'), *[inv_le(k) for k in ITEMS])
+             "!" + NE('sr'), "!" + NE('eq'), "!" + NE('ttl'), "!" + NE('gd'), "!" + NE('gg'), "!" + NE('up'), "!" + NE('ub'), "!" + NE('bc'), "!" + NE('ms'), "!" + NE('ubb'), "!" + NE('ubd'), "!" + NE('cd'), "!" + NE('cdc'), *[inv_le(k) for k in ITEMS])
 # 第1版のキャラ（sk がある・spt がない）を移す：レベル・経験値・ゴールドはそのまま、振っていたポイントは全部返す（spt＝Lv−1）
 migrate = AND("data.exists()", OR(DE('sk'), "!" + DE('spt')), same('lv'), same('exp'), N('gold') + " <= " + D('gold'),
               N('spt') + " === " + N('lv') + " - 1", "!" + NE('sr'), same('eq', 'w'), same('eq', 'a'), same_opt('gd'), same_opt('gg'), *up_same, *ub_all_same, *bc_all_same, *yk_same, *[inv_le(k) for k in ITEMS])
@@ -144,7 +156,7 @@ ura = AND(*up_same, N('spt') + " === " + D('spt') + " + %d" % URA_SP,
 # レベルの節目（2026-11-20）：節目 ms を1つだけ新しく書き、レベルがそこに届いていて、SP（spt）がちょうど＋表の数・ゴールドがちょうど＋学年×表の数。
 # ほかは何も変えない（1日の上限 gd・gg の外のごほうび）。1回きりの決まった額なので、20秒の間隔は要らない。2つ目は次の保存で
 ms_one = "(" + " + ".join("(%s ? 1 : 0)" % ms_add(k) for k in MS) + ") === 1"
-mstone = AND(*up_same, *ub_all_same, *ubb_all_same, ms_one,
+mstone = AND(*up_same, *ub_all_same, *ubb_all_same, *cdc_all_same, ms_one,
              *["(!%s || (%s >= %d && %s === %s + %d && %s === %s + %s * %d))" % (ms_add(k), D('lv'), k, N('spt'), D('spt'), sp, N('gold'), D('gold'), GRADE, g) for k, (sp, g) in MS.items()])
 # 裏ボスの自己ベスト（2026-11-20）：ubb を1つの単元だけ、前より良く（まちがいが少ない・同じなら答えた問題が少ない）書く。その単元の裏ボスを倒していること（ub）。
 # その日はじめてのベストなら ubd を今日にしてゴールドちょうど＋学年×20、そうでなければ ubd・ゴールドはそのまま。ほかは何も変えない
@@ -152,11 +164,15 @@ ubb_one = "(" + " + ".join("(%s ? 1 : 0)" % ubb_chg(u) for u in UIDS) + ") === 1
 ubb_ok = ["(!%s || (%s === true && (!%s || %s < %s || (%s === %s && %s < %s))))" % (ubb_chg(u), D('ub', u), DE('ubb', u), N('ubb', u, 'm'), D('ubb', u, 'm'),
           N('ubb', u, 'm'), D('ubb', u, 'm'), N('ubb', u, 'q'), D('ubb', u, 'q')) for u in UIDS]
 ubd_ok = AND(N('ubd') + " * %d <= now + %d" % (DAY, JST), "now + %d < (%s + 1) * %d" % (JST, N('ubd'), DAY))
-ubest = AND(same('spt'), *up_same, *ub_all_same, *ms_all_same, ubb_one, *ubb_ok,
+ubest = AND(same('spt'), *up_same, *ub_all_same, *ms_all_same, *cdc_all_same, ubb_one, *ubb_ok,
             OR(AND(N('gold') + " === " + D('gold'), same_opt('ubd')),
                AND(OR("!" + DE('ubd'), D('ubd') + " !== " + N('ubd')), ubd_ok, N('gold') + " === " + D('gold') + " + " + GRADE + " * %d" % UBB_GOLD)))
+# 用語カードを全部集めた（2026-11-23）：cdc を1つだけ新しく書き、その単元の cd が全部そろっていて、ゴールドがちょうど＋100。ほかは何も変えない（1日の上限の外・1回きり）
+cdc_one = "(" + " + ".join("(%s ? 1 : 0)" % cdc_add(u) for u in UIDS) + ") === 1"
+cardb = AND(same('spt'), *up_same, *ub_all_same, *ms_all_same, *ubb_all_same, same_opt('ubd'), cdc_one,
+            *["(!%s || (%s && %s === %s + %d))" % (cdc_add(u), cd_full(u), N('gold'), D('gold'), CD_GOLD) for u in UIDS])
 fixed0 = [c for c in nochange if c != same('spt')] + bc_all_same
-fixed = AND(*fixed0, OR(mstone, ubest))
+fixed = AND(*fixed0, OR(mstone, ubest, cardb))
 # 教会で職業を変える（2026-11-20）：ちょうど 学年×100ゴールドで、職業 j（と見た目 lk）を変える。技のランク sr を消して SP＝もらったSPの合計（新しい職業で選び直す）。
 # 持っていく技 ld は消す。レベル・経験値・装備（段階は職業に関係ない）・鍛冶屋・図鑑・称号などは そのまま
 JOBCHG_GOLD = 100
@@ -221,6 +237,11 @@ c['tb'] = {".validate": "newData.isNumber() && newData.val() >= 0 && newData.val
 c['tc'] = {".validate": OR(*["(newData.val() === '%s' && newData.parent().child('tb').val() %% %d >= %d)" % (u, 2 ** (i + 1), 2 ** i) for i, u in enumerate(UIDS)])}
 # 昇格（2026-11-23）：pr＝true。Lv100 から（消せないのは keep_rec）
 c['pr'] = {".validate": "newData.val() === true && newData.parent().child('lv').val() >= 100"}
+# 用語カードのしるし（2026-11-23）。単元ごとに、その単元の枚数の中のしるしだけ（数の番号 $c と上限）。前のしるしは残す（消せない）
+cd_keep = " && ".join("(!(data.val() %% %d >= %d) || newData.val() %% %d >= %d)" % (2 ** (b + 1), 2 ** b, 2 ** (b + 1), 2 ** b) for b in range(CD_BITS))
+cd_max = OR(*["($k === '%s' && (%s))" % (u, " || ".join("($c === '%s' && newData.val() <= %d)" % (ck(k), cd_full_k(u, k)) for k in cd_chunks(u))) for u in UIDS])
+c['cd'] = {"$k": {".validate": UKEY, "$c": {".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() %% 1 === 0 && %s && (!data.exists() || %s)" % (cd_max, cd_keep)}}}
+c['cdc'] = {"$k": {".validate": UKEY + " && newData.val() === true"}}
 c['eq'] = {"w": {".validate": " || ".join("newData.val() === '%s'" % k for k in WEAP)},
            "a": {".validate": " || ".join("newData.val() === '%s'" % k for k in ARMO)}, "$other": {".validate": False}}
 c['inv'] = {"$k": {".validate": "(" + " || ".join("$k === '%s'" % k for k in ITEMS) + ") && newData.isNumber() && newData.val() >= 0 && newData.val() <= 9"}}

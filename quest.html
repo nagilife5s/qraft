@@ -6,8 +6,8 @@
 <title>Qraft クエスト（ひとりで冒険）</title>
 <link rel="icon" type="image/png" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="stylesheet" href="theme.css?v=20261123120000">
-<link rel="stylesheet" href="quest.css?v=20261123120000">
+<link rel="stylesheet" href="theme.css?v=20261123180000">
+<link rel="stylesheet" href="quest.css?v=20261123180000">
 <style>
   .hud-btns { display:flex; gap:.4em; }
   .hud-btns .btn { font-size:.85em; padding:.35em .9em; }
@@ -71,7 +71,7 @@
   .sk-wrap .skills:focus-visible { outline:.15em solid #ffd23f; outline-offset:.2em; }
   .sk-more { position:absolute; left:0; right:1em; bottom:0; padding:2.2em 0 .3em; text-align:center; font-weight:900; color:#ffe27a; pointer-events:none; background:linear-gradient(transparent, rgba(20,12,50,.95) 60%); transition:opacity .2s; }
   .sk-more.off { opacity:0; }
-  /* rikaria.css の窓・メニューの行（quest.css?v=20261123120000 と混ぜないよう .gm-bg の中だけ） */
+  /* rikaria.css の窓・メニューの行（quest.css?v=20261123180000 と混ぜないよう .gm-bg の中だけ） */
 .gm-bg .cur { position:absolute; top:50%; width:.62em; height:.95em; margin-top:-.475em; opacity:0; pointer-events:none;
   background:linear-gradient(135deg, #ffffff, #7ff0ff 40%, #1fb6e8 75%, #1a6fc0); clip-path:polygon(50% 0, 100% 50%, 50% 100%, 0 50%); filter:drop-shadow(0 0 .3em #35e0ff) drop-shadow(0 0 .15em #fff); }
 .gm-bg .win { position:relative; width:min(34em, 94%); margin-top:1.4em; background:rgba(10,12,44,.86); border:.18em solid #fff; border-radius:.7em; box-shadow:0 0 0 .22em rgba(10,12,44,.86), 0 .8em 2em rgba(0,0,0,.55); padding:1.5em .9em .8em; }
@@ -231,22 +231,23 @@
 
 </div>
 
-<script src="firebase-config.js?v=20261123120000"></script>
+<script src="firebase-config.js?v=20261123180000"></script>
 <script type="module">
-import { bgm, preload } from './sound.js?v=20261123120000';
-import { dungeonArt, autoTorches } from './dungeon-art.js?v=20261123120000';
-import { townArt } from './town-art.js?v=20261123120000';
-import { dgBuild, DG_FLOORS } from './dungeon5.js?v=20261123120000';
-import { loadHomeSets, signIn, db, ref, set, get, $, el, showScreen, shuffle, prepareQuestion, maskOf, isTextCorrect, mountSetPicker, loadQEdits, applyQEdits, makeAdvLog, makeQStat, weakQueue, qstOf } from './lib.js?v=20261123120000';
+import { bgm, preload } from './sound.js?v=20261123180000';
+import { dungeonArt, autoTorches } from './dungeon-art.js?v=20261123180000';
+import { townArt } from './town-art.js?v=20261123180000';
+import { dgBuild, DG_FLOORS } from './dungeon5.js?v=20261123180000';
+import { loadHomeSets, signIn, db, ref, set, get, $, el, showScreen, shuffle, prepareQuestion, maskOf, isTextCorrect, mountSetPicker, loadQEdits, applyQEdits, makeAdvLog, makeQStat, weakQueue, qstOf } from './lib.js?v=20261123180000';
 import { addExp, expToNext, migrateChar, newChar, JOBS as RJOBS, JOB_KEYS, LEARN, RANK_POW, RANK_SEC, LOAD_N, ELEMS, ELEM, UNITS,
          heroImg, fieldImg, skillName, rankOf, rankCost, canRankUp, rankUp, spUsed, loadoutOf, weakOf, statsOf, unitOf, zakoImg, bossImg, battleBg, gearImg, itemImg, iconHtml,
          UP_PRICE, UP_MAX, upOf, canSmith, upName, zkAdd, zkBit, zkHas, zkCount, zkList, ZK_N, zkTitle, URA, uraName, uraTitle, extraTitles, unitsOf,
          upPrice, MS, msClaim, UBB_GOLD, ubBetter, uraPerfectTitle, czkOf, czkTitle, rollZako, zakoOf, RARE, skillFx, elemFx, ATK_FX,
-         PRO_SK, PRO_LV, PROMO, PRO_X, jobLabel, canPromote, skGot, MASTER, mtAdd, mtHas, mtOf, masterTitle, masterCount, titleOf, udOpen, udX, UD_NEED, UD_FLOORS } from './rikaria-data.js?v=20261123120000';
-import { fxImg } from './rikaria-view.js?v=20261123120000';
+         PRO_SK, PRO_LV, PROMO, PRO_X, jobLabel, canPromote, skGot, MASTER, mtAdd, mtHas, mtOf, masterTitle, masterCount, titleOf, udOpen, udX, UD_NEED, UD_FLOORS } from './rikaria-data.js?v=20261123180000';
+import { fxImg } from './rikaria-view.js?v=20261123180000';
+import { CARDS, CD_UNITS, CD_GOLD, cdN, cdHas, cdCount, cdAdd, cdRoll, cdBonusDue, cdTitle, cdTitles } from './rikaria-cards.js?v=20261123180000';
 import { fiscalYear, ENEMIES, TOWN, TOWN_DEFAULT,
          weaponList, armorList, weaponName, armorName, TOWN_MAX, soloDayCap, dayNo, ITEMS, ITEM_KEYS, FACS, RESPEC_COST, JOBCHG_GOLD, ensureOwner, battleGuide,
-         soloMult, soloReward, soloEnemyHp, soloBossHp, soloEnemyAtkX, BOSS, cmdImg, placeFacNpcs } from './quest.js?v=20261123120000';
+         soloMult, soloReward, soloEnemyHp, soloBossHp, soloEnemyAtkX, BOSS, cmdImg, placeFacNpcs } from './quest.js?v=20261123180000';
 
 var Y = fiscalYear(), me = { g: 0, c: 0, n: 0 }, sid = '', ch = null, CLS = {}, SETS = [], AREAS = [], look = 'a', job = 'mage';
 var curArea = null, HP = 0, MP = 0, RANGES = {};
@@ -504,7 +505,7 @@ function buildTown(st) {
   if (st < 10) look[4] = 'hut';
   if (st < 11) look[5] = 'castle-ruin'; else if (st < 12) look[5] = 'castle-scaffold';
   NPCS.forEach(function (n) { g[n.y][n.x] = 'N'; });
-  /* 施設の6人（全身の絵）を、それぞれの施設の前に立たせる。行けるマスを減らさない場所だけ（quest.js?v=20261123120000 placeFacNpcs。2026-11-17） */
+  /* 施設の6人（全身の絵）を、それぞれの施設の前に立たせる。行けるマスを減らさない場所だけ（quest.js?v=20261123180000 placeFacNpcs。2026-11-17） */
   var fnpc = placeFacNpcs(g, blds, [16, 11], function (c) { return BLOCK.has(c); }, [4, 11]);
   return { g: g, blds: blds, fountain: [16, 11], dry: st < 4, start: [4, 11], st: st, tiles: tiles, props: props, objs: objs, look: look, fog: st < 2 ? 2 : st < 4 ? 1 : 0, fnpc: fnpc };
 }
@@ -953,7 +954,7 @@ function shop(fi) {
     m.appendChild(el('div', 'mut', 'クリアしたエリアには、地図から復習しに行ける（経験値は半分）。'));
   }
   if (fi === 5) {
-    var t = Object.keys(ch.ttl || {}).map(function (k) { return ch.ttl[k]; }).concat(extraTitles(ch));   /* 図鑑・裏ボスの称号は zk・ub から（2026-11-19） */
+    var t = Object.keys(ch.ttl || {}).map(function (k) { return ch.ttl[k]; }).concat(extraTitles(ch), cdTitles(ch));   /* 図鑑・裏ボスの称号は zk・ub から（2026-11-19）。用語カードの「<単元>博士」は cdc から（2026-11-23） */
     m.appendChild(el('div', '', t.length ? 'これまでに手に入れた称号' : 'まだ称号はない。ボスを倒すと手に入る。'));
     var tl = el('div', 'titles'); t.forEach(function (x) { tl.appendChild(el('span', 'pill', '🏅 ' + x)); }); m.appendChild(tl);
     /* クラスの図鑑の旗（クラスでうめた単元。CZK から作る。2026-11-20） */
@@ -1170,7 +1171,7 @@ function srcBox(a) {
   opt('sets', '問題セットをえらぶ ', ed);
   return box;
 }
-/* 問題セットをえらぶ画面。先生の準備画面（rikaria-host.html）と同じ選び方（lib.js?v=20261123120000 の mountSetPicker：学年→題名でさがす→単元ごとの一覧）。2026-11-16 */
+/* 問題セットをえらぶ画面。先生の準備画面（rikaria-host.html）と同じ選び方（lib.js?v=20261123180000 の mountSetPicker：学年→題名でさがす→単元ごとの一覧）。2026-11-16 */
 function setDialog(a) {
   var bg = el('div', 'pk-bg'), box = el('div', 'pk'); bg.appendChild(box); bg.setAttribute('role', 'dialog'); bg.setAttribute('aria-modal', 'true'); bg.setAttribute('aria-label', '問題セットをえらぶ');
   var top = el('div', 'row'); top.appendChild(el('b', 'grow', '問題セットをえらぶ（いくつでも）'));
@@ -1208,6 +1209,7 @@ function openMenu() {
   item('地図', function () { closeMenu(); openWorld(); });
   item('鍛冶屋', function () { closeMenu(); smithShop(); });
   item('図鑑', function () { closeMenu(); openZukan(); });
+  item('用語カード', function () { closeMenu(); openCards(); });
   item('技のてびき', function () { closeMenu(); window.open('rikaria-skills.html#' + (ch && ch.j || 'warrior'), '_blank', 'noopener'); });   /* 技の一覧（別のタブで開く。2026-11-20） */
   item('なかまと冒険', function () { location.href = 'quest-party.html' + (/emu=1/.test(location.search) ? '?emu=1' : ''); });
   var mb = item('音楽：' + (MUS_ON ? 'ON' : 'OFF'), function () { toggleMus(); mb.querySelector('b').textContent = '音楽：' + (MUS_ON ? 'ON' : 'OFF'); });
@@ -1474,6 +1476,59 @@ function nextTurn() {
 /* 敵のふつうの攻撃：自分の最大HPの割合（ボス18%・ふつう12%・裏ボス25%）×防具・守り・攻撃ダウン */
 function foeDmg(st) { var f = B.fx, d = Math.max(3, st.mhp * (B.ura ? .25 : B.boss ? .18 : .12) * st.cut * (B.udx || 1)); if (f.guard) d *= 1 - f.guard.cut; if (f.slow > 0) { d *= .5; f.slow--; } return d; }
 /* 敵の上に、ひとこと出す（動けない！ など） */
+/* ------------------------------------------------------------ 理科用語カード（2026-11-23。rikaria-cards.js）
+ * 単元の問題（単元・裏ダンジョン。マスターと同じ範囲）に正解すると、まだ持っていないカードがときどき落ちる。答えの語と同じカードなら、そのカードが落ちやすい。
+ * 単元を全部集めると、1回きりで ゴールド＋100 と称号「<単元>博士」（cdc/<単元>）。集めたらすぐ残す（ルールは cardb）。 */
+var CD_R = null;   /* 画面テスト用：乱数を決める */
+function cardDrop(u, ans) {
+  var i = cdRoll(ch, u, ans, CD_R); if (i < 0 || !cdAdd(ch, u, i)) return -1;
+  var bonus = cdBonusDue(ch, u);
+  if (bonus) { ch.cdc = Object.assign({}, ch.cdc || {}); ch.cdc[u] = true; ch.gold = (ch.gold || 0) + CD_GOLD; }
+  cardPop(u, i, bonus); saveChar(); if (bonus) drawHud();
+  return i;
+}
+function cardPop(u, i, bonus) {
+  var c = CARDS[u].c[i], old = document.querySelector('.cd-pop'); if (old) old.remove();
+  var p = el('div', 'cd-pop'); p.setAttribute('role', 'status');
+  p.appendChild(el('b', '', '📇 カードを手に入れた！ ' + c[0]));
+  if (c[1]) p.appendChild(el('small', 'cd-yomi', c[1]));
+  p.appendChild(el('div', 'cd-ex', c[2])); p.appendChild(el('div', 'cd-star', '★'.repeat(c[3])));
+  if (bonus) p.appendChild(el('div', 'cd-bonus', '🎉 ' + CARDS[u].unit + 'のカードを全部集めた！ 💰 +' + CD_GOLD + '　🏅 称号「' + cdTitle(u) + '」'));
+  p.onclick = function () { p.remove(); }; document.body.appendChild(p);
+  setTimeout(function () { p.remove(); }, bonus ? 6000 : 4000);
+}
+var cdG = 0, cdU = '';
+function openCards() {
+  cdG = cdG || me.g;
+  var bg = el('div', 'pk-bg'), box = el('div', 'pk zk cd-album'); bg.appendChild(box); bg.setAttribute('role', 'dialog'); bg.setAttribute('aria-modal', 'true'); bg.setAttribute('aria-label', '用語カード');
+  function draw() {
+    var G = CD_UNITS.filter(function (u) { return CARDS[u].g === cdG; }); if (G.indexOf(cdU) < 0) cdU = G[0];
+    box.textContent = '';
+    var top = el('div', 'row'); top.appendChild(el('b', 'grow', '📇 理科用語カード'));
+    var tabs = el('div', 'seg'); [1, 2, 3].forEach(function (g) { var b = el('button', g === cdG ? 'on' : '', g + '年'); b.type = 'button'; b.dataset.cdg = g; b.onclick = function () { cdG = g; draw(); }; tabs.appendChild(b); }); top.appendChild(tabs);
+    var x = el('button', 'btn ghost', 'とじる'); x.type = 'button'; x.id = 'cdClose'; x.onclick = function () { bg.remove(); }; top.appendChild(x); box.appendChild(top);
+    box.appendChild(el('div', 'mut', '単元の問題に正解すると、ときどきカードが手に入る。答えの語のカードは手に入りやすい。単元を全部集めると 💰 +' + CD_GOLD + ' と「〇〇博士」の称号。'));
+    var got = G.reduce(function (n, u) { return n + cdCount(ch, u); }, 0), all = G.reduce(function (n, u) { return n + cdN(u); }, 0);
+    box.appendChild(el('b', '', cdG + '年のカード：' + got + ' / ' + all));
+    var pg = el('div', 'zk-prog'), pi = el('i'); pi.style.width = (got / all * 100) + '%'; pg.appendChild(pi); box.appendChild(pg);
+    var bar = el('div', 'zk-bar');
+    G.forEach(function (u) { var b = el('button', u === cdU ? 'on' : '', CARDS[u].unit + '（' + cdCount(ch, u) + '/' + cdN(u) + '）'); b.type = 'button'; b.dataset.cdu = u; b.onclick = function () { cdU = u; draw(); }; bar.appendChild(b); });
+    box.appendChild(bar);
+    if (ch.cdc && ch.cdc[cdU]) box.appendChild(el('div', 'cd-done', '🏅 ' + cdTitle(cdU)));
+    if (!UNITS.some(function (v) { return v.id === cdU; })) box.appendChild(el('div', 'mut', 'この単元は冒険のエリアがないので、いまはカードが手に入らない。'));
+    var grid = el('div', 'cd-grid');
+    CARDS[cdU].c.forEach(function (c, i) {
+      var ok = cdHas(ch, cdU, i), d = el('div', 'cd-card' + (ok ? '' : ' no') + ' s' + c[3]);
+      if (ok) { d.appendChild(el('div', 'cd-star', '★'.repeat(c[3]))); d.appendChild(el('b', '', c[0])); if (c[1]) d.appendChild(el('small', 'cd-yomi', c[1])); d.appendChild(el('div', 'cd-ex', c[2])); }
+      else { d.appendChild(el('div', 'cd-sil', '？')); d.appendChild(el('small', '', 'No.' + (i + 1))); }
+      grid.appendChild(d);
+    });
+    box.appendChild(grid);
+  }
+  draw(); bg.addEventListener('click', function (e) { if (e.target === bg) bg.remove(); }); document.body.appendChild(bg); document.getElementById('cdClose').focus();
+}
+if (/emu=1/.test(location.search)) { window.__cards = function () { return { cd: clone(ch.cd || {}), cdc: clone(ch.cdc || {}), gold: ch.gold }; }; window.__cardR = function (v) { CD_R = v == null ? null : function () { return v; }; };
+  window.__cardDrop = function (u, ans) { return cardDrop(u, ans || []); }; window.__cardGive = function (u, n) { for (var i = 0; i < n; i++) cdAdd(ch, u, i); return cdCount(ch, u); }; window.__openCards = function () { openCards(); }; }   /* 画面テスト用（用語カード） */
 function popE(t) { var en = $('enemy'); if (!en) return; var p = el('div', 'epop', t); en.appendChild(p); setTimeout(function () { p.remove(); }, 1600); }
 function itemBar(box) {
   var bar = el('div', 'itembar');
@@ -1525,6 +1580,7 @@ function judge(mask, text) {
     if (!ch.tc) ch.tc = unitOfArea(curArea).id;
     popE('🏅 ' + masterTitle(unitOfArea(curArea)) + '！'); saveChar();
   }
+  if (ok && /^(unit|ud)$/.test(curArea.src.k) && !MIXQ.has(B.P.q[q.qi])) cardDrop(unitOfArea(curArea).id, q.type === 'text' ? q.accept : q.correct.map(function (i) { return q.choices[i] && q.choices[i].t; }));   /* 用語カード（2026-11-23） */
   var J = RJ(), f = B.fx, st = statsOf(ch);
   if (ok) {
     /* 正解：連続が1つ増え、MPがたまる（魔法使いは1.5ずつ）。そのあと、こうげきか技をえらぶ */

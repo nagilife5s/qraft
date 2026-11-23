@@ -882,3 +882,24 @@ img.slot:not(.ok) { visibility:hidden; }
 .ud-note { font-size:.85em; }
 .shake { animation:q-shake .35s; }
 @keyframes q-shake { 25% { transform:translateX(-4px); } 75% { transform:translateX(4px); } }
+
+/* ---- 理科用語カード（2026-11-23）：アルバムと、手に入れたときの知らせ */
+.cd-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(190px,1fr)); gap:.5em; margin-top:.5em; }
+.cd-card { position:relative; border:.12em solid rgba(255,255,255,.7); border-radius:.5em; padding:.5em .6em; background:rgba(40,50,120,.55); min-height:7em; display:flex; flex-direction:column; gap:.15em; overflow-wrap:anywhere; }
+.cd-card b { font-size:1.08em; color:#fff; }
+.cd-card .cd-yomi, .cd-pop .cd-yomi { color:#cfd6ff; font-size:.8em; }
+.cd-card .cd-ex { font-size:.85em; line-height:1.45; color:#eef; }
+.cd-card .cd-star, .cd-pop .cd-star { position:absolute; right:.5em; top:.35em; color:#ffd84a; font-size:.85em; letter-spacing:-.05em; }
+.cd-card.s3:not(.no) { border-color:#ffd84a; box-shadow:0 0 8px #ffd84a66; }
+.cd-card.no { background:rgba(255,255,255,.05); border-style:dashed; border-color:rgba(255,255,255,.35); align-items:center; justify-content:center; }
+.cd-card .cd-sil { font-size:2em; font-weight:900; color:rgba(255,255,255,.3); }
+.cd-card.no small { color:rgba(255,255,255,.45); }
+.cd-done { color:var(--rk-yel); font-weight:900; }
+.cd-pop { position:fixed; left:50%; top:1em; transform:translateX(-50%); z-index:9999; width:min(92vw, 26em); background:rgba(10,12,44,.96); color:#fff; border:.16em solid #ffd84a; border-radius:.7em;
+  padding:.7em 2.6em .7em .9em; box-shadow:0 .5em 1.6em rgba(0,0,0,.6); display:flex; flex-direction:column; gap:.2em; animation:cdIn .3s ease-out; cursor:pointer; }
+.cd-pop .cd-star { top:.7em; right:.7em; }
+.cd-pop .cd-ex { font-size:.9em; line-height:1.45; }
+.cd-pop .cd-bonus { color:var(--rk-yel); font-weight:900; margin-top:.2em; }
+@keyframes cdIn { from { transform:translate(-50%,-.8em); opacity:0; } to { transform:translateX(-50%); opacity:1; } }
+@media (max-width:600px) { .cd-grid { grid-template-columns:1fr 1fr; gap:.4em; } .cd-card { padding:.45em .5em; font-size:.92em; } .cd-card .cd-star { position:static; } }
+@media (prefers-reduced-motion:reduce) { .cd-pop { animation:none; } }
