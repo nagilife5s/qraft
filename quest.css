@@ -921,3 +921,7 @@ img.slot:not(.ok) { visibility:hidden; }
 @keyframes hidRise { from { transform: translateY(30px) scale(.8); opacity: 0; } to { transform: none; opacity: 1; } }
 @keyframes hidPulse { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.4); } }
 @media (prefers-reduced-motion: reduce) { .hid-pop, .hid-flash, .hid-art, .hid-ttl { animation: none; } .hid-flash { opacity: 0; } }
+/* 用語カードなどの窓：中が長いときは窓の中でスクロール。窓の中の学年の切りかえ（.seg）は、.pk button の白い地に負けないように（2026-11-24） */
+.pk-bg .pk { overflow-y:auto; overscroll-behavior:contain; }
+.pk-bg .pk .seg button { background:none; border:0; color:#fff; padding:.3em .5em .3em 1.35em; border-radius:.4em; }
+.pk-bg .pk .seg button.on { color:var(--rk-yel); background:var(--rk-band); }
