@@ -281,7 +281,7 @@ HOST = "root.child('rooms').child($pin).child('hostUid').val() === auth.uid"
 # なかまと冒険（生徒が開く部屋）：参加者が自分の強さの写し m を部屋に出す（進行役の端末はほかの人のキャラを読めないため）。JSON文字列で800字まで。
 # 部屋の作り・進行は先生と同じ道（rooms/<参加コード>。hostUid を最初に書いた人が持ち主）で、ルールは変えていない。ごほうびは各自の端末が自分のキャラに書く（ひとりで冒険と同じ reward のルール）
 pl['m'] = {".validate": "newData.isString() && newData.val().length <= 800"}
-rm['act']['$uid']['.validate'] = "newData.hasChildren(['n','a']) && newData.child('n').isNumber() && newData.child('a').isNumber() && newData.child('a').val() >= 0 && newData.child('a').val() <= 9"
+rm['act']['$uid']['.validate'] = "newData.hasChildren(['n','a']) && newData.child('n').isNumber() && newData.child('a').isNumber() && newData.child('a').val() >= 0 && newData.child('a').val() <= 16"
 rm['ctl'] = {".read": "auth != null && " + HOST, "$uid": {
     ".write": "auth != null && auth.uid === $uid && root.child('rooms').child($pin).child('players').child($uid).exists()",
     "tg": {".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 5"},

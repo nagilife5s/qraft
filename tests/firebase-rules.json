@@ -160,7 +160,7 @@
           ".read": "auth != null && root.child('rooms').child($pin).child('hostUid').val() === auth.uid",
           "$uid": {
             ".write": "auth != null && auth.uid === $uid && root.child('rooms').child($pin).child('players').child($uid).exists()",
-            ".validate": "newData.hasChildren(['n','a']) && newData.child('n').isNumber() && newData.child('a').isNumber() && newData.child('a').val() >= 0 && newData.child('a').val() <= 9",
+            ".validate": "newData.hasChildren(['n','a']) && newData.child('n').isNumber() && newData.child('a').isNumber() && newData.child('a').val() >= 0 && newData.child('a').val() <= 16",
             "n": {
               ".validate": true
             },
