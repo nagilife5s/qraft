@@ -580,8 +580,8 @@ img.slot:not(.ok) { visibility:hidden; }
 .btn.sub::before, .btn.ghost::before, .btn.quit::before, .btn.totitle::before { content:none; }
 .btn.sub:hover, .btn.ghost:hover, .btn.quit:hover, button.btn.totitle:hover { background:var(--rk-navy2); color:var(--rk-yel); }
 /* 窓のいちばん下の「行」ボタン（モックの .go）：窓の中にある主役のボタン */
-.card > .btn:not(.sub), .wm-side .panel > .btn, .btn.go { align-self:stretch; width:100%; text-align:left; border:0; border-top:.08em dashed rgba(255,255,255,.3); border-radius:0 0 .4em .4em; box-shadow:none; background:var(--rk-band); padding:.6em .5em; }
-.card > .btn:not(.sub):hover, .wm-side .panel > .btn:hover, .btn.go:hover { background:linear-gradient(90deg, rgba(255,226,122,.34), rgba(255,226,122,.08)); }
+.card > .btn:not(.sub), .wm-side .panel > .btn, .wm-side .wm-go > .btn, .btn.go { align-self:stretch; width:100%; text-align:left; border:0; border-top:.08em dashed rgba(255,255,255,.3); border-radius:0 0 .4em .4em; box-shadow:none; background:var(--rk-band); padding:.6em .5em; }
+.card > .btn:not(.sub):hover, .wm-side .panel > .btn:hover, .wm-side .wm-go > .btn:hover, .btn.go:hover { background:linear-gradient(90deg, rgba(255,226,122,.34), rgba(255,226,122,.08)); }
 .btn.go { display:grid; grid-template-columns:1.2em 1fr; align-items:center; gap:.5em; }
 .btn.go::before { margin:0; justify-self:center; }
 .btn.go small { display:block; font-size:.55em; letter-spacing:.04em; color:#fff; opacity:.8; }
@@ -877,7 +877,7 @@ img.slot:not(.ok) { visibility:hidden; }
 .mt-row.got { border-color:#d4a83a; background:rgba(255,214,90,.12); }
 .mt-row.on { border-color:#ffe27a; box-shadow:0 0 0 2px #ffe27a inset; }
 .mt-row small { font-size:.78em; opacity:.85; }
-.ud-go { margin-top:.4em; background:#5b2bb5; }
+.ud-go { background:#5b2bb5; }
 .ud-go.lock { background:#4a4560; opacity:.8; }
 .ud-note { font-size:.85em; }
 .shake { animation:q-shake .35s; }

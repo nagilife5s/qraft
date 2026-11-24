@@ -276,6 +276,7 @@ rm = R['rules']['rooms']['$pin']
 pl = rm['players']['$uid']
 pl['j'] = {".validate": " || ".join("newData.val() === '%s'" % j for j in JOBS)}
 pl['lv'] = {".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= %d" % LV_MAX}   # 2026-11-23：99 までだと Lv100 からチーム戦に入れなかった
+pl['pr'] = {".validate": "newData.val() === true"}   # 昇格のしるし（準備画面・ロビーに上級職の絵を出す。2026-11-24）
 pl['gp'] = {".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 9"}
 HOST = "root.child('rooms').child($pin).child('hostUid').val() === auth.uid"
 # なかまと冒険（生徒が開く部屋）：参加者が自分の強さの写し m を部屋に出す（進行役の端末はほかの人のキャラを読めないため）。JSON文字列で800字まで。

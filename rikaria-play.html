@@ -280,7 +280,7 @@ async function joinRoom() {
   onValue(ref(db, 'rooms/' + pin + '/kicked/' + uid), function (s) { if (s.val()) msg('この部屋から退出になりました'); });
 }
 /* it＝持っていく持ち物。使ったら「!」を頭に付ける（先生のPCへの合図） */
-function writePlayer() { var p = { nick: ch.n, sid: sid, j: ch.j, lk: ch.lk || 'a', lv: ch.lv || 1, gp: gp, rd: ready }; if (item) p.it = (itemUsed ? '!' : '') + item; if (PARTY) p.m = JSON.stringify(partyMem()); return set(ref(db, 'rooms/' + pin + '/players/' + uid), p); }
+function writePlayer() { var p = { nick: ch.n, sid: sid, j: ch.j, lk: ch.lk || 'a', lv: ch.lv || 1, gp: gp, rd: ready }; if (ch.pr) p.pr = true; if (item) p.it = (itemUsed ? '!' : '') + item; if (PARTY) p.m = JSON.stringify(partyMem()); return set(ref(db, 'rooms/' + pin + '/players/' + uid), p); }
 /* なかまと冒険：進行役の端末は、ほかの人のキャラを読めない。自分の強さを、部屋に写しておく */
 function partyMem() { var st = statsOf(ch, true); return { name: ch.n, j: ch.j, lk: ch.lk || 'a', lv: ch.lv || 1, atk: st.atk, def: st.def, mhp: st.mhp, cut: st.cut, healX: st.healX, crit: st.crit, mmp: st.mmp, sr: ch.sr || {}, ld: ch.ld || null, pr: ch.pr ? 1 : 0, tt: titleOf(ch), it: carryList(ch).indexOf(item) >= 0 ? item : '' }; }   /* pr 昇格・tt 称号（2026-11-23） */
 function saveChar() { ch.u = TS; lastWrite = Date.now(); return set(ref(db, 'quest/' + state.y + '/chars/' + sid), ch); }
@@ -313,8 +313,8 @@ function drawPrep() {
   var mb = $('ppMates'); mb.textContent = '';
   mates.forEach(function (u) {
     var p = players[u], d = el('div', 'pp-mem' + (u === uid ? ' me' : ''));
-    var im = el('img', 'hero'); im.src = heroImg(p.j, p.lk); im.alt = ''; d.appendChild(im);
-    d.appendChild(el('b', '', p.nick)); d.appendChild(el('small', '', (JOBS[p.j] ? JOBS[p.j].n : '') + ' Lv.' + (p.lv || 1)));
+    var im = el('img', 'hero'); im.src = heroImg(p.j, p.lk, p.pr); im.alt = ''; d.appendChild(im);
+    d.appendChild(el('b', '', p.nick)); d.appendChild(el('small', '', (JOBS[p.j] ? jobLabel(p.j, p.pr) : '') + ' Lv.' + (p.lv || 1)));
     d.appendChild(el('span', 'st ' + (p.rd ? 'ok' : 'wait'), p.rd ? '準備OK' : '準備中'));
     mb.appendChild(d);
   });

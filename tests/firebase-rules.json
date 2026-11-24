@@ -57,6 +57,9 @@
             },
             "m": {
               ".validate": "newData.isString() && newData.val().length <= 800"
+            },
+            "pr": {
+              ".validate": "newData.val() === true"
             }
           }
         },

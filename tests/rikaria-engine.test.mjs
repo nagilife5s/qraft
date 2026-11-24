@@ -481,17 +481,18 @@ test('聖剣解放：3問ぶん、班のみんなはダメージを受けない'
   const O = G.mem.u1, h = O.hp; G.foes[0].aim = 'u1'; G.foes[0].atk = 0; E.step(G, .01); assert.equal(O.hp, h);
   E.step(G, 16); assert.ok(!G.grp.inv);
 });
-test('万象の理：班のみんなのMPが満タン', () => {
-  const G = solo1('mage', { u: 16 }, 2); G.mem.u1.mp = 0; assert.ok(E.skill(G, 'u0', 16)); assert.equal(G.mem.u1.mp, G.mem.u1.mm); assert.equal(G.mem.u0.mp, G.mem.u0.mm);
+test('万象の理：班のなかまのMPが満タン（自分はのぞく：MPを払ったまま）', () => {
+  const G = solo1('mage', { u: 16 }, 2); G.mem.u1.mp = 0; const mp0 = G.mem.u0.mp; assert.ok(E.skill(G, 'u0', 16)); assert.equal(G.mem.u1.mp, G.mem.u1.mm); assert.equal(G.mem.u0.mp, mp0 - 5);
 });
 test('天地創造の祈り：全回復・倒れた仲間も起こす・5問 正解あつかい', () => {
   const G = solo1('priest', { u: 16 }, 2); const o = G.mem.u1; o.hp = 0; o.dn = 1; G.mem.u0.hp = 1;
   assert.ok(E.skill(G, 'u0', 16)); assert.equal(o.dn, 0); assert.equal(o.hp, o.mx); assert.equal(G.mem.u0.hp, G.mem.u0.mx);
   for (let q = 0; q < 5; q++) E.answer(G, 'u1', false); assert.equal(o.streak, 5); E.answer(G, 'u1', false); assert.equal(o.streak, 0);
 });
-test('天弓・星墜とし：ボスの今のHPを必ず30%。バリアも無視', () => {
+test('天弓・星墜とし：ボスには少なくとも今のHPの12%（会心のダメージと大きいほう）。バリアも無視', () => {
   const G = solo1('hunter', { u: 16 }); const f = G.foes[0]; f.fin = 1; f.barrier = true; f.hp = 1000; G.mem.u0.tg = 0;
-  assert.ok(E.skill(G, 'u0', 16)); assert.equal(f.hp, 700);
+  f.hp = 100000; assert.ok(E.skill(G, 'u0', 16)); assert.equal(f.hp, 88000);
+  f.hp = 100; assert.ok((G.mem.u0.mp = 9, E.skill(G, 'u0', 16))); assert.ok(f.hp < 88);   /* HPが少ないボスには、ふつうの会心のダメージ */
   const G2 = solo1('hunter', { u: 16 }); const g = G2.foes[0]; g.barrier = true; G2.mem.u0.tg = 0; assert.ok(E.skill(G2, 'u0', 16));
   assert.ok(g.hp < g.mx); assert.equal(G2.ev.filter(e => e.t === 'hit' && e.who === 'u0')[0].crit, 1);
 });

@@ -101,7 +101,8 @@
   /* タイトルへもどる（町の右上に、目立つ色で。2026-11-16） */
   .btn.totitle { text-decoration:none; background:rgba(255,226,122,.95); color:#2a1280; }
   .wm-tabs { display:flex; gap:.4em; }
-  #wmGo { font-size:1.15em; padding:.45em 1.2em; }
+  #wmGo, #wmUd { font-size:1.15em; padding:.45em 1.2em; white-space:nowrap; }
+  .wm-go { position:sticky; bottom:-.2em; display:flex; flex-direction:column; background:#140d38; box-shadow:0 -.5em .6em #140d38; padding-bottom:.3em; }
   .wm-hint { width:100%; box-sizing:border-box; background:rgba(255,226,122,.95); color:#2a1280; font-weight:900; font-size:1.1em; text-align:center; border-radius:.6em; padding:.35em 1em; white-space:normal; }
   .src { display:flex; flex-direction:column; gap:.3em; }
   .src label { display:flex; align-items:center; gap:.4em; font-weight:800; font-size:.92em; flex-wrap:wrap; }
@@ -1130,14 +1131,15 @@ function drawWorld() {
     var g2 = el('button', 'btn', 'このダンジョンへ'); g2.id = 'wmGo'; g2.onclick = function () {
       if (SRC.k === 'sets' && !Object.keys(PICKS).length) { setDialog(a); return; }
       goArea(a, clone(SRC.k === 'sets' ? { k: 'sets', ids: Object.keys(PICKS) } : SRC));
-    }; p.appendChild(g2);
+    };
     /* 裏ダンジョン（2026-11-23）：単元マスターの称号を3つ（どの単元でも）持つと入れる。10階・敵が強い */
     var uid1 = unitOf(a.g, a.unit).id, mc = masterCount(ch), uf1 = ch.uf && ch.uf[uid1];
-    var g3 = el('button', 'btn ud-go' + (udOpen(ch) ? '' : ' lock'), udOpen(ch) ? '👁 裏ダンジョンへ（10階）' : '🔒 裏ダンジョン'); g3.id = 'wmUd'; g3.type = 'button';
-    p.appendChild(g3);
+    var g3 = el('button', 'btn ud-go' + (udOpen(ch) ? '' : ' lock'), udOpen(ch) ? '👁 裏ダンジョンへ' : '🔒 裏ダンジョン'); g3.id = 'wmUd'; g3.type = 'button';
     p.appendChild(el('div', 'mut ud-note', udOpen(ch)
       ? '敵がとても強い10階のダンジョン（深いほど強い）。' + (uf1 > UD_FLOORS ? '👁 制覇した！' : uf1 ? uf1 + '階までたどり着いた。' : '') + (me.g === 3 ? '入試の重要語句の問題もまざる。' : '')
       : '単元マスターの称号を ' + UD_NEED + 'つ 集めると入れる（いま ' + mc + 'つ）。称号は、1つの単元で 30問以上答えて、正解率90%以上・10問連続正解でもらえる。'));
+    /* 2つのボタンは、箱の下にいつも見えるようにとめる（裏ダンジョンのボタンが箱の下に切れて、スクロールしないと見えなかった。2026-11-24 テストプレイ） */
+    var gw = el('div', 'wm-go'); gw.appendChild(g2); gw.appendChild(g3); p.appendChild(gw);
     g3.onclick = function () { if (!udOpen(ch)) { g3.classList.remove('shake'); void g3.offsetWidth; g3.classList.add('shake'); return; } goArea(a, { k: 'ud' }); };
   }
   side.textContent = ''; side.appendChild(p);
@@ -1334,8 +1336,8 @@ function soloDesc(s, r) {
   if (s.promise) a.push((s.promise > 1 ? s.promise + '問のあいだ' : '次の1問') + ' まちがえても正解あつかい');
   if (s.q4) a.push(s.q4 + '問のあいだ いつも苦手をつく');
   if (s.inv) a.push(s.inv + '問のあいだ ダメージを受けない');
-  if (s.mpFill) a.push('MPが満タン');
-  if (s.hpCut) a.push('ボスの今のHPを' + pc(s.hpCut) + 'けずる');
+  if (s.mpFill) a.push('なかまのMPを満タン（チーム戦）');
+  if (s.hpCut) a.push('ボスには少なくとも今のHPの' + pc(s.hpCut));
   if (s.ignoreBar) a.push('バリアを無視');
   if (s.streakUp) a.push('連続 +' + s.streakUp + '（最大まで）');
   if (s.gate) a.push('火→水→風→土の順');
@@ -1704,7 +1706,6 @@ function act(i) {
   if (s.promise) { f.prom = Math.max(f.prom, s.promise); notes.push('天の約束！ ' + (s.promise > 1 ? s.promise + '問のあいだ' : '次の1問は') + ' まちがえても正解あつかい'); }
   if (s.q4) { f.q4 = s.q4 + 1; notes.push(s.q4 + '問のあいだ、いつも苦手な精霊で攻撃'); }
   if (s.inv) { f.inv = s.inv + 1; notes.push(s.inv + '問のあいだ ダメージを受けない'); }
-  if (s.mpFill) { MP = st.mmp; notes.push('MPが満タンになった'); }
   if (s.streakUp) { B.streak = Math.min(J.streakMax || 99, B.streak + s.streakUp); notes.push('連続正解が ' + B.streak + ' に！'); }
   /* 攻撃 */
   var total = 0, anyCrit = false, anyWeak = false;
@@ -1727,7 +1728,7 @@ function act(i) {
       var crit = Math.random() < (s.crit || f.nextCrit > 0 ? 1 : (J.crit || .1) + (st.crit || 0));
       if (f.nextCrit > 0 && !s.ult) f.nextCrit--;
       if (crit) { d *= s.ult ? 1.3 : 1.8; anyCrit = true; }
-      if (s.hpCut && B.boss) { d = B.hp * s.hpCut; anyCrit = true; }   /* 天弓・星墜とし：ボスは今のHPの割合を必ずけずる */
+      if (s.hpCut && B.boss) d = Math.max(d, B.hp * s.hpCut);   /* 天弓・星墜とし：ボスには、少なくとも今のHPの割合をけずる */
       d = Math.max(1, Math.round(d)); B.hp = Math.max(0, B.hp - d); total += d; done++;
     }
     if (s.useStreak) B.streak = 0;

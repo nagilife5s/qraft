@@ -249,7 +249,7 @@ export function skill(G, id, i) {
   if (s.promise) { G.grp.prom = G.grp.prom || {}; team.forEach(function (o) { G.grp.prom[o.id] = Math.max(G.grp.prom[o.id] || 0, s.promise); }); emit(G, { t: 'ban', s: '天の約束！ ' + s.promise + '問のあいだ、まちがえても正解あつかい', big: 1 }); }
   if (s.q4) { m.q4 = s.q4; emit(G, { t: 'ban', s: '四精霊の王！ ' + s.q4 + '問のあいだ、いつも苦手をつく', big: 1 }); }
   if (s.inv) { G.grp.inv = { t: s.inv * 5 }; emit(G, { t: 'ban', s: '聖剣の光！ しばらく班のみんなはダメージを受けない', big: 1 }); }
-  if (s.mpFill) { team.forEach(function (o) { if (!o.dn) o.mp = o.mm || MP_MAX; }); emit(G, { t: 'ban', s: '万象の理！ 班のみんなのMPが満タンになった', big: 1 }); }
+  if (s.mpFill) { team.forEach(function (o) { if (o !== m && !o.dn) o.mp = o.mm || MP_MAX; }); emit(G, { t: 'ban', s: '万象の理！ 班のなかまのMPが満タンになった', big: 1 }); }   /* 自分はのぞく（自分も満タンだと毎問使えた。2026-11-24 テストプレイ） */
   if (s.streakUp) { m.streak = Math.min(JOBS[m.j].streakMax || 99, m.streak + s.streakUp); emit(G, { t: 'ban', s: m.name + ' の連続正解が ' + m.streak + ' に！' }); }
   if (s.nextCrit) m.nextCrit = 1 + r;
   if (s.keep) m.keep = 1;
@@ -287,10 +287,6 @@ function hit(G, m, s, P, k, name, fx) {
   var J = JOBS[m.j], buff = G.grp.buff ? G.grp.buff.x : 1;
   targets.forEach(function (f) {
     var base = N.base * (m.atk / 9) * lvMult(m.lv) * buff * (0.9 + Math.random() * .2);
-    if (s.hpCut && (f.fin || f.gd)) {   /* 天弓・星墜とし：ボス・番人は今のHPの割合を必ずけずる（ほかの倍率は乗せない） */
-      var dc = Math.max(1, Math.round(f.hp * s.hpCut)); f.hp = Math.max(0, f.hp - dc); m.rw.dmg += dc;
-      emit(G, { t: 'hit', who: m.id, i: G.foes.indexOf(f), d: dc, crit: 1, weak: 0, n: name || null, fx: fx || null, ult: 1, j: m.j }); afterHit(G, f); return;
-    }
     var d = s.hpPct ? Math.max(base, f.hp * s.hpPct * P) : base * (s.pow || 1) * P;
     if (s.streakX) d *= 1 + s.streakX * m.streak;
     if (J.streakAtk && !s.useStreak) d *= 1 + J.streakAtk * Math.min(m.streak, J.streakMax);
@@ -309,6 +305,7 @@ function hit(G, m, s, P, k, name, fx) {
     /* バリア */
     if (f.ward > 0) d *= N.bsk.wardCut;
     if (f.barrier && !s.ignoreBar) { if (!s.pierce) { emit(G, { t: 'hit', who: m.id, i: G.foes.indexOf(f), d: 0, guard: 1 }); return; } d *= .5 * (s.barrierX || 1); }
+    if (s.hpCut && (f.fin || f.gd)) d = Math.max(d, f.hp * s.hpCut);   /* 天弓・星墜とし：ボス・番人には、少なくとも今のHPの割合をけずる（前は必ず30%で、チーム戦では強すぎ・ひとりでは弱すぎた。2026-11-24 テストプレイ） */
     d = Math.max(1, Math.round(d));
     f.hp = Math.max(0, f.hp - d); m.rw.dmg += d;
     if (s.stun) f.stun = Math.max(f.stun, s.stun * (P > 1 ? 1.2 : 1));

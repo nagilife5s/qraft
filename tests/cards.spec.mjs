@@ -89,7 +89,7 @@ test('単元を集めきると ゴールド＋100 と「博士」の称号（1�
 test('ルール：枚数の外のしるし・しるしを消す・ごほうびだけの書き込みは断られる', async ({ browser }) => {
   const sid = await setup(34, { cd: { matter: { a: 3 } } });
   const p = await open(browser, 34);
-  const w = (path, v) => p.evaluate(async ([sid, path, v]) => { const m = await import('./lib.js?v=20261124120000'); const y = new Date().getMonth() >= 3 ? new Date().getFullYear() : new Date().getFullYear() - 1; try { await m.set(m.ref(m.db, 'quest/' + y + '/chars/' + sid + '/' + path), v); return 'ok'; } catch (e) { return 'denied'; } }, [sid, path, v]);
+  const w = (path, v) => p.evaluate(async ([sid, path, v]) => { const m = await import('./lib.js?v=' + document.documentElement.innerHTML.match(/lib\.js\?v=(\d+)/)[1]); const y = new Date().getMonth() >= 3 ? new Date().getFullYear() : new Date().getFullYear() - 1; try { await m.set(m.ref(m.db, 'quest/' + y + '/chars/' + sid + '/' + path), v); return 'ok'; } catch (e) { return 'denied'; } }, [sid, path, v]);
   expect(await w('cd/matter/b', 2 ** 21)).toBe('denied');      // 物質は47枚：48枚目のしるし
   expect(await w('cd/matter/c', 1)).toBe('denied');            // 3つ目の数はない
   expect(await w('cd/matter/a', 2 ** 26)).toBe('denied');      // 1つの数に26枚まで

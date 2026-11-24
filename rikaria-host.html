@@ -294,7 +294,7 @@ function renderLobby() {
     var mm = el('div', 'mem-mini');
     g[n].sort(function (a, b) { return num(players[a].sid) - num(players[b].sid); }).forEach(function (u) {
       var p = players[u]; if (!p.rd) all = false;
-      var sp = el('span', p.rd ? '' : 'ko'); var im = el('img'); im.src = heroImg(p.j, p.lk); im.alt = ''; sp.appendChild(im);
+      var sp = el('span', p.rd ? '' : 'ko'); var im = el('img'); im.src = heroImg(p.j, p.lk, p.pr); im.alt = ''; sp.appendChild(im);
       sp.appendChild(document.createTextNode(num(p.sid) + '番 ' + p.nick));
       var x = el('button', 'chip-x', '×'); x.type = 'button'; x.title = '退出させる'; x.setAttribute('aria-label', p.nick + 'を退出させる');
       x.onclick = function () {
