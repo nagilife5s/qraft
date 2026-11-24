@@ -114,6 +114,9 @@
   .mkqs label { display:flex; gap:.5em; padding:.2em 0; align-items:flex-start; cursor:pointer; white-space:pre-wrap; }
   .mkqs label input { padding:0; cursor:pointer; margin-top:.25em; flex:none; }
   .mkqs label.off { opacity:.45; text-decoration:line-through; }
+  .rvbox { background:#faf9ff; padding:.6em 1em; } .rvset { margin-top:.5em; }
+  .rvqs { margin:.2em 0 .6em; padding-left:2em; font-size:.92em; } .rvqs li { padding:.15em 0; }
+  .rvqs li > span { white-space:pre-wrap; } .rvqs li button { margin-left:.6em; font-size:.85em; } .rvqs li.off > span { opacity:.45; text-decoration:line-through; }
   .mktray { position:sticky; bottom:0; z-index:3; margin-top:.7em; background:#221a44; color:#fff; border-radius:.6em; padding:.7em .9em; display:flex; flex-wrap:wrap; gap:.6em; align-items:center; font-weight:700; }
   .mktray input[type=text] { flex:1; min-width:10em; }
   /* 名前：学期・テストを選ぶと「2学期期末」のように入る。入ったあとも自由に書きかえられる（2026-11-17） */
@@ -236,9 +239,9 @@
 
 <script src="firebase-config.js"></script>
 <script type="module">
-import { loadHomeSets, signIn, db, ref, set, get, remove, loadQEdits, mountSetPicker, zoomImage } from './lib.js?v=20261124190000';
-import { fiscalYear, makeCode } from './quest.js?v=20261124190000';
-import { gotList, UNITS, LV_MAX, JOBS, expToNext, statsOf, weaponName, armorName, ITEMS, learned, rankOf, heroImg, migrateChar, upName, zkCount, ZK_N, uraName, extraTitles, czkOf } from './rikaria-data.js?v=20261124190000';
+import { loadHomeSets, signIn, db, ref, set, get, remove, loadQEdits, mountSetPicker, zoomImage } from './lib.js?v=20261124200000';
+import { fiscalYear, makeCode } from './quest.js?v=20261124200000';
+import { gotList, UNITS, LV_MAX, JOBS, expToNext, statsOf, weaponName, armorName, ITEMS, learned, rankOf, heroImg, migrateChar, upName, zkCount, ZK_N, uraName, extraTitles, czkOf } from './rikaria-data.js?v=20261124200000';
 var $ = function (id) { return document.getElementById(id); };
 var uid = null, rows = [], titles = {}, open = {}, HS = [];
 
@@ -541,6 +544,30 @@ function rangeBody(r) {
   ids.forEach(function (id) { var st = HS.filter(function (h) { return h.id === id; })[0], o = x[id] ? Object.keys(x[id]).filter(function (k) { return x[id][k]; }).length : 0; m += st ? Math.max(0, st.count - o) : 0; off += o; });
   return ids.length + 'セット・' + m + '問' + (off ? '（' + off + '問を外した）' : '');
 }
+/* 作った範囲の中身を見る（2026-11-24）。セットごとに、出す問題の一覧（外した問題は線で消す）。「直す」で問題を見る・直すの画面へ */
+var RVOPEN = {};
+async function rangeView(r, box) {
+  if (!box) return;
+  var x = r.x || {}, h = '';
+  for (var sid of Object.keys(r.s)) {
+    var st = HS.filter(function (q) { return q.id === sid; })[0], qs = [], E = QED[sid] || {};
+    try { qs = ((await (await fetch('home/' + sid + '.json')).json()).questions || []).map(function (q, i) { return merged(q, E[i]).q || ''; }); } catch (e) {}
+    var off = x[sid] || {};
+    h += '<div class="rvset"><b>' + esc(st ? st.title : sid) + '</b>（' + qs.filter(function (_, i) { return !off[i]; }).length + '問）</div><ol class="rvqs">';
+    qs.forEach(function (q, i) { h += '<li class="' + (off[i] ? 'off' : '') + '"><span>' + esc(q) + (E[i] ? ' <span class="badge-ed">直した</span>' : '') + (off[i] ? '（外した）' : '') + '</span><button type="button" data-redit="' + sid + '|' + i + '">直す</button></li>'; });
+    if (!qs.length) h += '<li>問題を読めませんでした。</li>';
+    h += '</ol>';
+  }
+  box.innerHTML = h;
+  box.querySelectorAll('[data-redit]').forEach(function (b) { b.onclick = function () { var p = b.dataset.redit.split('|'); qEditAt(p[0], +p[1]); }; });
+}
+/* 問題を見る・直すの画面で、その問題の直す欄を開く */
+async function qEditAt(sid, i) {
+  $('qsub').querySelector('[data-qs="edit"]').click();
+  Object.keys(qPicked).forEach(function (k) { delete qPicked[k]; }); qPicked[sid] = true; if (qPicker) qPicker.render();
+  await showSet(sid); qOpen[i] = true; drawSet();
+  var c = document.getElementById('qc-' + i); if (c) c.scrollIntoView({ block: 'center' });
+}
 /* 作った範囲の表（問題タブ） */
 async function rangeTable(g, tbl, msg) {
   var v = {};
@@ -548,9 +575,12 @@ async function rangeTable(g, tbl, msg) {
   var h = '<tr><th>名前</th><th>単元</th><th>出す問題</th><th></th></tr>';
   Object.keys(v).forEach(function (id) {
     var us = Object.keys(v[id].u || {}).map(function (k) { var u = UNITS.filter(function (x) { return x.id === k; })[0]; return u ? u.g + '年 ' + u.unit : k; });
-    h += '<tr><td>' + esc(v[id].n) + '</td><td>' + esc(us.join('、')) + '</td><td>' + rangeBody(v[id]) + '</td><td><button data-rdel="' + id + '" style="color:#b3261e">消す</button></td></tr>';
+    h += '<tr><td>' + esc(v[id].n) + '</td><td>' + esc(us.join('、')) + '</td><td>' + rangeBody(v[id]) + '</td><td style="white-space:nowrap">' + (v[id].s ? '<button data-rview="' + id + '">' + (RVOPEN[id] ? '閉じる' : '中を見る') + '</button> ' : '') + '<button data-rdel="' + id + '" style="color:#b3261e">消す</button></td></tr>';
+    if (RVOPEN[id] && v[id].s) h += '<tr><td colspan="4" class="rvbox" id="rv-' + id + '">読み込み中…</td></tr>';
   });
   tbl.innerHTML = Object.keys(v).length ? h : '<tr><td>まだありません</td></tr>';
+  Object.keys(RVOPEN).forEach(function (id) { if (v[id] && v[id].s) rangeView(v[id], document.getElementById('rv-' + id)); });
+  tbl.querySelectorAll('[data-rview]').forEach(function (b) { b.onclick = function () { var id = b.dataset.rview; if (RVOPEN[id]) delete RVOPEN[id]; else RVOPEN[id] = true; rangeTable(g, tbl, msg); }; });
   tbl.querySelectorAll('[data-rdel]').forEach(function (b) { b.onclick = async function () {
     if (!confirm('このテスト範囲を消しますか？')) return;
     try { await remove(ref(db, 'quest/' + QY + '/ranges/' + g + '/' + b.dataset.rdel)); loadRanges(); } catch (e) { msg.textContent = '消せませんでした: ' + e.message; }

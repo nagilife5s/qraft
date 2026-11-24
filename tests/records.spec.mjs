@@ -159,6 +159,15 @@ test('記録画面：問題の一覧からテスト範囲を作る（1問外す�
   await expect(t.locator('#tblRangeMk')).toContainText(`1セット・${nq - 1}問`);
   await expect(t.locator('#mkCnt')).toHaveText('0セット・0問');
   await expect(t.locator('#tblRangeMk')).toContainText(`1セット・${nq - 1}問（1問を外した）`);
+  // 作った範囲の中を見る → 外した問題は線で消してある → 「直す」で問題を見る・直すの直す欄が開く（2026-11-24）
+  await t.locator('#tblRangeMk [data-rview]').first().click();
+  await expect(t.locator('.rvqs li').first()).toBeVisible({ timeout: 15000 });
+  await expect(t.locator('.rvqs li')).toHaveCount(nq); await expect(t.locator('.rvqs li.off')).toHaveCount(1);
+  if (SHOT) await t.screenshot({ path: SHOT + '/rec-4b-rangeview.png' });
+  await t.locator('.rvqs li').nth(2).getByRole('button', { name: '直す' }).click();
+  await expect(t.locator('#q-edit')).toBeVisible(); await expect(t.locator('#qc-2 textarea, #qc-2 input').first()).toBeVisible({ timeout: 15000 });
+  if (SHOT) await t.screenshot({ path: SHOT + '/rec-4c-rangeedit.png' });
+  await t.locator('#qsub button', { hasText: 'テスト範囲をつくる' }).click();
   // 学期・テストのボタンで名前が入る。手で書くとボタンの選びは外れる（2026-11-17）
   await t.locator('#mkTerm button', { hasText: '2学期' }).click(); await t.locator('#mkExam button', { hasText: '期末' }).click();
   await expect(t.locator('#mkName')).toHaveValue('2学期期末');
