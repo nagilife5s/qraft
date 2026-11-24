@@ -192,7 +192,7 @@
         <span class="mkterm" id="mkExam" role="group" aria-label="テスト"><button type="button" data-v="中間">中間</button><button type="button" data-v="期末">期末</button></span>
         <input type="text" id="mkName" placeholder="名前（上で選ぶか、自由に書く）" aria-label="テスト範囲の名前" maxlength="20">
       </span>
-      <button type="button" class="save" id="mkSave" disabled>このセットでテスト範囲をつくる</button>
+      <button type="button" class="save" id="mkSave" disabled>このセットでテスト範囲をつくる</button><button type="button" id="mkCancel" hidden>選び直しをやめる</button>
       <span id="mkMsg" role="status"></span>
     </div>
     <h2>作ったテスト範囲（<span id="mkToName"></span>）</h2>
@@ -239,9 +239,9 @@
 
 <script src="firebase-config.js"></script>
 <script type="module">
-import { loadHomeSets, signIn, db, ref, set, get, remove, loadQEdits, mountSetPicker, zoomImage } from './lib.js?v=20261124210000';
-import { fiscalYear, makeCode } from './quest.js?v=20261124210000';
-import { gotList, UNITS, LV_MAX, JOBS, expToNext, statsOf, weaponName, armorName, ITEMS, learned, rankOf, heroImg, migrateChar, upName, zkCount, ZK_N, uraName, extraTitles, czkOf } from './rikaria-data.js?v=20261124210000';
+import { loadHomeSets, signIn, db, ref, set, get, remove, loadQEdits, mountSetPicker, zoomImage } from './lib.js?v=20261124220000';
+import { fiscalYear, makeCode } from './quest.js?v=20261124220000';
+import { gotList, UNITS, LV_MAX, JOBS, expToNext, statsOf, weaponName, armorName, ITEMS, learned, rankOf, heroImg, migrateChar, upName, zkCount, ZK_N, uraName, extraTitles, czkOf } from './rikaria-data.js?v=20261124220000';
 var $ = function (id) { return document.getElementById(id); };
 var uid = null, rows = [], titles = {}, open = {}, HS = [];
 
@@ -554,12 +554,11 @@ async function rangeView(r, box) {
     try { qs = ((await (await fetch('home/' + sid + '.json')).json()).questions || []).map(function (q, i) { return merged(q, E[i]).q || ''; }); } catch (e) {}
     var off = x[sid] || {};
     h += '<div class="rvset"><b>' + esc(st ? st.title : sid) + '</b>（' + qs.filter(function (_, i) { return !off[i]; }).length + '問）</div><ol class="rvqs">';
-    qs.forEach(function (q, i) { h += '<li class="' + (off[i] ? 'off' : '') + '"><span>' + esc(q) + (E[i] ? ' <span class="badge-ed">直した</span>' : '') + (off[i] ? '（外した）' : '') + '</span><button type="button" data-redit="' + sid + '|' + i + '">直す</button></li>'; });
+    qs.forEach(function (q, i) { h += '<li class="' + (off[i] ? 'off' : '') + '"><span>' + esc(q) + (E[i] ? ' <span class="badge-ed">直した</span>' : '') + (off[i] ? '（外した）' : '') + '</span></li>'; });
     if (!qs.length) h += '<li>問題を読めませんでした。</li>';
     h += '</ol>';
   }
   box.innerHTML = h;
-  box.querySelectorAll('[data-redit]').forEach(function (b) { b.onclick = function () { var p = b.dataset.redit.split('|'); qEditAt(p[0], +p[1]); }; });
 }
 /* 問題を見る・直すの画面で、その問題の直す欄を開く */
 async function qEditAt(sid, i) {
@@ -575,11 +574,12 @@ async function rangeTable(g, tbl, msg) {
   var h = '<tr><th>名前</th><th>単元</th><th>出す問題</th><th></th></tr>';
   Object.keys(v).forEach(function (id) {
     var us = Object.keys(v[id].u || {}).map(function (k) { var u = UNITS.filter(function (x) { return x.id === k; })[0]; return u ? u.g + '年 ' + u.unit : k; });
-    h += '<tr><td>' + esc(v[id].n) + '</td><td>' + esc(us.join('、')) + '</td><td>' + rangeBody(v[id]) + '</td><td style="white-space:nowrap">' + (v[id].s ? '<button data-rview="' + id + '">' + (RVOPEN[id] ? '閉じる' : '中を見る') + '</button> ' : '') + '<button data-rdel="' + id + '" style="color:#b3261e">消す</button></td></tr>';
+    h += '<tr><td>' + esc(v[id].n) + '</td><td>' + esc(us.join('、')) + '</td><td>' + rangeBody(v[id]) + '</td><td style="white-space:nowrap">' + (v[id].s ? '<button data-rview="' + id + '">' + (RVOPEN[id] ? '閉じる' : '中を見る') + '</button> <button data-rpick="' + id + '">選び直す</button> ' : '') + '<button data-rdel="' + id + '" style="color:#b3261e">消す</button></td></tr>';
     if (RVOPEN[id] && v[id].s) h += '<tr><td colspan="4" class="rvbox" id="rv-' + id + '">読み込み中…</td></tr>';
   });
   tbl.innerHTML = Object.keys(v).length ? h : '<tr><td>まだありません</td></tr>';
   Object.keys(RVOPEN).forEach(function (id) { if (v[id] && v[id].s) rangeView(v[id], document.getElementById('rv-' + id)); });
+  tbl.querySelectorAll('[data-rpick]').forEach(function (b) { b.onclick = function () { mkEditStart(g, b.dataset.rpick, v[b.dataset.rpick]); }; });
   tbl.querySelectorAll('[data-rview]').forEach(function (b) { b.onclick = function () { var id = b.dataset.rview; if (RVOPEN[id]) delete RVOPEN[id]; else RVOPEN[id] = true; rangeTable(g, tbl, msg); }; });
   tbl.querySelectorAll('[data-rdel]').forEach(function (b) { b.onclick = async function () {
     if (!confirm('このテスト範囲を消しますか？')) return;
@@ -594,6 +594,21 @@ function loadRanges() {
    保存する形：{ n, u: { 選んだセットの単元id: true }, s: { セットid: true }, x: { セットid: { 外した問題の番号(0始まり): true } } }
    x は、外した問題があるセットだけ。u は、生徒側と一覧表が単元を前提にしているので入れる */
 var MK = { g: 2, u: '', pick: {}, off: {}, open: {}, qs: {} };
+/* 作った範囲を選び直す（2026-11-24）：上の一覧に、その範囲のセット・外した問題・名前を戻す。保存すると同じ範囲を上書きする */
+function mkEditStart(g, id, r) {
+  MK.edit = { g: g, id: id }; MK.pick = {}; MK.off = {};
+  Object.keys(r.s || {}).forEach(function (k) { MK.pick[k] = true; });
+  Object.keys(r.x || {}).forEach(function (k) { MK.off[k] = {}; var x = r.x[k]; Object.keys(x).forEach(function (i) { if (x[i]) MK.off[k][i] = true; }); });
+  var f = HS.filter(function (h) { return MK.pick[h.id]; })[0]; if (f) MK.g = f.grade;
+  MK.u = ''; $('mkKw').value = ''; $('mkOnly').checked = true; $('mkTo').value = String(g); mkTermClear(); $('mkName').value = r.n || '';
+  mkEditUi(); mkDraw(); $('mkMsg').textContent = '「' + (r.n || '') + '」を選び直しています。チェックを変えて「上書きする」を押してください';
+  $('q-mk').scrollIntoView({ block: 'start', behavior: 'smooth' });
+}
+function mkEditEnd() { MK.edit = null; MK.pick = {}; MK.off = {}; $('mkName').value = ''; $('mkOnly').checked = false; mkEditUi(); mkDraw(); }
+function mkEditUi() {
+  $('mkSave').textContent = MK.edit ? 'このテスト範囲を上書きする' : 'このセットでテスト範囲をつくる';
+  $('mkCancel').hidden = !MK.edit; $('mkTo').disabled = !!MK.edit;
+}
 function mkN(s) { return s.count - Object.keys(MK.off[s.id] || {}).length; }
 function mkPicked() { return HS.filter(function (s) { return MK.pick[s.id]; }); }
 function mkDraw() {
@@ -661,6 +676,7 @@ function mkTermSync() {
 }; });
 function mkTermClear() { document.querySelectorAll('.mkterm button').forEach(function (x) { x.setAttribute('aria-pressed', 'false'); }); }
 mkTermClear();
+$('mkCancel').onclick = function () { mkEditEnd(); $('mkMsg').textContent = ''; };
 $('mkName').oninput = function () { $('mkMsg').textContent = ''; mkTermClear(); };
 $('mkSave').onclick = async function () {
   var ps = mkPicked(), n = $('mkName').value.trim(), msg = $('mkMsg');
@@ -677,9 +693,10 @@ $('mkSave').onclick = async function () {
   var g = $('mkTo').value;
   $('mkSave').disabled = true; msg.textContent = '保存しています…';
   try {
-    await set(ref(db, 'quest/' + QY + '/ranges/' + g + '/r' + Date.now().toString(36)), rv);
-    msg.textContent = g + '年生のテスト範囲「' + n + '」（' + ps.length + 'セット・' + nq + '問）をつくりました';
-    MK.pick = {}; MK.off = {}; $('mkName').value = ''; mkTermClear(); $('mkOnly').checked = false; mkDraw(); loadRanges();
+    var ed = MK.edit; if (ed) g = ed.g;
+    await set(ref(db, 'quest/' + QY + '/ranges/' + g + '/' + (ed ? ed.id : 'r' + Date.now().toString(36))), rv);
+    msg.textContent = g + '年生のテスト範囲「' + n + '」（' + ps.length + 'セット・' + nq + '問）を' + (ed ? '上書きしました' : 'つくりました');
+    MK.edit = null; mkEditUi(); MK.pick = {}; MK.off = {}; $('mkName').value = ''; mkTermClear(); $('mkOnly').checked = false; mkDraw(); loadRanges();
   } catch (e) {
     msg.textContent = '保存できませんでした。' + (rv.x ? '問題を外したテスト範囲は、新しいルールをFirebaseに貼ってから保存できます（問題を外さなければ、今のままで保存できます）。' : '新しいルールがFirebaseに貼られているか確かめてください。') + '（' + e.message + '）';
     $('mkSave').disabled = false;

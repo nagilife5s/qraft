@@ -164,10 +164,19 @@ test('記録画面：問題の一覧からテスト範囲を作る（1問外す�
   await expect(t.locator('.rvqs li').first()).toBeVisible({ timeout: 15000 });
   await expect(t.locator('.rvqs li')).toHaveCount(nq); await expect(t.locator('.rvqs li.off')).toHaveCount(1);
   if (SHOT) await t.screenshot({ path: SHOT + '/rec-4b-rangeview.png' });
-  await t.locator('.rvqs li').nth(2).getByRole('button', { name: '直す' }).click();
-  await expect(t.locator('#q-edit')).toBeVisible(); await expect(t.locator('#qc-2 textarea, #qc-2 input').first()).toBeVisible({ timeout: 15000 });
-  if (SHOT) await t.screenshot({ path: SHOT + '/rec-4c-rangeedit.png' });
-  await t.locator('#qsub button', { hasText: 'テスト範囲をつくる' }).click();
+  // 選び直す：上の一覧に戻る → 外した問題を戻して上書き → 同じ範囲が1つのまま、外した問題なし（2026-11-24）
+  await t.locator('#tblRangeMk [data-rpick]').first().click();
+  await expect(t.locator('#mkSave')).toHaveText('このテスト範囲を上書きする'); await expect(t.locator('#mkName')).toHaveValue('てすと期末');
+  await expect(t.locator('#mkCnt')).toHaveText(`1セット・${nq - 1}問`);
+  const row2 = t.locator('.mksrow', { has: t.locator('.mkshead[data-id="06147353"]') });
+  if (!(await row2.locator('.mkqs label').count())) await row2.locator('[data-open]').click();   /* さっき開いたままなら、そのまま */
+  await expect(row2.locator('.mkqs label').first()).toBeVisible({ timeout: 15000 });
+  await row2.locator('.mkqs input').nth(1).check();
+  await expect(t.locator('#mkCnt')).toHaveText(`1セット・${nq}問`);
+  if (SHOT) await t.screenshot({ path: SHOT + '/rec-4c-rangepick.png' });
+  await t.locator('#mkSave').click(); await expect(t.locator('#mkMsg')).toContainText('上書きしました', { timeout: 15000 });
+  const v2 = await rest('GET', `quest/${Y}/ranges/3`); expect(Object.keys(v2).length).toBe(1); expect(Object.values(v2)[0].x == null).toBe(true);
+  await expect(t.locator('#mkSave')).toHaveText('このセットでテスト範囲をつくる');
   // 学期・テストのボタンで名前が入る。手で書くとボタンの選びは外れる（2026-11-17）
   await t.locator('#mkTerm button', { hasText: '2学期' }).click(); await t.locator('#mkExam button', { hasText: '期末' }).click();
   await expect(t.locator('#mkName')).toHaveValue('2学期期末');
